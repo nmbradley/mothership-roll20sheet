@@ -23,10 +23,10 @@ This sheet uses the [Pug](https://pugjs.org) HTML templating engine, and Sass's 
 
 Compile Pug into HTML with the following command from the base directory: 
 
-`pug src/pug/ms.pug --out . -P -w`
+`pug src/pug/mothership.pug --out . -P -w`
 
 ### Compiling the SCSS
 
 Compile the SCSS into CSS with the following command from the base directory:
 
-`sass src/scss/ms.scss mothership.css --no-source-map --watch`
+`sass src/scss/mothership.scss mothership.css --no-source-map --watch`
