@@ -4,6 +4,7 @@ A repository and issue tracking location for Tuesday Knight Games' Mothership RP
 ## Current Status
 
 - Mothership Core PC sheet completed.
+- Ship Sheet.
 
 ## Usage
 
@@ -12,7 +13,6 @@ This character sheet requires a modern web browser, such as the latest version o
 ## Roadmap
 
 - NPC & Hirelings Sheet
-- Ship Sheet 
 - Charactermancer
 
 ## Compiling
