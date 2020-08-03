@@ -15,7 +15,11 @@ include sheetdata.pug
             .ms-settings__label(data-i18n="sheet type")
             select.ms-settings__input(name="attr_sheet_toggle")
                 option(data-i18n="PC", value="pc")
+                option(data-i18n="NPC", value="npc")
                 option(data-i18n="Ship", value="ship")
+        .ms-settings__row--pc
+            .ms-settings__label(data-i18n="charactermancer")
+            button(data-i18n="launch", name="act_launch_charmancer", type="action")
         .ms-settings__row--ship
             .ms-settings__label(data-i18n="ship builder")
             button(data-i18n="launch", name="act_startship", type="action")
@@ -389,8 +393,26 @@ include sheetdata.pug
     .ms-ship
         include shipsheet.pug
 
+    .ms-npc
+        include npc.pug
+
 include rolltemplates.pug
+
+include charactermancer/1-intro.pug
+include charactermancer/2-stats.pug
+include charactermancer/3-class.pug
+include charactermancer/4-skills.pug
+include charactermancer/5-equipment.pug
+include charactermancer/6-review.pug
+include charactermancer/7-final.pug
 
 script(type="text/worker")
 
     include ../js/sheetworkers.js
+    include ../js/charactermancer/1-intro.js
+    include ../js/charactermancer/2-stats.js
+    include ../js/charactermancer/3-class.js
+    include ../js/charactermancer/4-skills.js
+    include ../js/charactermancer/5-equipment.js
+    include ../js/charactermancer/6-review.js
+    include ../js/charactermancer/7-final.js

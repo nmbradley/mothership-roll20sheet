@@ -1,0 +1,28 @@
+charmancer.sheet-charmancer-class
+    .sheet-cm-wrapper
+        +charmancer-navigation("stats")
+        .t__topbar
+        .ms-cm-container.choice.showclasses
+            .ms-cm-panel--classes.ms-t__classes
+        .ms-cm-container.choice.showclassinfo
+            .ms-cm-panel
+                each save in saves 
+                    .ms-cm-save 
+                        input(name=`comp_${save.name}`, type="hidden")
+                        .ms-cm-save__title(data-i18n=save.name)
+                        .ms-cm-save__value
+                        .ms-cm-save__desc(data-i18n=save.desc)
+                
+                input(name=`comp_skills`, type="hidden")
+                input(name=`comp_skill_choices`, type="hidden")
+                each stat in stats 
+                    input(name=`comp_${stat.attr}_modifier`, type="hidden")
+            .ms-cm-compendium
+
+        +charmancer-pagecontrol({action: "intro", text:"previous"},{action: "cancel", text: "cancel"},{action: "stats", text: "next"})
+
+charmancer.sheet-repeating-class
+    .ms-cm-class
+        .ms-cm-class__img
+        .ms-cm-class__title
+        .ms-cm-class__desc

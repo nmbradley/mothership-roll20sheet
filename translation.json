@@ -249,5 +249,9 @@
     "The value the ship must roll under to avoid taking Damage. Generally the captain or acting captain of the ship rolls the Armor Save.":"The value the ship must roll under to avoid taking Damage. Generally the captain or acting captain of the ship rolls the Armor Save.",
     "Used during Combat Checks. You can use whichever is higher: your own Combat Stat or the ship's.":"Used during Combat Checks. You can use whichever is higher: your own Combat Stat or the ship's.",
     "Used as both a stat and a Sanity Save, should the need arise.":"Used as both a stat and a Sanity Save, should the need arise.",
-    "Often used to see if the ship can dodge asteroids or escape explosions from collapsing stars.":"Often used to see if the ship can dodge asteroids or escape explosions from collapsing stars."
+    "Often used to see if the ship can dodge asteroids or escape explosions from collapsing stars.":"Often used to see if the ship can dodge asteroids or escape explosions from collapsing stars.",
+    "charactermancer welcome":"charmancer welcome",
+    "cancel":"cancel",
+    "next":"next",
+    "previous":"previous"
 }

@@ -1,0 +1,27 @@
+- 
+    const stat_roll = [
+        `&{template:coccm}`,
+        `{{title=stats roll}}`,
+        `{{strength=[[6d10]]}}`,
+        `{{speed=[[6d10]]}}`, 
+        `{{intellect=[[6d10]]}}`, 
+        `{{dexterity=[[6d10]]}}`     
+    ].join();
+
+charmancer.sheet-charmancer-stats
+    .sheet-cm-wrapper
+        +charmancer-navigation("stats")
+        .t__topbar
+        .ms-cm-container
+            .ms-cm-panel
+                input(name=`comp_rolled_stats`, type="hidden", value="false")
+                .ms-cm-stat--grid.choice.showstats
+                    each stat in stats
+                        .ms-cm-stat__item(class=`cm-stat--bloop`)
+                            .ms-cm-stat__label(data-i18n=stat.attr)
+                            .ms-cm-stat__value(class=`cm-target-${stat.attr}`)
+                            input(name=`comp_${stat.attr}`, type="hidden")
+                .ms-cm-center
+                    button.ms-cm-button--roll(data-i18n="Roll Stats", name="roll_stats", type="roll", value=stat_roll)
+
+        +charmancer-pagecontrol({action: "intro", text:"previous"},{action: "cancel", text: "cancel"},{action: "stats", text: "next"})

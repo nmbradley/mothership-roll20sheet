@@ -1,0 +1,25 @@
+charmancer.sheet-charmancer-equipment
+    .sheet-cm-wrapper
+        +charmancer-navigation("skills")
+        .t__topbar
+        .ms-cm-container
+            .ms-cm-panel
+
+                .ms-cm-package
+                    .ms-cm-package__title(data-i18n="choose an equipment package")
+                    select.ms-cm-skill__select(name="comp_package")
+                        option(data-i18n="choose")
+
+                .ms-cm-trinket
+                    .ms-cm-trinket__title(data-i18n="roll a trinket")
+                    .ms-cm-trinket__roll.ms-t__trinketroll
+                    .ms-cm-trinket__display.ms-t__trinket
+
+                .ms-cm-patch
+                    .ms-cm-patch__title(data-i18n="roll a patch")
+                    .ms-cm-patch__roll.ms-t__patchroll
+                    .ms-cm-patch__display.ms-t__patch
+
+            .ms-cm-compendium
+
+    +charmancer-pagecontrol({action: "intro", text:"previous"},{action: "cancel", text: "cancel"},{action: "stats", text: "next"})

@@ -1,0 +1,17 @@
+charmancer.sheet-charmancer-skills
+    .sheet-cm-wrapper
+        +charmancer-navigation("skills")
+        .t__topbar
+        .ms-cm-container
+            .ms-cm-panel
+                .ms-cm-skills__display.ms-t__baseskills
+                .ms-cm-skillselects.ms-t__skillselects
+            .ms-cm-compendium
+
+        +charmancer-pagecontrol({action: "intro", text:"previous"},{action: "cancel", text: "cancel"},{action: "stats", text: "next"})
+
+charmancer.sheet-repeating-skillselection
+    .ms-cm-skill
+        .ms-cm-skill__title(data-i18n="choose a skill")
+        select.ms-cm-skill__select(name="comp_skill")
+            option(data-i18n="choose")
