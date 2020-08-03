@@ -529,6 +529,7 @@ on(`change:hull_max`, eventInfo => calculateHullValues());
 on(`clicked:startship`, eventInfo => setAttrs({shipbuild:"on"}));
 on(`clicked:completeship`, eventInfo => setAttrs({shipbuild:0}));
 
+on(`clicked:launch_charmancer`, eventInfo => startCharactermancer("intro"));
 
 ["life_support_hull","command_hull","armor_hull","jump_drives_hull","computer_hull","galley_hull",
 "weapon_mount_hull","medical_bay_hull","cryochamber_hull","living_quarters_hull","barracks_hull",
