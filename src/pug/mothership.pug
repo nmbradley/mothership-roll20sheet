@@ -15,7 +15,6 @@ include sheetdata.pug
             .ms-settings__label(data-i18n="sheet type")
             select.ms-settings__input(name="attr_sheet_toggle")
                 option(data-i18n="PC", value="pc")
-                option(data-i18n="NPC", value="npc")
                 option(data-i18n="Ship", value="ship")
         .ms-settings__row--pc
             .ms-settings__label(data-i18n="charactermancer")
@@ -392,9 +391,6 @@ include sheetdata.pug
                                 textarea.ms-sattackrow__textarea(name="attr_attack_notes")
     .ms-ship
         include shipsheet.pug
-
-    .ms-npc
-        include npc.pug
 
 include rolltemplates.pug
 
