@@ -491,6 +491,14 @@ const calculateHullValues = () => {
         }, callback => checkFuelValue(value));
     });
 }
+    
+const parseJSON = (string) => {
+    try {
+        return JSON.parse(string);
+    } catch(err) {
+        return false;
+    }
+};
 
 // EVENT HANDLERS
 

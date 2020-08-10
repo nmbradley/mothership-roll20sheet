@@ -15,6 +15,10 @@
         <option data-i18n="Ship" value="ship"></option>
       </select>
     </div>
+    <div class="ms-settings__row--pc">
+      <div class="ms-settings__label" data-i18n="charactermancer"></div>
+      <button data-i18n="launch" name="act_launch_charmancer" type="action"></button>
+    </div>
     <div class="ms-settings__row--ship">
       <div class="ms-settings__label" data-i18n="ship builder"></div>
       <button data-i18n="launch" name="act_startship" type="action"></button>
@@ -2053,7 +2057,871 @@
     <div class="sheet-ms-notes">{{notes}}</div>{{/notes}}
   </div>
 </rolltemplate>
-<script type="text/worker">// Sheet Variables
+<charmancer class="sheet-charmancer-intro">
+  <div class="sheet-cm-wrapper">
+    <div class="cm-nav">
+    </div>
+    <div class="ms-t__topbar"></div>
+    <div class="ms-cm-container">
+      <div class="ms-cm-panel--full"><img class="ms-cm-logo" src="https://s3.amazonaws.com/files.d20.io/images/145353993/itv_F4exdWuwHavdksYfCQ/max.png?1592850121" data-i18n-title="Mothership Logo"/>
+        <p class="ms-cm-welcometext" data-i18n="charactermancer welcome"></p>
+      </div>
+    </div>
+    <div class="cm-pagecontrol">
+      <button class="cm-pagecontrol__middle" data-i18n="cancel" type="cancel">cancel</button>
+      <button class="cm-pagecontrol__right" data-i18n="next" type="back" value="stats">next</button>
+    </div>
+  </div>
+</charmancer>
+<charmancer class="sheet-repeating-topbar">
+  <div class="ms-cm-stats">
+    <div class="ms-cm-mainstat">
+      <div class="ms-cm-mainstat__title" data-i18n="strength"></div>
+      <div class="ms-cm-mainstat__value t__strength"></div>
+      <input name="comp_strength" type="hidden"/>
+      <input name="comp_strength_final" type="hidden"/>
+    </div>
+    <div class="ms-cm-mainstat">
+      <div class="ms-cm-mainstat__title" data-i18n="speed"></div>
+      <div class="ms-cm-mainstat__value t__speed"></div>
+      <input name="comp_speed" type="hidden"/>
+      <input name="comp_speed_final" type="hidden"/>
+    </div>
+    <div class="ms-cm-mainstat">
+      <div class="ms-cm-mainstat__title" data-i18n="intellect"></div>
+      <div class="ms-cm-mainstat__value t__intellect"></div>
+      <input name="comp_intellect" type="hidden"/>
+      <input name="comp_intellect_final" type="hidden"/>
+    </div>
+    <div class="ms-cm-mainstat">
+      <div class="ms-cm-mainstat__title" data-i18n="combat"></div>
+      <div class="ms-cm-mainstat__value t__combat"></div>
+      <input name="comp_combat" type="hidden"/>
+      <input name="comp_combat_final" type="hidden"/>
+    </div>
+    <div class="ms-cm-altstat">
+      <div class="ms-cm-mainstat__title" data-i18n="health"></div>
+      <div class="ms-cm-mainstat__value t__health">
+        <input name="comp_health" type="hidden"/>
+      </div>
+    </div>
+    <div class="ms-cm-altstat">
+      <div class="ms-cm-mainstat__title" data-i18n="stress"></div>
+      <div class="ms-cm-mainstat__value t__stress">
+        <input name="comp_stress" type="hidden"/>
+      </div>
+    </div>
+    <div class="ms-cm-altstat">
+      <div class="ms-cm-mainstat__title" data-i18n="resolve"></div>
+      <div class="ms-cm-mainstat__value t__resolve">
+        <input name="comp_resolve" type="hidden"/>
+      </div>
+    </div>
+  </div>
+  <div class="ms-cm-saves">
+    <div class="ms-cm-mainsave"> 
+      <div class="ms-cm-mainsave__titlee" data-i18n="sanity"></div>
+      <div class="ms-cm-mainsave__value t__sanity"></div>
+    </div>
+    <div class="ms-cm-mainsave"> 
+      <div class="ms-cm-mainsave__titlee" data-i18n="fear"></div>
+      <div class="ms-cm-mainsave__value t__fear"></div>
+    </div>
+    <div class="ms-cm-mainsave"> 
+      <div class="ms-cm-mainsave__titlee" data-i18n="body"></div>
+      <div class="ms-cm-mainsave__value t__body"></div>
+    </div>
+    <div class="ms-cm-mainsave"> 
+      <div class="ms-cm-mainsave__titlee" data-i18n="armor"></div>
+      <div class="ms-cm-mainsave__value t__armor"></div>
+    </div>
+  </div>
+</charmancer>
+<charmancer class="sheet-charmancer-stats">
+  <div class="sheet-cm-wrapper">
+    <div class="cm-nav">
+    </div>
+    <div class="t__topbar"></div>
+    <div class="ms-cm-container">
+      <div class="ms-cm-panel">
+        <input name="comp_rolled_stats" type="hidden" value="false"/>
+        <input name="comp_health" type="hidden"/>
+        <input name="comp_stress" type="hidden"/>
+        <input name="comp_resolve" type="hidden"/>
+        <div class="ms-cm-stat--grid choice showstats">
+          <div class="ms-cm-stat__item ms-cm-stat__item--strength">
+            <div class="ms-cm-stat__label" data-i18n="strength"></div>
+            <div class="ms-cm-stat__value t__strength"></div>
+            <input name="comp_strength" type="hidden"/>
+          </div>
+          <div class="ms-cm-stat__item ms-cm-stat__item--speed">
+            <div class="ms-cm-stat__label" data-i18n="speed"></div>
+            <div class="ms-cm-stat__value t__speed"></div>
+            <input name="comp_speed" type="hidden"/>
+          </div>
+          <div class="ms-cm-stat__item ms-cm-stat__item--intellect">
+            <div class="ms-cm-stat__label" data-i18n="intellect"></div>
+            <div class="ms-cm-stat__value t__intellect"></div>
+            <input name="comp_intellect" type="hidden"/>
+          </div>
+          <div class="ms-cm-stat__item ms-cm-stat__item--combat">
+            <div class="ms-cm-stat__label" data-i18n="combat"></div>
+            <div class="ms-cm-stat__value t__combat"></div>
+            <input name="comp_combat" type="hidden"/>
+          </div>
+        </div>
+        <div class="ms-cm-center">
+          <button class="ms-cm-button--roll" data-i18n="Roll Stats" name="roll_stats" type="roll" value="&amp;{template:default},{{title=stats roll}},{{strength=[[6d10]]}},{{speed=[[6d10]]}},{{intellect=[[6d10]]}},{{dexterity=[[6d10]]}}"></button>
+        </div>
+      </div>
+    </div>
+    <div class="cm-pagecontrol">
+      <button class="cm-pagecontrol__left" data-i18n="previous" type="back" value="intro">previous</button>
+      <button class="cm-pagecontrol__middle" data-i18n="cancel" type="cancel">cancel</button>
+      <button class="cm-pagecontrol__right" data-i18n="next" type="back" value="class">next</button>
+    </div>
+  </div>
+</charmancer>
+<charmancer class="sheet-charmancer-class">
+  <div class="sheet-cm-wrapper">
+    <input name="comp_selected" type="hidden"/>
+    <div class="cm-nav">
+    </div>
+    <div class="t__topbar"></div>
+    <div class="ms-cm-container choice showclasses">
+      <div class="ms-cm-panel--classes t__classes"></div>
+    </div>
+    <div class="ms-cm-container choice showclassinfo">
+      <div class="ms-cm-panel">
+        <div class="choice presetclass">
+          <h3 class="t__cname"></h3>
+          <div class="ms-cm-save"> 
+            <input name="comp_sanity" type="hidden"/>
+            <div class="ms-cm-save__title" data-i18n="sanity"></div>
+            <div class="ms-cm-save__value t__sanity"></div>
+          </div>
+          <div class="ms-cm-save"> 
+            <input name="comp_fear" type="hidden"/>
+            <div class="ms-cm-save__title" data-i18n="fear"></div>
+            <div class="ms-cm-save__value t__fear"></div>
+          </div>
+          <div class="ms-cm-save"> 
+            <input name="comp_body" type="hidden"/>
+            <div class="ms-cm-save__title" data-i18n="body"></div>
+            <div class="ms-cm-save__value t__body"></div>
+          </div>
+          <div class="ms-cm-save"> 
+            <input name="comp_armor" type="hidden"/>
+            <div class="ms-cm-save__title" data-i18n="armor"></div>
+            <div class="ms-cm-save__value t__armor"></div>
+          </div>
+          <input name="comp_skills" type="hidden"/>
+          <input name="comp_skill_choice" type="hidden"/>
+          <input name="comp_strength_modifier" type="hidden"/>
+          <input name="comp_speed_modifier" type="hidden"/>
+          <input name="comp_intellect_modifier" type="hidden"/>
+          <input name="comp_combat_modifier" type="hidden"/>
+          <input name="comp_health" type="hidden"/>
+          <div class="ms-cm-skills">
+            <div class="ms-cm-skills__title" data-i18n="stress effect"></div>
+            <div class="t__stress_effect"></div>
+          </div>
+          <div class="ms-cm-skills">
+            <div class="ms-cm-skills__title" data-i18n="skills"></div>
+            <div class="t__skills"></div>
+            <div class="t__skill_choice"></div>
+          </div>
+          <div class="ms-cm-skills">
+            <div class="ms-cm-skills__title" data-i18n="skill points"></div>
+            <div class="t__skill_points"></div>
+          </div>
+        </div>
+        <div class="choice customclass">
+          <div class="ms-cm-row">
+            <div class="ms-cm-row__label" data-i18n="Name"></div>
+            <input class="ms-cm-row__input" name="comp_attr"/>
+          </div>
+          <div class="ms-cm-row">
+            <div class="ms-cm-row__label" data-i18n="Sanity Save"></div>
+            <input class="ms-cm-row__input" name="comp_sanity"/>
+          </div>
+          <div class="ms-cm-row">
+            <div class="ms-cm-row__label" data-i18n="Fear Save"></div>
+            <input class="ms-cm-row__input" name="comp_fear"/>
+          </div>
+          <div class="ms-cm-row">
+            <div class="ms-cm-row__label" data-i18n="Body Save"></div>
+            <input class="ms-cm-row__input" name="comp_body"/>
+          </div>
+          <div class="ms-cm-row">
+            <div class="ms-cm-row__label" data-i18n="Armor Save"></div>
+            <input class="ms-cm-row__input" name="comp_armor"/>
+          </div>
+          <div class="ms-cm-row">
+            <div class="ms-cm-row__label" data-i18n="Strength Mod"></div>
+            <input class="ms-cm-row__input" name="comp_strength_mod"/>
+          </div>
+          <div class="ms-cm-row">
+            <div class="ms-cm-row__label" data-i18n="Speed Mod"></div>
+            <input class="ms-cm-row__input" name="comp_speed_mod"/>
+          </div>
+          <div class="ms-cm-row">
+            <div class="ms-cm-row__label" data-i18n="Intellect Mod"></div>
+            <input class="ms-cm-row__input" name="comp_intellect_mod"/>
+          </div>
+          <div class="ms-cm-row">
+            <div class="ms-cm-row__label" data-i18n="Combat Mod"></div>
+            <input class="ms-cm-row__input" name="comp_combat_mod"/>
+          </div>
+          <div class="ms-cm-row">
+            <div class="ms-cm-row__label" data-i18n="Stress Effect"></div>
+            <input class="ms-cm-row__input--long" name="comp_stress_effect"/>
+          </div>
+          <div class="ms-cm-row">
+            <div class="ms-cm-row__label" data-i18n="Skill Points"></div>
+            <input class="ms-cm-row__input" name="comp_skill_points"/>
+          </div>
+        </div>
+        <div class="ms-cm-center">
+          <button class="ms-cm-button--roll" data-i18n="Reselect Class" name="act_reselectc" type="action"></button>
+        </div>
+      </div>
+      <div class="ms-cm-compendium choice showclassinfo"></div>
+    </div>
+    <div class="cm-pagecontrol">
+      <button class="cm-pagecontrol__left" data-i18n="previous" type="back" value="stats">previous</button>
+      <button class="cm-pagecontrol__middle" data-i18n="cancel" type="cancel">cancel</button>
+      <button class="cm-pagecontrol__right" data-i18n="next" type="back" value="skills">next</button>
+    </div>
+  </div>
+</charmancer>
+<charmancer class="sheet-repeating-class">
+  <input class="ms-cm-hide" name="comp_name" type="hidden"/>
+  <label class="ms-cm-class">
+    <input class="ms-cm-hide" name="comp_selected" type="checkbox"/>
+    <div class="ms-cm-class__img t__img"></div>
+    <div class="ms-cm-class__title t__title"></div>
+    <div class="ms-cm-class__desc t__desc"></div>
+  </label>
+</charmancer>
+<charmancer class="sheet-repeating-skillselection">
+  <div class="ms-cm-skill">
+    <div class="ms-cm-skill__title" data-i18n="choose a skill"></div>
+    <select class="ms-cm-skill__select" name="comp_skill">
+      <option data-i18n="choose"></option>
+    </select>
+    <div class="choice delete">
+      <button class="ms-cm-skill__delete" name="act_deleteskill" type="action">x</button>
+    </div>
+    <input name="comp_skill_type" type="hidden"/>
+  </div>
+</charmancer>
+<charmancer class="sheet-charmancer-skills">
+  <div class="sheet-cm-wrapper">
+    <div class="cm-nav">
+    </div>
+    <div class="t__topbar"></div>
+    <div class="ms-cm-container">
+      <div class="ms-cm-panel--skills">
+        <div class="ms-cm-skillpoints t__skillpointserror">
+          <input name="comp_skillpoints" type="hidden"/>
+          <input name="comp_skillpoints_max" type="hidden"/>
+          <div class="ms-cm-skillpoints__label" data-i18n="remaining skillpoints"></div>
+          <div class="ms-cm-skillpoints__value t__skillpoints"></div>
+        </div>
+        <div class="ms-cm-skillcol">
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--linguistics">
+              <input name="comp_linguistics" type="checkbox"/>
+              <input name="comp_linguistics_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="linguistics" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Study of language"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--biology">
+              <input name="comp_biology" type="checkbox"/>
+              <input name="comp_biology_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="biology" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Study of life"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--first_aid">
+              <input name="comp_first_aid" type="checkbox"/>
+              <input name="comp_first_aid_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="first aid" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Emergency medical care and treatment"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--hydroponics">
+              <input name="comp_hydroponics" type="checkbox"/>
+              <input name="comp_hydroponics_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="hydroponics" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Growing plants in nutrient solutions without soil (farming in space)"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--geology">
+              <input name="comp_geology" type="checkbox"/>
+              <input name="comp_geology_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="geology" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="The solid features of any terrestrial planet or natural satellite"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--zero-g">
+              <input name="comp_zero-g" type="checkbox"/>
+              <input name="comp_zero-g_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="zero-g" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Working in a vaccuum, vaccsuits, etc."></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--scavenging">
+              <input name="comp_scavenging" type="checkbox"/>
+              <input name="comp_scavenging_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="scavenging" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Searching discarded wastes for useful items"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--heavy_machinery">
+              <input name="comp_heavy_machinery" type="checkbox"/>
+              <input name="comp_heavy_machinery_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="heavy machinery" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Operation and use of large pieces of equipment (cranes, exosuits, forkliftsm etc.)"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--computers">
+              <input name="comp_computers" type="checkbox"/>
+              <input name="comp_computers_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="computers" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Fluent use of computers and networks"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--mechanical_repair">
+              <input name="comp_mechanical_repair" type="checkbox"/>
+              <input name="comp_mechanical_repair_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="mechanical repair" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Fixing broken machines"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--driving">
+              <input name="comp_driving" type="checkbox"/>
+              <input name="comp_driving_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="driving" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Operation and control of motor vehicles"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--piloting">
+              <input name="comp_piloting" type="checkbox"/>
+              <input name="comp_piloting_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="piloting" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Operation and control of air and spacecraft"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--mathematics">
+              <input name="comp_mathematics" type="checkbox"/>
+              <input name="comp_mathematics_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="mathematics" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="The science of numbers, quantity, and space"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--art">
+              <input name="comp_art" type="checkbox"/>
+              <input name="comp_art_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="art" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="The expression or application of a species' creative ability and imagination"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--archaeology">
+              <input name="comp_archaeology" type="checkbox"/>
+              <input name="comp_archaeology_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="archaeology" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Ancient cultures and their artifacts"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--theology">
+              <input name="comp_theology" type="checkbox"/>
+              <input name="comp_theology_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="theology" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Study of religion"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--military_training">
+              <input name="comp_military_training" type="checkbox"/>
+              <input name="comp_military_training_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="military training" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Standard basic training given to all military personnel"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--rimwise">
+              <input name="comp_rimwise" type="checkbox"/>
+              <input name="comp_rimwise_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="rimwise" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Outer rim colonies and seedy parts of the galaxy"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--athletics">
+              <input name="comp_athletics" type="checkbox"/>
+              <input name="comp_athletics_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="athletics" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Physical sports and games"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--chemistry">
+              <input name="comp_chemistry" type="checkbox"/>
+              <input name="comp_chemistry_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="chemistry" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="The identification of the substances of which matter is composed"></span></p></span>
+          </div>
+        </div>
+        <div class="ms-cm-skillcol">
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--psychology">
+              <input name="comp_psychology" type="checkbox"/>
+              <input name="comp_psychology_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="psychology" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="The study of behavior and the human mind"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--genetics">
+              <input name="comp_genetics" type="checkbox"/>
+              <input name="comp_genetics_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="genetics" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Heredity and the variation of the inherited characteristics"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--pathology">
+              <input name="comp_pathology" type="checkbox"/>
+              <input name="comp_pathology_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="pathology" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Study of the cause and effect of disease"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--botany">
+              <input name="comp_botany" type="checkbox"/>
+              <input name="comp_botany_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="botany" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="The study of plant life"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--planetology">
+              <input name="comp_planetology" type="checkbox"/>
+              <input name="comp_planetology_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="planetology" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Study of planets and other celestial body"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--asteroid_mining">
+              <input name="comp_asteroid_mining" type="checkbox"/>
+              <input name="comp_asteroid_mining_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="asteroid mining" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Training in the tools and procedures used in mining asteroids"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--jury_rigging">
+              <input name="comp_jury_rigging" type="checkbox"/>
+              <input name="comp_jury_rigging_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="jury rigging" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Makeshift repairs"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--engineering">
+              <input name="comp_engineering" type="checkbox"/>
+              <input name="comp_engineering_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="engineering" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Design, building, and use of engines, machines, and structures"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--hacking">
+              <input name="comp_hacking" type="checkbox"/>
+              <input name="comp_hacking_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="hacking" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Unauthorized access to computer systems"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--vehicle_specialization">
+              <input name="comp_vehicle_specialization" type="checkbox"/>
+              <input name="comp_vehicle_specialization_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="vehicle specialization" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Specific vehicle class"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--astrogation">
+              <input name="comp_astrogation" type="checkbox"/>
+              <input name="comp_astrogation_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="astrogation" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Navigation in outer space"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--physics">
+              <input name="comp_physics" type="checkbox"/>
+              <input name="comp_physics_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="physics" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Study of nature and properties of matter and energy"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--mysticism">
+              <input name="comp_mysticism" type="checkbox"/>
+              <input name="comp_mysticism_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="mysticism" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Spiritual apprehension of hidden knowledge"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--tactics">
+              <input name="comp_tactics" type="checkbox"/>
+              <input name="comp_tactics_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="tactics" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Manuevering military forces in battle"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--gunnery">
+              <input name="comp_gunnery" type="checkbox"/>
+              <input name="comp_gunnery_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="gunnery" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Starship weaponry"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--firearms">
+              <input name="comp_firearms" type="checkbox"/>
+              <input name="comp_firearms_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="firearms" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Guns and their use"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--close-quarters_combat">
+              <input name="comp_close-quarters_combat" type="checkbox"/>
+              <input name="comp_close-quarters_combat_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="close-quarters combat" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Hand-tohand, melee fighting"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--explosives">
+              <input name="comp_explosives" type="checkbox"/>
+              <input name="comp_explosives_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="explosives" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Bombs and incendiary devices"></span></p></span>
+          </div>
+        </div>
+        <div class="ms-cm-skillcol">
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--sophontology">
+              <input name="comp_sophontology" type="checkbox"/>
+              <input name="comp_sophontology_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="sophontology" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Alien psychology"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--xenobiology">
+              <input name="comp_xenobiology" type="checkbox"/>
+              <input name="comp_xenobiology_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="xenobiology" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Alien biology"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--surgery">
+              <input name="comp_surgery" type="checkbox"/>
+              <input name="comp_surgery_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="surgery" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Medical speciality involving manual operation"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--cybernetics">
+              <input name="comp_cybernetics" type="checkbox"/>
+              <input name="comp_cybernetics_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="cybernetics" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Interface between man and machine"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--robotics">
+              <input name="comp_robotics" type="checkbox"/>
+              <input name="comp_robotics_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="robotics" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Design and operation of robots, drones, and androids"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--artificial_intelligence">
+              <input name="comp_artificial_intelligence" type="checkbox"/>
+              <input name="comp_artificial_intelligence_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="artificial intelligence" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Knowledge of simulacrum of human consciousness"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--command">
+              <input name="comp_command" type="checkbox"/>
+              <input name="comp_command_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="command" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Leadership and authority"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--hyperspace">
+              <input name="comp_hyperspace" type="checkbox"/>
+              <input name="comp_hyperspace_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="hyperspace" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="FTL travel"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--xenoesotericism">
+              <input name="comp_xenoesotericism" type="checkbox"/>
+              <input name="comp_xenoesotericism_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="xenoesotericism" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Obscure alien mysticism, religion, and belief"></span></p></span>
+          </div>
+          <div class="ms-cm-skill">    
+            <label class="ms-cm-skill__wrapper ms-skill--weapon_specialization">
+              <input name="comp_weapon_specialization" type="checkbox"/>
+              <input name="comp_weapon_specialization_type" type="hidden"/>
+              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__name" data-i18n="weapon specialization" type="roll"></div>
+            </label><span class="ms-tooltip">
+              <p><span data-i18n="Proficiency with a specific weapon"></span></p></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="cm-pagecontrol">
+      <button class="cm-pagecontrol__left" data-i18n="previous" type="back" value="class">previous</button>
+      <button class="cm-pagecontrol__middle" data-i18n="cancel" type="cancel">cancel</button>
+      <button class="cm-pagecontrol__right" data-i18n="next" type="back" value="equipment">next</button>
+    </div>
+  </div>
+</charmancer>
+<charmancer class="sheet-charmancer-equipment">
+  <div class="sheet-cm-wrapper">
+    <div class="cm-nav">
+    </div>
+    <div class="t__topbar"></div>
+    <div class="ms-cm-container">
+      <div class="ms-cm-panel">
+        <div class="ms-cm-package">
+          <div class="ms-cm-package__title" data-i18n="choose an equipment package"></div>
+          <select class="ms-cm-skill__select" name="comp_package">
+            <option data-i18n="choose" value="choose"></option>
+          </select>
+          <div class="t__package"></div>
+          <div class="choice custompackage"><span data-i18n="You can add custom equipment to the character sheet after completeing the charactermancer."></span></div>
+        </div>
+        <div class="ms-cm-credits">
+          <div class="ms-cm-credits__title" data-i18n="starting credits"></div>
+          <div class="ms-cm-credits__roll">
+            <button name="roll_credits" type="roll" value="&amp;{template:default},{{title=credit roll}},{{credits=[[5d10*10]]}}"></button>
+            <input name="comp_credits" type="hidden"/>
+          </div>
+          <div class="ms-cm-credits__display t__credits"></div>
+        </div>
+        <div class="ms-cm-trinket">
+          <div class="ms-cm-trinket__title" data-i18n="trinket"></div>
+          <div class="ms-cm-trinket__roll t__trinketroll"></div>
+          <div class="ms-cm-trinket__display t__trinket"></div>
+          <div class="choice customtrinket"><span data-i18n="Add a custom trinket."></span>
+            <input name="comp_trinket" type="hidden"/>
+          </div>
+        </div>
+        <div class="ms-cm-patch">
+          <div class="ms-cm-patch__title" data-i18n="patch"></div>
+          <div class="ms-cm-patch__roll t__patchroll"></div>
+          <div class="ms-cm-patch__display t__patch"></div>
+          <div class="choice custompatch"><span data-i18n="Add a custom patch."></span>
+            <input name="comp_patch" type="hidden"/>
+          </div>
+        </div>
+      </div>
+      <div class="ms-cm-compendium"></div>
+    </div>
+    <div class="cm-pagecontrol">
+      <button class="cm-pagecontrol__left" data-i18n="previous" type="back" value="skills">previous</button>
+      <button class="cm-pagecontrol__middle" data-i18n="cancel" type="cancel">cancel</button>
+      <button class="cm-pagecontrol__right" data-i18n="next" type="back" value="review">next</button>
+    </div>
+  </div>
+</charmancer>
+<charmancer class="sheet-charmancer-review">
+  <div class="sheet-cm-wrapper">
+    <div class="cm-nav">
+    </div>
+    <div class="ms-cm-container">
+      <div class="ms-cm-panel--full">
+        <div class="ms-cm-statrow">
+          <div class="ms-cm-stat cm-stat--strength">
+            <div class="ms-cm-stat__label" data-i18n="strength"></div>
+            <div class="ms-cm-stat__value t__strength"></div>
+          </div>
+          <div class="ms-cm-stat cm-stat--speed">
+            <div class="ms-cm-stat__label" data-i18n="speed"></div>
+            <div class="ms-cm-stat__value t__speed"></div>
+          </div>
+          <div class="ms-cm-stat cm-stat--intellect">
+            <div class="ms-cm-stat__label" data-i18n="intellect"></div>
+            <div class="ms-cm-stat__value t__intellect"></div>
+          </div>
+          <div class="ms-cm-stat cm-stat--combat">
+            <div class="ms-cm-stat__label" data-i18n="combat"></div>
+            <div class="ms-cm-stat__value t__combat"></div>
+          </div>
+        </div>
+        <div class="ms-cm-saverow"> 
+          <div class="ms-cm-save"> 
+            <input name="comp_sanity" type="hidden"/>
+            <div class="ms-cm-save__title" data-i18n="sanity"></div>
+            <div class="ms-cm-save__value"></div>
+            <div class="ms-cm-save__desc" data-i18n="Sanity is your ability to explain away logical inconsistencies in the universe, rationalize and make sense out of chaos, detect illusions and mimicry and think quickly under pressure."></div>
+          </div>
+          <div class="ms-cm-save"> 
+            <input name="comp_fear" type="hidden"/>
+            <div class="ms-cm-save__title" data-i18n="fear"></div>
+            <div class="ms-cm-save__value"></div>
+            <div class="ms-cm-save__desc" data-i18n="Fear is how well you can cope with emotional trauma, and covers not only fear, but also loneliness, depression or any other emotional surge."></div>
+          </div>
+          <div class="ms-cm-save"> 
+            <input name="comp_body" type="hidden"/>
+            <div class="ms-cm-save__title" data-i18n="body"></div>
+            <div class="ms-cm-save__value"></div>
+            <div class="ms-cm-save__desc" data-i18n="Body is your reflexes, and how well you can resist hunger, disease or any other organism that might attempt to invade your insides."></div>
+          </div>
+          <div class="ms-cm-save"> 
+            <input name="comp_armor" type="hidden"/>
+            <div class="ms-cm-save__title" data-i18n="armor"></div>
+            <div class="ms-cm-save__value"></div>
+            <div class="ms-cm-save__desc" data-i18n="Armor is how resistant you ae to damage sustained during combat, whether that be through bullets, claws, teeth, etc."></div>
+          </div>
+        </div>
+        <div class="ms-cm-secrow">
+          <div class="ms-cm-altstat">
+            <div class="ms-cm-mainstat__title" data-i18n="health"></div>
+            <div class="ms-cm-mainstat__value ms-t__health">
+              <input name="comp_health" type="hidden"/>
+            </div>
+          </div>
+          <div class="ms-cm-altstat">
+            <div class="ms-cm-mainstat__title" data-i18n="stress"></div>
+            <div class="ms-cm-mainstat__value ms-t__stress">
+              <input name="comp_stress" type="hidden"/>
+            </div>
+          </div>
+          <div class="ms-cm-altstat">
+            <div class="ms-cm-mainstat__title" data-i18n="resolve"></div>
+            <div class="ms-cm-mainstat__value ms-t__resolve">
+              <input name="comp_resolve" type="hidden"/>
+            </div>
+          </div>
+        </div>
+        <div class="ms-cm-skillrow">
+          <div class="ms-t__skilllist"></div>
+        </div>
+        <div class="ms-cm-equipment">
+          <div class="ms-t__skilllist"></div>
+        </div>
+      </div>
+    </div>
+    <div class="cm-pagecontrol">
+      <button class="cm-pagecontrol__left" data-i18n="back" type="back" value="equipment">back</button>
+      <button class="cm-pagecontrol__middle" data-i18n="cancel" type="cancel">cancel</button>
+      <button class="cm-pagecontrol__right" data-i18n="finish" type="finish" value="newcharacter">finish</button>
+    </div>
+  </div>
+</charmancer>
+<charmancer class="sheet-charmancer-final">
+  <div class="ms-cm-wrapper">
+    <div class="ms-cm-panel--full">
+      <h1 data-i18n="Building character..."></h1>
+      <div class="ms-t__progressbar">
+        <div style="width: 0%;"></div>
+      </div>
+    </div>
+  </div>
+</charmancer>
+<script type="text/worker">
+  // Sheet Variables
 
 const skillList = {
     "linguistics":{
@@ -2546,6 +3414,14 @@ const calculateHullValues = () => {
         }, callback => checkFuelValue(value));
     });
 }
+    
+const parseJSON = (string) => {
+    try {
+        return JSON.parse(string);
+    } catch(err) {
+        return false;
+    }
+};
 
 // EVENT HANDLERS
 
@@ -2584,10 +3460,666 @@ on(`change:hull_max`, eventInfo => calculateHullValues());
 on(`clicked:startship`, eventInfo => setAttrs({shipbuild:"on"}));
 on(`clicked:completeship`, eventInfo => setAttrs({shipbuild:0}));
 
+on(`clicked:launch_charmancer`, eventInfo => startCharactermancer("intro"));
 
 ["life_support_hull","command_hull","armor_hull","jump_drives_hull","computer_hull","galley_hull",
 "weapon_mount_hull","medical_bay_hull","cryochamber_hull","living_quarters_hull","barracks_hull",
 "cargo_hold_hull", "science_lab_hull"].forEach(hull => on(`change:${hull}`, eventInfo => recalculateBaseHull()));
 
-["base_hull", "thrusters_hull", "engine_hull", "fuel_hull", "frame_hull"].forEach(hull => on(`change:${hull}`, eventInfo => recalculateTotalHull()));
+["base_hull", "thrusters_hull", "engine_hull", "fuel_hull", "frame_hull"].forEach(hull => on(`change:${hull}`, eventInfo => recalculateTotalHull()));{
+    const addTopBar = () => {
+
+        addRepeatingSection(`sheet-t__topbar`, `topbar`, section_id => {
+            const data = getCharmancerData();
+            const updateHTML = {};
+
+            ["strength","speed","intellect","combat","health","stress","resolve","sanity","fear","body","armor"].forEach(item => {
+                const value = (data?.equipment?.values?.[item]) ? data.equipment.values[item] :
+                              (data?.skills?.values?.[item]) ?  data.skills.values[item] :
+                              (data?.class?.values?.[item]) ?  data.class.values[item] :
+                              (data?.stats?.values?.[item]) ?  data.stats.values[item] :
+                              0;
+
+                const mod = (data?.equipment?.values?.[`${item}_mod`]) ? data.equipment.values[`${item}_mod`] :
+                            (data?.skills?.values?.[`${item}_mod`]) ?  data.skills.values[`${item}_mod`] :
+                            (data?.class?.values?.[`${item}_mod`]) ?  data.class.values[`${item}_mod`] :
+                            (data?.stats?.values?.[`${item}_mod`]) ?  data.stats.values[`${item}_mod`] :
+                            0;
+
+                const final = (parseInt(value) + parseInt(mod) === 0) ? "-" : parseInt(value) + parseInt(mod);
+                              
+                updateHTML[`${section_id} .sheet-t__${item}`] = final;
+            });
+
+            setCharmancerText(updateHTML);
+
+        });
+
+    };
+
+    const recalcStats = () => {
+        
+        getRepeatingSections("sheet-t__topbar", section_ids => {
+            const section_id = section_ids.list[0];
+            const data = getCharmancerData();
+            const updateHTML = {};
+
+            ["strength","speed","intellect","combat","health","stress","resolve","sanity","fear","body","armor"].forEach(item => {
+                
+                const value = (data?.equipment?.values?.[item]) ? data.equipment.values[item] :
+                              (data?.skills?.values?.[item]) ? data.skills.values[item] :
+                              (data?.class?.values?.[item]) ? data.class.values[item] :
+                              (data?.stats?.values?.[item]) ? data.stats.values[item] :
+                              false;
+
+                const mod = (data?.equipment?.values?.[`${item}_mod`]) ? data.equipment.values[`${item}_mod`] :
+                            (data?.skills?.values?.[`${item}_mod`]) ? data.skills.values[`${item}_mod`] :
+                            (data?.class?.values?.[`${item}_mod`]) ? data.class.values[`${item}_mod`] :
+                            (data?.stats?.values?.[`${item}_mod`]) ? data.stats.values[`${item}_mod`] :
+                            0;
+
+                const final = (value === false) ? "-" : parseInt(value) + parseInt(mod);
+                              
+                updateHTML[`${section_id} .sheet-t__${item}`] = final;
+            });
+
+            setCharmancerText(updateHTML);
+
+        });
+        
+    }
+
+    ["intro", "stats", "class", "skills", "equipment"].forEach(page => on(`page:${page}`, eventInfo => addTopBar(page)));
+    ["strength","speed","intellect","combat","health","stress","resolve","sanity","fear","body","armor","strength","speed","intellect","combat"].forEach(stat => {
+        on(`mancerchange:${stat} mancercange:${stat}_mod`, eventInfo => recalcStats());
+    });
+}{
+    const stats = ["strength","speed","intellect","combat"];
+
+    const onLoadStats = () => {
+        const data = getCharmancerData();
+
+        if (data?.stats?.values?.["strength"]) {
+            const updateHTML = {};
+        
+            showChoices(["showstats"]); 
+
+            stats.forEach(stat => updateHTML[`t__${stat}`] = data.stats.values[stat]);
+    
+            setCharmancerText(updateHTML);
+        }
+    }
+
+    const onRollStats = (rolls) => {
+        const updateHTML = {};
+        const updateAttrs = {};
+        
+        showChoices(["showstats"]); 
+
+        rolls.forEach((roll, index) => { 
+            updateHTML[`t__${stats[index]}`] = roll.result;
+            updateAttrs[`${stats[index]}`] = roll.result;
+        });
+
+        updateAttrs["health"] = updateAttrs["strength"] * 2;
+        updateAttrs["stress"] = 2;
+        updateAttrs["resolve"] = "0";
+
+        console.log(updateAttrs);
+    
+        setCharmancerText(updateHTML);
+        setAttrs(updateAttrs);
+
+    }
+
+    on(`mancerroll:stats`, eventInfo => onRollStats(eventInfo.roll));
+    on(`page:stats`, eventInfo => onLoadStats(eventInfo.roll));
+}{
+    const onLoadClass = () => {
+        const data = getCharmancerData();
+
+        if (data?.class?.values?.["selected"]) instanceClass(data.class.values.selected);
+        else generateClassList();
+    }
+
+    const generateClassList = () => {
+
+        hideChoices();
+        showChoices(["showclasses"]);
+
+        getCompendiumQuery("Category:Classes", function(data) {
+
+            custom = [{name:"custom"}];
+            data = [...data, ...custom];
+
+            data.forEach(class_object => {
+                const saves = (class_object?.data?.["Saves"]) ? JSON.parse(class_object.data["Saves"]) : false;
+                const skills = (class_object?.data?.["Skills"]) ? JSON.parse(class_object.data["Skills"]) : false;
+                const skills_choice = (class_object?.data?.["Skill Choice"]) ? JSON.parse(class_object.data["Skill Choice"]) : false;
+                const stat_bonus = (class_object?.data?.["Stat Bonus"]) ? JSON.parse(class_object.data["Stat Bonus"]) : false;
+
+                addRepeatingSection(`sheet-t__classes`, `class`, section_id => {
+
+                    const updateHTML = {};
+                    const updateAttrs = {};
+                    
+                    if (class_object.name === "custom") {
+
+                        updateAttrs[`${section_id}_name`] = "custom";
+
+                        updateHTML[`${section_id} .sheet-t__img`] = "";
+                        updateHTML[`${section_id} .sheet-t__title`] = getTranslationByKey("custom");
+                        updateHTML[`${section_id} .sheet-t__desc`] = getTranslationByKey("choose this option to enter your own information");
+
+                    } else {
+
+                        updateAttrs[`${section_id}_name`] = class_object.name;
+
+                        updateHTML[`${section_id} .sheet-t__img`] = "";
+                        updateHTML[`${section_id} .sheet-t__title`] = class_object.name;
+                        updateHTML[`${section_id} .sheet-t__desc`] = `
+                            <p>${class_object.data.description}</p>
+                            <h3>${getTranslationByKey("saves")}:</h3>
+                        `;
+
+                        const saves_array = [];
+
+                        Object.entries(saves).forEach(([key, value]) => {
+                            saves_array.push(`<strong>${key}</strong> ${value}`);
+                        })
+                        
+                        updateHTML[`${section_id} .sheet-t__desc`] += saves_array.join(", ");
+
+                        updateHTML[`${section_id} .sheet-t__desc`] += `<h3>${getTranslationByKey("stats")}:</h3>`;
+
+                        const stats_array = [];
+
+                        Object.entries(stat_bonus).forEach(([key, value]) => {
+                            stats_array.push(`<strong>${key}</strong> +${value}`);
+                        });
+
+                        updateHTML[`${section_id} .sheet-t__desc`] += stats_array.join(", ");
+
+                        updateHTML[`${section_id} .sheet-t__desc`] += `<h3>${getTranslationByKey("skills")}:</h3>`;
+
+                        if (skills) {
+
+                            const skills_array = [];
+
+                            skills.forEach(skill => skills_array.push(skill));
+
+                            updateHTML[`${section_id} .sheet-t__desc`] += `<p>${skills_array.join(", ")}</p>`;
+
+                        } 
+
+                        if (skills_choice) {
+
+                            const skillchoice_array = [];
+
+                            skills_choice[0].forEach((choice) => skillchoice_array.push(choice));
+
+                            updateHTML[`${section_id} .sheet-t__desc`] += `<p>${skillchoice_array.join(" or ")}</p>`;
+
+                        }
+
+                    }
+                    
+                    setAttrs(updateAttrs);
+                    setCharmancerText(updateHTML);
+
+                });
+
+            });
+
+        }); 
+    }
+
+    const onSelectClass = (source_section, source_type) => {
+        const data = getCharmancerData();
+
+        if (source_type !== "player") return;
+
+        getRepeatingSections("sheet-t__classes", repeating_ids => {
+            const updateAttrs = {};
+
+            repeating_ids.list.filter(id => id !== source_section).forEach(id=> updateAttrs[`${id}_selected`] = 0);
+
+            const new_class = data.class.values[`${source_section}_name`];
+            
+            updateAttrs[`selected`] = new_class;
+
+            setAttrs(updateAttrs, callback => instanceClass(new_class));
+        });
+
+    }
+
+    const instanceClass = (class_name) => {
+        const cm_data = getCharmancerData();
+
+        hideChoices();
+        showChoices(["showclassinfo"]);
+
+        if (class_name === "custom") {
+            hideChoices(["presetclass"]);
+            showChoices(["customclass"]);
+        } else {
+            showChoices(["presetclass"]);
+            hideChoices(["customclass"]);
+
+            getCompendiumPage(`Classes:${class_name}`, data => {
+
+                const updateAttrs = {
+                    sanity: "",
+                    fear: "",
+                    body: "",
+                    armor: "",
+                    strength_mod: "",
+                    speed_mod: "",
+                    intellect_mod: "",
+                    combat_mod: "",
+                    skill_points: "",
+                };
+
+                const updateHTML = {};
+                
+                updateHTML[`t__cname`] = data.name;
+                
+                const saves = JSON.parse(data.data["Saves"]);   
+
+                Object.entries(saves).forEach(([key, value]) => {
+
+                    const key_lower = key.toLowerCase();
+
+                    updateHTML[`t__${key_lower}`] = value;
+                    updateAttrs[key_lower] = value;
+
+                });
+                
+                const stats = JSON.parse(data.data["Stat Bonus"]);
+
+                Object.entries(stats).forEach(([key, value]) => {
+
+                    const key_lower = key.toLowerCase();
+                    
+                    updateAttrs[`${key_lower}_mod`] = value;
+
+                });
+
+                const strength = (cm_data?.class?.values?.strength) ? parseInt(cm_data.class.values.strength) :
+                                 (cm_data?.stats?.values?.strength) ? parseInt(cm_data.stats.values.strength) :
+                                 0;
+
+                const strength_mod = (cm_data?.class?.values?.strength_mod) ? parseInt(cm_data.class.values.strength_mod) :
+                                     (cm_data?.stats?.values?.strength_mod) ? parseInt(cm_data.stats.values.strength_mod) :
+                                     0;
+
+                const health = (strength + strength_mod) * 2;
+
+                updateAttrs["health"] = health;
+
+                ["Skills", "Skill Points", "Stress Effect"].forEach(item => {
+                    const parsed = item.toLowerCase().replace(/ /g,"_");
+
+                    if (data?.data?.[item]) {
+                        const json = (parseJSON(data.data[item])) ? parseJSON(data.data[item]) : data.data[item];
+                        const display = (Array.isArray(json)) ? json.join(", ") : json;
+
+                        updateAttrs[parsed] = data.data[item];
+                        updateHTML[`t__${parsed}`] = display;
+                    } else {
+                        updateAttrs[parsed] = "";
+                        updateHTML[`t__${parsed}`] = "";
+                    }
+                });
+
+                clearRepeatingSections("sheet-t__skill_choice"); 
+
+                if (data?.data?.["Skill Choice"]) {
+                    const choices = parseJSON(data.data["Skill Choice"]);
+
+                    choices.forEach(group => addRepeatingSection("sheet-t__skill_choice", "skillselection", "choicerow", section_id => setCharmancerOptions(`${section_id}_skill`, group)));
+
+                }
+
+                setAttrs(updateAttrs);
+                setCharmancerText(updateHTML);
+    
+            });
+
+        }
+
+    }
+
+    const reselectClass = () => {
+        const data = getCharmancerData();
+
+        getRepeatingSections("sheet-t__classes", repeating_ids => {
+
+            hideChoices();
+
+            const updateAttrs = {};
+
+            repeating_ids.list.forEach(id=> updateAttrs[`${id}_selected`] = 0);
+            
+            updateAttrs[`selected`] = "";
+
+            setAttrs(updateAttrs, callback => onLoadClass());
+        });
+    }
+
+    const disableSkills = (new_value) => {
+        const data = getCharmancerData();
+        const disable = [];
+        disable.push(new_value);
+
+        if (data?.class?.repeating) {
+            data.class.repeating.forEach(repeating_id => {
+
+               disableCharmancerOptions(`${repeating_id}_skill`, disable);
+                
+            });
+        }
+
+    }
+
+    on(`page:class`, eventInfo => onLoadClass());
+    on(`mancerchange:repeating_class_selected`, eventInfo => onSelectClass(eventInfo.sourceSection, eventInfo.sourceType));
+    on(`clicked:reselectc`, eventInfo => reselectClass());
+    on(`mancerchange:repeating_choicerow`, eventInfo => disableSkills(eventInfo.newValue));
+}{
+
+    const trained_skills = [
+        "linguistics",
+        "biology",
+        "first_aid",
+        "hydroponics",
+        "geology",
+        "zero-g",
+        "scavenging",
+        "heavy_machinery",
+        "computers",
+        "mechanical repair",
+        "driving",
+        "piloting",
+        "mathematics",
+        "art",
+        "archaeology",
+        "theology",
+        "military_training",
+        "rimwise",
+        "athletics",
+        "chemistry"
+    ];
+
+    const expert_skills = [
+        "psychology",
+        "genetics",
+        "pathology",
+        "botany",
+        "planetology",
+        "asteroid_mining",
+        "jury_rigging",
+        "engineering",
+        "hacking",
+        "vehicle_specialization",
+        "astrogation",
+        "physics",
+        "mysticism",
+        "tactics",
+        "gunnery",
+        "firearms",
+        "close-quarters_combat",
+        "explosives"
+    ];
+
+    const master_skills = [
+        "sophontology",
+        "xenobiology",
+        "surgery",
+        "cybernetics",
+        "robotics",
+        "artificial_intelligence",
+        "command",
+        "hyperspace",
+        "xenoesotericism",
+        "weapon_specialization"
+    ];
+
+    const onLoadSkills = () => {
+        const data = getCharmancerData();
+
+        resetClassSkills();
+
+        if (data?.skills?.values?.skillpoints_max) calcAllSkills();
+        else if (data?.class?.values?.skill_points) setAttrs({skillpoints_max:data.class.values.skill_points}, callback => calcAllSkills());
+        else setCharmancerText({[`t__skillpointserror`]:getTranslationByKey("Ensure you have selected a class")});
+    };
+
+    const resetClassSkills = () => {
+        const data = getCharmancerData();
+        const all_skills = [...trained_skills, ...expert_skills, ...master_skills];
+
+        all_skills.forEach(skill => (data?.skills?.values[`${skill}_type`] === "class") ? setAttrs({[skill]:0},{silent:true}) : false);
+
+        const class_skills = (data?.class?.values?.skills) ? JSON.parse(data.class.values.skills).map(skill => skill.replace(/ /g, "_")) : [];
+
+        class_skills.forEach(skill => setAttrs({[skill]:"on", [`${skill}_type`]:"class"},{silent:true}));
+
+        if (data?.class?.repeating?.length > 0) {
+            const skill_choices = data.class.repeating.filter(repeating_id => repeating_id.indexOf("choicerow") > -1);
+
+            skill_choices.forEach(repeating_id => {
+                const skill_name = data.class.values[`${repeating_id}_skill`].toLowerCase().replace(/ /g, "_");
+
+                if (skill_name !== "choose") setAttrs({[skill_name]:"on", [`${skill_name}_type`]:"class"},{silent:true});
+            });
+        }
+    };
+
+    const calcAllSkills = () => {
+        const data = getCharmancerData();
+
+        const sp_total = (data?.skills?.values?.skillpoints_max) ? parseInt(data.skills.values.skillpoints_max) : 0;
+        let sp_spent = 0;
+        
+        trained_skills.forEach(skill => {
+            const skill_toggle =  data.skills.values[skill];
+            const skill_type = data.skills.values[`${skill}_type`];
+            if (skill_toggle === "on" && skill_type !== "class") sp_spent += 1;
+        }); 
+        
+        expert_skills.forEach(skill => { 
+            const skill_toggle =  data.skills.values[skill];
+            const skill_type = data.skills.values[`${skill}_type`];
+            if (skill_toggle === "on" && skill_type !== "class") sp_spent += 2;
+        });
+        
+        master_skills.forEach(skill => { 
+            const skill_toggle =  data.skills.values[skill];
+            const skill_type = data.skills.values[`${skill}_type`];
+            if (skill_toggle === "on" && skill_type !== "class") sp_spent += 3;
+        });
+
+        const updateAttrs = {
+            trained_lock: "0",
+            expert_lock: "0",
+            master_lock: "0"
+        };
+
+        const updateHTML = {};
+
+        const sp_remaining = sp_total - sp_spent;
+
+        if (sp_remaining === 2) updateAttrs["master_lock"] = "on";
+        if (sp_remaining === 1) updateAttrs["expert_lock"] = "on";
+        if (sp_remaining <= 0) updateAttrs["trained_lock"] = "on";
+
+        updateHTML["t__skillpoints"] = `${sp_remaining} / ${sp_total}`;
+
+        setCharmancerText(updateHTML);
+        setAttrs(updateAttrs);
+    }
+
+    const toggleSkill = (skill, new_value) => {
+        const data = getCharmancerData();
+        const existing_values = (data?.skills?.values?.unlocked) ? data.skills.values.unlocked.trim() : "";
+        const value_list = existing_values.split(" ");
+        const unlocks = skillList[skill].unlocks || [];
+
+        let update_attr = "";
+    
+        if (typeof new_value === "undefined") {
+
+            unlocks.forEach(item => value_list.splice(value_list.indexOf(item), 1));
+
+            update_attr = value_list.join(" ");
+
+        } else if (new_value === "on") {
+    
+            update_attr = existing_values + " ";
+    
+            if (unlocks === []) return;
+            
+            unlocks.forEach(unlock => update_attr += `${unlock} `);
+        }
+            
+        setAttrs({unlocked:update_attr}); 
+
+    };
+
+    on(`page:skills`, eventInfo => onLoadSkills());
+
+    [...trained_skills, ...expert_skills, ...master_skills].forEach(skill => on(`mancerchange:${skill}`, eventInfo => {
+        toggleSkill(skill, eventInfo.newValue);
+        calcAllSkills();
+    }));
+}{
+    let packages = {};
+
+    const onLoadEquipment = () => {        
+        initEquipmentPackages();
+        initTrinketsandPatches();
+    };
+
+    const initEquipmentPackages = () => {
+        
+        getCompendiumPage("Character Creation", (data) => {
+
+            let choices = ["custom"];
+
+            if (data?.data?.equipment_packages) {
+                packages = JSON.parse(data.data.equipment_packages);
+
+                Object.keys(packages).forEach(key => choices.unshift(key));
+            }
+
+            setCharmancerOptions(`package`, choices);
+
+        }); 
+
+    };
+
+    const chooseEquipmentPackage = (new_value) => {
+
+        hideChoices();
+
+        if (new_value === "choose") return;
+
+        if (packages[new_value]) {
+
+            const items = packages[new_value].map(item => (Array.isArray(item)) ? `${item[0]} (${item[1]})` : item).join(", ");
+
+            setCharmancerText({"t__package":items});
+
+        } else if (new_value === "custom") {
+
+            showChoices(["custompackage"]);
+
+            setCharmancerText({"t__package":""});
+
+        } else console.warn("Equipment Package not found.")
+        
+
+    };
+
+    const initTrinketsandPatches = () => {
+        const data = getCharmancerData();
+
+        let trinkets = [];
+        let patches = [];
+        
+        getCompendiumPage("Trinkets", (data) => {
+
+            trinkets = (data?.data?.trinkets) ? parseJSON(data.data.trinkets) : [];
+            
+            getCompendiumPage("Patches", (data) => {
+    
+                patches = (data?.data?.patches) ? parseJSON(data.data.patches) : [];
+
+                const trinkets_map = trinkets.map((trinket, index) => `{{opt${index}=${trinket}}}`);
+                const patches_map = patches.map((patch, index) => `{{opt${index}=${patch}}}`);
+                
+                const trinkets_roll = `&{template:default} {{roll=[[1d100-1]]}} ${trinkets_map.join(" ")}`; 
+                const patches_roll = `&{template:default} {{roll=[[1d100-1]]}} ${patches_map.join(" ")}`; 
+
+                const updateHTML = {};
+
+                updateHTML[`t__trinketroll`] = `<button class="sheet-ms-cm-trinketroll" name="roll_trinket" type="roll" value="${trinkets_roll}"></button>`;
+                updateHTML[`t__patchroll`] = `<button class="sheet-ms-cm-patchesroll" name="roll_patch" type="roll" value="${patches_roll}"></button>`;
+
+                setCharmancerText(updateHTML);
+    
+            });
+
+        });
+
+        if (data?.equipment?.values?.credits) setCharmancerText({t__credits:data.equipment.values.credits});
+        if (data?.equipment?.values?.trinket) setCharmancerText({t__trinket:data.equipment.values.trinket});
+        if (data?.equipment?.values?.patch) setCharmancerText({t__patch:data.equipment.values.patch});
+    };
+
+    const rollCredits = (roll) => {
+
+        setAttrs({credits:roll[0].result});
+        setCharmancerText({t__credits:`${roll[0].result} credits`});
+        
+    };
+
+    const rollTrinket = (roll) => {
+        
+        getCompendiumPage("Trinkets", (data) => {
+
+            trinkets = (data?.data?.trinkets) ? parseJSON(data.data.trinkets) : [];
+
+            setAttrs({trinket:trinkets[roll[0].result]});
+            setCharmancerText({t__trinket:trinkets[roll[0].result]});
+        
+        });
+
+    };
+
+    const rollPatch = (roll) => {
+        
+        getCompendiumPage("Patches", (data) => {
+
+            patches = (data?.data?.patches) ? parseJSON(data.data.patches) : [];
+
+            console.log(patches)
+            console.log(roll[0].result)
+            console.log(patches[roll[0].result])
+
+            setAttrs({patch:patches[roll[0].result]});
+            setCharmancerText({t__patch:patches[roll[0].result]});
+        
+        });
+
+    }
+
+    on(`page:equipment`, eventInfo => onLoadEquipment());
+    on(`mancerchange:package`, eventInfo => chooseEquipmentPackage(eventInfo.newValue));
+    on(`mancerroll:credits`, eventInfo => rollCredits(eventInfo.roll));
+    on(`mancerroll:trinket`, eventInfo => rollTrinket(eventInfo.roll));
+    on(`mancerroll:patch`, eventInfo => rollPatch(eventInfo.roll));
+}
+  <!--# sourceURL=sheetworker.js    -->
 </script>

@@ -1,16 +1,15 @@
 charmancer.sheet-charmancer-review
     .sheet-cm-wrapper
         +charmancer-navigation("skills")
-        .t__topbar
         .ms-cm-container
             .ms-cm-panel--full
 
                 .ms-cm-statrow
 
                     each stat in stats
-                        .ms-cm-stat(class=`cm-stat--${stat}`)
-                            .ms-cm-stat__label(data-i18n=`${stat}`)
-                            .ms-cm-stat__value(class=`cm-target-${stat}`)
+                        .ms-cm-stat(class=`cm-stat--${stat.attr}`)
+                            .ms-cm-stat__label(data-i18n=`${stat.attr}`)
+                            .ms-cm-stat__value(class=`t__${stat.attr}`)
 
                 .ms-cm-saverow 
 
@@ -43,3 +42,5 @@ charmancer.sheet-charmancer-review
 
                 .ms-cm-equipment
                     .ms-t__skilllist
+
+        +charmancer-pagecontrol({action: "equipment", text: "back"},{action: "cancel", text: "cancel"},{action: "finish", text: "finish"})

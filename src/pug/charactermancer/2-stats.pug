@@ -1,6 +1,6 @@
 - 
     const stat_roll = [
-        `&{template:coccm}`,
+        `&{template:default}`,
         `{{title=stats roll}}`,
         `{{strength=[[6d10]]}}`,
         `{{speed=[[6d10]]}}`, 
@@ -15,13 +15,18 @@ charmancer.sheet-charmancer-stats
         .ms-cm-container
             .ms-cm-panel
                 input(name=`comp_rolled_stats`, type="hidden", value="false")
+
+                input(name=`comp_health`, type="hidden")
+                input(name=`comp_stress`, type="hidden")
+                input(name=`comp_resolve`, type="hidden")
+
                 .ms-cm-stat--grid.choice.showstats
                     each stat in stats
-                        .ms-cm-stat__item(class=`cm-stat--bloop`)
+                        .ms-cm-stat__item(class=`ms-cm-stat__item--${stat.attr}`)
                             .ms-cm-stat__label(data-i18n=stat.attr)
-                            .ms-cm-stat__value(class=`cm-target-${stat.attr}`)
+                            .ms-cm-stat__value(class=`t__${stat.attr}`)
                             input(name=`comp_${stat.attr}`, type="hidden")
                 .ms-cm-center
                     button.ms-cm-button--roll(data-i18n="Roll Stats", name="roll_stats", type="roll", value=stat_roll)
 
-        +charmancer-pagecontrol({action: "intro", text:"previous"},{action: "cancel", text: "cancel"},{action: "stats", text: "next"})
+        +charmancer-pagecontrol({action: "intro", text:"previous"},{action: "cancel", text: "cancel"},{action: "class", text: "next"})

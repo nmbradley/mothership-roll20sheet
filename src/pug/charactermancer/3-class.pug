@@ -1,28 +1,122 @@
+-
+    const custom_class = [
+        {
+            name:"Name",
+            attr:"attr",
+            type:"input",
+        },
+        {
+            name:"Sanity Save",
+            attr:"sanity",
+            type:"input",
+        },
+        {
+            name:"Fear Save",
+            attr:"fear",
+            type:"input",
+        },
+        {
+            name:"Body Save",
+            attr:"body",
+            type:"input",
+        },
+        {
+            name:"Armor Save",
+            attr:"armor",
+            type:"input",
+        },
+        {
+            name:"Strength Mod",
+            attr:"strength_mod",
+            type:"input",
+        },
+        {
+            name:"Speed Mod",
+            attr:"speed_mod",
+            type:"input",
+        },
+        {
+            name:"Intellect Mod",
+            attr:"intellect_mod",
+            type:"input",
+        },
+        {
+            name:"Combat Mod",
+            attr:"combat_mod",
+            type:"input",
+        },
+        {
+            name:"Stress Effect",
+            attr:"stress_effect",
+            type:"long",
+        },
+        {
+            name:"Skill Points",
+            attr:"skill_points",
+            type:"input",
+        },
+    ];
+
 charmancer.sheet-charmancer-class
     .sheet-cm-wrapper
+        input(name=`comp_selected`, type="hidden")
         +charmancer-navigation("stats")
         .t__topbar
         .ms-cm-container.choice.showclasses
-            .ms-cm-panel--classes.ms-t__classes
+            .ms-cm-panel--classes.t__classes
         .ms-cm-container.choice.showclassinfo
             .ms-cm-panel
-                each save in saves 
-                    .ms-cm-save 
-                        input(name=`comp_${save.name}`, type="hidden")
-                        .ms-cm-save__title(data-i18n=save.name)
-                        .ms-cm-save__value
-                        .ms-cm-save__desc(data-i18n=save.desc)
-                
-                input(name=`comp_skills`, type="hidden")
-                input(name=`comp_skill_choices`, type="hidden")
-                each stat in stats 
-                    input(name=`comp_${stat.attr}_modifier`, type="hidden")
-            .ms-cm-compendium
+                .choice.presetclass
+                    h3.t__cname
+                    each save in saves 
+                        .ms-cm-save 
+                            input(name=`comp_${save.name}`, type="hidden")
+                            .ms-cm-save__title(data-i18n=save.name)
+                            .ms-cm-save__value(class=`t__${save.name}`)
+                    
+                    input(name=`comp_skills`, type="hidden")
+                    input(name=`comp_skill_choice`, type="hidden")
+                    each stat in stats 
+                        input(name=`comp_${stat.attr}_modifier`, type="hidden")
+                    input(name=`comp_health`, type="hidden")
+                    .ms-cm-skills
+                        .ms-cm-skills__title(data-i18n="stress effect")
+                        .t__stress_effect
+                    .ms-cm-skills
+                        .ms-cm-skills__title(data-i18n="skills")
+                        .t__skills
+                        .t__skill_choice
+                    .ms-cm-skills
+                        .ms-cm-skills__title(data-i18n="skill points")
+                        .t__skill_points
+                .choice.customclass
+                    each field in custom_class
+                        .ms-cm-row
+                            .ms-cm-row__label(data-i18n=field.name)
+                            if (field.type === "long")
+                                input.ms-cm-row__input--long(name=`comp_${field.attr}`)
+                            else
+                                input.ms-cm-row__input(name=`comp_${field.attr}`)
+                .ms-cm-center
+                    button.ms-cm-button--roll(data-i18n="Reselect Class", name="act_reselectc", type="action")
 
-        +charmancer-pagecontrol({action: "intro", text:"previous"},{action: "cancel", text: "cancel"},{action: "stats", text: "next"})
+            .ms-cm-compendium.choice.showclassinfo
+
+        +charmancer-pagecontrol({action: "stats", text:"previous"},{action: "cancel", text: "cancel"},{action: "skills", text: "next"})
 
 charmancer.sheet-repeating-class
-    .ms-cm-class
-        .ms-cm-class__img
-        .ms-cm-class__title
-        .ms-cm-class__desc
+    input.ms-cm-hide(name="comp_name", type="hidden")
+    label.ms-cm-class
+        input.ms-cm-hide(name="comp_selected", type="checkbox")
+        .ms-cm-class__img.t__img
+        .ms-cm-class__title.t__title
+        .ms-cm-class__desc.t__desc
+
+charmancer.sheet-repeating-skillselection
+    .ms-cm-skill
+        .ms-cm-skill__title(data-i18n="choose a skill")
+        select.ms-cm-skill__select(name="comp_skill")
+            option(data-i18n="choose")
+        .choice.delete
+            button.ms-cm-skill__delete(name="act_deleteskill", type="action") x
+        input(name="comp_skill_type", type="hidden")

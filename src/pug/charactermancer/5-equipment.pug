@@ -1,3 +1,10 @@
+- 
+    const credit_roll = [
+        `&{template:default}`,
+        `{{title=credit roll}}`,
+        `{{credits=[[5d10*10]]}}`   
+    ].join();
+
 charmancer.sheet-charmancer-equipment
     .sheet-cm-wrapper
         +charmancer-navigation("skills")
@@ -8,18 +15,34 @@ charmancer.sheet-charmancer-equipment
                 .ms-cm-package
                     .ms-cm-package__title(data-i18n="choose an equipment package")
                     select.ms-cm-skill__select(name="comp_package")
-                        option(data-i18n="choose")
+                        option(data-i18n="choose", value="choose")
+                    .t__package
+                    .choice.custompackage
+                        span(data-i18n="You can add custom equipment to the character sheet after completeing the charactermancer.")
+                                        
+                .ms-cm-credits
+                    .ms-cm-credits__title(data-i18n="starting credits")
+                    .ms-cm-credits__roll
+                        button(name="roll_credits", type="roll", value=credit_roll)
+                        input(name="comp_credits", type="hidden")
+                    .ms-cm-credits__display.t__credits
 
                 .ms-cm-trinket
-                    .ms-cm-trinket__title(data-i18n="roll a trinket")
-                    .ms-cm-trinket__roll.ms-t__trinketroll
-                    .ms-cm-trinket__display.ms-t__trinket
+                    .ms-cm-trinket__title(data-i18n="trinket")
+                    .ms-cm-trinket__roll.t__trinketroll
+                    .ms-cm-trinket__display.t__trinket
+                    .choice.customtrinket
+                        span(data-i18n="Add a custom trinket.")
+                        input(name="comp_trinket", type="hidden")
 
                 .ms-cm-patch
-                    .ms-cm-patch__title(data-i18n="roll a patch")
-                    .ms-cm-patch__roll.ms-t__patchroll
-                    .ms-cm-patch__display.ms-t__patch
+                    .ms-cm-patch__title(data-i18n="patch")
+                    .ms-cm-patch__roll.t__patchroll
+                    .ms-cm-patch__display.t__patch
+                    .choice.custompatch
+                        span(data-i18n="Add a custom patch.")
+                        input(name="comp_patch", type="hidden")
 
             .ms-cm-compendium
 
-    +charmancer-pagecontrol({action: "intro", text:"previous"},{action: "cancel", text: "cancel"},{action: "stats", text: "next"})
+        +charmancer-pagecontrol({action: "skills", text:"previous"},{action: "cancel", text: "cancel"},{action: "review", text: "next"})

@@ -3,15 +3,50 @@ charmancer.sheet-charmancer-skills
         +charmancer-navigation("skills")
         .t__topbar
         .ms-cm-container
-            .ms-cm-panel
-                .ms-cm-skills__display.ms-t__baseskills
-                .ms-cm-skillselects.ms-t__skillselects
-            .ms-cm-compendium
+            .ms-cm-panel--skills
+                .ms-cm-skillpoints.t__skillpointserror
+                    input(name="comp_skillpoints", type="hidden")
+                    input(name="comp_skillpoints_max", type="hidden")
+                    .ms-cm-skillpoints__label(data-i18n="remaining skillpoints")
+                    .ms-cm-skillpoints__value.t__skillpoints
+                .ms-cm-skillcol
+                    each skill in skills.trained    
+                        -
+                            const attr = skill.name.replace(/ /g,"_");
+                        .ms-cm-skill     
+                            label.ms-cm-skill__wrapper(class=`ms-skill--${attr}`)
+                                input(name=`comp_${attr}`, type="checkbox")
+                                input(name=`comp_${attr}_type`, type="hidden")
+                                div.ms_cm-skill__check
+                                div.ms-cm-skill__name(data-i18n=skill.name, type="roll", value=roll3)
+                            span.ms-tooltip
+                                p
+                                    span(data-i18n=skill.desc)
+                .ms-cm-skillcol
+                    each skill in skills.expert    
+                        -
+                            const attr = skill.name.replace(/ /g,"_");
+                        .ms-cm-skill     
+                            label.ms-cm-skill__wrapper(class=`ms-skill--${attr}`)
+                                input(name=`comp_${attr}`, type="checkbox")
+                                input(name=`comp_${attr}_type`, type="hidden")
+                                div.ms_cm-skill__check
+                                div.ms-cm-skill__name(data-i18n=skill.name, type="roll", value=roll3)
+                            span.ms-tooltip
+                                p
+                                    span(data-i18n=skill.desc)
+                .ms-cm-skillcol
+                    each skill in skills.master    
+                        -
+                            const attr = skill.name.replace(/ /g,"_");
+                        .ms-cm-skill     
+                            label.ms-cm-skill__wrapper(class=`ms-skill--${attr}`)
+                                input(name=`comp_${attr}`, type="checkbox")
+                                input(name=`comp_${attr}_type`, type="hidden")
+                                div.ms_cm-skill__check
+                                div.ms-cm-skill__name(data-i18n=skill.name, type="roll", value=roll3)
+                            span.ms-tooltip
+                                p
+                                    span(data-i18n=skill.desc)
 
-        +charmancer-pagecontrol({action: "intro", text:"previous"},{action: "cancel", text: "cancel"},{action: "stats", text: "next"})
-
-charmancer.sheet-repeating-skillselection
-    .ms-cm-skill
-        .ms-cm-skill__title(data-i18n="choose a skill")
-        select.ms-cm-skill__select(name="comp_skill")
-            option(data-i18n="choose")
+        +charmancer-pagecontrol({action: "class", text:"previous"},{action: "cancel", text: "cancel"},{action: "equipment", text: "next"})

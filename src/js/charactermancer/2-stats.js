@@ -1,12 +1,36 @@
 {
+    const stats = ["strength","speed","intellect","combat"];
+
+    const onLoadStats = () => {
+        const data = getCharmancerData();
+
+        if (data?.stats?.values?.["strength"]) {
+            const updateHTML = {};
+        
+            showChoices(["showstats"]); 
+
+            stats.forEach(stat => updateHTML[`t__${stat}`] = data.stats.values[stat]);
+    
+            setCharmancerText(updateHTML);
+        }
+    }
+
     const onRollStats = (rolls) => {
         const updateHTML = {};
-        const updateAttrs = {};    
+        const updateAttrs = {};
+        
+        showChoices(["showstats"]); 
 
         rolls.forEach((roll, index) => { 
-            updateHTML[`cm-target-${attributes[index]}`] = roll.result;
-            updateAttrs[`${attributes[index]}`] = roll.result;
+            updateHTML[`t__${stats[index]}`] = roll.result;
+            updateAttrs[`${stats[index]}`] = roll.result;
         });
+
+        updateAttrs["health"] = updateAttrs["strength"] * 2;
+        updateAttrs["stress"] = 2;
+        updateAttrs["resolve"] = "0";
+
+        console.log(updateAttrs);
     
         setCharmancerText(updateHTML);
         setAttrs(updateAttrs);
@@ -14,4 +38,5 @@
     }
 
     on(`mancerroll:stats`, eventInfo => onRollStats(eventInfo.roll));
+    on(`page:stats`, eventInfo => onLoadStats(eventInfo.roll));
 }
