@@ -1,0 +1,268 @@
+.sheet-ms-cm {
+
+    &-wrapper {
+        position: relative;
+        display: grid;
+            grid-template-rows: 15rem 1fr 6rem;
+        min-height: 450px;
+
+        font-family: $ms-fonts-body; 
+        
+        * {
+            box-sizing: border-box;
+        }
+    }
+
+    &-topstats {
+        display: grid;
+            grid-template-columns: 1fr .5fr;
+            align-items: center;
+        gap: $ms-margin;
+    }
+
+    &-stats {
+        display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: $ms-margin;
+        padding: 0 $ms-margin;
+
+        border-right: $ms-border-thicker;
+            border-color: #ddd;
+
+        &--main {
+            @extend .sheet-ms-cm-stats;
+            margin: $ms-margin-large * 3 auto;
+            width: 70%;
+
+            border: 0;
+        }
+    }
+
+    &-altstats {
+        display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: $ms-margin;
+    }
+
+    &-saves {
+        grid-column: span 2;
+        display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: $ms-margin;
+        padding: $ms-margin;
+        
+        background: #ddd;
+        border-radius: 3rem;
+    }
+
+    &-altstat {
+        display: grid;
+            justify-items: center;
+        
+        &__title {
+            font-family: $ms-fonts-header;
+            font-size: 10pt;
+            font-weight: bolder;
+            text-transform: uppercase;
+        }
+        
+        &__value {
+            width: 5rem;
+            height: 5rem;
+            padding: 0;
+
+            background: $ms-background;
+            border: $ms-border-thicker;
+                border-radius: 50%;
+            color: $ms-foreground;
+
+            font-family: $ms-fonts-header;
+            font-size: 2rem;
+            font-weight: bolder;
+            line-height: 4rem;
+            text-align: center;
+        }
+    }
+
+    &-mainstat {
+        display: grid;
+            align-items: center;
+            justify-items: center;
+        overflow: hidden; 
+        
+        &__title {
+            width: 100%; 
+
+            background: $ms-invert-background;
+            border-radius: 2.5rem;
+            color: $ms-invert-foreground;
+
+            font-family: $ms-fonts-header;
+            font-size: 1.5rem;
+            font-weight: bolder;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        
+        &__value {
+            margin: $ms-margin-small 0;
+            padding: 0;
+
+            font-family: $ms-fonts-header;
+            font-size: 3rem;
+            font-weight: bolder;
+            text-align: center;
+        }
+    }
+
+    &-mainsave {
+        display: grid;
+            grid-template-columns: 2fr 1fr;
+            justify-items: center;
+        overflow: hidden; 
+
+        border: $ms-border-thicker;
+            border-radius: 2.5rem;
+        
+        &__title {
+            width: 100%; 
+
+            background: $ms-invert-background;
+            color: $ms-invert-foreground;
+
+            font-family: $ms-fonts-header;
+            font-size: 2rem;
+            font-weight: bolder;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        
+        &__value {
+            width: 100%;
+            padding: 0;
+
+            background: $ms-background;
+
+            font-family: $ms-fonts-header;
+            font-size: 2rem;
+            font-weight: bolder;
+            line-height: 3rem;
+            text-align: center;
+        }
+    }
+
+    &-container {
+
+    }
+
+    &-pagecontrol {
+        position: sticky;
+            bottom: 0;
+        display: grid;
+            grid-template-columns: .25fr 1fr .25fr;
+            justify-items: center;
+        width: 50%;
+        margin: auto;
+
+        button[type="back"]#{&}__left, 
+        button[type="back"]#{&}__right {
+            width: 4.5rem;
+            height: 4.5rem;
+            padding: 0;
+
+            background: $ms-background;
+            border: $ms-border-thicker;
+                border-radius: 2.5rem;
+            color: $ms-foreground;
+
+            font-family: "Pictos";
+            font-size: 0;
+            line-height: 1;
+
+            &:before {
+                display: block;
+                
+                font-size: 20pt;
+            }
+        }
+
+        button[type="back"]#{&}__left {
+            grid-column: 1;
+
+            &:before {
+                content: "[";
+            }
+        }
+
+        button[type="back"]#{&}__right {
+            grid-column: 3;
+            
+            &:before {
+                content: "]";
+            }
+        }
+
+        button[type="cancel"]#{&}__middle {
+            grid-column: 2;
+            height: 4.5rem;
+            padding: 0 .25rem;
+
+            background: $ms-background;
+            border: $ms-border-thicker;
+                border-color: $ms-accent;
+                border-radius: 2.5rem;
+            color: $ms-accent;
+
+            font-family: $ms-fonts-header;
+            font-size: 16pt;
+            font-weight: bolder;
+            text-transform: uppercase;
+        }
+    }
+
+    &-logo {
+        width: 75%;
+        margin: 3rem 12.5%;
+
+        filter: invert(1);
+    }
+
+    &-welcometext {
+        font-family: $ms-fonts-body !important;
+        font-size: 2rem;
+        text-align: center; 
+
+    }
+
+    &-center {
+        display: grid;
+            justify-items: center;
+    }
+    
+    &-button {
+        
+        &--roll {
+            padding: $ms-margin !important;
+            margin: 0 !important;
+
+            background: $ms-invert-background;
+            color: $ms-invert-foreground;
+            border-radius: 2em;
+
+            font-family: $ms-fonts-header;
+            font-size: 4rem;
+            font-weight: bolder;
+            line-height: 3rem;
+            text-align: center;
+            text-transform: uppercase;
+
+            &:before {
+                margin-right: $ms-margin-small;
+            }
+        }
+
+    }
+
+
+
+}

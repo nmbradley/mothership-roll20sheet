@@ -9,8 +9,7 @@
     ].join();
 
 charmancer.sheet-charmancer-stats
-    .sheet-cm-wrapper
-        +charmancer-navigation("stats")
+    .ms-cm-wrapper
         .t__topbar
         .ms-cm-container
             .ms-cm-panel
@@ -20,11 +19,11 @@ charmancer.sheet-charmancer-stats
                 input(name=`comp_stress`, type="hidden")
                 input(name=`comp_resolve`, type="hidden")
 
-                .ms-cm-stat--grid.choice.showstats
+                .ms-cm-stats--main.choice.showstats
                     each stat in stats
-                        .ms-cm-stat__item(class=`ms-cm-stat__item--${stat.attr}`)
-                            .ms-cm-stat__label(data-i18n=stat.attr)
-                            .ms-cm-stat__value(class=`t__${stat.attr}`)
+                        .ms-cm-mainstat
+                            .ms-cm-mainstat__title(data-i18n=stat.attr)
+                            .ms-cm-mainstat__value(class=`t__${stat.attr}`)
                             input(name=`comp_${stat.attr}`, type="hidden")
                 .ms-cm-center
                     button.ms-cm-button--roll(data-i18n="Roll Stats", name="roll_stats", type="roll", value=stat_roll)
