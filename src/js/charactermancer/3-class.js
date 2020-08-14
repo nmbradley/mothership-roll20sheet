@@ -21,6 +21,8 @@
                 const skills = (class_object?.data?.["Skills"]) ? JSON.parse(class_object.data["Skills"]) : false;
                 const skills_choice = (class_object?.data?.["Skill Choice"]) ? JSON.parse(class_object.data["Skill Choice"]) : false;
                 const stat_bonus = (class_object?.data?.["Stat Bonus"]) ? JSON.parse(class_object.data["Stat Bonus"]) : false;
+                const description = (class_object?.data?.["data-Description"]) ? class_object.data["data-Description"] : "Undefined"; 
+                const img = (class_object?.data?.["data-class_image"]) ? class_object.data["data-class_image"] : "Undefined";
 
                 addRepeatingSection(`sheet-t__classes`, `class`, section_id => {
 
@@ -31,7 +33,7 @@
 
                         updateAttrs[`${section_id}_name`] = "custom";
 
-                        updateHTML[`${section_id} .sheet-t__img`] = "";
+                        updateHTML[`${section_id} .sheet-t__img`] = `<img src="https://s3.amazonaws.com/files.d20.io/images/156707384/n7TD2kDSyn433GHWIRI58g/max.png" />`;
                         updateHTML[`${section_id} .sheet-t__title`] = getTranslationByKey("custom");
                         updateHTML[`${section_id} .sheet-t__desc`] = getTranslationByKey("choose this option to enter your own information");
 
@@ -39,52 +41,55 @@
 
                         updateAttrs[`${section_id}_name`] = class_object.name;
 
-                        updateHTML[`${section_id} .sheet-t__img`] = "";
+                        updateHTML[`${section_id} .sheet-t__img`] = `<img src="${img}" />`;
                         updateHTML[`${section_id} .sheet-t__title`] = class_object.name;
                         updateHTML[`${section_id} .sheet-t__desc`] = `
-                            <p>${class_object.data.description}</p>
-                            <h3>${getTranslationByKey("saves")}:</h3>
+                            <p>${description}</p>
                         `;
 
-                        const saves_array = [];
+                        // updateHTML[`${section_id} .sheet-t__desc`] += `
+                        //     <h3>${getTranslationByKey("saves")}:</h3>
+                        // `;
 
-                        Object.entries(saves).forEach(([key, value]) => {
-                            saves_array.push(`<strong>${key}</strong> ${value}`);
-                        })
+                        // const saves_array = [];
+
+                        // Object.entries(saves).forEach(([key, value]) => {
+                        //     saves_array.push(`<strong>${key}</strong> ${value}`);
+                        // })
                         
-                        updateHTML[`${section_id} .sheet-t__desc`] += saves_array.join(", ");
+                        // updateHTML[`${section_id} .sheet-t__desc`] += saves_array.join("<br />");
 
-                        updateHTML[`${section_id} .sheet-t__desc`] += `<h3>${getTranslationByKey("stats")}:</h3>`;
+                        // updateHTML[`${section_id} .sheet-t__desc`] += `<h3>${getTranslationByKey("stats")}:</h3>`;
 
-                        const stats_array = [];
+                        // const stats_array = [];
 
-                        Object.entries(stat_bonus).forEach(([key, value]) => {
-                            stats_array.push(`<strong>${key}</strong> +${value}`);
-                        });
+                        // Object.entries(stat_bonus).forEach(([key, value]) => {
+                        //     stats_array.push(`<strong>${key}</strong> +${value}`);
+                        // });
 
-                        updateHTML[`${section_id} .sheet-t__desc`] += stats_array.join(", ");
+                        // updateHTML[`${section_id} .sheet-t__desc`] += stats_array.join(", ");
 
-                        updateHTML[`${section_id} .sheet-t__desc`] += `<h3>${getTranslationByKey("skills")}:</h3>`;
+                        // updateHTML[`${section_id} .sheet-t__desc`] += `<h3>${getTranslationByKey("skills")}:</h3>`;
 
-                        if (skills) {
+                        // if (skills) {
 
-                            const skills_array = [];
+                        //     const skills_array = [];
 
-                            skills.forEach(skill => skills_array.push(skill));
+                        //     skills.forEach(skill => skills_array.push(skill));
 
-                            updateHTML[`${section_id} .sheet-t__desc`] += `<p>${skills_array.join(", ")}</p>`;
+                        //     updateHTML[`${section_id} .sheet-t__desc`] += `<p>${skills_array.join(", ")}</p>`;
 
-                        } 
+                        // } 
 
-                        if (skills_choice) {
+                        // if (skills_choice) {
 
-                            const skillchoice_array = [];
+                        //     const skillchoice_array = [];
 
-                            skills_choice[0].forEach((choice) => skillchoice_array.push(choice));
+                        //     skills_choice[0].forEach((choice) => skillchoice_array.push(choice));
 
-                            updateHTML[`${section_id} .sheet-t__desc`] += `<p>${skillchoice_array.join(" or ")}</p>`;
+                        //     updateHTML[`${section_id} .sheet-t__desc`] += `<p>${skillchoice_array.join(" or ")}</p>`;
 
-                        }
+                        // }
 
                     }
                     

@@ -500,6 +500,18 @@ const parseJSON = (string) => {
     }
 };
 
+const capitalizeString = (string) => {
+    string = string.replace(/_/g, " ");
+
+    [" ",":","(","/","-"].forEach(seperator => {
+        string = string.split(seperator).map(
+            word => `${word.slice(0,1).toUpperCase()}${word.slice(1,word.length)}`
+        ).join(seperator);
+    });
+
+    return string;
+}
+
 // EVENT HANDLERS
 
 skillArray.forEach(skill => on(`change:${skill}`, eventInfo => toggleSkill(skill, eventInfo.newValue)));

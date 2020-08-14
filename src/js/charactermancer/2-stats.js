@@ -29,9 +29,7 @@
         updateAttrs["health"] = updateAttrs["strength"] * 2;
         updateAttrs["stress"] = 2;
         updateAttrs["resolve"] = "0";
-
-        console.log(updateAttrs);
-    
+        
         setCharmancerText(updateHTML);
         setAttrs(updateAttrs);
 

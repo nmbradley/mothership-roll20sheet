@@ -66,27 +66,29 @@ charmancer.sheet-charmancer-class
         .ms-cm-container.choice.showclassinfo
             .ms-cm-panel
                 .choice.presetclass
-                    h3.t__cname
-                    each save in saves 
-                        .ms-cm-save 
-                            input(name=`comp_${save.name}`, type="hidden")
-                            .ms-cm-save__title(data-i18n=save.name)
-                            .ms-cm-save__value(class=`t__${save.name}`)
+                    h3.ms-cm-class__title--selected.t__cname
+                    .ms-cm-savegroup
+                        each save in saves 
+                            .ms-cm-mainsave 
+                                input(name=`comp_${save.name}`, type="hidden")
+                                .ms-cm-mainsave__title(data-i18n=save.name)
+                                .ms-cm-mainsave__value(class=`t__${save.name}`)
                     
                     input(name=`comp_skills`, type="hidden")
                     input(name=`comp_skill_choice`, type="hidden")
                     each stat in stats 
                         input(name=`comp_${stat.attr}_modifier`, type="hidden")
                     input(name=`comp_health`, type="hidden")
-                    .ms-cm-skills
-                        .ms-cm-skills__title(data-i18n="stress effect")
+
+                    .ms-cm-row
+                        .ms-cm-row__title(data-i18n="stress effect")
                         .t__stress_effect
-                    .ms-cm-skills
-                        .ms-cm-skills__title(data-i18n="skills")
+                    .ms-cm-row
+                        .ms-cm-row__title(data-i18n="skills")
                         .t__skills
                         .t__skill_choice
-                    .ms-cm-skills
-                        .ms-cm-skills__title(data-i18n="skill points")
+                    .ms-cm-row
+                        .ms-cm-row__title(data-i18n="skill points")
                         .t__skill_points
                 .choice.customclass
                     each field in custom_class
@@ -97,7 +99,7 @@ charmancer.sheet-charmancer-class
                             else
                                 input.ms-cm-row__input(name=`comp_${field.attr}`)
                 .ms-cm-center
-                    button.ms-cm-button--roll(data-i18n="Reselect Class", name="act_reselectc", type="action")
+                    button.ms-cm-button--action(data-i18n="reselect class", name="act_reselectc", type="action")
 
             .ms-cm-compendium.choice.showclassinfo
 
@@ -108,14 +110,12 @@ charmancer.sheet-repeating-class
     label.ms-cm-class
         input.ms-cm-hide(name="comp_selected", type="checkbox")
         .ms-cm-class__img.t__img
-        .ms-cm-class__title.t__title
+        h2.ms-cm-class__title.t__title
         .ms-cm-class__desc.t__desc
 
 charmancer.sheet-repeating-skillselection
-    .ms-cm-skill
-        .ms-cm-skill__title(data-i18n="choose a skill")
-        select.ms-cm-skill__select(name="comp_skill")
+    .ms-cm-row--skillselect
+        .ms-cm-row__title(data-i18n="choose a skill")
+        select.ms-cm-row__select(name="comp_skill")
             option(data-i18n="choose")
-        .choice.delete
-            button.ms-cm-skill__delete(name="act_deleteskill", type="action") x
         input(name="comp_skill_type", type="hidden")

@@ -3,43 +3,75 @@ charmancer.sheet-charmancer-review
         .ms-cm-container
             .ms-cm-panel--full
 
-                .ms-cm-statrow
+                .ms-cm-topstats
 
-                    each stat in stats
-                        .ms-cm-stat(class=`cm-stat--${stat.attr}`)
-                            .ms-cm-stat__label(data-i18n=`${stat.attr}`)
-                            .ms-cm-stat__value(class=`t__${stat.attr}`)
+                    .ms-cm-stats
 
-                .ms-cm-saverow 
+                        each stat in stats
+                            .ms-cm-mainstat(class=`cm-stat--${stat.attr}`)
+                                .ms-cm-mainstat__title(data-i18n=`${stat.attr}`)
+                                .ms-cm-mainstat__value(class=`t__${stat.attr}`)
+                                input(name=`comp__${stat.attr}`, type="hidden")
 
-                    each save in saves 
-                        .ms-cm-save 
-                            input(name=`comp_${save.name}`, type="hidden")
-                            .ms-cm-save__title(data-i18n=save.name)
-                            .ms-cm-save__value
-                            .ms-cm-save__desc(data-i18n=save.desc)
+                    .ms-cm-altstats
+                    
+                        .ms-cm-altstat
+                            .ms-cm-altstat__title(data-i18n="health")
+                            .ms-cm-altstat__value(class=`t__health`)
+                                input(name=`comp_health`, type="hidden")
 
-                .ms-cm-secrow
+                        .ms-cm-altstat
+                            .ms-cm-altstat__title(data-i18n="stress")
+                            .ms-cm-altstat__value(class=`t__stress`)
+                                input(name=`comp_stress`, type="hidden")
 
-                    .ms-cm-altstat
-                        .ms-cm-mainstat__title(data-i18n="health")
-                        .ms-cm-mainstat__value(class=`ms-t__health`)
-                            input(name=`comp_health`, type="hidden")
+                        .ms-cm-altstat
+                            .ms-cm-altstat__title(data-i18n="resolve")
+                            .ms-cm-altstat__value(class=`t__resolve`)
+                                input(name=`comp_resolve`, type="hidden")
 
-                    .ms-cm-altstat
-                        .ms-cm-mainstat__title(data-i18n="stress")
-                        .ms-cm-mainstat__value(class=`ms-t__stress`)
-                            input(name=`comp_stress`, type="hidden")
+                    .ms-cm-saves
 
-                    .ms-cm-altstat
-                        .ms-cm-mainstat__title(data-i18n="resolve")
-                        .ms-cm-mainstat__value(class=`ms-t__resolve`)
-                            input(name=`comp_resolve`, type="hidden")
+                        each save in saves 
+                            .ms-cm-mainsave
+                                .ms-cm-mainsave__title(data-i18n=save.name)
+                                .ms-cm-mainsave__value(class=`t__${save.name}`)
+                                input(name=`comp_${save.name}`, type="hidden")
 
-                .ms-cm-skillrow
-                    .ms-t__skilllist
+                .ms-cm-review
 
-                .ms-cm-equipment
-                    .ms-t__skilllist
+                    .ms-cm-skillrow
+                        h2(data-i18n="skills") 
+                        .ms-cm-skrow
+                            .ms-cm-skrow__title(data-i18n="remaining skillpoints")
+                            .ms-cm-skrow__display.t__skillpoints
+                        .ms-cm-skrow
+                            .ms-cm-skrow__title(data-i18n="skills")
+                        .t__skilllist
+                        input(name=`comp_skills`, type="hidden")
+                        input(name=`comp_skillpoints`, type="hidden")
+
+                    .ms-cm-equipment
+                        h2(data-i18n="equipment")
+                                                         
+                        .ms-cm-eqrow
+                            .ms-cm-eqrow__title(data-i18n="starting credits")
+                            .ms-cm-eqrow__display.t__credits
+                            input(name=`comp_credits`, type="hidden")
+
+                        .ms-cm-eqrow
+                            .ms-cm-eqrow__title(data-i18n="trinket")
+                            .ms-cm-eqrow__display.t__trinket
+                            input(name=`comp_trinket`, type="hidden")
+
+                        .ms-cm-eqrow
+                            .ms-cm-eqrow__title(data-i18n="patch")
+                            .ms-cm-eqrow__display.t__patch
+                            input(name=`comp_patch`, type="hidden")
+
+                        .ms-cm-eqrow
+                            .ms-cm-eqrow__title(data-i18n="equipment")
+                            
+                        .t__equipmentlist
 
         +charmancer-pagecontrol({action: "equipment", text: "back"},{action: "cancel", text: "cancel"},{action: "finish", text: "finish"})

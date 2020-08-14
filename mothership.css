@@ -882,7 +882,7 @@
 .sheet-ms-ship .sheet-ms-shipcargorow__cog, .sheet-ms-ship .sheet-ms-shipofficerrow__cog, .sheet-ms-ship .sheet-ms-shipweaponrow__cog, .sheet-ms-ship .sheet-ms-equipmentrow__cog, .sheet-ms-ship .sheet-ms-attackrow__cog, .sheet-ms-pc .sheet-ms-shipcargorow__cog, .sheet-ms-pc .sheet-ms-shipofficerrow__cog, .sheet-ms-pc .sheet-ms-shipweaponrow__cog, .sheet-ms-pc .sheet-ms-equipmentrow__cog, .sheet-ms-pc .sheet-ms-attackrow__cog {
   cursor: pointer;
 }
-crew .sheet-ms-ship .sheet-ms-shipcargorow__cog:hover span, crew .sheet-ms-ship .sheet-ms-shipofficerrow__cog:hover span, crew .sheet-ms-ship .sheet-ms-shipweaponrow__cog:hover span, crew .sheet-ms-ship .sheet-ms-equipmentrow__cog:hover span, crew .sheet-ms-ship .sheet-ms-attackrow__cog:hover span, crew .sheet-ms-pc .sheet-ms-shipcargorow__cog:hover span, crew .sheet-ms-pc .sheet-ms-shipofficerrow__cog:hover span, crew .sheet-ms-pc .sheet-ms-shipweaponrow__cog:hover span, crew .sheet-ms-pc .sheet-ms-equipmentrow__cog:hover span, crew .sheet-ms-pc .sheet-ms-attackrow__cog:hover span {
+.sheet-ms-ship .sheet-ms-shipcargorow__cog:hover span, .sheet-ms-ship .sheet-ms-shipofficerrow__cog:hover span, .sheet-ms-ship .sheet-ms-shipweaponrow__cog:hover span, .sheet-ms-ship .sheet-ms-equipmentrow__cog:hover span, .sheet-ms-ship .sheet-ms-attackrow__cog:hover span, .sheet-ms-pc .sheet-ms-shipcargorow__cog:hover span, .sheet-ms-pc .sheet-ms-shipofficerrow__cog:hover span, .sheet-ms-pc .sheet-ms-shipweaponrow__cog:hover span, .sheet-ms-pc .sheet-ms-equipmentrow__cog:hover span, .sheet-ms-pc .sheet-ms-attackrow__cog:hover span {
   opacity: 1;
 }
 .sheet-ms-ship .sheet-ms-shipcargorow__cog input[type=checkbox], .sheet-ms-ship .sheet-ms-shipofficerrow__cog input[type=checkbox], .sheet-ms-ship .sheet-ms-shipweaponrow__cog input[type=checkbox], .sheet-ms-ship .sheet-ms-equipmentrow__cog input[type=checkbox], .sheet-ms-ship .sheet-ms-attackrow__cog input[type=checkbox], .sheet-ms-pc .sheet-ms-shipcargorow__cog input[type=checkbox], .sheet-ms-pc .sheet-ms-shipofficerrow__cog input[type=checkbox], .sheet-ms-pc .sheet-ms-shipweaponrow__cog input[type=checkbox], .sheet-ms-pc .sheet-ms-equipmentrow__cog input[type=checkbox], .sheet-ms-pc .sheet-ms-attackrow__cog input[type=checkbox] {
@@ -1331,9 +1331,6 @@ crew .sheet-ms-ship .sheet-ms-shipcargorow__cog:hover span, crew .sheet-ms-ship 
   text-align: center;
 }
 
-input.sheet-skill-toggle {
-  border: 1px solid red;
-}
 input.sheet-skill-toggle[value*=psychology] ~ * .sheet-ms-skill--psychology {
   opacity: 1;
 }
@@ -1562,7 +1559,6 @@ input.sheet-skill-toggle[value*=weapon_specialization] ~ * .sheet-ms-skill--weap
 .sheet-ms-cm-wrapper {
   position: relative;
   display: grid;
-  grid-template-rows: 15rem 1fr 6rem;
   min-height: 450px;
   font-family: "Century Gothic", "Diadact Gothic", sans-serif;
 }
@@ -1584,8 +1580,7 @@ input.sheet-skill-toggle[value*=weapon_specialization] ~ * .sheet-ms-skill--weap
   border-color: #ddd;
 }
 .sheet-ms-cm-stats--main {
-  margin: 3.75rem auto;
-  width: 70%;
+  grid-template-columns: repeat(2, 1fr);
   border: 0;
 }
 .sheet-ms-cm-altstats {
@@ -1658,6 +1653,7 @@ input.sheet-skill-toggle[value*=weapon_specialization] ~ * .sheet-ms-skill--weap
   overflow: hidden;
   border: 4px solid #111;
   border-radius: 2.5rem;
+  background: #111;
 }
 .sheet-ms-cm-mainsave__title {
   width: 100%;
@@ -1679,17 +1675,43 @@ input.sheet-skill-toggle[value*=weapon_specialization] ~ * .sheet-ms-skill--weap
   line-height: 3rem;
   text-align: center;
 }
+.sheet-ms-cm-container {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+}
+.sheet-ms-cm-panel--full {
+  grid-column: 1/-1;
+}
+.sheet-ms-cm-panel--classes {
+  grid-column: 1/-1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  background: #000;
+  color: white;
+}
+.sheet-ms-cm-panel--skills {
+  grid-column: 1/-1;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
 .sheet-ms-cm-pagecontrol {
   position: sticky;
-  bottom: 0;
+  bottom: 10px;
   display: grid;
   grid-template-columns: 0.25fr 1fr 0.25fr;
   justify-items: center;
   width: 50%;
   margin: auto;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 2em;
 }
 .sheet-ms-cm-pagecontrol button[type=back].sheet-ms-cm-pagecontrol__left,
-.sheet-ms-cm-pagecontrol button[type=back].sheet-ms-cm-pagecontrol__right {
+.sheet-ms-cm-pagecontrol button[type=back].sheet-ms-cm-pagecontrol__right,
+.sheet-ms-cm-pagecontrol button[type=finish].sheet-ms-cm-pagecontrol__right {
   width: 4.5rem;
   height: 4.5rem;
   padding: 0;
@@ -1702,7 +1724,8 @@ input.sheet-skill-toggle[value*=weapon_specialization] ~ * .sheet-ms-skill--weap
   line-height: 1;
 }
 .sheet-ms-cm-pagecontrol button[type=back].sheet-ms-cm-pagecontrol__left:before,
-.sheet-ms-cm-pagecontrol button[type=back].sheet-ms-cm-pagecontrol__right:before {
+.sheet-ms-cm-pagecontrol button[type=back].sheet-ms-cm-pagecontrol__right:before,
+.sheet-ms-cm-pagecontrol button[type=finish].sheet-ms-cm-pagecontrol__right:before {
   display: block;
   font-size: 20pt;
 }
@@ -1717,6 +1740,14 @@ input.sheet-skill-toggle[value*=weapon_specialization] ~ * .sheet-ms-skill--weap
 }
 .sheet-ms-cm-pagecontrol button[type=back].sheet-ms-cm-pagecontrol__right:before {
   content: "]";
+}
+.sheet-ms-cm-pagecontrol button[type=finish].sheet-ms-cm-pagecontrol__right {
+  grid-column: 3;
+  border-color: green;
+  color: green;
+}
+.sheet-ms-cm-pagecontrol button[type=finish].sheet-ms-cm-pagecontrol__right:before {
+  content: "3";
 }
 .sheet-ms-cm-pagecontrol button[type=cancel].sheet-ms-cm-pagecontrol__middle {
   grid-column: 2;
@@ -1750,8 +1781,10 @@ input.sheet-skill-toggle[value*=weapon_specialization] ~ * .sheet-ms-skill--weap
   padding: 1rem !important;
   margin: 0 !important;
   background: #111;
-  color: white;
+  border: 0;
   border-radius: 2em;
+  box-shadow: none;
+  color: white;
   font-family: "Montserrat", "Arial Black", sans-serif;
   font-size: 4rem;
   font-weight: bolder;
@@ -1761,4 +1794,396 @@ input.sheet-skill-toggle[value*=weapon_specialization] ~ * .sheet-ms-skill--weap
 }
 .sheet-ms-cm-button--roll:before {
   margin-right: 0.5rem;
+}
+.sheet-ms-cm-button--action {
+  padding: 1rem !important;
+  margin: 0 !important;
+  background: #111;
+  color: white;
+  box-shadow: none;
+  border: 0;
+  border-radius: 2em;
+  font-family: "Montserrat", "Arial Black", sans-serif;
+  font-size: 2rem;
+  font-weight: bolder;
+  line-height: 2rem;
+  text-align: center;
+  text-transform: uppercase;
+}
+.sheet-ms-cm-button--action:before {
+  margin-right: 0.5rem;
+}
+.sheet-ms-cm-class {
+  padding: 0.5rem;
+  color: white !important;
+  cursor: pointer;
+}
+.sheet-ms-cm-class:hover h2 {
+  color: red;
+}
+.sheet-ms-cm-class__title {
+  color: white;
+  font-family: "Montserrat", "Arial Black", sans-serif;
+  font-size: 2.25rem;
+  font-weight: bolder;
+  text-align: center;
+  text-transform: uppercase;
+}
+.sheet-ms-cm-class__title--selected {
+  margin: 2rem 0;
+  color: #111;
+  font-family: "Montserrat", "Arial Black", sans-serif;
+  font-size: 4rem;
+  font-weight: bolder;
+  text-align: center;
+  text-transform: uppercase;
+}
+.sheet-ms-cm-class__desc {
+  font-size: 1.35rem;
+  font-weight: normal;
+  text-transform: capitalize;
+}
+.sheet-ms-cm-class__desc h3 {
+  margin-top: 0.5rem;
+  color: white;
+  font-family: "Montserrat", "Arial Black", sans-serif;
+  font-size: 1.75rem;
+  font-weight: bolder;
+  text-align: left;
+  text-transform: uppercase;
+}
+.sheet-ms-cm-class__img img {
+  margin: auto;
+  border-radius: 50%;
+}
+.sheet-ms-cm-class input[type=checkbox] {
+  position: absolute;
+  left: -99999px;
+  height: 0;
+  width: 0;
+}
+.sheet-ms-cm-class p {
+  font-family: "Century Gothic", "Diadact Gothic", sans-serif;
+  font-size: 1.35rem;
+  font-weight: normal;
+  text-transform: none;
+}
+.sheet-ms-cm-savegroup {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+  padding: 0.5rem 0;
+  border-top: 4px solid #111;
+  border-color: #ddd;
+}
+.sheet-ms-cm-row {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0;
+  border-top: 4px solid #111;
+  border-color: #ddd;
+  font-size: 1.5rem;
+}
+.sheet-ms-cm-row__title {
+  margin-top: 1rem;
+  font-family: "Montserrat", "Arial Black", sans-serif;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.sheet-ms-cm-skillpoints {
+  grid-column: 1/-1;
+  position: sticky;
+  top: 0;
+  padding: 0 33%;
+  z-index: 100;
+  background: white;
+  border-bottom: 4px solid #111;
+  font-size: 2rem;
+  text-align: center;
+}
+.sheet-ms-cm-skillpoints__label {
+  color: #111;
+  font-family: "Montserrat", "Arial Black", sans-serif;
+  font-size: 1.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.sheet-ms-cm-skill {
+  position: relative;
+}
+.sheet-ms-cm-skill input[type=checkbox] {
+  position: absolute;
+  left: -99999px;
+}
+.sheet-ms-cm-skill input[type=checkbox]:checked ~ .sheet-ms-cm-skill__check {
+  background: white url("https://s3.amazonaws.com/files.d20.io/images/138210119/cvUNlZk3lj7GZXQEsKIBWw/max.png?1590443685") no-repeat center/75%;
+}
+.sheet-ms-cm-skill label {
+  margin: 1rem 0 !important;
+  padding: 1rem !important;
+  background: #111;
+  border-radius: 2.5rem;
+  color: white;
+  text-transform: uppercase;
+  font-size: 1.35rem;
+  font-family: "Montserrat", "Arial Black", sans-serif;
+}
+.sheet-ms-cm-skill label:hover {
+  color: red;
+  cursor: pointer;
+}
+.sheet-ms-cm-skill label:hover + .sheet-ms-cm-tooltip {
+  display: block !important;
+}
+.sheet-ms-cm-skill__wrapper {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr;
+  align-items: center;
+  width: 90%;
+  margin: 0 auto;
+}
+.sheet-ms-cm-skill__check {
+  display: block;
+  height: 2.25rem;
+  width: 2.25rem;
+  margin-left: -1.5rem;
+  border: 2px solid #111;
+  border-radius: 50%;
+  background: white;
+}
+.sheet-ms-cm-tooltip {
+  display: none;
+  position: absolute;
+  top: 25px;
+  left: 50px;
+  z-index: 1000;
+  min-width: 60px;
+  max-width: 250px;
+  min-height: 1.5rem;
+  margin: 1rem;
+  padding: 1rem;
+  border-radius: 1em;
+  background: rgba(17, 17, 17, 0.9);
+  color: white;
+}
+.sheet-ms-cm-tooltip strong {
+  font-family: "Montserrat", "Arial Black", sans-serif;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.sheet-ms-cm-tooltip strong:after {
+  display: inline;
+  content: ":";
+  margin-right: 0.5rem;
+}
+.sheet-ms-cm-tooltip strong + span {
+  text-transform: capitalize;
+}
+.sheet-ms-cm-tooltip strong + span:first-letter {
+  text-transform: uppercase;
+}
+.sheet-ms-cm-tooltip > div {
+  text-transform: capitalize;
+}
+.sheet-ms-cm-tooltip p {
+  margin: 0;
+  padding: 0;
+  font-family: "Century Gothic", "Diadact Gothic", sans-serif;
+}
+.sheet-ms-cm-tooltip p:first-letter {
+  text-transform: uppercase;
+}
+.sheet-ms-cm-skillcol--expert .sheet-ms-cm-skill__wrapper, .sheet-ms-cm-skillcol--master .sheet-ms-cm-skill__wrapper {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.sheet-ms-cm-package, .sheet-ms-cm-credits, .sheet-ms-cm-trinket, .sheet-ms-cm-patch {
+  margin: 0.5rem 0;
+  padding: 0.5rem 0;
+  border-top: 4px solid #111;
+  border-color: #ddd;
+}
+.sheet-ms-cm-package__title, .sheet-ms-cm-credits__title, .sheet-ms-cm-trinket__title, .sheet-ms-cm-patch__title {
+  color: #111;
+  font-family: "Montserrat", "Arial Black", sans-serif;
+  font-size: 1.35rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.sheet-ms-cm-package__roll, .sheet-ms-cm-credits__roll, .sheet-ms-cm-trinket__roll, .sheet-ms-cm-patch__roll {
+  grid-column: 2;
+  grid-row: span 2;
+}
+.sheet-ms-cm-package__roll button, .sheet-ms-cm-credits__roll button, .sheet-ms-cm-trinket__roll button, .sheet-ms-cm-patch__roll button {
+  height: 4rem;
+  width: 4rem;
+  padding: 1rem !important;
+  margin: 0 !important;
+  background: #111;
+  border: 0;
+  border-radius: 2em;
+  box-shadow: none;
+  color: white;
+  font-family: "Montserrat", "Arial Black", sans-serif;
+  font-size: 4rem;
+  font-weight: bolder;
+  line-height: 2rem;
+  text-align: center;
+  text-transform: uppercase;
+}
+.sheet-ms-cm-credits, .sheet-ms-cm-trinket, .sheet-ms-cm-patch {
+  display: grid;
+  grid-template-columns: 1fr 4rem;
+}
+.sheet-ms-cm-review {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.sheet-ms-cm-skillrow h2, .sheet-ms-cm-equipment h2 {
+  color: #111;
+  font-family: "Montserrat", "Arial Black", sans-serif;
+  font-size: 3rem;
+  font-weight: bold;
+  text-align: center;
+  text-transform: uppercase;
+}
+.sheet-ms-cm-skrow, .sheet-ms-cm-eqrow {
+  display: grid;
+  grid-template-columns: 0.75fr 1fr;
+}
+.sheet-ms-cm-skrow__title, .sheet-ms-cm-eqrow__title {
+  color: #111;
+  font-family: "Montserrat", "Arial Black", sans-serif;
+  font-size: 1.35rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+input[name=comp_unlocked][value*=psychology] ~ * .sheet-ms-cm-skill__wrapper--psychology {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=genetics] ~ * .sheet-ms-cm-skill__wrapper--genetics {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=pathology] ~ * .sheet-ms-cm-skill__wrapper--pathology {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=botany] ~ * .sheet-ms-cm-skill__wrapper--botany {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=planetology] ~ * .sheet-ms-cm-skill__wrapper--planetology {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=asteroid_mining] ~ * .sheet-ms-cm-skill__wrapper--asteroid_mining {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=jury_rigging] ~ * .sheet-ms-cm-skill__wrapper--jury_rigging {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=engineering] ~ * .sheet-ms-cm-skill__wrapper--engineering {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=hacking] ~ * .sheet-ms-cm-skill__wrapper--hacking {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=vehicle_specialization] ~ * .sheet-ms-cm-skill__wrapper--vehicle_specialization {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=astrogation] ~ * .sheet-ms-cm-skill__wrapper--astrogation {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=physics] ~ * .sheet-ms-cm-skill__wrapper--physics {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=mysticism] ~ * .sheet-ms-cm-skill__wrapper--mysticism {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=tactics] ~ * .sheet-ms-cm-skill__wrapper--tactics {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=gunnery] ~ * .sheet-ms-cm-skill__wrapper--gunnery {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=firearms] ~ * .sheet-ms-cm-skill__wrapper--firearms {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=close-quarters_combat] ~ * .sheet-ms-cm-skill__wrapper--close-quarters_combat {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=explosives] ~ * .sheet-ms-cm-skill__wrapper--explosives {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=sophontology] ~ * .sheet-ms-cm-skill__wrapper--sophontology {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=xenobiology] ~ * .sheet-ms-cm-skill__wrapper--xenobiology {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=surgery] ~ * .sheet-ms-cm-skill__wrapper--surgery {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=cybernetics] ~ * .sheet-ms-cm-skill__wrapper--cybernetics {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=robotics] ~ * .sheet-ms-cm-skill__wrapper--robotics {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=artificial_intelligence] ~ * .sheet-ms-cm-skill__wrapper--artificial_intelligence {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=command] ~ * .sheet-ms-cm-skill__wrapper--command {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=hyperspace] ~ * .sheet-ms-cm-skill__wrapper--hyperspace {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=xenoesotericism] ~ * .sheet-ms-cm-skill__wrapper--xenoesotericism {
+  opacity: 1;
+  pointer-events: unset;
+}
+input[name=comp_unlocked][value*=weapon_specialization] ~ * .sheet-ms-cm-skill__wrapper--weapon_specialization {
+  opacity: 1;
+  pointer-events: unset;
+}
+
+input[name*=comp_trained_lock][value=on] ~ .sheet-ms-cm-skillcol--trained .sheet-ms-cm-skill__wrapper {
+  opacity: 0.5 !important;
+  pointer-events: none !important;
+}
+
+input[name*=comp_expert_lock][value=on] ~ .sheet-ms-cm-skillcol--expert .sheet-ms-cm-skill__wrapper {
+  opacity: 0.5 !important;
+  pointer-events: none !important;
+}
+
+input[name*=comp_master_lock][value=on] ~ .sheet-ms-cm-skillcol--master .sheet-ms-cm-skill__wrapper {
+  opacity: 0.5 !important;
+  pointer-events: none !important;
 }

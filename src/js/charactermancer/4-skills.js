@@ -10,7 +10,7 @@
         "scavenging",
         "heavy_machinery",
         "computers",
-        "mechanical repair",
+        "mechanical_repair",
         "driving",
         "piloting",
         "mathematics",
@@ -122,10 +122,11 @@
 
         const sp_remaining = sp_total - sp_spent;
 
-        if (sp_remaining === 2) updateAttrs["master_lock"] = "on";
-        if (sp_remaining === 1) updateAttrs["expert_lock"] = "on";
+        if (sp_remaining <= 2) updateAttrs["master_lock"] = "on";
+        if (sp_remaining <= 1) updateAttrs["expert_lock"] = "on";
         if (sp_remaining <= 0) updateAttrs["trained_lock"] = "on";
 
+        updateAttrs["skill_points"] = sp_remaining;
         updateHTML["t__skillpoints"] = `${sp_remaining} / ${sp_total}`;
 
         setCharmancerText(updateHTML);
@@ -137,25 +138,30 @@
         const existing_values = (data?.skills?.values?.unlocked) ? data.skills.values.unlocked.trim() : "";
         const value_list = existing_values.split(" ");
         const unlocks = skillList[skill].unlocks || [];
+        
+        const existing_skills = (data?.skills?.values?.owned) ? data.skills.values.owned.trim() : "";
+        const skill_list = existing_skills.split(" ");
 
         let update_attr = "";
+        let owned = "";
+
+        if (new_value === "on" && skill_list.includes(skill)) return;
     
         if (typeof new_value === "undefined") {
 
             unlocks.forEach(item => value_list.splice(value_list.indexOf(item), 1));
-
-            update_attr = value_list.join(" ");
+            skill_list.filter(item => item !== skill)
 
         } else if (new_value === "on") {
-    
-            update_attr = existing_values + " ";
-    
-            if (unlocks === []) return;
             
-            unlocks.forEach(unlock => update_attr += `${unlock} `);
+            if (unlocks.length !== 0) unlocks.forEach(unlock => value_list.push(unlock));
+            skill_list.push(skill);
         }
+
+        update_attr = value_list.join(" ");
+        owned = skill_list.join(" ");
             
-        setAttrs({unlocked:update_attr}); 
+        setAttrs({unlocked:update_attr, owned: owned}); 
 
     };
 

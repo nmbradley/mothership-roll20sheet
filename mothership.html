@@ -2192,26 +2192,28 @@
     <div class="ms-cm-container choice showclassinfo">
       <div class="ms-cm-panel">
         <div class="choice presetclass">
-          <h3 class="t__cname"></h3>
-          <div class="ms-cm-save"> 
-            <input name="comp_sanity" type="hidden"/>
-            <div class="ms-cm-save__title" data-i18n="sanity"></div>
-            <div class="ms-cm-save__value t__sanity"></div>
-          </div>
-          <div class="ms-cm-save"> 
-            <input name="comp_fear" type="hidden"/>
-            <div class="ms-cm-save__title" data-i18n="fear"></div>
-            <div class="ms-cm-save__value t__fear"></div>
-          </div>
-          <div class="ms-cm-save"> 
-            <input name="comp_body" type="hidden"/>
-            <div class="ms-cm-save__title" data-i18n="body"></div>
-            <div class="ms-cm-save__value t__body"></div>
-          </div>
-          <div class="ms-cm-save"> 
-            <input name="comp_armor" type="hidden"/>
-            <div class="ms-cm-save__title" data-i18n="armor"></div>
-            <div class="ms-cm-save__value t__armor"></div>
+          <h3 class="ms-cm-class__title--selected t__cname"></h3>
+          <div class="ms-cm-savegroup">
+            <div class="ms-cm-mainsave"> 
+              <input name="comp_sanity" type="hidden"/>
+              <div class="ms-cm-mainsave__title" data-i18n="sanity"></div>
+              <div class="ms-cm-mainsave__value t__sanity"></div>
+            </div>
+            <div class="ms-cm-mainsave"> 
+              <input name="comp_fear" type="hidden"/>
+              <div class="ms-cm-mainsave__title" data-i18n="fear"></div>
+              <div class="ms-cm-mainsave__value t__fear"></div>
+            </div>
+            <div class="ms-cm-mainsave"> 
+              <input name="comp_body" type="hidden"/>
+              <div class="ms-cm-mainsave__title" data-i18n="body"></div>
+              <div class="ms-cm-mainsave__value t__body"></div>
+            </div>
+            <div class="ms-cm-mainsave"> 
+              <input name="comp_armor" type="hidden"/>
+              <div class="ms-cm-mainsave__title" data-i18n="armor"></div>
+              <div class="ms-cm-mainsave__value t__armor"></div>
+            </div>
           </div>
           <input name="comp_skills" type="hidden"/>
           <input name="comp_skill_choice" type="hidden"/>
@@ -2220,17 +2222,17 @@
           <input name="comp_intellect_modifier" type="hidden"/>
           <input name="comp_combat_modifier" type="hidden"/>
           <input name="comp_health" type="hidden"/>
-          <div class="ms-cm-skills">
-            <div class="ms-cm-skills__title" data-i18n="stress effect"></div>
+          <div class="ms-cm-row">
+            <div class="ms-cm-row__title" data-i18n="stress effect"></div>
             <div class="t__stress_effect"></div>
           </div>
-          <div class="ms-cm-skills">
-            <div class="ms-cm-skills__title" data-i18n="skills"></div>
+          <div class="ms-cm-row">
+            <div class="ms-cm-row__title" data-i18n="skills"></div>
             <div class="t__skills"></div>
             <div class="t__skill_choice"></div>
           </div>
-          <div class="ms-cm-skills">
-            <div class="ms-cm-skills__title" data-i18n="skill points"></div>
+          <div class="ms-cm-row">
+            <div class="ms-cm-row__title" data-i18n="skill points"></div>
             <div class="t__skill_points"></div>
           </div>
         </div>
@@ -2281,7 +2283,7 @@
           </div>
         </div>
         <div class="ms-cm-center">
-          <button class="ms-cm-button--roll" data-i18n="Reselect Class" name="act_reselectc" type="action"></button>
+          <button class="ms-cm-button--action" data-i18n="reselect class" name="act_reselectc" type="action"></button>
         </div>
       </div>
       <div class="ms-cm-compendium choice showclassinfo"></div>
@@ -2298,19 +2300,16 @@
   <label class="ms-cm-class">
     <input class="ms-cm-hide" name="comp_selected" type="checkbox"/>
     <div class="ms-cm-class__img t__img"></div>
-    <div class="ms-cm-class__title t__title"></div>
+    <h2 class="ms-cm-class__title t__title"></h2>
     <div class="ms-cm-class__desc t__desc"></div>
   </label>
 </charmancer>
 <charmancer class="sheet-repeating-skillselection">
-  <div class="ms-cm-skill">
-    <div class="ms-cm-skill__title" data-i18n="choose a skill"></div>
-    <select class="ms-cm-skill__select" name="comp_skill">
+  <div class="ms-cm-row--skillselect">
+    <div class="ms-cm-row__title" data-i18n="choose a skill"></div>
+    <select class="ms-cm-row__select" name="comp_skill">
       <option data-i18n="choose"></option>
     </select>
-    <div class="choice delete">
-      <button class="ms-cm-skill__delete" name="act_deleteskill" type="action">x</button>
-    </div>
     <input name="comp_skill_type" type="hidden"/>
   </div>
 </charmancer>
@@ -2319,447 +2318,452 @@
     <div class="t__topbar"></div>
     <div class="ms-cm-container">
       <div class="ms-cm-panel--skills">
+        <input name="comp_owned" type="hidden"/>
+        <input name="comp_unlocked" type="hidden"/>
+        <input name="comp_trained_lock" type="hidden"/>
+        <input name="comp_expert_lock" type="hidden"/>
+        <input name="comp_master_lock" type="hidden"/>
         <div class="ms-cm-skillpoints t__skillpointserror">
           <input name="comp_skillpoints" type="hidden"/>
           <input name="comp_skillpoints_max" type="hidden"/>
           <div class="ms-cm-skillpoints__label" data-i18n="remaining skillpoints"></div>
           <div class="ms-cm-skillpoints__value t__skillpoints"></div>
         </div>
-        <div class="ms-cm-skillcol">
+        <div class="ms-cm-skillcol--trained">
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--linguistics">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--linguistics">
               <input name="comp_linguistics" type="checkbox"/>
               <input name="comp_linguistics_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="linguistics" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Study of language"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--biology">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--biology">
               <input name="comp_biology" type="checkbox"/>
               <input name="comp_biology_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="biology" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Study of life"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--first_aid">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--first_aid">
               <input name="comp_first_aid" type="checkbox"/>
               <input name="comp_first_aid_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="first aid" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Emergency medical care and treatment"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--hydroponics">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--hydroponics">
               <input name="comp_hydroponics" type="checkbox"/>
               <input name="comp_hydroponics_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="hydroponics" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Growing plants in nutrient solutions without soil (farming in space)"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--geology">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--geology">
               <input name="comp_geology" type="checkbox"/>
               <input name="comp_geology_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="geology" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="The solid features of any terrestrial planet or natural satellite"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--zero-g">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--zero-g">
               <input name="comp_zero-g" type="checkbox"/>
               <input name="comp_zero-g_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="zero-g" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Working in a vaccuum, vaccsuits, etc."></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--scavenging">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--scavenging">
               <input name="comp_scavenging" type="checkbox"/>
               <input name="comp_scavenging_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="scavenging" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Searching discarded wastes for useful items"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--heavy_machinery">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--heavy_machinery">
               <input name="comp_heavy_machinery" type="checkbox"/>
               <input name="comp_heavy_machinery_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="heavy machinery" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Operation and use of large pieces of equipment (cranes, exosuits, forkliftsm etc.)"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--computers">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--computers">
               <input name="comp_computers" type="checkbox"/>
               <input name="comp_computers_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="computers" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Fluent use of computers and networks"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--mechanical_repair">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--mechanical_repair">
               <input name="comp_mechanical_repair" type="checkbox"/>
               <input name="comp_mechanical_repair_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="mechanical repair" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Fixing broken machines"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--driving">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--driving">
               <input name="comp_driving" type="checkbox"/>
               <input name="comp_driving_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="driving" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Operation and control of motor vehicles"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--piloting">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--piloting">
               <input name="comp_piloting" type="checkbox"/>
               <input name="comp_piloting_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="piloting" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Operation and control of air and spacecraft"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--mathematics">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--mathematics">
               <input name="comp_mathematics" type="checkbox"/>
               <input name="comp_mathematics_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="mathematics" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="The science of numbers, quantity, and space"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--art">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--art">
               <input name="comp_art" type="checkbox"/>
               <input name="comp_art_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="art" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="The expression or application of a species' creative ability and imagination"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--archaeology">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--archaeology">
               <input name="comp_archaeology" type="checkbox"/>
               <input name="comp_archaeology_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="archaeology" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Ancient cultures and their artifacts"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--theology">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--theology">
               <input name="comp_theology" type="checkbox"/>
               <input name="comp_theology_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="theology" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Study of religion"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--military_training">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--military_training">
               <input name="comp_military_training" type="checkbox"/>
               <input name="comp_military_training_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="military training" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Standard basic training given to all military personnel"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--rimwise">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--rimwise">
               <input name="comp_rimwise" type="checkbox"/>
               <input name="comp_rimwise_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="rimwise" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Outer rim colonies and seedy parts of the galaxy"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--athletics">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--athletics">
               <input name="comp_athletics" type="checkbox"/>
               <input name="comp_athletics_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="athletics" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Physical sports and games"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--chemistry">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--chemistry">
               <input name="comp_chemistry" type="checkbox"/>
               <input name="comp_chemistry_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="chemistry" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="The identification of the substances of which matter is composed"></span></p></span>
           </div>
         </div>
-        <div class="ms-cm-skillcol">
+        <div class="ms-cm-skillcol--expert">
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--psychology">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--psychology">
               <input name="comp_psychology" type="checkbox"/>
               <input name="comp_psychology_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="psychology" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="The study of behavior and the human mind"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--genetics">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--genetics">
               <input name="comp_genetics" type="checkbox"/>
               <input name="comp_genetics_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="genetics" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Heredity and the variation of the inherited characteristics"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--pathology">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--pathology">
               <input name="comp_pathology" type="checkbox"/>
               <input name="comp_pathology_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="pathology" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Study of the cause and effect of disease"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--botany">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--botany">
               <input name="comp_botany" type="checkbox"/>
               <input name="comp_botany_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="botany" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="The study of plant life"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--planetology">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--planetology">
               <input name="comp_planetology" type="checkbox"/>
               <input name="comp_planetology_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="planetology" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Study of planets and other celestial body"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--asteroid_mining">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--asteroid_mining">
               <input name="comp_asteroid_mining" type="checkbox"/>
               <input name="comp_asteroid_mining_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="asteroid mining" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Training in the tools and procedures used in mining asteroids"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--jury_rigging">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--jury_rigging">
               <input name="comp_jury_rigging" type="checkbox"/>
               <input name="comp_jury_rigging_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="jury rigging" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Makeshift repairs"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--engineering">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--engineering">
               <input name="comp_engineering" type="checkbox"/>
               <input name="comp_engineering_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="engineering" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Design, building, and use of engines, machines, and structures"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--hacking">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--hacking">
               <input name="comp_hacking" type="checkbox"/>
               <input name="comp_hacking_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="hacking" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Unauthorized access to computer systems"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--vehicle_specialization">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--vehicle_specialization">
               <input name="comp_vehicle_specialization" type="checkbox"/>
               <input name="comp_vehicle_specialization_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="vehicle specialization" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Specific vehicle class"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--astrogation">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--astrogation">
               <input name="comp_astrogation" type="checkbox"/>
               <input name="comp_astrogation_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="astrogation" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Navigation in outer space"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--physics">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--physics">
               <input name="comp_physics" type="checkbox"/>
               <input name="comp_physics_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="physics" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Study of nature and properties of matter and energy"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--mysticism">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--mysticism">
               <input name="comp_mysticism" type="checkbox"/>
               <input name="comp_mysticism_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="mysticism" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Spiritual apprehension of hidden knowledge"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--tactics">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--tactics">
               <input name="comp_tactics" type="checkbox"/>
               <input name="comp_tactics_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="tactics" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Manuevering military forces in battle"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--gunnery">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--gunnery">
               <input name="comp_gunnery" type="checkbox"/>
               <input name="comp_gunnery_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="gunnery" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Starship weaponry"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--firearms">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--firearms">
               <input name="comp_firearms" type="checkbox"/>
               <input name="comp_firearms_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="firearms" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Guns and their use"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--close-quarters_combat">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--close-quarters_combat">
               <input name="comp_close-quarters_combat" type="checkbox"/>
               <input name="comp_close-quarters_combat_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="close-quarters combat" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Hand-tohand, melee fighting"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--explosives">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--explosives">
               <input name="comp_explosives" type="checkbox"/>
               <input name="comp_explosives_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="explosives" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Bombs and incendiary devices"></span></p></span>
           </div>
         </div>
-        <div class="ms-cm-skillcol">
+        <div class="ms-cm-skillcol--master">
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--sophontology">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--sophontology">
               <input name="comp_sophontology" type="checkbox"/>
               <input name="comp_sophontology_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="sophontology" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Alien psychology"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--xenobiology">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--xenobiology">
               <input name="comp_xenobiology" type="checkbox"/>
               <input name="comp_xenobiology_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="xenobiology" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Alien biology"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--surgery">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--surgery">
               <input name="comp_surgery" type="checkbox"/>
               <input name="comp_surgery_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="surgery" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Medical speciality involving manual operation"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--cybernetics">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--cybernetics">
               <input name="comp_cybernetics" type="checkbox"/>
               <input name="comp_cybernetics_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="cybernetics" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Interface between man and machine"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--robotics">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--robotics">
               <input name="comp_robotics" type="checkbox"/>
               <input name="comp_robotics_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="robotics" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Design and operation of robots, drones, and androids"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--artificial_intelligence">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--artificial_intelligence">
               <input name="comp_artificial_intelligence" type="checkbox"/>
               <input name="comp_artificial_intelligence_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="artificial intelligence" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Knowledge of simulacrum of human consciousness"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--command">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--command">
               <input name="comp_command" type="checkbox"/>
               <input name="comp_command_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="command" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Leadership and authority"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--hyperspace">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--hyperspace">
               <input name="comp_hyperspace" type="checkbox"/>
               <input name="comp_hyperspace_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="hyperspace" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="FTL travel"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--xenoesotericism">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--xenoesotericism">
               <input name="comp_xenoesotericism" type="checkbox"/>
               <input name="comp_xenoesotericism_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="xenoesotericism" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Obscure alien mysticism, religion, and belief"></span></p></span>
           </div>
           <div class="ms-cm-skill">    
-            <label class="ms-cm-skill__wrapper ms-skill--weapon_specialization">
+            <label class="ms-cm-skill__wrapper ms-cm-skill__wrapper--weapon_specialization">
               <input name="comp_weapon_specialization" type="checkbox"/>
               <input name="comp_weapon_specialization_type" type="hidden"/>
-              <div class="ms_cm-skill__check"></div>
+              <div class="ms-cm-skill__check"></div>
               <div class="ms-cm-skill__name" data-i18n="weapon specialization" type="roll"></div>
-            </label><span class="ms-tooltip">
+            </label><span class="ms-cm-tooltip">
               <p><span data-i18n="Proficiency with a specific weapon"></span></p></span>
           </div>
         </div>
@@ -2779,6 +2783,7 @@
       <div class="ms-cm-panel">
         <div class="ms-cm-package">
           <div class="ms-cm-package__title" data-i18n="choose an equipment package"></div>
+          <input name="comp_equipment" type="hidden"/>
           <select class="ms-cm-skill__select" name="comp_package">
             <option data-i18n="choose" value="choose"></option>
           </select>
@@ -2823,75 +2828,108 @@
   <div class="ms-cm-wrapper">
     <div class="ms-cm-container">
       <div class="ms-cm-panel--full">
-        <div class="ms-cm-statrow">
-          <div class="ms-cm-stat cm-stat--strength">
-            <div class="ms-cm-stat__label" data-i18n="strength"></div>
-            <div class="ms-cm-stat__value t__strength"></div>
-          </div>
-          <div class="ms-cm-stat cm-stat--speed">
-            <div class="ms-cm-stat__label" data-i18n="speed"></div>
-            <div class="ms-cm-stat__value t__speed"></div>
-          </div>
-          <div class="ms-cm-stat cm-stat--intellect">
-            <div class="ms-cm-stat__label" data-i18n="intellect"></div>
-            <div class="ms-cm-stat__value t__intellect"></div>
-          </div>
-          <div class="ms-cm-stat cm-stat--combat">
-            <div class="ms-cm-stat__label" data-i18n="combat"></div>
-            <div class="ms-cm-stat__value t__combat"></div>
-          </div>
-        </div>
-        <div class="ms-cm-saverow"> 
-          <div class="ms-cm-save"> 
-            <input name="comp_sanity" type="hidden"/>
-            <div class="ms-cm-save__title" data-i18n="sanity"></div>
-            <div class="ms-cm-save__value"></div>
-            <div class="ms-cm-save__desc" data-i18n="Sanity is your ability to explain away logical inconsistencies in the universe, rationalize and make sense out of chaos, detect illusions and mimicry and think quickly under pressure."></div>
-          </div>
-          <div class="ms-cm-save"> 
-            <input name="comp_fear" type="hidden"/>
-            <div class="ms-cm-save__title" data-i18n="fear"></div>
-            <div class="ms-cm-save__value"></div>
-            <div class="ms-cm-save__desc" data-i18n="Fear is how well you can cope with emotional trauma, and covers not only fear, but also loneliness, depression or any other emotional surge."></div>
-          </div>
-          <div class="ms-cm-save"> 
-            <input name="comp_body" type="hidden"/>
-            <div class="ms-cm-save__title" data-i18n="body"></div>
-            <div class="ms-cm-save__value"></div>
-            <div class="ms-cm-save__desc" data-i18n="Body is your reflexes, and how well you can resist hunger, disease or any other organism that might attempt to invade your insides."></div>
-          </div>
-          <div class="ms-cm-save"> 
-            <input name="comp_armor" type="hidden"/>
-            <div class="ms-cm-save__title" data-i18n="armor"></div>
-            <div class="ms-cm-save__value"></div>
-            <div class="ms-cm-save__desc" data-i18n="Armor is how resistant you ae to damage sustained during combat, whether that be through bullets, claws, teeth, etc."></div>
-          </div>
-        </div>
-        <div class="ms-cm-secrow">
-          <div class="ms-cm-altstat">
-            <div class="ms-cm-mainstat__title" data-i18n="health"></div>
-            <div class="ms-cm-mainstat__value ms-t__health">
-              <input name="comp_health" type="hidden"/>
+        <div class="ms-cm-topstats">
+          <div class="ms-cm-stats">
+            <div class="ms-cm-mainstat cm-stat--strength">
+              <div class="ms-cm-mainstat__title" data-i18n="strength"></div>
+              <div class="ms-cm-mainstat__value t__strength"></div>
+              <input name="comp__strength" type="hidden"/>
+            </div>
+            <div class="ms-cm-mainstat cm-stat--speed">
+              <div class="ms-cm-mainstat__title" data-i18n="speed"></div>
+              <div class="ms-cm-mainstat__value t__speed"></div>
+              <input name="comp__speed" type="hidden"/>
+            </div>
+            <div class="ms-cm-mainstat cm-stat--intellect">
+              <div class="ms-cm-mainstat__title" data-i18n="intellect"></div>
+              <div class="ms-cm-mainstat__value t__intellect"></div>
+              <input name="comp__intellect" type="hidden"/>
+            </div>
+            <div class="ms-cm-mainstat cm-stat--combat">
+              <div class="ms-cm-mainstat__title" data-i18n="combat"></div>
+              <div class="ms-cm-mainstat__value t__combat"></div>
+              <input name="comp__combat" type="hidden"/>
             </div>
           </div>
-          <div class="ms-cm-altstat">
-            <div class="ms-cm-mainstat__title" data-i18n="stress"></div>
-            <div class="ms-cm-mainstat__value ms-t__stress">
-              <input name="comp_stress" type="hidden"/>
+          <div class="ms-cm-altstats">
+            <div class="ms-cm-altstat">
+              <div class="ms-cm-altstat__title" data-i18n="health"></div>
+              <div class="ms-cm-altstat__value t__health">
+                <input name="comp_health" type="hidden"/>
+              </div>
+            </div>
+            <div class="ms-cm-altstat">
+              <div class="ms-cm-altstat__title" data-i18n="stress"></div>
+              <div class="ms-cm-altstat__value t__stress">
+                <input name="comp_stress" type="hidden"/>
+              </div>
+            </div>
+            <div class="ms-cm-altstat">
+              <div class="ms-cm-altstat__title" data-i18n="resolve"></div>
+              <div class="ms-cm-altstat__value t__resolve">
+                <input name="comp_resolve" type="hidden"/>
+              </div>
             </div>
           </div>
-          <div class="ms-cm-altstat">
-            <div class="ms-cm-mainstat__title" data-i18n="resolve"></div>
-            <div class="ms-cm-mainstat__value ms-t__resolve">
-              <input name="comp_resolve" type="hidden"/>
+          <div class="ms-cm-saves">
+            <div class="ms-cm-mainsave">
+              <div class="ms-cm-mainsave__title" data-i18n="sanity"></div>
+              <div class="ms-cm-mainsave__value t__sanity"></div>
+              <input name="comp_sanity" type="hidden"/>
+            </div>
+            <div class="ms-cm-mainsave">
+              <div class="ms-cm-mainsave__title" data-i18n="fear"></div>
+              <div class="ms-cm-mainsave__value t__fear"></div>
+              <input name="comp_fear" type="hidden"/>
+            </div>
+            <div class="ms-cm-mainsave">
+              <div class="ms-cm-mainsave__title" data-i18n="body"></div>
+              <div class="ms-cm-mainsave__value t__body"></div>
+              <input name="comp_body" type="hidden"/>
+            </div>
+            <div class="ms-cm-mainsave">
+              <div class="ms-cm-mainsave__title" data-i18n="armor"></div>
+              <div class="ms-cm-mainsave__value t__armor"></div>
+              <input name="comp_armor" type="hidden"/>
             </div>
           </div>
         </div>
-        <div class="ms-cm-skillrow">
-          <div class="ms-t__skilllist"></div>
-        </div>
-        <div class="ms-cm-equipment">
-          <div class="ms-t__skilllist"></div>
+        <div class="ms-cm-review">
+          <div class="ms-cm-skillrow">
+            <h2 data-i18n="skills"> </h2>
+            <div class="ms-cm-skrow">
+              <div class="ms-cm-skrow__title" data-i18n="remaining skillpoints"></div>
+              <div class="ms-cm-skrow__display t__skillpoints"></div>
+            </div>
+            <div class="ms-cm-skrow">
+              <div class="ms-cm-skrow__title" data-i18n="skills"></div>
+            </div>
+            <div class="t__skilllist"></div>
+            <input name="comp_skills" type="hidden"/>
+            <input name="comp_skillpoints" type="hidden"/>
+          </div>
+          <div class="ms-cm-equipment">
+            <h2 data-i18n="equipment"></h2>
+            <div class="ms-cm-eqrow">
+              <div class="ms-cm-eqrow__title" data-i18n="starting credits"></div>
+              <div class="ms-cm-eqrow__display t__credits"></div>
+              <input name="comp_credits" type="hidden"/>
+            </div>
+            <div class="ms-cm-eqrow">
+              <div class="ms-cm-eqrow__title" data-i18n="trinket"></div>
+              <div class="ms-cm-eqrow__display t__trinket"></div>
+              <input name="comp_trinket" type="hidden"/>
+            </div>
+            <div class="ms-cm-eqrow">
+              <div class="ms-cm-eqrow__title" data-i18n="patch"></div>
+              <div class="ms-cm-eqrow__display t__patch"></div>
+              <input name="comp_patch" type="hidden"/>
+            </div>
+            <div class="ms-cm-eqrow">
+              <div class="ms-cm-eqrow__title" data-i18n="equipment"></div>
+            </div>
+            <div class="t__equipmentlist"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -3415,6 +3453,18 @@ const parseJSON = (string) => {
     }
 };
 
+const capitalizeString = (string) => {
+    string = string.replace(/_/g, " ");
+
+    [" ",":","(","/","-"].forEach(seperator => {
+        string = string.split(seperator).map(
+            word => `${word.slice(0,1).toUpperCase()}${word.slice(1,word.length)}`
+        ).join(seperator);
+    });
+
+    return string;
+}
+
 // EVENT HANDLERS
 
 skillArray.forEach(skill => on(`change:${skill}`, eventInfo => toggleSkill(skill, eventInfo.newValue)));
@@ -3556,9 +3606,7 @@ on(`clicked:launch_charmancer`, eventInfo => startCharactermancer("intro"));
         updateAttrs["health"] = updateAttrs["strength"] * 2;
         updateAttrs["stress"] = 2;
         updateAttrs["resolve"] = "0";
-
-        console.log(updateAttrs);
-    
+        
         setCharmancerText(updateHTML);
         setAttrs(updateAttrs);
 
@@ -3589,6 +3637,8 @@ on(`clicked:launch_charmancer`, eventInfo => startCharactermancer("intro"));
                 const skills = (class_object?.data?.["Skills"]) ? JSON.parse(class_object.data["Skills"]) : false;
                 const skills_choice = (class_object?.data?.["Skill Choice"]) ? JSON.parse(class_object.data["Skill Choice"]) : false;
                 const stat_bonus = (class_object?.data?.["Stat Bonus"]) ? JSON.parse(class_object.data["Stat Bonus"]) : false;
+                const description = (class_object?.data?.["data-Description"]) ? class_object.data["data-Description"] : "Undefined"; 
+                const img = (class_object?.data?.["data-class_image"]) ? class_object.data["data-class_image"] : "Undefined";
 
                 addRepeatingSection(`sheet-t__classes`, `class`, section_id => {
 
@@ -3599,7 +3649,7 @@ on(`clicked:launch_charmancer`, eventInfo => startCharactermancer("intro"));
 
                         updateAttrs[`${section_id}_name`] = "custom";
 
-                        updateHTML[`${section_id} .sheet-t__img`] = "";
+                        updateHTML[`${section_id} .sheet-t__img`] = `<img src="https://s3.amazonaws.com/files.d20.io/images/156707384/n7TD2kDSyn433GHWIRI58g/max.png" />`;
                         updateHTML[`${section_id} .sheet-t__title`] = getTranslationByKey("custom");
                         updateHTML[`${section_id} .sheet-t__desc`] = getTranslationByKey("choose this option to enter your own information");
 
@@ -3607,52 +3657,55 @@ on(`clicked:launch_charmancer`, eventInfo => startCharactermancer("intro"));
 
                         updateAttrs[`${section_id}_name`] = class_object.name;
 
-                        updateHTML[`${section_id} .sheet-t__img`] = "";
+                        updateHTML[`${section_id} .sheet-t__img`] = `<img src="${img}" />`;
                         updateHTML[`${section_id} .sheet-t__title`] = class_object.name;
                         updateHTML[`${section_id} .sheet-t__desc`] = `
-                            <p>${class_object.data.description}</p>
-                            <h3>${getTranslationByKey("saves")}:</h3>
+                            <p>${description}</p>
                         `;
 
-                        const saves_array = [];
+                        // updateHTML[`${section_id} .sheet-t__desc`] += `
+                        //     <h3>${getTranslationByKey("saves")}:</h3>
+                        // `;
 
-                        Object.entries(saves).forEach(([key, value]) => {
-                            saves_array.push(`<strong>${key}</strong> ${value}`);
-                        })
+                        // const saves_array = [];
+
+                        // Object.entries(saves).forEach(([key, value]) => {
+                        //     saves_array.push(`<strong>${key}</strong> ${value}`);
+                        // })
                         
-                        updateHTML[`${section_id} .sheet-t__desc`] += saves_array.join(", ");
+                        // updateHTML[`${section_id} .sheet-t__desc`] += saves_array.join("<br />");
 
-                        updateHTML[`${section_id} .sheet-t__desc`] += `<h3>${getTranslationByKey("stats")}:</h3>`;
+                        // updateHTML[`${section_id} .sheet-t__desc`] += `<h3>${getTranslationByKey("stats")}:</h3>`;
 
-                        const stats_array = [];
+                        // const stats_array = [];
 
-                        Object.entries(stat_bonus).forEach(([key, value]) => {
-                            stats_array.push(`<strong>${key}</strong> +${value}`);
-                        });
+                        // Object.entries(stat_bonus).forEach(([key, value]) => {
+                        //     stats_array.push(`<strong>${key}</strong> +${value}`);
+                        // });
 
-                        updateHTML[`${section_id} .sheet-t__desc`] += stats_array.join(", ");
+                        // updateHTML[`${section_id} .sheet-t__desc`] += stats_array.join(", ");
 
-                        updateHTML[`${section_id} .sheet-t__desc`] += `<h3>${getTranslationByKey("skills")}:</h3>`;
+                        // updateHTML[`${section_id} .sheet-t__desc`] += `<h3>${getTranslationByKey("skills")}:</h3>`;
 
-                        if (skills) {
+                        // if (skills) {
 
-                            const skills_array = [];
+                        //     const skills_array = [];
 
-                            skills.forEach(skill => skills_array.push(skill));
+                        //     skills.forEach(skill => skills_array.push(skill));
 
-                            updateHTML[`${section_id} .sheet-t__desc`] += `<p>${skills_array.join(", ")}</p>`;
+                        //     updateHTML[`${section_id} .sheet-t__desc`] += `<p>${skills_array.join(", ")}</p>`;
 
-                        } 
+                        // } 
 
-                        if (skills_choice) {
+                        // if (skills_choice) {
 
-                            const skillchoice_array = [];
+                        //     const skillchoice_array = [];
 
-                            skills_choice[0].forEach((choice) => skillchoice_array.push(choice));
+                        //     skills_choice[0].forEach((choice) => skillchoice_array.push(choice));
 
-                            updateHTML[`${section_id} .sheet-t__desc`] += `<p>${skillchoice_array.join(" or ")}</p>`;
+                        //     updateHTML[`${section_id} .sheet-t__desc`] += `<p>${skillchoice_array.join(" or ")}</p>`;
 
-                        }
+                        // }
 
                     }
                     
@@ -3830,7 +3883,7 @@ on(`clicked:launch_charmancer`, eventInfo => startCharactermancer("intro"));
         "scavenging",
         "heavy_machinery",
         "computers",
-        "mechanical repair",
+        "mechanical_repair",
         "driving",
         "piloting",
         "mathematics",
@@ -3942,10 +3995,11 @@ on(`clicked:launch_charmancer`, eventInfo => startCharactermancer("intro"));
 
         const sp_remaining = sp_total - sp_spent;
 
-        if (sp_remaining === 2) updateAttrs["master_lock"] = "on";
-        if (sp_remaining === 1) updateAttrs["expert_lock"] = "on";
+        if (sp_remaining <= 2) updateAttrs["master_lock"] = "on";
+        if (sp_remaining <= 1) updateAttrs["expert_lock"] = "on";
         if (sp_remaining <= 0) updateAttrs["trained_lock"] = "on";
 
+        updateAttrs["skill_points"] = sp_remaining;
         updateHTML["t__skillpoints"] = `${sp_remaining} / ${sp_total}`;
 
         setCharmancerText(updateHTML);
@@ -3957,25 +4011,30 @@ on(`clicked:launch_charmancer`, eventInfo => startCharactermancer("intro"));
         const existing_values = (data?.skills?.values?.unlocked) ? data.skills.values.unlocked.trim() : "";
         const value_list = existing_values.split(" ");
         const unlocks = skillList[skill].unlocks || [];
+        
+        const existing_skills = (data?.skills?.values?.owned) ? data.skills.values.owned.trim() : "";
+        const skill_list = existing_skills.split(" ");
 
         let update_attr = "";
+        let owned = "";
+
+        if (new_value === "on" && skill_list.includes(skill)) return;
     
         if (typeof new_value === "undefined") {
 
             unlocks.forEach(item => value_list.splice(value_list.indexOf(item), 1));
-
-            update_attr = value_list.join(" ");
+            skill_list.filter(item => item !== skill)
 
         } else if (new_value === "on") {
-    
-            update_attr = existing_values + " ";
-    
-            if (unlocks === []) return;
             
-            unlocks.forEach(unlock => update_attr += `${unlock} `);
+            if (unlocks.length !== 0) unlocks.forEach(unlock => value_list.push(unlock));
+            skill_list.push(skill);
         }
+
+        update_attr = value_list.join(" ");
+        owned = skill_list.join(" ");
             
-        setAttrs({unlocked:update_attr}); 
+        setAttrs({unlocked:update_attr, owned: owned}); 
 
     };
 
@@ -4022,6 +4081,7 @@ on(`clicked:launch_charmancer`, eventInfo => startCharactermancer("intro"));
             const items = packages[new_value].map(item => (Array.isArray(item)) ? `${item[0]} (${item[1]})` : item).join(", ");
 
             setCharmancerText({"t__package":items});
+            setAttrs({"equipment":JSON.stringify(packages[new_value])});
 
         } else if (new_value === "custom") {
 
@@ -4029,7 +4089,7 @@ on(`clicked:launch_charmancer`, eventInfo => startCharactermancer("intro"));
 
             setCharmancerText({"t__package":""});
 
-        } else console.warn("Equipment Package not found.")
+        }
         
 
     };
@@ -4073,7 +4133,7 @@ on(`clicked:launch_charmancer`, eventInfo => startCharactermancer("intro"));
     const rollCredits = (roll) => {
 
         setAttrs({credits:roll[0].result});
-        setCharmancerText({t__credits:`${roll[0].result} credits`});
+        setCharmancerText({t__credits:`${roll[0].result}`});
         
     };
 
@@ -4096,10 +4156,6 @@ on(`clicked:launch_charmancer`, eventInfo => startCharactermancer("intro"));
 
             patches = (data?.data?.patches) ? parseJSON(data.data.patches) : [];
 
-            console.log(patches)
-            console.log(roll[0].result)
-            console.log(patches[roll[0].result])
-
             setAttrs({patch:patches[roll[0].result]});
             setCharmancerText({t__patch:patches[roll[0].result]});
         
@@ -4112,6 +4168,81 @@ on(`clicked:launch_charmancer`, eventInfo => startCharactermancer("intro"));
     on(`mancerroll:credits`, eventInfo => rollCredits(eventInfo.roll));
     on(`mancerroll:trinket`, eventInfo => rollTrinket(eventInfo.roll));
     on(`mancerroll:patch`, eventInfo => rollPatch(eventInfo.roll));
+}{
+
+    const onLoadReview = () => {
+        const data = getCharmancerData();
+
+        const updateHTML = {};
+        const updateAttrs = {};
+
+        ["strength","speed","intellect","combat","health","stress","resolve","sanity","fear","body","armor"].forEach(item => {
+            let value = (data?.equipment?.values?.[item]) ? data.equipment.values[item] :
+                        (data?.skills?.values?.[item]) ? data.skills.values[item] :
+                        (data?.class?.values?.[item]) ? data.class.values[item] :
+                        (data?.stats?.values?.[item]) ? data.stats.values[item] :
+                        false;
+
+            value = parseInt(value);
+
+            let mod = (data?.equipment?.values?.[`${item}_mod`]) ? data.equipment.values[`${item}_mod`] :
+                      (data?.skills?.values?.[`${item}_mod`]) ? data.skills.values[`${item}_mod`] :
+                      (data?.class?.values?.[`${item}_mod`]) ? data.class.values[`${item}_mod`] :
+                      (data?.stats?.values?.[`${item}_mod`]) ? data.stats.values[`${item}_mod`] :
+                      0;
+
+            mod = parseInt(mod);
+
+            const total = value + mod;
+            
+            updateHTML[`t__${item}`] = total;
+            updateAttrs[item] = total;
+        });
+
+        const skills = [];
+        
+        const filter = ["owned", "skillpoints_max", "trained_lock", "expert_lock", "master_lock", "unlocked"];
+
+        Object.entries(data.skills.values).forEach(([key, value]) => {
+            if (!key.match(/type/) && !filter.includes(key) && value === "on") skills.push(capitalizeString(key));
+        });
+
+        updateHTML[`t__skilllist`] = skills.join(', ');
+        updateAttrs[`skills`] = JSON.stringify(skills);
+
+        const skillpoints = (data?.skills?.values?.skillpoints) ? data.equipment.values.skillpoints : "0";
+
+        updateHTML[`t__skillpoints`] = skillpoints;
+        updateAttrs[`skillpoints`] = skillpoints;
+
+        const starting_credits = (data?.equipment?.values?.credits) ? data.equipment.values.credits : "Not Rolled";
+
+        updateHTML[`t__credits`] = starting_credits;
+        updateAttrs[`credits`] = starting_credits;
+
+        const trinket = (data?.equipment?.values?.trinket) ? data.equipment.values.trinket : "Not Rolled";
+
+        updateHTML[`t__trinket`] = trinket;
+        updateAttrs[`trinket`] = trinket;
+
+        const patch = (data?.equipment?.values?.patch) ? data.equipment.values.patch : "Not Rolled";
+
+        updateHTML[`t__patch`] = patch;
+        updateAttrs[`patch`] = patch;
+
+        const package = (data?.equipment?.values?.equipment && parseJSON(data?.equipment?.values?.equipment)) ? parseJSON(data.equipment.values.equipment) : [];
+
+        const items = package.map(item => (Array.isArray(item)) ? `${item[0]} (${item[1]})` : item).join(", ");
+
+        updateHTML[`t__equipment`] = items;
+        updateAttrs[`equipment`] = JSON.stringify(package);
+
+        setCharmancerText(updateHTML)
+        setAttrs(updateAttrs);
+    }
+
+    on(`page:review`, eventInfo => onLoadReview());
+
 }
   <!--# sourceURL=sheetworker.js    -->
 </script>

@@ -29,7 +29,6 @@ $skillList:
     "weapon_specialization";
 
 input.sheet-skill-toggle {
-    border: 1px solid red;
 
     @each $skill in $skillList {
     

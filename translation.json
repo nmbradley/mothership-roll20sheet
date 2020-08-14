@@ -253,5 +253,19 @@
     "charactermancer welcome":"charmancer welcome",
     "cancel":"cancel",
     "next":"next",
-    "previous":"previous"
+    "previous":"previous",
+    "charactermancer":"charactermancer",
+    "Roll Stats":"Roll Stats",
+    "stats":"stats",
+    "saves":"saves",
+    "custom":"custom",
+    "choose this option to enter your own information":"choose this option to enter your own information",
+    "choose an equipment package":"choose an equipment package",
+    "Ensure you have selected a class":"Ensure you have selected a class",
+    "stress effect":"stress effect",
+    "choose a skill":"choose a skill",
+    "choose":"choose",
+    "reselect class":"reselect class",
+    "remaining skillpoints":"remaining skillpoints",
+    "starting credits":"starting credits"
 }

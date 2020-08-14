@@ -35,6 +35,7 @@
             const items = packages[new_value].map(item => (Array.isArray(item)) ? `${item[0]} (${item[1]})` : item).join(", ");
 
             setCharmancerText({"t__package":items});
+            setAttrs({"equipment":JSON.stringify(packages[new_value])});
 
         } else if (new_value === "custom") {
 
@@ -42,7 +43,7 @@
 
             setCharmancerText({"t__package":""});
 
-        } else console.warn("Equipment Package not found.")
+        }
         
 
     };
@@ -86,7 +87,7 @@
     const rollCredits = (roll) => {
 
         setAttrs({credits:roll[0].result});
-        setCharmancerText({t__credits:`${roll[0].result} credits`});
+        setCharmancerText({t__credits:`${roll[0].result}`});
         
     };
 
@@ -108,10 +109,6 @@
         getCompendiumPage("Patches", (data) => {
 
             patches = (data?.data?.patches) ? parseJSON(data.data.patches) : [];
-
-            console.log(patches)
-            console.log(roll[0].result)
-            console.log(patches[roll[0].result])
 
             setAttrs({patch:patches[roll[0].result]});
             setCharmancerText({t__patch:patches[roll[0].result]});
