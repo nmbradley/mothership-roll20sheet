@@ -476,13 +476,9 @@ const calculateHullValues = () => {
     getAttrs(["hull_max"], values => {
         const value = parseInt(values["hull_max"]) || 0;
     
-        console.log(value);
-    
         const n25 = Math.floor(value * 0.75);
         const n50 = Math.floor(value * 0.5);
         const n75 = Math.floor(value * 0.25);
-    
-        console.log(`${n25} : ${n50} : ${n75}`)
         
         setAttrs({
             hull_25: n25,
@@ -495,7 +491,7 @@ const calculateHullValues = () => {
 const parseJSON = (string) => {
     try {
         return JSON.parse(string);
-    } catch(err) {
+    } catch {
         return false;
     }
 };

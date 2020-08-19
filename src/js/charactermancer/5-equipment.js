@@ -42,6 +42,7 @@
             showChoices(["custompackage"]);
 
             setCharmancerText({"t__package":""});
+            setAttrs({"equipment":""});
 
         }
         
@@ -65,8 +66,8 @@
                 const trinkets_map = trinkets.map((trinket, index) => `{{opt${index}=${trinket}}}`);
                 const patches_map = patches.map((patch, index) => `{{opt${index}=${patch}}}`);
                 
-                const trinkets_roll = `&{template:default} {{roll=[[1d100-1]]}} ${trinkets_map.join(" ")}`; 
-                const patches_roll = `&{template:default} {{roll=[[1d100-1]]}} ${patches_map.join(" ")}`; 
+                const trinkets_roll = `&{template:ms-cm} {{title=trinket roll}} {{roll=[[1d100-1]]}} ${trinkets_map.join(" ")}`; 
+                const patches_roll = `&{template:ms-cm} {{title=patch roll}} {{roll=[[1d100-1]]}} ${patches_map.join(" ")}`; 
 
                 const updateHTML = {};
 

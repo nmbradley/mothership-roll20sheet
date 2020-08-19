@@ -16,7 +16,8 @@
         display: grid;
             grid-template-columns: 1fr .5fr;
             align-items: center;
-        gap: $ms-margin;
+            gap: $ms-margin;
+        margin-bottom: 3rem;
     }
 
     &-stats {
@@ -162,14 +163,21 @@
         
         &--full {
             grid-column: 1 / -1;
+
+            h1 {
+                font-family: $ms-fonts-header;
+                font-size: 4.5rem;
+                text-align: center;
+                text-transform: uppercase;
+            }
+
+            p.sheet-ms-cm-guidetext {
+                text-align: center;
+            }
         }
 
         &--classes {
             grid-column: 1 / -1;
-
-            display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: $ms-margin;
 
             background: #000;
             color: $ms-invert-foreground;
@@ -184,6 +192,48 @@
                 gap: $ms-margin;
         }
 
+    }
+
+    &-classes {
+        display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        padding: $ms-margin / 2;
+        
+            .sheet-class {
+                flex-basis: calc(25% - 1rem);
+                margin: $ms-margin / 2;
+            }
+    }
+
+    &-guidetext {
+        margin: 1rem 0 .5rem 0;
+        padding: 1rem;
+        
+        font-family: $ms-fonts-body;
+        font-size: 1.45rem;
+
+        color: inherit;
+
+        &--span2 {
+            @extend .sheet-ms-cm-guidetext;
+            grid-column: 1 / -1;
+            padding: 0rem;
+        }
+    }
+
+    &-guidetitle {
+        grid-column: 1 / -1;
+        margin: 1rem 0 0 0;
+
+        color: inherit;
+        
+        font-family: $ms-fonts-header;
+        font-weight: bold;
+        font-size: 3rem;
+        line-height: 1;
+        text-align: center;
+        text-transform: uppercase;
     }
 
     &-pagecontrol {
@@ -274,8 +324,12 @@
     }
 
     &-welcometext {
+        margin-bottom: 3rem;
+
         font-family: $ms-fonts-body !important;
-        font-size: 2rem;
+        font-size: 1.65rem;
+        font-weight: 600;
+        line-height: 1.5;
         text-align: center; 
 
     }
@@ -388,8 +442,11 @@
         }
 
         &__img {
+            display: flex;
+                justify-content: center;
 
             img {
+                width: 75%;
                 margin: auto;
 
                 border-radius: 50%;
@@ -469,35 +526,35 @@
     &-skill {
         position: relative; 
 
-        input[type="checkbox"] {
-            position: absolute;
-                left: -99999px;
-
-                &:checked ~ .sheet-ms-cm-skill__check {
+        input[type="hidden"] {
+                &[value="on"] ~ * .sheet-ms-cm-skill__check {
                     background: white url("https://s3.amazonaws.com/files.d20.io/images/138210119/cvUNlZk3lj7GZXQEsKIBWw/max.png?1590443685") no-repeat center/75%;
                 }
         }
 
-        label {
+        input[type="checkbox"] {
+            position: absolute;
+                left: -99999px;
+        }
+
+        button {
             margin: $ms-margin 0 !important;
             padding: $ms-margin !important; 
 
             background: $ms-invert-background;
+            border: 0;
             border-radius: 2.5rem;
             color: $ms-invert-foreground;
 
+            text-align: left;
             text-transform: uppercase;
             font-size: 1.35rem;
             font-family: $ms-fonts-header;
+            font-weight: bold;
 
             &:hover {
                 color: $ms-accent;
-                cursor: pointer; 
-
-                & + .sheet-ms-cm-tooltip {
-                    display: block !important;
-                }
-            }
+            } 
         }
 
         &__wrapper {            
@@ -517,6 +574,13 @@
             border: $ms-border;
                 border-radius: 50%;
             background: $ms-background;
+        }
+
+        &:hover {
+
+            .sheet-ms-cm-tooltip {
+                display: block !important;
+            }
         }
 
     }
@@ -645,10 +709,12 @@
     &-review {
         display: grid;
             grid-template-columns: 1fr 1fr;
+            align-items: start;
             gap: $ms-margin;
     }
 
-    &-skillrow,
+    &-classblock,
+    &-skillblock,
     &-equipment {
 
         h2 {
@@ -663,10 +729,16 @@
 
     }
 
+    &-classrow,
     &-skrow,
     &-eqrow {
         display: grid;
-            grid-template-columns: .75fr 1fr;
+            grid-template-columns: 1fr 1fr;
+        margin: $ms-margin-small 0;
+        padding: $ms-margin-small 0;
+
+        border-top: $ms-border-thicker;
+            border-color: #ddd;
 
         &__title {
             color: $ms-foreground;
@@ -675,6 +747,39 @@
             font-size: 1.35rem;
             font-weight: bold;
             text-transform: uppercase;
+        }
+    }
+
+    &-row {
+
+        &__label {
+            color: $ms-foreground;
+
+            font-family: $ms-fonts-header;
+            font-size: 1.45rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        &__input--long {
+            width: 100%;
+        }
+
+    }
+
+    &-progressbar {
+        width: 80%;
+        margin: 2rem auto;
+        padding: .5rem;
+
+        border: $ms-border-thicker;
+        border-radius: 4rem;
+
+        > div {
+            height: 1rem;
+
+            background: $ms-foreground;
+            border-radius: 4rem;
         }
     }
 }
@@ -699,10 +804,19 @@ input[name="comp_unlocked"] {
         ~ .sheet-ms-cm-skillcol--#{$lock} {
 
             .sheet-ms-cm-skill__wrapper {
-                opacity: .5 !important;   
-                pointer-events: none !important;
+                opacity: .5;   
+                pointer-events: none;
             }
 
         }
+    }
+}
+
+.sheet-ms-cm-skill input[type="hidden"][value*="on"],
+.sheet-ms-cm-skill input[type="hidden"][value*="class"] {
+
+    ~ .sheet-ms-cm-skill__wrapper {
+        opacity: 1;
+        pointer-events: unset;
     }
 }

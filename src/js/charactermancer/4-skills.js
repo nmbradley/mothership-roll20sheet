@@ -71,21 +71,38 @@
         const data = getCharmancerData();
         const all_skills = [...trained_skills, ...expert_skills, ...master_skills];
 
-        all_skills.forEach(skill => (data?.skills?.values[`${skill}_type`] === "class") ? setAttrs({[skill]:0},{silent:true}) : false);
+        const updateAttrs = {};
+
+        all_skills.forEach(skill => {
+            if (data?.skills?.values[`${skill}_type`] === "class") {
+                updateAttrs[skill] = 0;
+                updateAttrs[`${skill}_type`] = "";
+            }
+        });
 
         const class_skills = (data?.class?.values?.skills) ? JSON.parse(data.class.values.skills).map(skill => skill.replace(/ /g, "_")) : [];
 
-        class_skills.forEach(skill => setAttrs({[skill]:"on", [`${skill}_type`]:"class"},{silent:true}));
+        class_skills.forEach(skill => {
+            updateAttrs[skill] = "on";
+            updateAttrs[`${skill}_type`] = "class";
+        });
 
         if (data?.class?.repeating?.length > 0) {
             const skill_choices = data.class.repeating.filter(repeating_id => repeating_id.indexOf("choicerow") > -1);
 
-            skill_choices.forEach(repeating_id => {
-                const skill_name = data.class.values[`${repeating_id}_skill`].toLowerCase().replace(/ /g, "_");
-
-                if (skill_name !== "choose") setAttrs({[skill_name]:"on", [`${skill_name}_type`]:"class"},{silent:true});
-            });
+            if (skill_choices.length > 0) {
+                skill_choices.forEach(repeating_id => {
+                    const skill_name = data.class.values[`${repeating_id}_skill`].toLowerCase().replace(/ /g, "_");
+    
+                    if (skill_name !== "choose") {
+                        updateAttrs[skill_name] = "on";
+                        updateAttrs[`${skill_name}_type`] = "class";
+                    }
+                });
+            }
         }
+
+        setAttrs(updateAttrs, callback => checkAllSkills());
     };
 
     const calcAllSkills = () => {
@@ -95,19 +112,19 @@
         let sp_spent = 0;
         
         trained_skills.forEach(skill => {
-            const skill_toggle =  data.skills.values[skill];
+            const skill_toggle = data.skills.values[skill];
             const skill_type = data.skills.values[`${skill}_type`];
             if (skill_toggle === "on" && skill_type !== "class") sp_spent += 1;
         }); 
         
         expert_skills.forEach(skill => { 
-            const skill_toggle =  data.skills.values[skill];
+            const skill_toggle = data.skills.values[skill];
             const skill_type = data.skills.values[`${skill}_type`];
             if (skill_toggle === "on" && skill_type !== "class") sp_spent += 2;
         });
         
         master_skills.forEach(skill => { 
-            const skill_toggle =  data.skills.values[skill];
+            const skill_toggle = data.skills.values[skill];
             const skill_type = data.skills.values[`${skill}_type`];
             if (skill_toggle === "on" && skill_type !== "class") sp_spent += 3;
         });
@@ -126,49 +143,54 @@
         if (sp_remaining <= 1) updateAttrs["expert_lock"] = "on";
         if (sp_remaining <= 0) updateAttrs["trained_lock"] = "on";
 
-        updateAttrs["skill_points"] = sp_remaining;
+        updateAttrs["skillpoints"] = sp_remaining;
         updateHTML["t__skillpoints"] = `${sp_remaining} / ${sp_total}`;
 
         setCharmancerText(updateHTML);
         setAttrs(updateAttrs);
     }
 
-    const toggleSkill = (skill, new_value) => {
+    const toggleSkill = (skill) => {
         const data = getCharmancerData();
-        const existing_values = (data?.skills?.values?.unlocked) ? data.skills.values.unlocked.trim() : "";
-        const value_list = existing_values.split(" ");
-        const unlocks = skillList[skill].unlocks || [];
-        
-        const existing_skills = (data?.skills?.values?.owned) ? data.skills.values.owned.trim() : "";
-        const skill_list = existing_skills.split(" ");
 
-        let update_attr = "";
-        let owned = "";
-
-        if (new_value === "on" && skill_list.includes(skill)) return;
-    
-        if (typeof new_value === "undefined") {
-
-            unlocks.forEach(item => value_list.splice(value_list.indexOf(item), 1));
-            skill_list.filter(item => item !== skill)
-
-        } else if (new_value === "on") {
-            
-            if (unlocks.length !== 0) unlocks.forEach(unlock => value_list.push(unlock));
-            skill_list.push(skill);
+        if (!data?.skills?.values?.[`${skill}_type`] || data.skills.values[`${skill}_type`] !== "class") {
+            if (data?.skills?.values?.[skill] === "on") {
+                data.skills.values[skill] = "0";
+                setAttrs({[skill]:0}, callback => checkAllSkills());
+            } else {
+                data.skills.values[skill] = "on";
+                setAttrs({[skill]:"on"}, callback => checkAllSkills());
+            }
         }
-
-        update_attr = value_list.join(" ");
-        owned = skill_list.join(" ");
-            
-        setAttrs({unlocked:update_attr, owned: owned}); 
 
     };
 
+    const checkAllSkills = () => {
+        const data = getCharmancerData();
+        
+        const owned = [];
+        const unlocked = [];
+
+        for (const key in skillList) {
+
+            if (data?.skills?.values?.[key] === "on") {
+                owned.push(key);
+
+                for (const skill of skillList[key].unlocks) {
+                    if (!unlocked.includes(skill)) unlocked.push(skill);
+                }
+            } 
+        }
+            
+        setAttrs({unlocked:unlocked.join(" "), owned: owned.join(" ")});
+    }
+
     on(`page:skills`, eventInfo => onLoadSkills());
 
-    [...trained_skills, ...expert_skills, ...master_skills].forEach(skill => on(`mancerchange:${skill}`, eventInfo => {
-        toggleSkill(skill, eventInfo.newValue);
-        calcAllSkills();
-    }));
+    [...trained_skills, ...expert_skills, ...master_skills].forEach(skill => {
+        on(`clicked:toggle-${skill}`, eventInfo => {
+            toggleSkill(skill);
+            calcAllSkills();
+        });
+});
 }

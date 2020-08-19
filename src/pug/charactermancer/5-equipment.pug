@@ -1,6 +1,6 @@
 - 
     const credit_roll = [
-        `&{template:default}`,
+        `&{template:ms-cm}`,
         `{{title=credit roll}}`,
         `{{credits=[[5d10*10]]}}`   
     ].join();
@@ -11,6 +11,11 @@ charmancer.sheet-charmancer-equipment
         .ms-cm-container
             .ms-cm-panel
 
+                h2.ms-cm-guidetitle(data-i18n="choose equipment")
+                p.ms-cm-guidetext(data-i18n="charmancer-step5")
+                
+            .ms-cm-panel
+
                 .ms-cm-package
                     .ms-cm-package__title(data-i18n="choose an equipment package")
                     input(name="comp_equipment", type="hidden")
@@ -18,7 +23,7 @@ charmancer.sheet-charmancer-equipment
                         option(data-i18n="choose", value="choose")
                     .t__package
                     .choice.custompackage
-                        span(data-i18n="You can add custom equipment to the character sheet after completeing the charactermancer.")
+                        span(data-i18n="You can add custom equipment to the character sheet after completing the charactermancer.")
                                         
                 .ms-cm-credits
                     .ms-cm-credits__title(data-i18n="starting credits")
@@ -42,7 +47,5 @@ charmancer.sheet-charmancer-equipment
                     .choice.custompatch
                         span(data-i18n="Add a custom patch.")
                         input(name="comp_patch", type="hidden")
-
-            .ms-cm-compendium
 
         +charmancer-pagecontrol({action: "skills", text:"previous"},{action: "cancel", text: "cancel"},{action: "review", text: "next"})

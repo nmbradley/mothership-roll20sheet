@@ -1227,6 +1227,7 @@
   font-size: 1.25rem;
 }
 
+.sheet-rolltemplate-ms-cm .sheet-ms-container,
 .sheet-rolltemplate-ms .sheet-ms-container {
   padding: 1.25rem;
   background: white;
@@ -1237,13 +1238,16 @@
   border: 3px solid #111;
   font-family: "Century Gothic", "Diadact Gothic", sans-serif;
 }
-.sheet-rolltemplate-ms .sheet-ms-container h1, .sheet-rolltemplate-ms .sheet-ms-container h2 {
+.sheet-rolltemplate-ms-cm .sheet-ms-container h1, .sheet-rolltemplate-ms-cm .sheet-ms-container h2,
+.sheet-rolltemplate-ms .sheet-ms-container h1,
+.sheet-rolltemplate-ms .sheet-ms-container h2 {
   margin: 0;
   padding: 1rem;
   font-family: "Montserrat", "Arial Black", sans-serif;
   line-height: 1;
   text-align: center;
 }
+.sheet-rolltemplate-ms-cm .sheet-ms-container h1,
 .sheet-rolltemplate-ms .sheet-ms-container h1 {
   width: 90%;
   margin-top: -1.25rem;
@@ -1254,11 +1258,16 @@
   color: white;
   border-bottom-right-radius: 1.5em;
 }
+.sheet-rolltemplate-ms-cm .sheet-ms-container h2,
 .sheet-rolltemplate-ms .sheet-ms-container h2 {
   font-size: 1.65rem;
   font-weight: normal;
   text-transform: uppercase;
 }
+.sheet-rolltemplate-ms-cm .sheet-ms-container .importantroll,
+.sheet-rolltemplate-ms-cm .sheet-ms-container .fullcrit,
+.sheet-rolltemplate-ms-cm .sheet-ms-container .fullfail,
+.sheet-rolltemplate-ms-cm .sheet-ms-container .inlinerollresult,
 .sheet-rolltemplate-ms .sheet-ms-container .importantroll,
 .sheet-rolltemplate-ms .sheet-ms-container .fullcrit,
 .sheet-rolltemplate-ms .sheet-ms-container .fullfail,
@@ -1268,12 +1277,15 @@
   font-family: inherit;
   line-height: 1em;
 }
+.sheet-rolltemplate-ms-cm .sheet-ms-container .fullcrit,
 .sheet-rolltemplate-ms .sheet-ms-container .fullcrit {
   color: darkgreen;
 }
+.sheet-rolltemplate-ms-cm .sheet-ms-container .fullfail,
 .sheet-rolltemplate-ms .sheet-ms-container .fullfail {
   color: darkred;
 }
+.sheet-rolltemplate-ms-cm .sheet-ms-roll,
 .sheet-rolltemplate-ms .sheet-ms-roll {
   box-sizing: border-box;
   display: grid;
@@ -1281,7 +1293,9 @@
   align-items: center;
   width: 100%;
 }
-.sheet-rolltemplate-ms .sheet-ms-roll__roll, .sheet-rolltemplate-ms .sheet-ms-roll__roll2 {
+.sheet-rolltemplate-ms-cm .sheet-ms-roll__roll, .sheet-rolltemplate-ms-cm .sheet-ms-roll__roll2,
+.sheet-rolltemplate-ms .sheet-ms-roll__roll,
+.sheet-rolltemplate-ms .sheet-ms-roll__roll2 {
   height: 4rem;
   grid-column: span 2;
   background: white;
@@ -1291,22 +1305,27 @@
   line-height: 4rem;
   text-align: center;
 }
+.sheet-rolltemplate-ms-cm .sheet-ms-roll__roll,
 .sheet-rolltemplate-ms .sheet-ms-roll__roll {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   border: 3px solid #111;
 }
+.sheet-rolltemplate-ms-cm .sheet-ms-roll__roll:only-child,
 .sheet-rolltemplate-ms .sheet-ms-roll__roll:only-child {
   grid-column: 2/span 2;
   border-radius: 1.5rem;
 }
+.sheet-rolltemplate-ms-cm .sheet-ms-roll__roll2,
 .sheet-rolltemplate-ms .sheet-ms-roll__roll2 {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
   border: 3px solid #111;
   border-left: none;
 }
-.sheet-rolltemplate-ms .sheet-ms-target, .sheet-rolltemplate-ms .sheet-ms-damage {
+.sheet-rolltemplate-ms-cm .sheet-ms-target, .sheet-rolltemplate-ms-cm .sheet-ms-damage,
+.sheet-rolltemplate-ms .sheet-ms-target,
+.sheet-rolltemplate-ms .sheet-ms-damage {
   box-sizing: border-box;
   display: grid;
   grid-template-columns: 1fr 6rem;
@@ -1318,12 +1337,16 @@
   border-radius: 1.5rem;
   color: #111;
 }
-.sheet-rolltemplate-ms .sheet-ms-target__label, .sheet-rolltemplate-ms .sheet-ms-damage__label {
+.sheet-rolltemplate-ms-cm .sheet-ms-target__label, .sheet-rolltemplate-ms-cm .sheet-ms-damage__label,
+.sheet-rolltemplate-ms .sheet-ms-target__label,
+.sheet-rolltemplate-ms .sheet-ms-damage__label {
   font-family: "Montserrat", "Arial Black", sans-serif;
   font-weight: bold;
   text-transform: uppercase;
 }
-.sheet-rolltemplate-ms .sheet-ms-target__value, .sheet-rolltemplate-ms .sheet-ms-damage__value {
+.sheet-rolltemplate-ms-cm .sheet-ms-target__value, .sheet-rolltemplate-ms-cm .sheet-ms-damage__value,
+.sheet-rolltemplate-ms .sheet-ms-target__value,
+.sheet-rolltemplate-ms .sheet-ms-damage__value {
   border: 2px solid #111;
   border-radius: 0.5rem;
   padding: 0.5rem;
@@ -1570,6 +1593,7 @@ input.sheet-skill-toggle[value*=weapon_specialization] ~ * .sheet-ms-skill--weap
   grid-template-columns: 1fr 0.5fr;
   align-items: center;
   gap: 1rem;
+  margin-bottom: 3rem;
 }
 .sheet-ms-cm-stats, .sheet-ms-cm-stats--main {
   display: grid;
@@ -1682,11 +1706,17 @@ input.sheet-skill-toggle[value*=weapon_specialization] ~ * .sheet-ms-skill--weap
 .sheet-ms-cm-panel--full {
   grid-column: 1/-1;
 }
+.sheet-ms-cm-panel--full h1 {
+  font-family: "Montserrat", "Arial Black", sans-serif;
+  font-size: 4.5rem;
+  text-align: center;
+  text-transform: uppercase;
+}
+.sheet-ms-cm-panel--full p.sheet-ms-cm-guidetext, .sheet-ms-cm-panel--full p.sheet-ms-cm-guidetext--span2 {
+  text-align: center;
+}
 .sheet-ms-cm-panel--classes {
   grid-column: 1/-1;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
   background: #000;
   color: white;
 }
@@ -1696,6 +1726,38 @@ input.sheet-skill-toggle[value*=weapon_specialization] ~ * .sheet-ms-skill--weap
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
+}
+.sheet-ms-cm-classes {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 0.5rem;
+}
+.sheet-ms-cm-classes .sheet-class {
+  flex-basis: calc(25% - 1rem);
+  margin: 0.5rem;
+}
+.sheet-ms-cm-guidetext, .sheet-ms-cm-guidetext--span2 {
+  margin: 1rem 0 0.5rem 0;
+  padding: 1rem;
+  font-family: "Century Gothic", "Diadact Gothic", sans-serif;
+  font-size: 1.45rem;
+  color: inherit;
+}
+.sheet-ms-cm-guidetext--span2 {
+  grid-column: 1/-1;
+  padding: 0rem;
+}
+.sheet-ms-cm-guidetitle {
+  grid-column: 1/-1;
+  margin: 1rem 0 0 0;
+  color: inherit;
+  font-family: "Montserrat", "Arial Black", sans-serif;
+  font-weight: bold;
+  font-size: 3rem;
+  line-height: 1;
+  text-align: center;
+  text-transform: uppercase;
 }
 .sheet-ms-cm-pagecontrol {
   position: sticky;
@@ -1769,8 +1831,11 @@ input.sheet-skill-toggle[value*=weapon_specialization] ~ * .sheet-ms-skill--weap
   filter: invert(1);
 }
 .sheet-ms-cm-welcometext {
+  margin-bottom: 3rem;
   font-family: "Century Gothic", "Diadact Gothic", sans-serif !important;
-  font-size: 2rem;
+  font-size: 1.65rem;
+  font-weight: 600;
+  line-height: 1.5;
   text-align: center;
 }
 .sheet-ms-cm-center {
@@ -1852,7 +1917,12 @@ input.sheet-skill-toggle[value*=weapon_specialization] ~ * .sheet-ms-skill--weap
   text-align: left;
   text-transform: uppercase;
 }
+.sheet-ms-cm-class__img {
+  display: flex;
+  justify-content: center;
+}
 .sheet-ms-cm-class__img img {
+  width: 75%;
   margin: auto;
   border-radius: 50%;
 }
@@ -1911,29 +1981,28 @@ input.sheet-skill-toggle[value*=weapon_specialization] ~ * .sheet-ms-skill--weap
 .sheet-ms-cm-skill {
   position: relative;
 }
+.sheet-ms-cm-skill input[type=hidden][value=on] ~ * .sheet-ms-cm-skill__check {
+  background: white url("https://s3.amazonaws.com/files.d20.io/images/138210119/cvUNlZk3lj7GZXQEsKIBWw/max.png?1590443685") no-repeat center/75%;
+}
 .sheet-ms-cm-skill input[type=checkbox] {
   position: absolute;
   left: -99999px;
 }
-.sheet-ms-cm-skill input[type=checkbox]:checked ~ .sheet-ms-cm-skill__check {
-  background: white url("https://s3.amazonaws.com/files.d20.io/images/138210119/cvUNlZk3lj7GZXQEsKIBWw/max.png?1590443685") no-repeat center/75%;
-}
-.sheet-ms-cm-skill label {
+.sheet-ms-cm-skill button {
   margin: 1rem 0 !important;
   padding: 1rem !important;
   background: #111;
+  border: 0;
   border-radius: 2.5rem;
   color: white;
+  text-align: left;
   text-transform: uppercase;
   font-size: 1.35rem;
   font-family: "Montserrat", "Arial Black", sans-serif;
+  font-weight: bold;
 }
-.sheet-ms-cm-skill label:hover {
+.sheet-ms-cm-skill button:hover {
   color: red;
-  cursor: pointer;
-}
-.sheet-ms-cm-skill label:hover + .sheet-ms-cm-tooltip {
-  display: block !important;
 }
 .sheet-ms-cm-skill__wrapper {
   display: grid;
@@ -1950,6 +2019,9 @@ input.sheet-skill-toggle[value*=weapon_specialization] ~ * .sheet-ms-skill--weap
   border: 2px solid #111;
   border-radius: 50%;
   background: white;
+}
+.sheet-ms-cm-skill:hover .sheet-ms-cm-tooltip {
+  display: block !important;
 }
 .sheet-ms-cm-tooltip {
   display: none;
@@ -2038,9 +2110,10 @@ input.sheet-skill-toggle[value*=weapon_specialization] ~ * .sheet-ms-skill--weap
 .sheet-ms-cm-review {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  align-items: start;
   gap: 1rem;
 }
-.sheet-ms-cm-skillrow h2, .sheet-ms-cm-equipment h2 {
+.sheet-ms-cm-classblock h2, .sheet-ms-cm-skillblock h2, .sheet-ms-cm-equipment h2 {
   color: #111;
   font-family: "Montserrat", "Arial Black", sans-serif;
   font-size: 3rem;
@@ -2048,16 +2121,42 @@ input.sheet-skill-toggle[value*=weapon_specialization] ~ * .sheet-ms-skill--weap
   text-align: center;
   text-transform: uppercase;
 }
-.sheet-ms-cm-skrow, .sheet-ms-cm-eqrow {
+.sheet-ms-cm-classrow, .sheet-ms-cm-skrow, .sheet-ms-cm-eqrow {
   display: grid;
-  grid-template-columns: 0.75fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  margin: 0.5rem 0;
+  padding: 0.5rem 0;
+  border-top: 4px solid #111;
+  border-color: #ddd;
 }
-.sheet-ms-cm-skrow__title, .sheet-ms-cm-eqrow__title {
+.sheet-ms-cm-classrow__title, .sheet-ms-cm-skrow__title, .sheet-ms-cm-eqrow__title {
   color: #111;
   font-family: "Montserrat", "Arial Black", sans-serif;
   font-size: 1.35rem;
   font-weight: bold;
   text-transform: uppercase;
+}
+.sheet-ms-cm-row__label {
+  color: #111;
+  font-family: "Montserrat", "Arial Black", sans-serif;
+  font-size: 1.45rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.sheet-ms-cm-row__input--long {
+  width: 100%;
+}
+.sheet-ms-cm-progressbar {
+  width: 80%;
+  margin: 2rem auto;
+  padding: 0.5rem;
+  border: 4px solid #111;
+  border-radius: 4rem;
+}
+.sheet-ms-cm-progressbar > div {
+  height: 1rem;
+  background: #111;
+  border-radius: 4rem;
 }
 
 input[name=comp_unlocked][value*=psychology] ~ * .sheet-ms-cm-skill__wrapper--psychology {
@@ -2174,16 +2273,22 @@ input[name=comp_unlocked][value*=weapon_specialization] ~ * .sheet-ms-cm-skill__
 }
 
 input[name*=comp_trained_lock][value=on] ~ .sheet-ms-cm-skillcol--trained .sheet-ms-cm-skill__wrapper {
-  opacity: 0.5 !important;
-  pointer-events: none !important;
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 input[name*=comp_expert_lock][value=on] ~ .sheet-ms-cm-skillcol--expert .sheet-ms-cm-skill__wrapper {
-  opacity: 0.5 !important;
-  pointer-events: none !important;
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 input[name*=comp_master_lock][value=on] ~ .sheet-ms-cm-skillcol--master .sheet-ms-cm-skill__wrapper {
-  opacity: 0.5 !important;
-  pointer-events: none !important;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.sheet-ms-cm-skill input[type=hidden][value*=on] ~ .sheet-ms-cm-skill__wrapper,
+.sheet-ms-cm-skill input[type=hidden][value*=class] ~ .sheet-ms-cm-skill__wrapper {
+  opacity: 1;
+  pointer-events: unset;
 }

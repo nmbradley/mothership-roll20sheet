@@ -1,8 +1,8 @@
 -
     const custom_class = [
         {
-            name:"Name",
-            attr:"attr",
+            name:"Class Name",
+            attr:"class",
             type:"input",
         },
         {
@@ -62,8 +62,16 @@ charmancer.sheet-charmancer-class
         input(name=`comp_selected`, type="hidden")
         .t__topbar
         .ms-cm-container.choice.showclasses
-            .ms-cm-panel--classes.t__classes
+            .ms-cm-panel--classes
+                h2.ms-cm-guidetitle(data-i18n="select a class")
+                p.ms-cm-guidetext--span2(data-i18n="charmancer-step3a")
+                .ms-cm-classes.t__classes
         .ms-cm-container.choice.showclassinfo
+            .ms-cm-panel
+                h2.ms-cm-guidetitle(data-i18n="your class")
+                p.ms-cm-guidetext(data-i18n="charmancer-step3b")
+                .ms-cm-center
+                    button.ms-cm-button--action(data-i18n="reselect class", name="act_reselectc", type="action")
             .ms-cm-panel
                 .choice.presetclass
                     h3.ms-cm-class__title--selected.t__cname
@@ -98,8 +106,6 @@ charmancer.sheet-charmancer-class
                                 input.ms-cm-row__input--long(name=`comp_${field.attr}`)
                             else
                                 input.ms-cm-row__input(name=`comp_${field.attr}`)
-                .ms-cm-center
-                    button.ms-cm-button--action(data-i18n="reselect class", name="act_reselectc", type="action")
 
             .ms-cm-compendium.choice.showclassinfo
 

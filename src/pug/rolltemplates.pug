@@ -1,3 +1,11 @@
+mixin tags(array)
+    each tag in array
+        | {{##{tag}}}
+    if block
+        block
+    each tag in array.reverse()
+        | {{/#{tag}}}
+        
 rolltemplate.sheet-rolltemplate-ms
     .sheet-ms-container
         | {{#name}}
@@ -26,3 +34,22 @@ rolltemplate.sheet-rolltemplate-ms
         | {{#notes}}
         .sheet-ms-notes {{notes}}
         | {{/notes}}
+
+rolltemplate.sheet-rolltemplate-ms-cm
+    .sheet-ms-container
+        | {{#title}}
+        h1 {{title}} 
+        | {{/title}}
+        each stat in ["strength", "speed", "intellect", "dexterity"] 
+            +tags([stat])
+                .sheet-ms-roll
+                    .sheet-ms-roll__roll {{#{stat}}}
+        +tags(["credits"])
+            .sheet-ms-credits
+                .sheet-ms-credits__label(data-i18n="starting credits")
+                .sheet-ms-credits__value {{credits}}
+        +tags(["roll"])
+            - let i = 0;
+            while i <= 100
+                +tags([`rollTotal() roll ${i++}`])
+                    .sheet-ms-notes {{opt#{i}}}

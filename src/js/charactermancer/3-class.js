@@ -11,6 +11,8 @@
         hideChoices();
         showChoices(["showclasses"]);
 
+        clearRepeatingSections("sheet-t__classes");
+
         getCompendiumQuery("Category:Classes", function(data) {
 
             custom = [{name:"custom"}];
@@ -131,6 +133,8 @@
         if (class_name === "custom") {
             hideChoices(["presetclass"]);
             showChoices(["customclass"]);
+
+            clearRepeatingSections("sheet-t__skill_choice"); 
         } else {
             showChoices(["presetclass"]);
             hideChoices(["customclass"]);
@@ -138,6 +142,7 @@
             getCompendiumPage(`Classes:${class_name}`, data => {
 
                 const updateAttrs = {
+                    class: "",
                     sanity: "",
                     fear: "",
                     body: "",
@@ -152,6 +157,7 @@
                 const updateHTML = {};
                 
                 updateHTML[`t__cname`] = data.name;
+                updateAttrs[`class`] = data.name;
                 
                 const saves = JSON.parse(data.data["Saves"]);   
 

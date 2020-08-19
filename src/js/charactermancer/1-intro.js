@@ -10,7 +10,7 @@
                               (data?.skills?.values?.[item]) ?  data.skills.values[item] :
                               (data?.class?.values?.[item]) ?  data.class.values[item] :
                               (data?.stats?.values?.[item]) ?  data.stats.values[item] :
-                              0;
+                              false;
 
                 const mod = (data?.equipment?.values?.[`${item}_mod`]) ? data.equipment.values[`${item}_mod`] :
                             (data?.skills?.values?.[`${item}_mod`]) ?  data.skills.values[`${item}_mod`] :
@@ -18,7 +18,7 @@
                             (data?.stats?.values?.[`${item}_mod`]) ?  data.stats.values[`${item}_mod`] :
                             0;
 
-                const final = (parseInt(value) + parseInt(mod) === 0) ? "-" : parseInt(value) + parseInt(mod);
+                const final = (!value) ? "-" : parseInt(value) + parseInt(mod);
                               
                 updateHTML[`${section_id} .sheet-t__${item}`] = final;
             });

@@ -1,6 +1,6 @@
 - 
     const stat_roll = [
-        `&{template:default}`,
+        `&{template:ms-cm}`,
         `{{title=stats roll}}`,
         `{{strength=[[6d10]]}}`,
         `{{speed=[[6d10]]}}`, 
@@ -18,6 +18,11 @@ charmancer.sheet-charmancer-stats
                 input(name=`comp_health`, type="hidden")
                 input(name=`comp_stress`, type="hidden")
                 input(name=`comp_resolve`, type="hidden")
+
+                h2.ms-cm-guidetitle(data-i18n="stats")
+                p.ms-cm-guidetext(data-i18n="charmancer-step2")
+            
+            .ms-cm-panel
 
                 .ms-cm-stats--main.choice.showstats
                     each stat in stats
