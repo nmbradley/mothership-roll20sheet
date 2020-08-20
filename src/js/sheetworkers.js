@@ -484,6 +484,26 @@ const calculateHullValues = () => {
         }, callback => checkFuelValue(value));
     });
 }
+    
+const parseJSON = (string) => {
+    try {
+        return JSON.parse(string);
+    } catch {
+        return false;
+    }
+};
+
+const capitalizeString = (string) => {
+    string = string.replace(/_/g, " ");
+
+    [" ",":","(","/","-"].forEach(seperator => {
+        string = string.split(seperator).map(
+            word => `${word.slice(0,1).toUpperCase()}${word.slice(1,word.length)}`
+        ).join(seperator);
+    });
+
+    return string;
+}
 
 const dropHandler = (values) => {
     const name = values.drop_name;
@@ -654,6 +674,8 @@ on(`change:hull_max`, eventInfo => calculateHullValues());
 
 on(`clicked:startship`, eventInfo => setAttrs({shipbuild:"on"}));
 on(`clicked:completeship`, eventInfo => setAttrs({shipbuild:0}));
+
+on(`clicked:launch_charmancer`, eventInfo => startCharactermancer("intro"));
 
 on(`clicked:editname_on`, eventInfo => setAttrs({npcname_toggle:"on"}));
 on(`clicked:editname_off`, eventInfo => setAttrs({npcname_toggle:0}));

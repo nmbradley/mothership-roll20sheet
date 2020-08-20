@@ -1,5 +1,6 @@
 
 
+.sheet-rolltemplate-ms-cm,
 .sheet-rolltemplate-ms {
 
     .sheet-ms {
@@ -75,7 +76,8 @@
             width: 100%;
 
             &__roll,
-            &__roll2 {
+            &__roll2,
+            &__credits {
                 height: 4rem; 
                 grid-column: span 2;
 
@@ -107,6 +109,22 @@
 
                 border: $ms-border-thick;
                     border-left: none;
+            }
+
+            &__credits {
+                grid-column: 2 / span 2;
+
+                border-radius: 1.5rem;
+                border: $ms-border-thick;
+
+                .fullcrit {
+                    color: $ms-foreground !important;
+                }
+    
+                .fullfail {
+                    color: $ms-foreground !important;
+                }
+
             }
         }
 
