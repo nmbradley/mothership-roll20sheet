@@ -2139,22 +2139,22 @@
       <div class="ms-npcstats">
         <div class="ms-mainstat">
           <div class="ms-mainstat__label">
-            <button data-i18n="Combat" type="roll" value="[]"></button><span class="ms-tooltip">
-              <p><span data-i18n="Combat"></span></p></span>
+            <button data-i18n="Combat" type="roll" value="&amp;{template:ms},{{name=Combat}},{{character_name=@{character_name}}},{{roll=[[1d100cs1cf100]]}},{{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100cs1cf100}]]}},{{target=@{combat}}}"></button><span class="ms-tooltip">
+              <p><span data-i18n="This works exactly like the PC's combat stat, except it doubles as an armor save."></span></p></span>
           </div>
           <input class="ms-mainstat__input" name="attr_combat" type="number" placeholder="20"/>
         </div>
         <div class="ms-mainstat">
           <div class="ms-mainstat__label">
-            <button data-i18n="Speed" type="roll" value="[]"></button><span class="ms-tooltip">
-              <p><span data-i18n="Speed"></span></p></span>
+            <button data-i18n="Speed" type="roll" value="&amp;{template:ms},{{name=Speed}},{{character_name=@{character_name}}},{{roll=[[1d100cs1cf100]]}},{{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100cs1cf100}]]}},{{target=@{speed}}}"></button><span class="ms-tooltip">
+              <p><span data-i18n="This works exactly like the PC's speed stat."></span></p></span>
           </div>
           <input class="ms-mainstat__input" name="attr_speed" type="number" placeholder="20"/>
         </div>
         <div class="ms-mainstat">
           <div class="ms-mainstat__label">
-            <button data-i18n="Instinct" type="roll" value="[]"></button><span class="ms-tooltip">
-              <p><span data-i18n="Instinct"></span></p></span>
+            <button data-i18n="Instinct" type="roll" value="&amp;{template:ms},{{name=Instinct}},{{character_name=@{character_name}}},{{roll=[[1d100cs1cf100]]}},{{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100cs1cf100}]]}},{{target=@{instinct}}}"></button><span class="ms-tooltip">
+              <p><span data-i18n="This is a catchall for Fear, Sanity, Body, Intellect and everything else."></span></p></span>
           </div>
           <input class="ms-mainstat__input" name="attr_instinct" type="number" placeholder="20"/>
         </div>
@@ -2165,7 +2165,7 @@
             <input class="ms-topstat__min" name="attr_hitpoints_max" placeholder="40" type="number"/>
           </div>
           <div class="ms-topstat__label--small" data-i18n="hits"></div>
-          <div class="ms-topstat__label--small" data-i18n="hitpoints"></div>
+          <div class="ms-topstat__label--small" data-i18n="health"></div>
         </div>
       </div>
       <div class="ms-npcrepeating">

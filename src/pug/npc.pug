@@ -4,17 +4,17 @@
         {
             name: "Combat",
             attr: "combat",
-            desc: "combat",
+            desc: "This works exactly like the PC's combat stat, except it doubles as an armor save.",
         },
         {
             name: "Speed",
             attr: "speed",
-            desc: "combat",
+            desc: "This works exactly like the PC's speed stat.",
         },
         {
             name: "Instinct",
             attr: "instinct",
-            desc: "combat",
+            desc: "This is a catchall for Fear, Sanity, Body, Intellect and everything else.",
         },        
     ];
 
@@ -25,8 +25,8 @@
             placeholder: "5",
         },
         {
-            name: "Hitpoints",
-            attr: "hp_max",
+            name: "Health",
+            attr: "health_max",
             paceholder: "30",
         }
     ];
@@ -44,14 +44,21 @@
 
         each stat in npc_stats
 
-            - const npc_ability_roll = [];
+            - 
+                const npc_ability_roll = [
+                    `&{template:ms}`,
+                    `{{name=${stat.name}}}`,
+                    `{{character_name=@{character_name}}}`,
+                    `{{roll=[[1d100cs1cf100]]}}`,
+                    `{{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100cs1cf100}]]}}`,
+                    `{{target=@{${stat.attr}}}}`].join();
 
             .ms-mainstat
                 .ms-mainstat__label
                     button(data-i18n=stat.name, type="roll", value=npc_ability_roll)
                     span.ms-tooltip
                         p
-                            span(data-i18n=stat.name)
+                            span(data-i18n=stat.desc)
                 input.ms-mainstat__input(name=`attr_${stat.attr}`, type="number", placeholder="20")
 
         
@@ -61,7 +68,7 @@
                 input.ms-topstat__max(name="attr_hits_max", placeholder="3", type="number")
                 input.ms-topstat__min(name="attr_hitpoints_max", placeholder="40", type="number")
             .ms-topstat__label--small(data-i18n="hits")
-            .ms-topstat__label--small(data-i18n="hitpoints")
+            .ms-topstat__label--small(data-i18n="health")
 
     .ms-npcrepeating
 
