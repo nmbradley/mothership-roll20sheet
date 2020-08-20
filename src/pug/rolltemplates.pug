@@ -42,14 +42,16 @@ rolltemplate.sheet-rolltemplate-ms-cm
         | {{/title}}
         each stat in ["strength", "speed", "intellect", "dexterity"] 
             +tags([stat])
+                h2=stat 
                 .sheet-ms-roll
                     .sheet-ms-roll__roll {{#{stat}}}
         +tags(["credits"])
-            .sheet-ms-credits
-                .sheet-ms-credits__label(data-i18n="starting credits")
-                .sheet-ms-credits__value {{credits}}
+            h2(data-i18n="starting credits")
+            .sheet-ms-roll
+                .sheet-ms-roll__credits {{credits}}
         +tags(["roll"])
             - let i = 0;
             while i <= 100
-                +tags([`rollTotal() roll ${i++}`])
-                    .sheet-ms-notes {{opt#{i}}}
+                +tags([`rollTotal() roll ${i}`])
+                    h2 {{opt#{i}}}
+                    - i++

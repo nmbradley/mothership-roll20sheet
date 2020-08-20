@@ -1293,9 +1293,10 @@
   align-items: center;
   width: 100%;
 }
-.sheet-rolltemplate-ms-cm .sheet-ms-roll__roll, .sheet-rolltemplate-ms-cm .sheet-ms-roll__roll2,
+.sheet-rolltemplate-ms-cm .sheet-ms-roll__roll, .sheet-rolltemplate-ms-cm .sheet-ms-roll__roll2, .sheet-rolltemplate-ms-cm .sheet-ms-roll__credits,
 .sheet-rolltemplate-ms .sheet-ms-roll__roll,
-.sheet-rolltemplate-ms .sheet-ms-roll__roll2 {
+.sheet-rolltemplate-ms .sheet-ms-roll__roll2,
+.sheet-rolltemplate-ms .sheet-ms-roll__credits {
   height: 4rem;
   grid-column: span 2;
   background: white;
@@ -1322,6 +1323,20 @@
   border-bottom-left-radius: 0;
   border: 3px solid #111;
   border-left: none;
+}
+.sheet-rolltemplate-ms-cm .sheet-ms-roll__credits,
+.sheet-rolltemplate-ms .sheet-ms-roll__credits {
+  grid-column: 2/span 2;
+  border-radius: 1.5rem;
+  border: 3px solid #111;
+}
+.sheet-rolltemplate-ms-cm .sheet-ms-roll__credits .fullcrit,
+.sheet-rolltemplate-ms .sheet-ms-roll__credits .fullcrit {
+  color: #111 !important;
+}
+.sheet-rolltemplate-ms-cm .sheet-ms-roll__credits .fullfail,
+.sheet-rolltemplate-ms .sheet-ms-roll__credits .fullfail {
+  color: #111 !important;
 }
 .sheet-rolltemplate-ms-cm .sheet-ms-target, .sheet-rolltemplate-ms-cm .sheet-ms-damage,
 .sheet-rolltemplate-ms .sheet-ms-target,
