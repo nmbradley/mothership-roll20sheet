@@ -8,6 +8,6 @@
   "scripts": {
     "start": "npx npm-run-all --parallel compile:sass compile:pug",
     "compile:sass": "npx node-sass ./src/scss/mothership.scss ./mothership.css -w",
-    "compile:pug": "npx pug src/pug/mothership.pug -o ./ -w"
+    "compile:pug": "npx pug src/pug/mothership.pug -o ./ -w -P"
   }
 }
