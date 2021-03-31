@@ -17,16 +17,6 @@ This character sheet requires a modern web browser, such as the latest version o
 
 ## Compiling
 
-This sheet uses the [Pug](https://pugjs.org) HTML templating engine, and Sass's [SCSS](https://sass-lang.com/) pre-processor. You'll need to install both to update the sheet.
+This sheet uses Node Package Manager to configure and control the compilation from the project source files. 
 
-### Compiling Pug
-
-Compile Pug into HTML with the following command from the base directory: 
-
-`pug src/pug/mothership.pug --out . -P -w`
-
-### Compiling the SCSS
-
-Compile the SCSS into CSS with the following command from the base directory:
-
-`sass src/scss/mothership.scss mothership.css --no-source-map --watch`
+Provided you have Node.js installed, you can use `npm install` to retrieve the packages, and then `npm start` to initialize the compilers.
