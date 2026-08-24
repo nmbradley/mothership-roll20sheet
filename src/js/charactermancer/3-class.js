@@ -146,7 +146,6 @@
                     sanity: "",
                     fear: "",
                     body: "",
-                    armor: "",
                     strength_mod: "",
                     speed_mod: "",
                     intellect_mod: "",

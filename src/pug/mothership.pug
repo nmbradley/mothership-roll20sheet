@@ -46,12 +46,23 @@ include sheetdata.pug
                         input.ms-topstat__stat(placeholder=field.placeholder, name=`attr_${field.attr}`, type="number")
                         .ms-topstat__label--invert(data-i18n=field.subtext)
                 .ms-topstat--minmax
+                    .ms-topstat__label(data-i18n="wounds")
+                    .ms-topstat__minmaxwrapper
+                        input.ms-topstat__max(name="attr_wounds_max", placeholder="2", type="number")
+                        input.ms-topstat__min(name="attr_wounds", placeholder="2", type="number")
+                    .ms-topstat__label--small(data-i18n="max")
+                    .ms-topstat__label--small(data-i18n="current")
+                .ms-topstat--minmax
                     .ms-topstat__label(data-i18n="health")
                     .ms-topstat__minmaxwrapper
                         input.ms-topstat__max(name="attr_health_max", placeholder="78", type="number")
                         input.ms-topstat__min(name="attr_health", placeholder="78", type="number")
                     .ms-topstat__label--small(data-i18n="max")
                     .ms-topstat__label--small(data-i18n="current")
+                .ms-topstat
+                    .ms-topstat__label(data-i18n="armor points")
+                    input.ms-topstat__stat(placeholder="0", name="attr_armor_points", type="number")
+                    .ms-topstat__label--invert(data-i18n="AP")
                 .ms-stats__main
                     each stat in stats
                         -
