@@ -4,3 +4,4 @@ export * from "./patches";
 export * from "./equipment";
 export * from "./weapons";
 export * from "./armor";
+export * from "./panic";
