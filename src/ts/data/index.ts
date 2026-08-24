@@ -5,3 +5,4 @@ export * from "./equipment";
 export * from "./weapons";
 export * from "./armor";
 export * from "./panic";
+export * from "./skill_descriptions";
