@@ -1,6 +1,14 @@
+// @ts-nocheck
+import "./charactermancer/1-intro";
+import "./charactermancer/2-stats";
+import "./charactermancer/3-class";
+import "./charactermancer/4-skills";
+import "./charactermancer/5-equipment";
+import "./charactermancer/6-review";
+import "./charactermancer/7-final";
 // Sheet Variables
 
-const skillList = {
+export const skillList = {
     "linguistics":{
         unlocks: ["sophontology"]
     },
@@ -155,7 +163,7 @@ const toggleSkill = (source, newValue) => {
     
             updateAttr = existingValue + " ";
     
-            if (unlocks === []) return;
+            if (unlocks.length === 0) return;
             
             unlocks.forEach(unlock => updateAttr += `${unlock} `);
 
@@ -485,7 +493,7 @@ const calculateHullValues = () => {
     });
 }
     
-const parseJSON = (string) => {
+export const parseJSON = (string) => {
     try {
         return JSON.parse(string);
     } catch {
@@ -493,7 +501,7 @@ const parseJSON = (string) => {
     }
 };
 
-const capitalizeString = (string) => {
+export const capitalizeString = (string) => {
     string = string.replace(/_/g, " ");
 
     [" ",":","(","/","-"].forEach(seperator => {

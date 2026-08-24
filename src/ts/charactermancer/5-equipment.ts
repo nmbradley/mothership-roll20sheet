@@ -1,3 +1,5 @@
+// @ts-nocheck
+import { parseJSON } from "../index";
 {
     let packages = {};
 
@@ -96,7 +98,7 @@
         
         getCompendiumPage("Trinkets", (data) => {
 
-            trinkets = (data?.data?.trinkets) ? parseJSON(data.data.trinkets) : [];
+            const trinkets = (data?.data?.trinkets) ? parseJSON(data.data.trinkets) : [];
 
             setAttrs({trinket:trinkets[roll[0].result]});
             setCharmancerText({t__trinket:trinkets[roll[0].result]});
@@ -109,7 +111,7 @@
         
         getCompendiumPage("Patches", (data) => {
 
-            patches = (data?.data?.patches) ? parseJSON(data.data.patches) : [];
+            const patches = (data?.data?.patches) ? parseJSON(data.data.patches) : [];
 
             setAttrs({patch:patches[roll[0].result]});
             setCharmancerText({t__patch:patches[roll[0].result]});

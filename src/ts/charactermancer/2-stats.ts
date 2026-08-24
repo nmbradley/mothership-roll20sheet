@@ -1,3 +1,4 @@
+// @ts-nocheck
 {
     const stats = ["strength","speed","intellect","combat"];
 

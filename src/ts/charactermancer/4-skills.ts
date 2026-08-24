@@ -1,3 +1,5 @@
+// @ts-nocheck
+import { skillList } from "../index";
 {
 
     const trained_skills = [

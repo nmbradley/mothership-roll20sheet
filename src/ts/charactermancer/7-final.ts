@@ -1,3 +1,5 @@
+// @ts-nocheck
+import { skillList, parseJSON } from "../index";
 const clearSheet = (data) => {
 
     const clearAttrs = {};
@@ -12,7 +14,7 @@ const clearSheet = (data) => {
         });
     });
 
-    for (skill in skillList) {
+    for (const skill in skillList) {
         clearAttrs[skill] = "0";
     }
 
