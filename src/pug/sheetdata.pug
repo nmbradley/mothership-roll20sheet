@@ -46,232 +46,54 @@
         }
     ];
 
-    const skills = {
+        const skills = {
         trained: [
-            {
-                name: "linguistics",
-                desc: "Study of language"
-            },
-            {
-                name: "biology",
-                desc: "Study of life"
-            },
-            {
-                name: "first aid",
-                desc: "Emergency medical care and treatment"
-            },
-            {
-                name: "hydroponics",
-                desc: "Growing plants in nutrient solutions without soil (farming in space)"
-            },
-            {
-                name: "geology",
-                desc: "The solid features of any terrestrial planet or natural satellite"
-            },
-            {
-                name: "zero-g",
-                desc: "Working in a vaccuum, vaccsuits, etc."
-            },
-            {
-                name: "scavenging",
-                desc: "Searching discarded wastes for useful items"
-            },
-            {
-                name: "heavy machinery",
-                desc: "Operation and use of large pieces of equipment (cranes, exosuits, forkliftsm etc.)"
-            },
-            {
-                name: "computers",
-                desc: "Fluent use of computers and networks"
-            },
-            {
-                name: "mechanical repair",
-                desc: "Fixing broken machines"
-            },
-            {
-                name: "driving",
-                desc: "Operation and control of motor vehicles"
-            },
-            {
-                name: "piloting",
-                desc: "Operation and control of air and spacecraft"
-            },
-            {
-                name: "mathematics",
-                desc: "The science of numbers, quantity, and space"
-            },
-            {
-                name: "art",
-                desc: "The expression or application of a species' creative ability and imagination"
-            },
-            {
-                name: "archaeology",
-                desc: "Ancient cultures and their artifacts"
-            },
-            {
-                name: "theology",
-                desc: "Study of religion"
-            },
-            {
-                name: "military training",
-                desc: "Standard basic training given to all military personnel"
-            },
-            {
-                name: "rimwise",
-                desc: "Outer rim colonies and seedy parts of the galaxy"
-            },
-            {
-                name: "athletics",
-                desc: "Physical sports and games"
-            },
-            {
-                name: "chemistry",
-                desc: "The identification of the substances of which matter is composed"
-            },
+            { name: "linguistics", desc: "Study of language" },
+            { name: "zoology", desc: "Study of animal life" },
+            { name: "botany", desc: "Study of plant life" },
+            { name: "geology", desc: "Solid features of any terrestrial planet" },
+            { name: "industrial equipment", desc: "Safe operation of heavy machinery" },
+            { name: "jury-rigging", desc: "Makeshift repairs" },
+            { name: "chemistry", desc: "Identification of substances" },
+            { name: "computers", desc: "Fluent use of computers and networks" },
+            { name: "zero-g", desc: "Working in a vacuum, vaccsuits, etc." },
+            { name: "mathematics", desc: "Science of numbers, quantity, and space" },
+            { name: "art", desc: "Expression or application of creative ability" },
+            { name: "archaeology", desc: "Ancient cultures and their artifacts" },
+            { name: "theology", desc: "Study of religion" },
+            { name: "military training", desc: "Standard basic training" },
+            { name: "rimwise", desc: "Outer rim colonies and seedy parts" },
+            { name: "athletics", desc: "Physical sports and games" }
         ],
         expert: [
-            {
-                name: "psychology",
-                prereq: ["biology"],
-                desc: "The study of behavior and the human mind"
-            },
-            {
-                name: "genetics",
-                prereq: ["biology"],
-                desc: "Heredity and the variation of the inherited characteristics"
-            },
-            {
-                name: "pathology",
-                prereq: ["first aid"],
-                desc: "Study of the cause and effect of disease"
-            },
-            {
-                name: "botany",
-                prereq: ["hydroponics"],
-                desc: "The study of plant life"
-            },
-            {
-                name: "planetology",
-                prereq: ["geology"],
-                desc: "Study of planets and other celestial body"
-            },
-            {
-                name: "asteroid mining",
-                prereq: ["geology","zero-g","heavy machinery","scavenging"],
-                desc: "Training in the tools and procedures used in mining asteroids"
-            },
-            {
-                name: "jury rigging",
-                prereq: ["scavenging","mechanical repair"],
-                desc: "Makeshift repairs"
-            },
-            {
-                name: "engineering",
-                prereq: ["heavy machinery","computers","mechanical repair"],
-                desc: "Design, building, and use of engines, machines, and structures"
-            },
-            {
-                name: "hacking",
-                prereq: ["computers"],
-                desc: "Unauthorized access to computer systems"
-            },
-            {
-                name: "vehicle specialization",
-                prereq: ["mechanical repair","piloting","driving"],
-                desc: "Specific vehicle class"
-            },
-            {
-                name: "astrogation",
-                prereq: ["piloting"],
-                desc: "Navigation in outer space"
-            },
-            {
-                name: "physics",
-                prereq: ["mathematics"],
-                desc: "Study of nature and properties of matter and energy"
-            },
-            {
-                name: "mysticism",
-                prereq: ["art","archaeology","theology"],
-                desc: "Spiritual apprehension of hidden knowledge"
-            },
-            {
-                name: "tactics",
-                prereq: ["military training"],
-                desc: "Manuevering military forces in battle"
-            },
-            {
-                name: "gunnery",
-                prereq: ["military training"],
-                desc: "Starship weaponry"
-            },
-            {
-                name: "firearms",
-                prereq: ["military training","rimwise"],
-                desc: "Guns and their use"
-            },
-            {
-                name: "close-quarters combat",
-                prereq: ["athletics","military training","rimwise"],
-                desc: "Hand-tohand, melee fighting"
-            },
-            {
-                name: "explosives",
-                prereq: ["military training","chemistry"],
-                desc: "Bombs and incendiary devices"
-            },
+            { name: "psychology", prereq: ["linguistics", "zoology", "botany"], desc: "Study of behavior and mind" },
+            { name: "pathology", prereq: ["zoology", "botany"], desc: "Study of the cause and effect of disease" },
+            { name: "field medicine", prereq: ["zoology", "botany"], desc: "Emergency medical care" },
+            { name: "ecology", prereq: ["botany", "geology"], desc: "Organisms and their physical surroundings" },
+            { name: "wilderness survival", prereq: ["botany"], desc: "Surviving in harsh environments" },
+            { name: "asteroid mining", prereq: ["geology", "industrial equipment"], desc: "Tools and procedures used in mining asteroids" },
+            { name: "mechanical repair", prereq: ["industrial equipment", "jury-rigging"], desc: "Fixing broken machines" },
+            { name: "explosives", prereq: ["jury-rigging", "chemistry", "military training"], desc: "Bombs and incendiary devices" },
+            { name: "pharmacology", prereq: ["chemistry"], desc: "Uses, effects, and modes of action of drugs" },
+            { name: "hacking", prereq: ["computers"], desc: "Unauthorized access to computer systems" },
+            { name: "piloting", prereq: ["zero-g"], desc: "Operation and control of air and spacecraft" },
+            { name: "physics", prereq: ["mathematics"], desc: "Study of nature and properties of matter and energy" },
+            { name: "mysticism", prereq: ["art", "archaeology", "theology"], desc: "Spiritual apprehension of hidden knowledge" },
+            { name: "firearms", prereq: ["military training", "rimwise"], desc: "Guns and their use" },
+            { name: "hand-to-hand combat", prereq: ["military training", "rimwise", "athletics"], desc: "Melee fighting" }
         ],
-        master: [ 
-            {
-                name: "sophontology",
-                prereq: ["linguistics", "psychology"],
-                desc: "Alien psychology"
-            },  
-            {
-                name: "xenobiology",
-                prereq: ["genetics","botany","pathology"],
-                desc: "Alien biology"
-            },   
-            {
-                name: "surgery",
-                prereq: ["pathology"],
-                desc: "Medical speciality involving manual operation"
-            },  
-            {
-                name: "cybernetics",
-                prereq: ["jury rigging","engineering"],
-                desc: "Interface between man and machine"
-            },
-            {
-                name: "robotics",
-                prereq: ["engineering"],
-                desc: "Design and operation of robots, drones, and androids"
-            },
-            {
-                name: "artificial intelligence",
-                prereq: ["engineering","hacking"],
-                desc: "Knowledge of simulacrum of human consciousness"
-            },
-            {
-                name: "command",
-                prereq: ["vehicle specialization","tactics"],
-                desc: "Leadership and authority"
-            },   
-            {
-                name: "hyperspace",
-                prereq: ["astrogation","mysticism","physics"],
-                desc: "FTL travel"
-            },  
-            {
-                name: "xenoesotericism",
-                prereq: ["mysticism"],
-                desc: "Obscure alien mysticism, religion, and belief"
-            },   
-            {
-                name: "weapon specialization",
-                prereq: ["gunnery","firearms","close-quarters combat","explosives"],
-                desc: "Proficiency with a specific weapon"
-            },            
+        master: [
+            { name: "sophontology", prereq: ["psychology"], desc: "Alien psychology" },
+            { name: "exobiology", prereq: ["pathology"], desc: "Alien biology" },
+            { name: "surgery", prereq: ["pathology", "field medicine"], desc: "Medical specialty involving manual operation" },
+            { name: "planetology", prereq: ["ecology", "asteroid mining"], desc: "Study of planets and celestial bodies" },
+            { name: "robotics", prereq: ["mechanical repair"], desc: "Design and operation of robots and androids" },
+            { name: "engineering", prereq: ["mechanical repair"], desc: "Design, building, and use of engines" },
+            { name: "cybernetics", prereq: ["mechanical repair"], desc: "Interface between man and machine" },
+            { name: "artificial intelligence", prereq: ["hacking"], desc: "Simulacrum of human consciousness" },
+            { name: "hyperspace", prereq: ["piloting", "physics", "mysticism"], desc: "FTL travel" },
+            { name: "xenoesotericism", prereq: ["mysticism"], desc: "Obscure alien mysticism and belief" },
+            { name: "command", prereq: ["piloting", "firearms"], desc: "Leadership and authority" }
         ]
     };
     
