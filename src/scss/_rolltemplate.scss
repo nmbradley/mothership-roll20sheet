@@ -1,5 +1,3 @@
-
-
 .sheet-rolltemplate-ms-cm,
 .sheet-rolltemplate-ms {
 
@@ -158,6 +156,19 @@
                 font-weight: bold;
                 text-align: center;
             }
+        }
+
+        &-notes {
+            box-sizing: border-box;
+            margin-top: $ms-margin-small;
+            padding: $ms-margin;
+            border: $ms-border;
+            border-radius: 1rem;
+            background: $ms-background;
+            color: $ms-foreground;
+            font-size: $ms-font-general;
+            line-height: 1.4;
+            white-space: pre-line;
         }
 
     }
