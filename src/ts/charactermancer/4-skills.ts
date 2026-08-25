@@ -181,7 +181,10 @@ import { skillList } from "../index";
       }
     }
 
-    setAttrs({ unlocked: unlocked.join(" "), owned: owned.join(" ") });
+    setAttrs({
+      unlocked: unlocked.join(" "),
+      owned: owned.join(" "),
+    });
   };
 
   on(`page:skills`, (eventInfo) => { onLoadSkills(); });

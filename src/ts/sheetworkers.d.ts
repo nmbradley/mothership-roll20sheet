@@ -1,6 +1,4 @@
-type RollResults = {
-  [roll: string]: RollResult;
-};
+type RollResults = { [roll: string]: RollResult };
 
 type RollResult = {
   dice: number[];
@@ -15,9 +13,7 @@ type Roll = {
   sides: number;
 };
 
-type GetAttrsResponse = {
-  [x: string]: string | number;
-};
+type GetAttrsResponse = { [x: string]: string | number };
 
 type EventInfo = {
   sourceAttribute: string;
@@ -59,7 +55,10 @@ declare function removeRepeatingRow(RowID: string): void;
 // --- CUSTOM ROLL FUNCTIONS ---
 declare function startRoll(
   roll: string,
-): Promise<{ rollId: string; results: RollResults }>;
+): Promise<{
+  rollId: string;
+  results: RollResults;
+}>;
 
 declare function finishRoll(
   rollId: string,

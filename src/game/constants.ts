@@ -299,4 +299,3 @@ export const skills = {
     desc: "Leadership, management, and authority.",
   },
 } as const satisfies SkillsMap;
-

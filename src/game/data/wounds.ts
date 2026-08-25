@@ -101,16 +101,26 @@ export const woundsTable: WoundEffect[] = [
   },
 ];
 
-export type DeathEffect = { roll: string;
-  result: string; };
+export type DeathEffect = {
+  roll: string;
+  result: string;
+};
 
 export const deathTable: DeathEffect[] = [
-  { roll: "0",
-    result: "You are unconscious. You wake up in 2d10 minutes. Reduce your Maximum Health by 1d5." },
-  { roll: "1-2",
-    result: "You are unconscious and dying. You die in 1d5 rounds without intervention." },
-  { roll: "3-4",
-    result: "You are comatose. Only extraordinary measures can return you to the waking world." },
-  { roll: "5-9",
-    result: "You have died. Roll up a new character." },
+  {
+    roll: "0",
+    result: "You are unconscious. You wake up in 2d10 minutes. Reduce your Maximum Health by 1d5.",
+  },
+  {
+    roll: "1-2",
+    result: "You are unconscious and dying. You die in 1d5 rounds without intervention.",
+  },
+  {
+    roll: "3-4",
+    result: "You are comatose. Only extraordinary measures can return you to the waking world.",
+  },
+  {
+    roll: "5-9",
+    result: "You have died. Roll up a new character.",
+  },
 ];
