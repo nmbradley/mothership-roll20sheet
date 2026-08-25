@@ -1,15 +1,15 @@
 import { resolveTypeAndSeed } from "./createSection";
 
-export type AttributeArgs = {
-  name: string;
+export type AttributeArgs<TName extends string = string> = {
+  name: TName;
   label: string;
   type?: "number" | "string" | "boolean";
   seed?: number | string | boolean;
   max: boolean;
 };
 
-export type Attribute = {
-  name: string;
+export type Attribute<TName extends string = string> = {
+  name: TName;
   label: string;
   i18nlabel: string;
   type: "number" | "string" | "boolean";
@@ -23,9 +23,9 @@ export type Attribute = {
  * Automatically generates i18n translation keys and infers missing
  * type or seed information.
  */
-export function createAttribute({
+export function createAttribute<TName extends string>({
   name, label, type, seed, max,
-}: AttributeArgs): Attribute {
+}: AttributeArgs<TName>): Attribute<TName> {
   const resolved = resolveTypeAndSeed(type, seed, name);
   return {
     name,

@@ -1,5 +1,5 @@
-export type FieldArgs = {
-  name: string;
+export type FieldArgs<TName extends string = string> = {
+  name: TName;
   section: string;
   label: string;
   type?: "number" | "string" | "boolean";
@@ -7,8 +7,8 @@ export type FieldArgs = {
   max: boolean;
 };
 
-export type Field = {
-  name: string;
+export type Field<TName extends string = string> = {
+  name: TName;
   section: string;
   label: string;
   i18nlabel: string;
@@ -68,9 +68,9 @@ export function resolveTypeAndSeed(
  * Automatically generates i18n translation keys and infers missing
  * type or seed information.
  */
-export function createField({
+export function createField<TName extends string>({
   name, section, label, type, seed, max,
-}: FieldArgs): Field {
+}: FieldArgs<TName>): Field<TName> {
   const resolved = resolveTypeAndSeed(type, seed, name, section);
   return {
     name,
@@ -84,21 +84,32 @@ export function createField({
   };
 }
 
-export type SectionArgs = {
-  name: string;
-  fields: Field[];
+export type SectionArgs<
+  TName extends string = string,
+  TFields extends readonly Field[] = readonly Field[],
+> = {
+  name: TName;
+  fields: TFields;
 };
 
-export type Section = {
-  name: string;
-  fields: Field[];
+export type Section<
+  TName extends string = string,
+  TFields extends readonly Field[] = readonly Field[],
+> = {
+  name: TName;
+  fields: TFields;
 };
 
 /**
  * Wraps an array of fields into a Roll20 repeating section.
  * Automatically prefixes the section name with "repeating_".
  */
-export function createSection({ name, fields }: SectionArgs) {
+export function createSection<
+  TName extends string,
+  TFields extends readonly Field[],
+>({
+  name, fields,
+}: SectionArgs<TName, TFields>): Section<`repeating_${TName}`, TFields> {
   return {
     name: `repeating_${name}`,
     fields,
