@@ -10,79 +10,53 @@ const CASTS = ":matches(TSAsExpression, TSNonNullExpression, TSSatisfiesExpressi
 const CASTS_2 = `${CASTS} > ${CASTS}`;
 
 const NO_NESTED_CALLS = [
-  {
-    selector: "CallExpression > CallExpression",
-    message: "No nested calls. Bind the inner call to a named value first.",
-  },
-  {
-    selector: "IfStatement > CallExpression",
-    message: "No call in a condition. Bind it to a named value first.",
-  },
-  {
-    selector: "WhileStatement > CallExpression",
-    message: "No call in a condition. Bind it to a named value first.",
-  },
-  {
-    selector: "ReturnStatement > CallExpression",
-    message: "No call in a return. Bind it to a named value first.",
-  },
-  {
-    selector: `CallExpression > ${CASTS} > CallExpression`,
-    message: "No nested calls. Bind the inner call to a named value first, then cast.",
-  },
-  {
-    selector: `ReturnStatement > ${CASTS} > CallExpression`,
-    message: "No call in a return. Bind it to a named value first, then cast.",
-  },
-  {
-    selector: `:matches(IfStatement, WhileStatement) > ${CASTS} > CallExpression`,
-    message: "No call in a condition. Bind it to a named value first, then cast.",
-  },
-  {
-    selector: `CallExpression > ${CASTS_2} > CallExpression`,
-    message: "No nested calls. Bind the inner call to a named value first, then cast.",
-  },
-  {
-    selector: `ReturnStatement > ${CASTS_2} > CallExpression`,
-    message: "No call in a return. Bind it to a named value first, then cast.",
-  },
-  {
-    selector: `:matches(IfStatement, WhileStatement) > ${CASTS_2} > CallExpression`,
-    message: "No call in a condition. Bind it to a named value first, then cast.",
-  },
-  {
-    selector: `ArrowFunctionExpression > ${CASTS} > CallExpression`,
-    message: "No call under a cast in an arrow body. Use a block and bind it first.",
-  },
-  {
-    selector: `ArrowFunctionExpression > ${CASTS_2} > CallExpression`,
-    message: "No call under a cast in an arrow body. Use a block and bind it first.",
-  },
+  { selector: "CallExpression > CallExpression",
+    message: "No nested calls. Bind the inner call to a named value first." },
+  { selector: "IfStatement > CallExpression",
+    message: "No call in a condition. Bind it to a named value first." },
+  { selector: "WhileStatement > CallExpression",
+    message: "No call in a condition. Bind it to a named value first." },
+  { selector: "ReturnStatement > CallExpression",
+    message: "No call in a return. Bind it to a named value first." },
+  { selector: `CallExpression > ${CASTS} > CallExpression`,
+    message: "No nested calls. Bind the inner call to a named value first, then cast." },
+  { selector: `ReturnStatement > ${CASTS} > CallExpression`,
+    message: "No call in a return. Bind it to a named value first, then cast." },
+  { selector: `:matches(IfStatement, WhileStatement) > ${CASTS} > CallExpression`,
+    message: "No call in a condition. Bind it to a named value first, then cast." },
+  { selector: `CallExpression > ${CASTS_2} > CallExpression`,
+    message: "No nested calls. Bind the inner call to a named value first, then cast." },
+  { selector: `ReturnStatement > ${CASTS_2} > CallExpression`,
+    message: "No call in a return. Bind it to a named value first, then cast." },
+  { selector: `:matches(IfStatement, WhileStatement) > ${CASTS_2} > CallExpression`,
+    message: "No call in a condition. Bind it to a named value first, then cast." },
+  { selector: `ArrowFunctionExpression > ${CASTS} > CallExpression`,
+    message: "No call under a cast in an arrow body. Use a block and bind it first." },
+  { selector: `ArrowFunctionExpression > ${CASTS_2} > CallExpression`,
+    message: "No call under a cast in an arrow body. Use a block and bind it first." },
 ];
 
 const NO_CLASSES = [
-  { selector: "ClassDeclaration", message: "Classes are banned. Use a module of functions." },
-  { selector: "ClassExpression", message: "Classes are banned. Use a module of functions." },
-  { selector: "ThisExpression", message: "`this` is banned. Pass values as parameters." },
+  { selector: "ClassDeclaration",
+    message: "Classes are banned. Use a module of functions." },
+  { selector: "ClassExpression",
+    message: "Classes are banned. Use a module of functions." },
+  { selector: "ThisExpression",
+    message: "`this` is banned. Pass values as parameters." },
 ];
 
 const NO_DOC_CITATIONS = [
-  {
-    selector: "Literal[value=/ADR ?[0-9]/]",
-    message: "Cite no ADR in a name or message. Describe the behaviour; ADRs get superseded.",
-  },
-  {
-    selector: "TemplateElement[value.raw=/ADR ?[0-9]/]",
-    message: "Cite no ADR in a name or message. Describe the behaviour; ADRs get superseded.",
-  },
-  {
-    selector: "Literal[value=/#[0-9]/]",
-    message: "Do not cite a ticket in a name or message. Describe the behaviour.",
-  },
+  { selector: "Literal[value=/ADR ?[0-9]/]",
+    message: "Cite no ADR in a name or message. Describe the behaviour; ADRs get superseded." },
+  { selector: "TemplateElement[value.raw=/ADR ?[0-9]/]",
+    message: "Cite no ADR in a name or message. Describe the behaviour; ADRs get superseded." },
+  { selector: "Literal[value=/#[0-9]/]",
+    message: "Do not cite a ticket in a name or message. Describe the behaviour." },
 ];
 
 const MISC_BANS = [
-  { selector: "ExportAllDeclaration", message: "No `export *`. Re-export by name." },
+  { selector: "ExportAllDeclaration",
+    message: "No `export *`. Re-export by name." },
 ];
 
 export default tseslint.config(
@@ -100,26 +74,31 @@ export default tseslint.config(
       arrowParens: true,
       braceStyle: "1tbs",
     })],
-    plugins: { "import-x": importX, jsdoc },
-    settings: {
-      "import-x/resolver": { typescript: true },
-    },
+    plugins: { "import-x": importX,
+      jsdoc },
+    settings: { "import-x/resolver": { typescript: true } },
     rules: {
-      "@stylistic/max-len": ["error", { code: 100, ignoreUrls: true }],
+      "@stylistic/max-len": ["error", {
+        code: 100,
+        ignoreUrls: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true,
+        ignoreRegExpLiterals: true,
+      }],
       "@stylistic/operator-linebreak": ["error", "before", { overrides: { "=": "after" } }],
+      "@stylistic/object-property-newline": ["error", { allowAllPropertiesOnSameLine: false }],
+      "@stylistic/object-curly-newline": ["error", { minProperties: 3 }],
     },
   },
 
   {
     files: ["src/**/*.ts", "src/**/*.svelte"],
     extends: [tseslint.configs.strictTypeChecked],
-    languageOptions: {
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-        extraFileExtensions: [".svelte"],
-      },
-    },
+    languageOptions: { parserOptions: {
+      projectService: true,
+      tsconfigRootDir: import.meta.dirname,
+      extraFileExtensions: [".svelte"],
+    } },
     rules: {
       "no-restricted-syntax": [
         "error",
@@ -130,7 +109,8 @@ export default tseslint.config(
       ],
       "no-restricted-properties": [
         "error",
-        { property: "then", message: "No .then() chains. Use async/await." },
+        { property: "then",
+          message: "No .then() chains. Use async/await." },
       ],
       "no-else-return": ["error", { allowElseIf: false }],
       "no-param-reassign": ["error", { props: true }],
@@ -144,7 +124,8 @@ export default tseslint.config(
       ],
       "@typescript-eslint/naming-convention": [
         "error",
-        { selector: "typeLike", format: ["PascalCase"] },
+        { selector: "typeLike",
+          format: ["PascalCase"] },
         {
           selector: "variable",
           types: ["boolean"],
@@ -156,12 +137,8 @@ export default tseslint.config(
       "import-x/no-default-export": "error",
       "@typescript-eslint/no-restricted-imports": [
         "error",
-        {
-          patterns: [{
-            group: ["../*"],
-            message: "No parent-relative imports. Use a #subpath import.",
-          }],
-        },
+        { patterns: [{ group: ["../*"],
+          message: "No parent-relative imports. Use a #subpath import." }] },
       ],
       "import-x/no-unassigned-import": "error",
       "import-x/order": [
@@ -176,26 +153,20 @@ export default tseslint.config(
       "jsdoc/require-description": "error",
       "jsdoc/require-jsdoc": [
         "error",
-        {
-          publicOnly: true,
+        { publicOnly: true,
           require: {
             FunctionDeclaration: true,
             ArrowFunctionExpression: true,
             FunctionExpression: true,
-          },
-        },
+          } },
       ],
     },
   },
 
   {
     files: ["**/*.svelte"],
-    languageOptions: {
-      parser: svelteParser,
-      parserOptions: {
-        parser: tseslint.parser,
-      },
-    },
+    languageOptions: { parser: svelteParser,
+      parserOptions: { parser: tseslint.parser } },
     rules: {
       "import-x/no-default-export": "off",
       "import-x/no-unassigned-import": "off", // Bypassing for Svelte styling imports
