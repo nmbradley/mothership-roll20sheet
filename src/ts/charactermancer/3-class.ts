@@ -1,3 +1,4 @@
+// @ts-nocheck
 {
     const onLoadClass = () => {
         const data = getCharmancerData();

@@ -1,3 +1,5 @@
+// @ts-nocheck
+import { capitalizeString, parseJSON } from "../index";
 {
 
     const onLoadReview = () => {
@@ -62,9 +64,9 @@
         updateHTML[`t__patch`] = patch;
         updateAttrs[`patch_final`] = patch;
 
-        const package = (data?.equipment?.values?.equipment) ? parseJSON(data.equipment.values.equipment) : [];
+        const pkg = (data?.equipment?.values?.equipment) ? parseJSON(data.equipment.values.equipment) : [];
 
-        const items = package.map(item => (Array.isArray(item)) ? `${item[0]} (${item[1]})` : item).join(", ");
+        const items = pkg.map(item => (Array.isArray(item)) ? `${item[0]} (${item[1]})` : item).join(", ");
 
         updateHTML[`t__equipmentlist`] = items;
         updateAttrs[`equipment_final`] = data?.equipment?.values?.equipment;

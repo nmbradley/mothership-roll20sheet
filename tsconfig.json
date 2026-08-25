@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "outDir": "./js/",
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "module": "es6",
+    "target": "es5",
+    "lib": ["es2017", "dom"],
+    "jsx": "react",
+    "moduleResolution": "node"
+  },
+  "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts", "jest.*.js"]
+}
