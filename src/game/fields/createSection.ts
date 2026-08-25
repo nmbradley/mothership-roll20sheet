@@ -23,6 +23,11 @@ type ResolvedFieldData = {
   seed: number | string | boolean;
 };
 
+/**
+ * Resolves the underlying data type and default seed value for a field.
+ * Safely infers the type if only a seed is provided, and generates
+ * an appropriate default seed if only a type is provided.
+ */
 function resolveTypeAndSeed(
   type: FieldArgs["type"],
   seed: FieldArgs["seed"],
@@ -58,7 +63,9 @@ function resolveTypeAndSeed(
 }
 
 /**
- *
+ * Constructs a fully qualified Field object for Roll20 repeating sections.
+ * Automatically generates i18n translation keys and infers missing
+ * type or seed information.
  */
 export function createField({
   name, section, label, type, seed, max,
@@ -87,7 +94,8 @@ export type Section = {
 };
 
 /**
- *
+ * Wraps an array of fields into a Roll20 repeating section.
+ * Automatically prefixes the section name with "repeating_".
  */
 export function createSection({ name, fields }: SectionArgs) {
   return {
