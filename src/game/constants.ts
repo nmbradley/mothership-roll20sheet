@@ -1,51 +1,79 @@
-export const headerfields = [{ label: "name", attr: "character_name", type: "text" }, { label: "level", attr: "level", type: "number" }, { label: "rank / title", attr: "rank_title", type: "text" }, { label: "XP", attr: "xp", type: "text" }, { label: "class", attr: "class", type: "text" }];
+import { Stats, Saves, SkillLevels } from "./enums";
 
-export const toprowfields = [{ attr: "stress", subtext: "starts at 2", placeholder: "2" }, { attr: "resolve", subtext: "starts at 0", placeholder: "0" }];
+export type HeaderField = {
+  label: string;
+  attr: string;
+  type: "text" | "number";
+};
 
-export const stats = [
+export const headerfields: HeaderField[] = [
+  { label: "name", attr: "character_name", type: "text" },
+  { label: "class", attr: "class", type: "text" },
+];
+
+export type TopRowField = {
+  attr: string;
+  subtext: string;
+  placeholder: string;
+};
+
+export const toprowfields: TopRowField[] = [
+  { attr: "stress", subtext: "starts at 2", placeholder: "2" },
+  { attr: "resolve", subtext: "starts at 0", placeholder: "0" },
+];
+
+export type StatDef = {
+  attr: typeof Stats[keyof typeof Stats];
+  label: string;
+};
+
+export const stats: StatDef[] = [
   {
-    attr: "strength",
-    label: "How able-bodied you are. Lifting, pushing, hitting things hard, etc.",
+    attr: Stats.Strength,
+    label: "Holding airlocks closed, carrying fallen comrades, climbing, pushing, jumping.",
   },
   {
-    attr: "speed",
-    label: "How quickly you can act and react under pressure.",
+    attr: Stats.Speed,
+    label: "Getting out of the cargo bay before the blast doors close, acting before someone (or something) else, running away.",
   },
   {
-    attr: "intellect",
-    label: "How knowledgeable and experienced you are.",
+    attr: Stats.Intellect,
+    label: "Recalling your training and experience under duress, thinking through difficult problems, inventing or fixing things.",
   },
   {
-    attr: "combat",
-    label: "How good you are at fighting.",
+    attr: Stats.Combat,
+    label: "Fighting for your life.",
   },
 ];
 
-export const saves = [
+export type SaveDef = {
+  name: typeof Saves[keyof typeof Saves];
+  desc: string;
+};
+
+export const saves: SaveDef[] = [
   {
-    name: "sanity",
-    subtext: "rationalization, logic",
-    desc: "Sanity is your ability to explain away logical inconsistencies in the universe, rationalize and make sense out of chaos, detect illusions and mimicry and think quickly under pressure.",
+    name: Saves.Sanity,
+    desc: "Rationalize logical inconsistencies in the universe, make sense out of chaos, detect illusions and mimicry, cope with Stress.",
   },
   {
-    name: "fear",
-    subtext: "surprise, loneliness",
-    desc: "Fear is how well you can cope with emotional trauma, and covers not only fear, but also loneliness, depression or any other emotional surge.",
+    name: Saves.Fear,
+    desc: "Maintain a level head while struggling with fear, loneliness, depression, and other emotional surges.",
   },
   {
-    name: "body",
-    subtext: "hunger, disease, infection",
-    desc: "Body is your reflexes, and how well you can resist hunger, disease or any other organism that might attempt to invade your insides.",
-  },
-  {
-    name: "armor",
-    subtext: "physical damage",
-    desc: "Armor is how resistant you ae to damage sustained during combat, whether that be through bullets, claws, teeth, etc.",
+    name: Saves.Body,
+    desc: "Employ quick reflexes and resist hunger, disease, or organisms that might try and invade your insides.",
   },
 ];
 
-export const skills = {
-  trained: [
+export type SkillDef = {
+  name: string;
+  desc: string;
+  prereq?: string[];
+};
+
+export const skills: Record<typeof SkillLevels[keyof typeof SkillLevels], SkillDef[]> = {
+  [SkillLevels.Trained]: [
     { name: "linguistics", desc: "The study of languages (alive, dead, and undiscovered)." },
     { name: "zoology", desc: "The study of animal life." },
     { name: "botany", desc: "The study of plant life." },
@@ -63,7 +91,7 @@ export const skills = {
     { name: "rimwise", desc: "Practical knowledge and know-how regarding outer Rim colonies, their customs, and the seedier parts of the galaxy." },
     { name: "athletics", desc: "Physical fitness, sports, and games." },
   ],
-  expert: [
+  [SkillLevels.Expert]: [
     { name: "psychology", prereq: ["linguistics", "zoology", "botany"], desc: "The study of behavior and the human mind." },
     { name: "pathology", prereq: ["zoology", "botany"], desc: "Study of the causes and effects of diseases." },
     { name: "field medicine", prereq: ["zoology", "botany"], desc: "Emergency medical care and treatment." },
@@ -80,7 +108,7 @@ export const skills = {
     { name: "firearms", prereq: ["military training", "rimwise"], desc: "Safe and effective use of guns." },
     { name: "hand-to-hand combat", prereq: ["military training", "rimwise", "athletics"], desc: "Melee fighting, brawling, martial arts, etc." },
   ],
-  master: [
+  [SkillLevels.Master]: [
     { name: "sophontology", prereq: ["psychology"], desc: "The study of the behavior and mind of inhuman entities." },
     { name: "exobiology", prereq: ["pathology"], desc: "The study of and search for intelligent alien life." },
     { name: "surgery", prereq: ["pathology", "field medicine"], desc: "Manually operating on living or dead biological subjects." },
