@@ -3,32 +3,16 @@
     const npc_stats = [
         {
             name: "Combat",
+            short: "C",
             attr: "combat",
-            desc: "This works exactly like the PC's combat stat, except it doubles as an armor save.",
-        },
-        {
-            name: "Speed",
-            attr: "speed",
-            desc: "This works exactly like the PC's speed stat.",
+            desc: "This works exactly like the Combat Stat, showing how good they are in a fight.",
         },
         {
             name: "Instinct",
+            short: "I",
             attr: "instinct",
-            desc: "This is a catchall for Fear, Sanity, Body, Intellect and everything else.",
+            desc: "This is a catchall Stat for Fear, Sanity, Body, Speed, Intellect, and everything else.",
         },        
-    ];
-
-    const hits = [
-        {
-            name: "Hits",
-            attr: "hits_max",
-            placeholder: "5",
-        },
-        {
-            name: "Health",
-            attr: "health_max",
-            paceholder: "30",
-        }
     ];
 
 .ms-npcwrapper
@@ -49,9 +33,9 @@
                     `&{template:ms}`,
                     `{{name=${stat.name}}}`,
                     `{{character_name=@{character_name}}}`,
-                    `{{roll=[[1d100cs1cf100]]}}`,
-                    `{{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100cs1cf100}]]}}`,
-                    `{{target=@{${stat.attr}}}}`].join();
+                    `{{roll=[[1d100-1cs1cf99]]}}`,
+                    `{{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99}]]}}`,
+                    `{{target=@{${stat.attr}}}}`].join(" ");
 
             .ms-mainstat
                 .ms-mainstat__label
@@ -61,14 +45,44 @@
                             span(data-i18n=stat.desc)
                 input.ms-mainstat__input(name=`attr_${stat.attr}`, type="number", placeholder="20")
 
-        
+        -
+            const npc_init_roll = [
+                `&{template:ms}`,
+                `{{name=Initiative}}`,
+                `{{character_name=@{character_name}}}`,
+                `{{roll=[[1d100-1cs1cf99 &{tracker}]]}}`,
+                `{{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99 &{tracker}}]]}}`,
+                `{{target=@{instinct}}}`
+            ].join(" ");
+
+        .ms-mainstat.ms-mainstat--initiative
+            .ms-mainstat__label
+                button(data-i18n="Initiative", type="roll", value=npc_init_roll)
+                span.ms-tooltip
+                    p
+                        span(data-i18n="Rolls Instinct and adds to Turn Tracker (&{tracker})")
+            .ms-mainstat__subtext(data-i18n="Instinct + Tracker")
+
+        .ms-topstat--minmax
+            .ms-topstat__label(data-i18n="wounds")
+            .ms-topstat__minmaxwrapper
+                input.ms-topstat__max(name="attr_wounds_max", placeholder="1", type="number")
+                input.ms-topstat__min(name="attr_wounds", placeholder="1", type="number")
+            .ms-topstat__label--small(data-i18n="max")
+            .ms-topstat__label--small(data-i18n="current")
+
         .ms-topstat--minmax
             .ms-topstat__label(data-i18n="health")
             .ms-topstat__minmaxwrapper
-                input.ms-topstat__max(name="attr_hits_max", placeholder="3", type="number")
-                input.ms-topstat__min(name="attr_hitpoints_max", placeholder="40", type="number")
-            .ms-topstat__label--small(data-i18n="hits")
-            .ms-topstat__label--small(data-i18n="health")
+                input.ms-topstat__max(name="attr_health_max", placeholder="20", type="number")
+                input.ms-topstat__min(name="attr_health", placeholder="20", type="number")
+            .ms-topstat__label--small(data-i18n="max")
+            .ms-topstat__label--small(data-i18n="current")
+
+        .ms-topstat
+            .ms-topstat__label(data-i18n="armor points")
+            input.ms-topstat__stat(placeholder="0", name="attr_armor_points", type="number")
+            .ms-topstat__label--invert(data-i18n="AP")
 
     .ms-npcrepeating
 
@@ -80,19 +94,23 @@
                             `&{template:ms}`,
                             `{{name=@{attack_name}}}`,
                             `{{character_name=@{character_name}}}`,
-                            `{{roll=[[1d100cs1cf100]]}}`,
-                            `{{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100cs1cf100}]]}}`,
+                            `{{roll=[[1d100-1cs1cf99]]}}`,
+                            `{{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99}]]}}`,
                             `{{target=[[@{combat}]]}}`,
-                            //- `{{ranges=@{attack_range_s}}}`,
-                            //- `{{rangem=@{attack_range_m}}}`,
-                            //- `{{rangel=@{attack_range_l}}}`,
-                            `{{damage=[[@{attack_damage}]]}}`
+                            `{{ranges=@{attack_range_s}}}`,
+                            `{{rangem=@{attack_range_m}}}`,
+                            `{{rangel=@{attack_range_l}}}`,
+                            `{{damage=[[@{attack_damage}]]}}`,
+                            `{{notes=@{attack_notes}}}`
                         ].join(" ");
                 .ms-npcattackrow
                     input(name=`attr_attack_settings`, type="hidden", value="on")
                     span.ms-npcattackrow__arrow ]
                     button.ms-npcattackrow__name(type="roll", value=npc_attack_roll)
                         span(name=`attr_attack_name`, type="text")
+                    select.ms-npcattackrow__skill(name=`attr_attack_type`)
+                        option(data-i18n="Ranged")
+                        option(data-i18n="Melee")
                     span.ms-npcattackrow__damage(name=`attr_attack_damage`, type="text")
                     label.ms-npcattackrow__cog
                         input(name=`attr_attack_settings`, type="checkbox", checked)
@@ -109,38 +127,54 @@
                             select.ms-npcattackrow__skill(name=`attr_attack_type`)
                                 option(data-i18n="Ranged")
                                 option(data-i18n="Melee")
+                        .ms-npcattackrow__settingsrow--range.show_ranged
+                            .ms-npcattackrow__settingstitle(data-i18n="range")
+                            input.ms-npcattackrow__settingsinput(data-i18n-placeholder="short", name="attr_attack_range_s", type="text")
+                            input.ms-npcattackrow__settingsinput(data-i18n-placeholder="medium", name="attr_attack_range_m", type="text")
+                            input.ms-npcattackrow__settingsinput(data-i18n-placeholder="long", name="attr_attack_range_l", type="text")
+                        .ms-npcattackrow__settingsrow
+                            div
+                                .ms-npcattackrow__settingstitle(data-i18n="critical damage")
+                                input.ms-npcattackrow__settingsinput(data-i18n-placeholder="damage", name="attr_attack_crit_damage", type="text")
+                            div 
+                                .ms-npcattackrow__settingstitle(data-i18n="critical effect")
+                                input.ms-npcattackrow__settingsinput(data-i18n-placeholder="effect", name="attr_attack_crit_effect", type="text")
+                        .ms-npcattackrow__settingsrow
+                            div 
+                                .ms-npcattackrow__settingstitle(data-i18n="shots")
+                                input.ms-npcattackrow__settingsinput(data-i18n-placeholder="shots", name="attr_attack_shots", type="text")
+                            div
+                                .ms-npcattackrow__settingstitle(data-i18n="ammunition")
+                                input.ms-npcattackrow__settingsinput(data-i18n-placeholder="damage", name="attr_attack_ammunition", type="text")
                         .ms-npcattackrow__settingsrow--full
                             .ms-npcattackrow__settingstitle(data-i18n="notes")
                             textarea.ms-npcattackrow__textarea(name="attr_attack_notes")
 
         .ms-npcgrid
-            h3(data-i18n="Special Abilities")
-            fieldset(class=`repeating_abilities`)
+            h3(data-i18n="Traits")
+            fieldset(class=`repeating_traits`)
                 -
-                    const npc_ability_roll = [
+                    const npc_trait_roll = [
                             `&{template:ms}`,
-                            `{{name=@{ability_name}}}`,
+                            `{{name=@{trait_name}}}`,
                             `{{character_name=@{character_name}}}`,
-                            //- `{{ranges=@{attack_range_s}}}`,
-                            //- `{{rangem=@{attack_range_m}}}`,
-                            //- `{{rangel=@{attack_range_l}}}`,
-                            `{{notes=@{ability_text}}}`
+                            `{{notes=@{trait_description}}}`
                         ].join(" ");
                 .ms-npcabilityrow 
-                    input(name=`attr_ability_settings`, type="hidden", value="on")
-                    button.ms-npcabilityrow__name(type="roll", value=npc_ability_roll)
-                        span(name=`attr_ability_name`, type="text")
+                    input(name=`attr_trait_settings`, type="hidden", value="on")
+                    button.ms-npcabilityrow__name(type="roll", value=npc_trait_roll)
+                        span(name=`attr_trait_name`, type="text")
                     label.ms-npcabilityrow__cog
-                        input(name=`attr_ability_settings`, type="checkbox", checked)
+                        input(name=`attr_trait_settings`, type="checkbox", checked)
                         span y
-                    span.ms-npcabilityrow__text(name=`attr_ability_text`)
+                    span.ms-npcabilityrow__text(name=`attr_trait_description`)
                     .ms-npcabilityrow__settings
                         .ms-npcabilityrow__settingsrow
                             .ms-npcabilityrow__settingstitle(data-i18n="name")
-                            input.ms-npcabilityrow__settingsinput(data-i18n-value="ability name", name="attr_ability_name", type="text")
+                            input.ms-npcabilityrow__settingsinput(data-i18n-value="trait name", name="attr_trait_name", type="text")
                         .ms-npcabilityrow__settingsrow--full
                             .ms-npcabilityrow__settingstitle(data-i18n="description")
-                            textarea.ms-npcabilityrow__textarea(name="attr_ability_text")
+                            textarea.ms-npcabilityrow__textarea(name="attr_trait_description")
 
         .ms-npcdescription
             h3(data-i18n="description")
@@ -148,4 +182,4 @@
 
         .ms-npcequipment
             h3(data-i18n="equipment")
-            textarea.ms-npcequipment__equipment(data-i18n-placeholder="Enter the NPC's equipment here.", name="attr_description")
+            textarea.ms-npcequipment__equipment(data-i18n-placeholder="Enter the NPC's equipment here.", name="attr_equipment")
