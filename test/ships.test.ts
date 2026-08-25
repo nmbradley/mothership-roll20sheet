@@ -1,11 +1,17 @@
-import { describe, it, expect, vi } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  vi,
+} from "vitest";
+
 import {
   getMaintenanceIssue,
   evaluateAnnualMaintenance,
   evaluateBankruptcySave,
   handleAnnualMaintenanceCheck,
   handleBankruptcySave,
-} from "../ships";
+} from "../src/ts/rules/ships";
 
 describe("Ship Rules (Mothership 1e)", () => {
   describe("getMaintenanceIssue", () => {
@@ -36,7 +42,7 @@ describe("Ship Rules (Mothership 1e)", () => {
   });
 
   describe("evaluateAnnualMaintenance", () => {
-    it("should handle CRITICAL SUCCESS (doubles <= target) with no stress, no panic, no issues", () => {
+    it("should handle CRITICAL SUCCESS with no stress, no panic, no issues", () => {
       const result = evaluateAnnualMaintenance(22, 40, 10, 20);
       expect(result.result).toBe("CRITICAL SUCCESS");
       expect(result.stressGain).toBe(0);
@@ -46,7 +52,7 @@ describe("Ship Rules (Mothership 1e)", () => {
       expect(result.message).toContain("No maintenance issues");
     });
 
-    it("should handle SUCCESS (<= target, non-doubles) with no stress, no panic, no issues", () => {
+    it("should handle SUCCESS with no stress, no panic, no issues", () => {
       const result = evaluateAnnualMaintenance(25, 40, 10, 20);
       expect(result.result).toBe("SUCCESS");
       expect(result.stressGain).toBe(0);
@@ -56,7 +62,7 @@ describe("Ship Rules (Mothership 1e)", () => {
       expect(result.message).toContain("passed");
     });
 
-    it("should handle FAILURE (> target, non-doubles) with 1 stress and 1 maintenance roll", () => {
+    it("should handle FAILURE with 1 stress and 1 maintenance roll", () => {
       const result = evaluateAnnualMaintenance(45, 40, 23, 50);
       expect(result.result).toBe("FAILURE");
       expect(result.stressGain).toBe(1);
@@ -67,7 +73,7 @@ describe("Ship Rules (Mothership 1e)", () => {
       expect(result.message).toContain("Oxygen leak");
     });
 
-    it("should handle CRITICAL FAILURE (> target, doubles) with panic check and 2 maintenance rolls", () => {
+    it("should handle CRITICAL FAILURE with panic check and 2 maintenance rolls", () => {
       const result = evaluateAnnualMaintenance(55, 40, 23, 99);
       expect(result.result).toBe("CRITICAL FAILURE");
       expect(result.stressGain).toBe(0);
@@ -132,8 +138,9 @@ describe("Ship Rules (Mothership 1e)", () => {
       await handleAnnualMaintenanceCheck();
 
       expect(mockStartRoll).toHaveBeenCalled();
+      const expectedMessagePart = "FAILURE: Everyone gains 1 Stress.";
       expect(mockFinishRoll).toHaveBeenCalledWith("test-roll-1", {
-        notes: expect.stringContaining("FAILURE: Everyone gains 1 Stress."),
+        notes: expect.stringContaining(expectedMessagePart),
       });
     });
 
@@ -155,8 +162,9 @@ describe("Ship Rules (Mothership 1e)", () => {
       await handleBankruptcySave();
 
       expect(mockStartRoll).toHaveBeenCalled();
+      const expectedSuccessPart = "SUCCESS: You scrape by";
       expect(mockFinishRoll).toHaveBeenCalledWith("test-roll-2", {
-        notes: expect.stringContaining("SUCCESS: You scrape by"),
+        notes: expect.stringContaining(expectedSuccessPart),
       });
     });
   });

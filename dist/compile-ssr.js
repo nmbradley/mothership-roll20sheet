@@ -70,6 +70,15 @@ function deferred() {
   });
   return { promise, resolve, reject };
 }
+function fallback(value, fallback2, lazy = false) {
+  return value === void 0 ? lazy ? (
+    /** @type {() => V} */
+    fallback2()
+  ) : (
+    /** @type {V} */
+    fallback2
+  ) : value;
+}
 
 // node_modules/svelte/src/internal/shared/attributes.js
 var replacements = {
@@ -1959,6 +1968,30 @@ function attributes(attrs, css_hash, classes, styles, flags2 = 0) {
 function stringify(value) {
   return typeof value === "string" ? value : value == null ? "" : value + "";
 }
+function attr_class(value, hash2, directives) {
+  var result2 = to_class(value, hash2, directives);
+  return result2 ? ` class="${escape_html(result2, true)}"` : "";
+}
+function slot(renderer, $$props, name, slot_props, fallback_fn) {
+  var slot_fn = $$props.$$slots?.[name];
+  if (slot_fn === true) {
+    slot_fn = $$props[name === "default" ? "children" : name];
+  }
+  if (slot_fn !== void 0) {
+    slot_fn(renderer, slot_props);
+  } else {
+    fallback_fn?.();
+  }
+}
+function bind_props(props_parent, props_now) {
+  for (const key of Object.keys(props_now)) {
+    const initial_value = props_parent[key];
+    const value = props_now[key];
+    if (initial_value === void 0 && value !== void 0 && Object.getOwnPropertyDescriptor(props_parent, key)?.set) {
+      props_parent[key] = value;
+    }
+  }
+}
 function ensure_array_like(array_like_or_iterator) {
   if (array_like_or_iterator) {
     return array_like_or_iterator.length !== void 0 ? array_like_or_iterator : Array.from(array_like_or_iterator);
@@ -1983,9 +2016,496 @@ function CharacterSheet($$renderer) {
   $$renderer.push(`<!--]--></div>`);
 }
 
+// src/svelte/components/Frame.svelte
+function Frame($$renderer, $$props) {
+  let mode = fallback(
+    $$props["mode"],
+    "light"
+    // "light" | "light-grey" | "mid-grey" | "dark"
+  );
+  let corner = fallback(
+    $$props["corner"],
+    "medium"
+    // "small" | "medium" | "large"
+  );
+  $$renderer.push(`<div${attr_class(`frame frame--mode-${stringify(mode)} frame--corner-${stringify(corner)}`, "svelte-spcupx")}><!--[-->`);
+  slot($$renderer, $$props, "default", {}, null);
+  $$renderer.push(`<!--]--></div>`);
+  bind_props($$props, { mode, corner });
+}
+
+// src/svelte/components/Header.svelte
+function Header($$renderer, $$props) {
+  let title = $$props["title"];
+  $$renderer.push(`<h2 class="header header--section svelte-8a1vj3"${attr("data-i18n", title)}>${escape_html(title)}</h2>`);
+  bind_props($$props, { title });
+}
+
+// src/svelte/ship/ShipCargoPanel.svelte
+function ShipCargoPanel($$renderer) {
+  $$renderer.push(`<section class="ship-cargo-panel svelte-i9elg4">`);
+  Frame($$renderer, {
+    mode: "light",
+    corner: "medium",
+    children: ($$renderer2) => {
+      Header($$renderer2, { title: "Cargo & Loadout" });
+      $$renderer2.push(`<!----> <div class="ship-repeating-head ship-repeating-head--cargo svelte-i9elg4"><span>Item</span> <span>Amount</span></div> <fieldset class="repeating_shiploadout"><div class="ship-cargo-row svelte-i9elg4"><input class="ship-cargo-row__item svelte-i9elg4" type="text" name="attr_shiploadout_item" placeholder="Item"/> <input class="ship-cargo-row__number svelte-i9elg4" type="text" name="attr_shiploadout_number" placeholder="#"/></div></fieldset>`);
+    },
+    $$slots: { default: true }
+  });
+  $$renderer.push(`<!----></section>`);
+}
+
+// src/svelte/ship/ShipCrewPanel.svelte
+function ShipCrewPanel($$renderer) {
+  $$renderer.push(`<section class="ship-crew-panel svelte-1ixnck9">`);
+  Frame($$renderer, {
+    mode: "light",
+    corner: "medium",
+    children: ($$renderer2) => {
+      Header($$renderer2, { title: "Officers & Crew" });
+      $$renderer2.push(`<!----> <div class="ship-repeating-head ship-repeating-head--crew svelte-1ixnck9"><span>Name</span> <span>Rank / Role</span></div> <fieldset class="repeating_shipcrew"><div class="ship-crew-row svelte-1ixnck9"><input class="ship-crew-row__name svelte-1ixnck9" type="text" name="attr_shipcrew_name" placeholder="Name"/> <input class="ship-crew-row__rank svelte-1ixnck9" type="text" name="attr_shipcrew_rank" placeholder="Rank / Role"/></div></fieldset>`);
+    },
+    $$slots: { default: true }
+  });
+  $$renderer.push(`<!----></section>`);
+}
+
+// src/game/fields/createSection.ts
+function inferType(type, seed, uiType, options) {
+  if (type) return type;
+  if (seed !== void 0) {
+    if (typeof seed === "number") return "number";
+    if (typeof seed === "boolean") return "boolean";
+    return "string";
+  }
+  if (uiType) {
+    if (uiType === "number" || uiType === "number-max") return "number";
+    if (uiType === "checkbox") return "boolean";
+    return "string";
+  }
+  if (options && options.length > 0) {
+    const firstOption = options[0];
+    const val = typeof firstOption === "object" ? firstOption.value : firstOption;
+    return typeof val === "number" ? "number" : "string";
+  }
+  return "string";
+}
+function inferUiType(type, uiType, options, max) {
+  if (uiType) return uiType;
+  if (type === "boolean") return "checkbox";
+  if (options && options.length > 0) return "select";
+  if (type === "number") return max ? "number-max" : "number";
+  return "text";
+}
+function inferSeed(type, seed, uiType, options) {
+  if (seed !== void 0 && !(seed === false && type === "boolean")) return seed;
+  if (type === "boolean") return "off";
+  if (uiType === "select" && options && options.length > 0) {
+    const firstOption = options[0];
+    return typeof firstOption === "object" ? firstOption.value : firstOption;
+  }
+  return type === "number" ? 0 : "";
+}
+function resolveTypeAndSeed(type, seed, name, section, uiType, options, max = false) {
+  if (!type && seed === void 0 && !uiType && (!options || options.length === 0)) {
+    const prefix = section ? `${section} field` : "Attribute";
+    throw new Error(`${prefix} ${name} has neither type nor seed`);
+  }
+  const resolvedType = inferType(type, seed, uiType, options);
+  const resolvedUiType = inferUiType(resolvedType, uiType, options, max);
+  const resolvedSeed = inferSeed(resolvedType, seed, resolvedUiType, options);
+  const isNumberMax = max || resolvedUiType === "number-max";
+  return {
+    type: resolvedType,
+    seed: resolvedSeed,
+    uiType: resolvedUiType,
+    max: isNumberMax,
+    ...options !== void 0 ? { options } : {}
+  };
+}
+function createField({
+  name,
+  section,
+  label,
+  type,
+  seed,
+  max = false,
+  uiType,
+  options
+}) {
+  const resolved = resolveTypeAndSeed(type, seed, name, section, uiType, options, max);
+  return {
+    name,
+    section,
+    label,
+    i18nlabel: `label-${name}`,
+    type: resolved.type,
+    seed: resolved.seed,
+    i18nSeed: `default-${name}`,
+    max: resolved.max,
+    uiType: resolved.uiType,
+    ...resolved.options !== void 0 ? { options: resolved.options } : {}
+  };
+}
+function createSection({
+  name,
+  fields
+}) {
+  return {
+    name: `repeating_${name}`,
+    fields
+  };
+}
+
+// src/game/fields/createAttribute.ts
+function createAttribute({
+  name,
+  label,
+  type,
+  seed,
+  max = false,
+  uiType,
+  options
+}) {
+  const resolved = resolveTypeAndSeed(type, seed, name, void 0, uiType, options, max);
+  return {
+    name,
+    label,
+    i18nlabel: `label-${name}`,
+    type: resolved.type,
+    seed: resolved.seed,
+    i18nSeed: `default-${name}`,
+    max: resolved.max,
+    uiType: resolved.uiType,
+    ...resolved.options !== void 0 ? { options: resolved.options } : {}
+  };
+}
+
+// src/game/fields/shipFields.ts
+var ship_name = createAttribute({
+  name: "ship_name",
+  label: "Ship Name",
+  type: "string"
+});
+var ship_type = createAttribute({
+  name: "ship_type",
+  label: "Type",
+  type: "string"
+});
+var ship_class = createAttribute({
+  name: "ship_class",
+  label: "Class",
+  type: "string"
+});
+var systems = createAttribute({
+  name: "systems",
+  label: "Systems",
+  type: "number"
+});
+var thrusters = createAttribute({
+  name: "thrusters",
+  label: "Thrusters",
+  type: "number"
+});
+var battle = createAttribute({
+  name: "battle",
+  label: "Battle",
+  type: "number"
+});
+var ship_armor = createAttribute({
+  name: "ship_armor",
+  label: "Armor",
+  type: "number"
+});
+var bankruptcy_save = createAttribute({
+  name: "bankruptcy_save",
+  label: "Bankruptcy Save",
+  type: "number",
+  seed: 21
+});
+var ship_hull = createAttribute({
+  name: "ship_hull",
+  label: "Hull",
+  type: "number",
+  max: true
+});
+var ship_wounds = createAttribute({
+  name: "ship_wounds",
+  label: "Wounds",
+  type: "number",
+  max: true
+});
+var crew = createAttribute({
+  name: "crew",
+  label: "Crew",
+  type: "number",
+  max: true
+});
+var fuel = createAttribute({
+  name: "fuel",
+  label: "Fuel",
+  type: "number",
+  max: true
+});
+var loadout_max = createAttribute({
+  name: "loadout_max",
+  label: "Max Cargo",
+  type: "number"
+});
+var shipweapon_name = createField({
+  name: "shipweapon_name",
+  label: "Weapon Name",
+  section: "shipweapons",
+  type: "string"
+});
+var shipweapon_damage = createField({
+  name: "shipweapon_damage",
+  label: "Damage",
+  section: "shipweapons",
+  type: "string"
+});
+var shipweapon_notes = createField({
+  name: "shipweapon_notes",
+  label: "Notes",
+  section: "shipweapons",
+  type: "string",
+  uiType: "textarea"
+});
+var shipWeapons = createSection({
+  name: "shipweapons",
+  fields: {
+    shipweapon_name,
+    shipweapon_damage,
+    shipweapon_notes
+  }
+});
+var shipcrew_name = createField({
+  name: "shipcrew_name",
+  label: "Name",
+  section: "shipcrew",
+  type: "string"
+});
+var shipcrew_rank = createField({
+  name: "shipcrew_rank",
+  label: "Rank",
+  section: "shipcrew",
+  type: "string"
+});
+var shipCrew = createSection({
+  name: "shipcrew",
+  fields: {
+    shipcrew_name,
+    shipcrew_rank
+  }
+});
+var shiploadout_item = createField({
+  name: "shiploadout_item",
+  label: "Item",
+  section: "shiploadout",
+  type: "string"
+});
+var shiploadout_number = createField({
+  name: "shiploadout_number",
+  label: "Amount",
+  section: "shiploadout",
+  type: "string"
+});
+var shipLoadout = createSection({
+  name: "shiploadout",
+  fields: {
+    shiploadout_item,
+    shiploadout_number
+  }
+});
+
+// src/svelte/components/Attribute.svelte
+function Attribute($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let field = $$props["field"];
+    $$renderer2.push(`<div class="attribute svelte-1clqgs2">`);
+    if (field.uiType !== "hidden") {
+      $$renderer2.push("<!--[0-->");
+      $$renderer2.push(`<label class="attribute__label svelte-1clqgs2"${attr("for", `attr_${stringify(field.name)}`)}>${escape_html(field.label)}</label>`);
+    } else {
+      $$renderer2.push("<!--[-1-->");
+    }
+    $$renderer2.push(`<!--]--> `);
+    if (field.uiType === "textarea") {
+      $$renderer2.push("<!--[0-->");
+      $$renderer2.push(`<textarea class="attribute__input attribute__input--textarea svelte-1clqgs2"${attr("name", `attr_${stringify(field.name)}`)}></textarea>`);
+    } else if (field.uiType === "select") {
+      $$renderer2.push("<!--[1-->");
+      $$renderer2.push(`<select class="attribute__input attribute__input--select svelte-1clqgs2"${attr("name", `attr_${stringify(field.name)}`)}><!--[-->`);
+      const each_array = ensure_array_like(field.options);
+      for (let $$index = 0, $$length = each_array.length; $$index < $$length; $$index++) {
+        let option = each_array[$$index];
+        $$renderer2.option({ value: option }, ($$renderer3) => {
+          $$renderer3.push(`${escape_html(option)}`);
+        });
+      }
+      $$renderer2.push(`<!--]--></select>`);
+    } else if (field.uiType === "checkbox") {
+      $$renderer2.push("<!--[2-->");
+      $$renderer2.push(`<input class="attribute__input attribute__input--checkbox svelte-1clqgs2" type="checkbox"${attr("name", `attr_${stringify(field.name)}`)}${attr("value", field.seed)}/>`);
+    } else if (field.uiType === "number-max") {
+      $$renderer2.push("<!--[3-->");
+      $$renderer2.push(`<div class="attribute__minmax-wrapper svelte-1clqgs2"><input class="attribute__input attribute__input--number svelte-1clqgs2" type="number"${attr("name", `attr_${stringify(field.name)}`)}/> <span class="attribute__separator svelte-1clqgs2">/</span> <input class="attribute__input attribute__input--number svelte-1clqgs2" type="number"${attr("name", `attr_${stringify(field.name)}_max`)}/></div>`);
+    } else if (field.uiType === "hidden") {
+      $$renderer2.push("<!--[4-->");
+      $$renderer2.push(`<input class="attribute__input attribute__input--hidden svelte-1clqgs2" type="hidden"${attr("name", `attr_${stringify(field.name)}`)}${attr("value", field.seed)}/>`);
+    } else {
+      $$renderer2.push("<!--[-1-->");
+      $$renderer2.push(`<input${attr_class(`attribute__input attribute__input--${field.uiType === "number" ? "number" : "text"}`, "svelte-1clqgs2")}${attr("type", field.uiType === "number" ? "number" : "text")}${attr("name", `attr_${stringify(field.name)}`)}/>`);
+    }
+    $$renderer2.push(`<!--]--></div>`);
+    bind_props($$props, { field });
+  });
+}
+
+// src/svelte/ship/ShipHeader.svelte
+function ShipHeader($$renderer) {
+  const shipLogoUrl = "https://s3.amazonaws.com/files.d20.io/images/145353993/itv_F4exdWuwHavdksYfCQ/max.png?1592850121";
+  Frame($$renderer, {
+    mode: "dark",
+    corner: "large",
+    children: ($$renderer2) => {
+      $$renderer2.push(`<div class="ship-header svelte-cb3bub"><div class="ship-header__logo svelte-cb3bub"><img${attr("src", shipLogoUrl)} alt="Mothership Logo" class="ship-header__img svelte-cb3bub"/></div> <div class="ship-header__fields svelte-cb3bub"><div class="ship-header__field ship-header__field--name svelte-cb3bub">`);
+      Attribute($$renderer2, { field: ship_name });
+      $$renderer2.push(`<!----></div> <div class="ship-header__field ship-header__field--type">`);
+      Attribute($$renderer2, { field: ship_type });
+      $$renderer2.push(`<!----></div> <div class="ship-header__field ship-header__field--class">`);
+      Attribute($$renderer2, { field: ship_class });
+      $$renderer2.push(`<!----></div></div></div>`);
+    },
+    $$slots: { default: true }
+  });
+}
+
+// src/svelte/components/Button.svelte
+function Button($$renderer, $$props) {
+  let action = $$props["action"];
+  let label = fallback($$props["label"], "");
+  $$renderer.push(`<button class="button button--action svelte-ovjhya" type="action"${attr("name", `act_${stringify(action)}`)}>`);
+  if (label) {
+    $$renderer.push("<!--[0-->");
+    $$renderer.push(`<span class="button__label svelte-ovjhya"${attr("data-i18n", label)}>${escape_html(label)}</span>`);
+  } else {
+    $$renderer.push("<!--[-1-->");
+  }
+  $$renderer.push(`<!--]--> <!--[-->`);
+  slot($$renderer, $$props, "default", {}, null);
+  $$renderer.push(`<!--]--></button>`);
+  bind_props($$props, { action, label });
+}
+
+// src/svelte/ship/ShipOperationsPanel.svelte
+function ShipOperationsPanel($$renderer) {
+  $$renderer.push(`<section class="ship-operations-panel svelte-4ql83q">`);
+  Frame($$renderer, {
+    mode: "light-grey",
+    corner: "medium",
+    children: ($$renderer2) => {
+      Header($$renderer2, { title: "Ship Operations & Maintenance" });
+      $$renderer2.push(`<!----> <div class="ship-operations svelte-4ql83q"><div class="ship-operation-card svelte-4ql83q"><div class="ship-operation-card__header svelte-4ql83q">`);
+      Button($$renderer2, {
+        action: "annual_maintenance",
+        label: "Annual Maintenance Check"
+      });
+      $$renderer2.push(`<!----></div> <p class="ship-operation-card__desc svelte-4ql83q">Rolls a <strong>Systems Check</strong>. Failure rolls once on the <em>Maintenance Issues Table</em> (everyone gains 1 Stress).
+          Critical Failure rolls twice on the table (everyone makes a Panic Check).</p></div> <div class="ship-operation-card svelte-4ql83q"><div class="ship-operation-card__header svelte-4ql83q">`);
+      Button($$renderer2, { action: "bankruptcy_save", label: "Bankruptcy Save" });
+      $$renderer2.push(`<!----></div> <p class="ship-operation-card__desc svelte-4ql83q">Rolls 1d100 under your <strong>Bankruptcy Save</strong> (defaults to 2d10+10)
+          and resolves consequences from the <em>Bankruptcy Table</em>.</p></div></div>`);
+    },
+    $$slots: { default: true }
+  });
+  $$renderer.push(`<!----> `);
+  Frame($$renderer, {
+    mode: "light",
+    corner: "medium",
+    children: ($$renderer2) => {
+      Header($$renderer2, { title: "Secondary Stats" });
+      $$renderer2.push(`<!----> <div class="ship-secondary-stats svelte-4ql83q"><div class="ship-minmax-stat svelte-4ql83q"><span class="ship-minmax-stat__label svelte-4ql83q">Crew</span> <div class="ship-minmax-stat__inputs svelte-4ql83q"><input class="ship-minmax-stat__input svelte-4ql83q" type="number" name="attr_crew" placeholder="0"/> <span class="ship-minmax-stat__sep svelte-4ql83q">/</span> <input class="ship-minmax-stat__input svelte-4ql83q" type="number" name="attr_crew_max" placeholder="0"/></div></div> <div class="ship-minmax-stat svelte-4ql83q"><span class="ship-minmax-stat__label svelte-4ql83q">Fuel</span> <div class="ship-minmax-stat__inputs svelte-4ql83q"><input class="ship-minmax-stat__input svelte-4ql83q" type="number" name="attr_fuel" placeholder="0"/> <span class="ship-minmax-stat__sep svelte-4ql83q">/</span> <input class="ship-minmax-stat__input svelte-4ql83q" type="number" name="attr_fuel_max" placeholder="0"/></div></div> <div class="ship-stat-row svelte-4ql83q"><label class="ship-stat-row__label svelte-4ql83q" for="attr_loadout_max">Max Cargo</label> <input class="ship-stat-row__input svelte-4ql83q" type="number" name="attr_loadout_max" placeholder="0"/></div></div>`);
+    },
+    $$slots: { default: true }
+  });
+  $$renderer.push(`<!----></section>`);
+}
+
+// src/svelte/ship/ShipStatsPanel.svelte
+function ShipStatsPanel($$renderer) {
+  $$renderer.push(`<section class="ship-stats-panel svelte-1ejsf5l">`);
+  Frame($$renderer, {
+    mode: "light",
+    corner: "medium",
+    children: ($$renderer2) => {
+      Header($$renderer2, { title: "Ship Stats (1e)" });
+      $$renderer2.push(`<!----> <div class="ship-stats-list svelte-1ejsf5l"><div class="ship-stat-row svelte-1ejsf5l"><div class="ship-stat-row__btn">`);
+      Button($$renderer2, { action: "systems_check", label: "Systems" });
+      $$renderer2.push(`<!----></div> <input class="ship-stat-row__input svelte-1ejsf5l" type="number" name="attr_systems" placeholder="0"/></div> <div class="ship-stat-row svelte-1ejsf5l"><div class="ship-stat-row__btn">`);
+      Button($$renderer2, { action: "thrusters_check", label: "Thrusters" });
+      $$renderer2.push(`<!----></div> <input class="ship-stat-row__input svelte-1ejsf5l" type="number" name="attr_thrusters" placeholder="0"/></div> <div class="ship-stat-row svelte-1ejsf5l"><div class="ship-stat-row__btn">`);
+      Button($$renderer2, { action: "battle_check", label: "Battle" });
+      $$renderer2.push(`<!----></div> <input class="ship-stat-row__input svelte-1ejsf5l" type="number" name="attr_battle" placeholder="0"/></div></div>`);
+    },
+    $$slots: { default: true }
+  });
+  $$renderer.push(`<!----> `);
+  Frame($$renderer, {
+    mode: "light",
+    corner: "medium",
+    children: ($$renderer2) => {
+      Header($$renderer2, { title: "Saves & Defenses" });
+      $$renderer2.push(`<!----> <div class="ship-stats-list svelte-1ejsf5l"><div class="ship-stat-row svelte-1ejsf5l"><label class="ship-stat-row__label svelte-1ejsf5l" for="attr_ship_armor">Armor</label> <input class="ship-stat-row__input svelte-1ejsf5l" type="number" name="attr_ship_armor" placeholder="0"/></div> <div class="ship-stat-row svelte-1ejsf5l"><div class="ship-stat-row__btn">`);
+      Button($$renderer2, { action: "bankruptcy_save", label: "Bankruptcy Save" });
+      $$renderer2.push(`<!----></div> <input class="ship-stat-row__input svelte-1ejsf5l" type="number" name="attr_bankruptcy_save" placeholder="21" value="21"/></div></div>`);
+    },
+    $$slots: { default: true }
+  });
+  $$renderer.push(`<!----> `);
+  Frame($$renderer, {
+    mode: "light",
+    corner: "medium",
+    children: ($$renderer2) => {
+      Header($$renderer2, { title: "Hull & Wounds" });
+      $$renderer2.push(`<!----> <div class="ship-hull-wounds svelte-1ejsf5l"><div class="ship-minmax-stat svelte-1ejsf5l"><span class="ship-minmax-stat__label svelte-1ejsf5l">Wounds</span> <div class="ship-minmax-stat__inputs svelte-1ejsf5l"><input class="ship-minmax-stat__input svelte-1ejsf5l" type="number" name="attr_ship_wounds" placeholder="2"/> <span class="ship-minmax-stat__sep svelte-1ejsf5l">/</span> <input class="ship-minmax-stat__input svelte-1ejsf5l" type="number" name="attr_ship_wounds_max" placeholder="2"/></div></div> <div class="ship-minmax-stat svelte-1ejsf5l"><span class="ship-minmax-stat__label svelte-1ejsf5l">Hull</span> <div class="ship-minmax-stat__inputs svelte-1ejsf5l"><input class="ship-minmax-stat__input svelte-1ejsf5l" type="number" name="attr_ship_hull" placeholder="10"/> <span class="ship-minmax-stat__sep svelte-1ejsf5l">/</span> <input class="ship-minmax-stat__input svelte-1ejsf5l" type="number" name="attr_ship_hull_max" placeholder="10"/></div></div> <div class="ship-hull-thresholds svelte-1ejsf5l"><div class="ship-hull-threshold svelte-1ejsf5l"><span class="ship-hull-threshold__pct svelte-1ejsf5l">25%</span> <input class="ship-hull-threshold__input svelte-1ejsf5l" type="number" name="attr_hull_25" placeholder="8"/></div> <div class="ship-hull-threshold svelte-1ejsf5l"><span class="ship-hull-threshold__pct svelte-1ejsf5l">50%</span> <input class="ship-hull-threshold__input svelte-1ejsf5l" type="number" name="attr_hull_50" placeholder="5"/></div> <div class="ship-hull-threshold svelte-1ejsf5l"><span class="ship-hull-threshold__pct svelte-1ejsf5l">75%</span> <input class="ship-hull-threshold__input svelte-1ejsf5l" type="number" name="attr_hull_75" placeholder="3"/></div></div></div>`);
+    },
+    $$slots: { default: true }
+  });
+  $$renderer.push(`<!----></section>`);
+}
+
+// src/svelte/ship/ShipWeaponsPanel.svelte
+function ShipWeaponsPanel($$renderer) {
+  $$renderer.push(`<section class="ship-weapons-panel svelte-x1f127">`);
+  Frame($$renderer, {
+    mode: "light",
+    corner: "medium",
+    children: ($$renderer2) => {
+      Header($$renderer2, { title: "Ship Weapons" });
+      $$renderer2.push(`<!----> <div class="ship-repeating-head ship-repeating-head--weapons svelte-x1f127"><span>Weapon</span> <span>Damage</span></div> <fieldset class="repeating_shipweapons"><div class="ship-weapon-row svelte-x1f127"><input class="ship-weapon-row__name svelte-x1f127" type="text" name="attr_shipweapon_name" placeholder="Weapon Name"/> <input class="ship-weapon-row__damage svelte-x1f127" type="text" name="attr_shipweapon_damage" placeholder="Damage"/> <textarea class="ship-weapon-row__notes svelte-x1f127" name="attr_shipweapon_notes" placeholder="Notes"></textarea></div></fieldset>`);
+    },
+    $$slots: { default: true }
+  });
+  $$renderer.push(`<!----></section>`);
+}
+
 // src/svelte/ShipSheet.svelte
 function ShipSheet($$renderer) {
-  $$renderer.push(`<div class="section"><h2>Ship Sheet</h2> <label>Hull <input type="number" name="attr_hull"/></label></div>`);
+  $$renderer.push(`<div class="ship-sheet svelte-u01ar6"><header class="ship-sheet__header svelte-u01ar6">`);
+  ShipHeader($$renderer, {});
+  $$renderer.push(`<!----></header> <div class="ship-sheet__grid svelte-u01ar6">`);
+  ShipStatsPanel($$renderer, {});
+  $$renderer.push(`<!----> `);
+  ShipOperationsPanel($$renderer, {});
+  $$renderer.push(`<!----> `);
+  ShipWeaponsPanel($$renderer, {});
+  $$renderer.push(`<!----> `);
+  ShipCrewPanel($$renderer, {});
+  $$renderer.push(`<!----> `);
+  ShipCargoPanel($$renderer, {});
+  $$renderer.push(`<!----></div></div>`);
 }
 
 // src/svelte/Sheet.svelte

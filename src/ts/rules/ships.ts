@@ -1,11 +1,9 @@
+import { bankruptcyTable } from "#game/data/bankruptcy";
 import {
   maintenanceTable,
   type MaintenanceIssue,
-} from "../../game/data/maintenance";
-import {
-  bankruptcyTable,
-  type BankruptcyEffect,
-} from "../../game/data/bankruptcy";
+} from "#game/data/maintenance";
+
 import { evaluateRoll, type RollResultType } from "./rolls";
 
 export type AnnualMaintenanceResult = {
@@ -26,7 +24,9 @@ export type BankruptcySaveResult = {
  * Retrieves a maintenance issue from the Maintenance Issues Table by roll index (0-99).
  */
 export function getMaintenanceIssue(roll: number): MaintenanceIssue {
-  const index = Math.max(0, Math.min(99, Math.floor(roll)));
+  const roundedRoll = Math.floor(roll);
+  const clampedMax = Math.min(99, roundedRoll);
+  const index = Math.max(0, clampedMax);
   return maintenanceTable[index];
 }
 
@@ -111,15 +111,20 @@ export function evaluateBankruptcySave(
 /**
  * Roll20 Sheetworker: Annual Maintenance Check
  */
-export async function handleAnnualMaintenanceCheck() {
+export async function handleAnnualMaintenanceCheck(): Promise<void> {
   const rollFormula =
-    "&{template:ms} {{name=Annual Maintenance Check}} {{character_name=@{character_name}}} {{roll=[[1d100]]}} {{target=[[@{systems}+0]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=placeholder}}";
+    "&{template:ms} {{name=Annual Maintenance Check}} {{character_name=@{character_name}}} {{roll=[[?{Advantage/Disadvantage|Normal,1d100|Advantage [+],2d100kl1|Disadvantage [-],2d100kh1}]]}} {{target=[[@{systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=placeholder}}";
   const rollData = await startRoll(rollFormula);
 
-  const roll = rollData.results.roll?.result ?? 0;
-  const target = rollData.results.target?.result ?? 0;
-  const maintRoll1 = rollData.results.maint_roll1?.result ?? 0;
-  const maintRoll2 = rollData.results.maint_roll2?.result ?? 0;
+  const rollEntry = rollData.results.roll;
+  const targetEntry = rollData.results.target;
+  const maint1Entry = rollData.results.maint_roll1;
+  const maint2Entry = rollData.results.maint_roll2;
+
+  const roll = rollEntry.result;
+  const target = targetEntry.result;
+  const maintRoll1 = maint1Entry.result;
+  const maintRoll2 = maint2Entry.result;
 
   const evaluation = evaluateAnnualMaintenance(
     roll,
@@ -136,13 +141,16 @@ export async function handleAnnualMaintenanceCheck() {
 /**
  * Roll20 Sheetworker: Bankruptcy Save
  */
-export async function handleBankruptcySave() {
+export async function handleBankruptcySave(): Promise<void> {
   const rollFormula =
     "&{template:ms} {{name=Bankruptcy Save}} {{character_name=@{character_name}}} {{roll=[[1d100]]}} {{target=[[@{bankruptcy_save}+0]]}} {{notes=placeholder}}";
   const rollData = await startRoll(rollFormula);
 
-  const roll = rollData.results.roll?.result ?? 0;
-  const target = rollData.results.target?.result ?? 0;
+  const rollEntry = rollData.results.roll;
+  const targetEntry = rollData.results.target;
+
+  const roll = rollEntry.result;
+  const target = targetEntry.result;
 
   const evaluation = evaluateBankruptcySave(roll, target);
 
@@ -154,12 +162,14 @@ export async function handleBankruptcySave() {
 /**
  * Roll20 Sheetworker: Systems Check
  */
-export async function handleSystemsCheck() {
+export async function handleSystemsCheck(): Promise<void> {
   const rollFormula =
     "&{template:ms} {{name=Systems Check}} {{character_name=@{character_name}}} {{roll=[[1d100]]}} {{target=[[@{systems}+0]]}} {{notes=placeholder}}";
   const rollData = await startRoll(rollFormula);
-  const roll = rollData.results.roll?.result ?? 0;
-  const target = rollData.results.target?.result ?? 0;
+  const rollEntry = rollData.results.roll;
+  const targetEntry = rollData.results.target;
+  const roll = rollEntry.result;
+  const target = targetEntry.result;
   const result = evaluateRoll(roll, target);
 
   finishRoll(rollData.rollId, {
@@ -170,12 +180,14 @@ export async function handleSystemsCheck() {
 /**
  * Roll20 Sheetworker: Thrusters Check
  */
-export async function handleThrustersCheck() {
+export async function handleThrustersCheck(): Promise<void> {
   const rollFormula =
     "&{template:ms} {{name=Thrusters Check}} {{character_name=@{character_name}}} {{roll=[[1d100]]}} {{target=[[@{thrusters}+0]]}} {{notes=placeholder}}";
   const rollData = await startRoll(rollFormula);
-  const roll = rollData.results.roll?.result ?? 0;
-  const target = rollData.results.target?.result ?? 0;
+  const rollEntry = rollData.results.roll;
+  const targetEntry = rollData.results.target;
+  const roll = rollEntry.result;
+  const target = targetEntry.result;
   const result = evaluateRoll(roll, target);
 
   finishRoll(rollData.rollId, {
@@ -186,12 +198,14 @@ export async function handleThrustersCheck() {
 /**
  * Roll20 Sheetworker: Battle Check
  */
-export async function handleBattleCheck() {
+export async function handleBattleCheck(): Promise<void> {
   const rollFormula =
     "&{template:ms} {{name=Battle Check}} {{character_name=@{character_name}}} {{roll=[[1d100]]}} {{target=[[@{battle}+0]]}} {{notes=placeholder}}";
   const rollData = await startRoll(rollFormula);
-  const roll = rollData.results.roll?.result ?? 0;
-  const target = rollData.results.target?.result ?? 0;
+  const rollEntry = rollData.results.roll;
+  const targetEntry = rollData.results.target;
+  const roll = rollEntry.result;
+  const target = targetEntry.result;
   const result = evaluateRoll(roll, target);
 
   finishRoll(rollData.rollId, {

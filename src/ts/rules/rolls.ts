@@ -22,9 +22,9 @@ export function isDoubles(roll: number): boolean {
  */
 export function evaluateRoll(roll: number, target: number): RollResultType {
   const isSuccess = roll <= target;
-  const critical = isDoubles(roll);
+  const isCritical = isDoubles(roll);
 
-  if (critical) {
+  if (isCritical) {
     return isSuccess ? "CRITICAL SUCCESS" : "CRITICAL FAILURE";
   }
   return isSuccess ? "SUCCESS" : "FAILURE";
