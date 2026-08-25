@@ -699,11 +699,15 @@ $ms-font-input: 1.45rem;
 
                 font-size: $ms-font-h2;
 
-                &__label {
+                &__btn {
+                    @extend %ms-btn-reset;
                     font-family: $ms-fonts-header;
                     font-weight: bold;
                     text-align: center;
                     text-transform: uppercase;
+                    color: inherit;
+                    width: 100%;
+                    cursor: pointer;
                 }
 
                 &__input[type="text"] {

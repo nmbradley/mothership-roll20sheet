@@ -98,7 +98,7 @@ include sheetdata.pug
                         .ms-saves__inputwrapper
                             input.ms-saves__input(name=`attr_${save.name}`, type="number")
             .ms-stress_panic
-                .ms-stress_panic__label(data-i18n="stress & panic")
+                button.ms-stress_panic__btn(data-i18n="stress & panic", type="roll", value="&{template:ms} {{name=panic check}} {{character_name=@{character_name}}} {{roll=[[1d20]]}} {{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d20}]]}} {{target=@{stress} (Pass if >)}}")
                 input.ms-stress_panic__input.ms-rounded(name=`attr_stress_panic`, type="text")
 
         .ms-skills
