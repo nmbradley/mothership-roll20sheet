@@ -1,26 +1,3 @@
-var __create = Object.create;
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
-
 // node_modules/svelte/src/constants.js
 var EACH_INDEX_REACTIVE = 1 << 1;
 var EACH_IS_CONTROLLED = 1 << 2;
@@ -2013,9 +1990,9 @@ function ShipSheet($$renderer) {
 
 // src/svelte/Sheet.svelte
 function Sheet($$renderer) {
-  let title = "Mothership 1e Character Sheet";
-  let workerScriptOpen = '<script type="text/worker">';
-  let workerScriptClose = "</script>";
+  const title = "Mothership 1e Character Sheet";
+  const workerScriptOpen = '<script type="text/worker">';
+  const workerScriptClose = "</script>";
   $$renderer.push(`<div class="sheet-wrapper svelte-deygyw"><h1 class="svelte-deygyw">Mothership 1e Character Sheet</h1> <input type="hidden" name="attr_sheet_type" class="sheet-type-toggle" value="character"/> <div class="character-sheet">`);
   CharacterSheet($$renderer, {});
   $$renderer.push(`<!----></div> <div class="ship-sheet">`);
@@ -2023,11 +2000,13 @@ function Sheet($$renderer) {
   $$renderer.push(`<!----></div></div> ${html(workerScriptOpen)} console.log("Roll20 Sheetworker code here"); ${html(workerScriptClose)}`);
 }
 
-// src/svelte/compile.js
-var import_fs = __toESM(require("fs"));
-var import_path = __toESM(require("path"));
+// scripts/compile-svelte-root.js
+import fs from "fs";
+import path from "path";
 var result = render(Sheet, { props: {} });
 var html2 = result.html || result.body || result;
-var css = result.head || "";
-import_fs.default.writeFileSync(import_path.default.resolve(process.cwd(), "mothership.html"), html2);
+fs.writeFileSync(path.resolve(process.cwd(), "mothership.html"), html2);
 console.log("\u2705 Successfully built mothership.html using Svelte!");
+var css = result.css && result.css.code ? result.css.code : result.css?.code || result.css || "";
+fs.writeFileSync(path.resolve(process.cwd(), "mothership.css"), css);
+console.log("\u2705 Successfully built mothership.css using Svelte!");

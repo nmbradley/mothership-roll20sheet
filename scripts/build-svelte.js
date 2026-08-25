@@ -1,5 +1,6 @@
 import * as esbuild from "esbuild";
 import esbuildSvelte from "esbuild-svelte";
+import { sveltePreprocess } from "svelte-preprocess";
 import { execSync } from "child_process";
 import path from "path";
 
@@ -11,10 +12,13 @@ async function build() {
     entryPoints: ["scripts/compile-svelte-root.js"],
     bundle: true,
     outfile: "dist/compile-ssr.js",
-    format: "cjs",
+    format: "esm",
     platform: "node",
     plugins: [
-      esbuildSvelte({ compilerOptions: { generate: "server" } }),
+      esbuildSvelte({
+        preprocess: sveltePreprocess(),
+        compilerOptions: { generate: "server" },
+      }),
     ],
   });
 
