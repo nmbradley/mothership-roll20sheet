@@ -70,6 +70,15 @@ function deferred() {
   });
   return { promise, resolve, reject };
 }
+function fallback(value, fallback2, lazy = false) {
+  return value === void 0 ? lazy ? (
+    /** @type {() => V} */
+    fallback2()
+  ) : (
+    /** @type {V} */
+    fallback2
+  ) : value;
+}
 
 // node_modules/svelte/src/internal/shared/attributes.js
 var replacements = {
@@ -1959,6 +1968,26 @@ function attributes(attrs, css_hash, classes, styles, flags2 = 0) {
 function stringify(value) {
   return typeof value === "string" ? value : value == null ? "" : value + "";
 }
+function slot(renderer, $$props, name, slot_props, fallback_fn) {
+  var slot_fn = $$props.$$slots?.[name];
+  if (slot_fn === true) {
+    slot_fn = $$props[name === "default" ? "children" : name];
+  }
+  if (slot_fn !== void 0) {
+    slot_fn(renderer, slot_props);
+  } else {
+    fallback_fn?.();
+  }
+}
+function bind_props(props_parent, props_now) {
+  for (const key of Object.keys(props_now)) {
+    const initial_value = props_parent[key];
+    const value = props_now[key];
+    if (initial_value === void 0 && value !== void 0 && Object.getOwnPropertyDescriptor(props_parent, key)?.set) {
+      props_parent[key] = value;
+    }
+  }
+}
 function ensure_array_like(array_like_or_iterator) {
   if (array_like_or_iterator) {
     return array_like_or_iterator.length !== void 0 ? array_like_or_iterator : Array.from(array_like_or_iterator);
@@ -1983,9 +2012,35 @@ function CharacterSheet($$renderer) {
   $$renderer.push(`<!--]--></div>`);
 }
 
+// src/svelte/components/Button.svelte
+function Button($$renderer, $$props) {
+  let action = $$props["action"];
+  let label = fallback($$props["label"], "");
+  $$renderer.push(`<button class="button button--action svelte-ovjhya" type="action"${attr("name", `act_${stringify(action)}`)}>`);
+  if (label) {
+    $$renderer.push("<!--[0-->");
+    $$renderer.push(`<span class="button__label svelte-ovjhya"${attr("data-i18n", label)}>${escape_html(label)}</span>`);
+  } else {
+    $$renderer.push("<!--[-1-->");
+  }
+  $$renderer.push(`<!--]--> <!--[-->`);
+  slot($$renderer, $$props, "default", {}, null);
+  $$renderer.push(`<!--]--></button>`);
+  bind_props($$props, { action, label });
+}
+
 // src/svelte/ShipSheet.svelte
 function ShipSheet($$renderer) {
-  $$renderer.push(`<div class="section"><h2>Ship Sheet</h2> <label>Hull <input type="number" name="attr_hull"/></label></div>`);
+  $$renderer.push(`<div class="section"><h2>Ship Sheet</h2> <label>Hull <input type="number" name="attr_hull"/></label> `);
+  Button($$renderer, {
+    action: "starting_condition",
+    label: "starting condition",
+    children: ($$renderer2) => {
+      $$renderer2.push(`<!---->Starting Condition`);
+    },
+    $$slots: { default: true }
+  });
+  $$renderer.push(`<!----></div>`);
 }
 
 // src/svelte/Sheet.svelte

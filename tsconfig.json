@@ -8,7 +8,12 @@
     "strict": true,
     "strictNullChecks": true,
     "skipLibCheck": true,
-    "lib": ["es2022", "dom"]
+    "lib": ["es2022", "dom"],
+    "paths": {
+      "#data/*": ["./src/game/data/*"],
+      "#game/*": ["./src/game/*"],
+      "#rules/*": ["./src/ts/rules/*"]
+    }
   },
   "include": ["src/**/*"]
 }

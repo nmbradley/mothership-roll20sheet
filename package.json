@@ -43,5 +43,10 @@
     "*.{js,ts,svelte}": [
       "eslint --fix"
     ]
+  },
+  "imports": {
+    "#game/*": "./src/game/*",
+    "#rules/*": "./src/ts/rules/*",
+    "#data/*": "./src/game/data/*"
   }
 }
