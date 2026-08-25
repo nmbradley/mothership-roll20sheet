@@ -1,9 +1,14 @@
+export type KeyOf<T> = keyof T;
+export type EntryOf<T> = T[keyof T];
+
 export const Stats = {
   Strength: "strength",
   Speed: "speed",
   Intellect: "intellect",
   Combat: "combat",
 } as const;
+export type Stat = EntryOf<typeof Stats>;
+export type StatsKey = KeyOf<typeof Stats>;
 
 export const Saves = {
   Sanity: "sanity",
@@ -11,6 +16,8 @@ export const Saves = {
   Body: "body",
   Armor: "armor",
 } as const;
+export type Save = EntryOf<typeof Saves>;
+export type SavesKey = KeyOf<typeof Saves>;
 
 export const Classes = {
   Marine: "marine",
@@ -18,12 +25,16 @@ export const Classes = {
   Scientist: "scientist",
   Teamster: "teamster",
 } as const;
+export type Class = EntryOf<typeof Classes>;
+export type ClassesKey = KeyOf<typeof Classes>;
 
 export const SkillLevels = {
   Trained: "trained",
   Expert: "expert",
   Master: "master",
 } as const;
+export type SkillLevel = EntryOf<typeof SkillLevels>;
+export type SkillLevelsKey = KeyOf<typeof SkillLevels>;
 
 export const Skills = {
   Linguistics: "linguistics",
@@ -69,3 +80,5 @@ export const Skills = {
   Xenoesotericism: "xenoesotericism",
   Command: "command",
 } as const;
+export type Skill = EntryOf<typeof Skills>;
+export type SkillsKey = KeyOf<typeof Skills>;

@@ -67,9 +67,9 @@ export const stats = {
     label: "Recalling your training and experience under duress, thinking through difficult problems, inventing or fixing things." },
   [Stats.Combat]: { attr: Stats.Combat,
     label: "Fighting for your life." },
-} as const satisfies Record<typeof Stats[keyof typeof Stats], StatDef>;
+} as const satisfies Record<Stat, StatDef>;
 
-export type SaveDef = { name: typeof Saves[keyof typeof Saves];
+export type SaveDef = { name: Save;
   desc: string; };
 
 export const saves = {
@@ -79,13 +79,13 @@ export const saves = {
     desc: "Maintain a level head while struggling with fear, loneliness, depression, and other emotional surges." },
   [Saves.Body]: { name: Saves.Body,
     desc: "Employ quick reflexes and resist hunger, disease, or organisms that might try and invade your insides." },
-} as const satisfies Record<typeof Saves[keyof typeof Saves], SaveDef>;
+} as const satisfies Record<Save, SaveDef>;
 
 export type SkillDef = {
-  name: typeof Skills[keyof typeof Skills];
-  level: typeof SkillLevels[keyof typeof SkillLevels];
+  name: Skill;
+  level: SkillLevel;
   desc: string;
-  prereq?: readonly typeof Skills[keyof typeof Skills][];
+  prereq?: readonly Skill[];
 };
 
 export const skills = {
@@ -327,7 +327,7 @@ export const skills = {
     prereq: [Skills.Piloting, Skills.Firearms],
     desc: "Leadership, management, and authority.",
   },
-} as const satisfies Record<typeof Skills[keyof typeof Skills], SkillDef>;
+} as const satisfies Record<Skill, SkillDef>;
 
 export const shipfields = [
   {
