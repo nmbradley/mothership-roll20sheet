@@ -1,9 +1,9 @@
-export interface ShipUpgrade {
+export type ShipUpgrade = {
   name: string;
   cost: string;
   inst: string;
   description: string;
-}
+};
 
 export const minorUpgrades: ShipUpgrade[] = [
   {

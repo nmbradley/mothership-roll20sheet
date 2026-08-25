@@ -1,8 +1,8 @@
-export interface MaintenanceIssue {
+export type MaintenanceIssue = {
   roll: string;
   issue_type: string;
   description: string;
-}
+};
 
 export const maintenanceTable: MaintenanceIssue[] = [
   {

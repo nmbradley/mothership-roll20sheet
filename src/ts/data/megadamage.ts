@@ -1,7 +1,7 @@
-export interface MegaDamageEffect {
+export type MegaDamageEffect = {
   level: number;
   effect: string;
-}
+};
 
 export const megadamageTable: MegaDamageEffect[] = [
   {

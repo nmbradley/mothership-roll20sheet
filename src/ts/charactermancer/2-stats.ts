@@ -1,42 +1,41 @@
 // @ts-nocheck
 {
-    const stats = ["strength","speed","intellect","combat"];
+  const stats = ["strength", "speed", "intellect", "combat"];
 
-    const onLoadStats = () => {
-        const data = getCharmancerData();
+  const onLoadStats = () => {
+    const data = getCharmancerData();
 
-        if (data?.stats?.values?.["strength"]) {
-            const updateHTML = {};
-        
-            showChoices(["showstats"]); 
+    if (data?.stats?.values?.["strength"]) {
+      const updateHTML = {};
 
-            stats.forEach(stat => updateHTML[`t__${stat}`] = data.stats.values[stat]);
-    
-            setCharmancerText(updateHTML);
-        }
+      showChoices(["showstats"]);
+
+      stats.forEach((stat) => updateHTML[`t__${stat}`] = data.stats.values[stat]);
+
+      setCharmancerText(updateHTML);
     }
+  };
 
-    const onRollStats = (rolls) => {
-        const updateHTML = {};
-        const updateAttrs = {};
-        
-        showChoices(["showstats"]); 
+  const onRollStats = (rolls) => {
+    const updateHTML = {};
+    const updateAttrs = {};
 
-        rolls.forEach((roll, index) => { 
-            updateHTML[`t__${stats[index]}`] = roll.result;
-            updateAttrs[`${stats[index]}`] = roll.result;
-        });
+    showChoices(["showstats"]);
 
-        updateAttrs["health"] = updateAttrs["strength"] * 2;
-        updateAttrs["stress"] = 2;
-        updateAttrs["wounds"] = 2;
-        updateAttrs["armor_points"] = 0;
-        
-        setCharmancerText(updateHTML);
-        setAttrs(updateAttrs);
+    rolls.forEach((roll, index) => {
+      updateHTML[`t__${stats[index]}`] = roll.result;
+      updateAttrs[stats[index]] = roll.result;
+    });
 
-    }
+    updateAttrs["health"] = updateAttrs["strength"] * 2;
+    updateAttrs["stress"] = 2;
+    updateAttrs["wounds"] = 2;
+    updateAttrs["armor_points"] = 0;
 
-    on(`mancerroll:stats`, eventInfo => onRollStats(eventInfo.roll));
-    on(`page:stats`, eventInfo => onLoadStats(eventInfo.roll));
+    setCharmancerText(updateHTML);
+    setAttrs(updateAttrs);
+  };
+
+  on(`mancerroll:stats`, (eventInfo) => { onRollStats(eventInfo.roll); });
+  on(`page:stats`, (eventInfo) => { onLoadStats(eventInfo.roll); });
 }

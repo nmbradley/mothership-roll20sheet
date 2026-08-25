@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "outDir": "./js/",
-    "noImplicitAny": false,
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "strictNullChecks": true,
     "skipLibCheck": true,
-    "module": "es6",
-    "target": "es5",
-    "lib": ["es2017", "dom"],
-    "jsx": "react",
-    "moduleResolution": "node"
+    "lib": ["es2022", "dom"]
   },
-  "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts", "jest.*.js"]
+  "include": ["src/**/*"]
 }

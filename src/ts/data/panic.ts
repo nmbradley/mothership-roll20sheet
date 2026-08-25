@@ -1,8 +1,8 @@
-export interface PanicEffect {
+export type PanicEffect = {
   roll: number;
   name: string;
   effect: string;
-}
+};
 
 export const panicTable: PanicEffect[] = [
   {

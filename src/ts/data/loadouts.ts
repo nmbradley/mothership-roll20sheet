@@ -1,14 +1,14 @@
-export interface LoadoutOption {
+export type LoadoutOption = {
   roll: number;
   items: string[];
-}
+};
 
-export interface Loadouts {
+export type Loadouts = {
   marine: LoadoutOption[];
   android: LoadoutOption[];
   scientist: LoadoutOption[];
   teamster: LoadoutOption[];
-}
+};
 
 export const loadouts: Loadouts = {
   marine: [

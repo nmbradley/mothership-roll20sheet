@@ -1,80 +1,86 @@
 // @ts-nocheck
 import { capitalizeString, parseJSON } from "../index";
 {
+  const onLoadReview = () => {
+    const data = getCharmancerData();
 
-    const onLoadReview = () => {
-        const data = getCharmancerData();
+    const updateHTML = {};
+    const updateAttrs = {};
 
-        const updateHTML = {};
-        const updateAttrs = {};
+    ["strength", "speed", "intellect", "combat", "health", "stress", "resolve", "sanity", "fear", "body", "armor"].forEach((item) => {
+      const value = (data?.equipment?.values?.[item])
+        ? data.equipment.values[item]
+        : (data?.skills?.values?.[item])
+            ? data.skills.values[item]
+            : (data?.class?.values?.[item])
+                ? data.class.values[item]
+                : (data?.stats?.values?.[item])
+                    ? data.stats.values[item]
+                    : false;
 
-        ["strength","speed","intellect","combat","health","stress","resolve","sanity","fear","body","armor"].forEach(item => {
-            let value = (data?.equipment?.values?.[item]) ? data.equipment.values[item] :
-                        (data?.skills?.values?.[item]) ? data.skills.values[item] :
-                        (data?.class?.values?.[item]) ? data.class.values[item] :
-                        (data?.stats?.values?.[item]) ? data.stats.values[item] :
-                        false;
+      const mod = (data?.equipment?.values?.[`${item}_mod`])
+        ? data.equipment.values[`${item}_mod`]
+        : (data?.skills?.values?.[`${item}_mod`])
+            ? data.skills.values[`${item}_mod`]
+            : (data?.class?.values?.[`${item}_mod`])
+                ? data.class.values[`${item}_mod`]
+                : (data?.stats?.values?.[`${item}_mod`])
+                    ? data.stats.values[`${item}_mod`]
+                    : 0;
 
-            let mod = (data?.equipment?.values?.[`${item}_mod`]) ? data.equipment.values[`${item}_mod`] :
-                      (data?.skills?.values?.[`${item}_mod`]) ? data.skills.values[`${item}_mod`] :
-                      (data?.class?.values?.[`${item}_mod`]) ? data.class.values[`${item}_mod`] :
-                      (data?.stats?.values?.[`${item}_mod`]) ? data.stats.values[`${item}_mod`] :
-                      0;
+      const total = parseInt(value) + parseInt(mod);
 
-            const total =  parseInt(value) + parseInt(mod);
-            
-            updateHTML[`t__${item}`] = total;
-            updateAttrs[`${item}_final`] = total;
-        });
+      updateHTML[`t__${item}`] = total;
+      updateAttrs[`${item}_final`] = total;
+    });
 
-        updateHTML[`t__class`] = data?.class?.values?.class;
-        updateAttrs[`class_final`] = data?.class?.values?.class;
+    updateHTML[`t__class`] = data?.class?.values?.class;
+    updateAttrs[`class_final`] = data?.class?.values?.class;
 
-        updateHTML[`t__stresseffect`] = data?.class?.values?.stress_effect;
-        updateAttrs[`stresseffect_final`] = data?.class?.values?.stress_effect;
+    updateHTML[`t__stresseffect`] = data?.class?.values?.stress_effect;
+    updateAttrs[`stresseffect_final`] = data?.class?.values?.stress_effect;
 
-        const skills = [];
-        
-        const filter = ["owned", "skillpoints_max", "trained_lock", "expert_lock", "master_lock", "unlocked"];
+    const skills = [];
 
-        Object.entries(data.skills.values).forEach(([key, value]) => {
-            if (!key.match(/type/) && !filter.includes(key) && value === "on") skills.push(capitalizeString(key));
-        });
+    const filter = ["owned", "skillpoints_max", "trained_lock", "expert_lock", "master_lock", "unlocked"];
 
-        updateHTML[`t__skilllist`] = skills.join(', ');
-        updateAttrs[`skills_final`] = JSON.stringify(skills);
+    Object.entries(data.skills.values).forEach(([key, value]) => {
+      if (!key.match(/type/) && !filter.includes(key) && value === "on") skills.push(capitalizeString(key));
+    });
 
-        const skillpoints = (data?.skills?.values?.skillpoints) ? data.skills.values.skillpoints : "0";
+    updateHTML[`t__skilllist`] = skills.join(", ");
+    updateAttrs[`skills_final`] = JSON.stringify(skills);
 
-        updateHTML[`t__skillpoints`] = skillpoints;
-        updateAttrs[`skillpoints_final`] = skillpoints;
+    const skillpoints = (data?.skills?.values?.skillpoints) ? data.skills.values.skillpoints : "0";
 
-        const starting_credits = (data?.equipment?.values?.credits) ? data.equipment.values.credits : "Not Rolled";
+    updateHTML[`t__skillpoints`] = skillpoints;
+    updateAttrs[`skillpoints_final`] = skillpoints;
 
-        updateHTML[`t__credits`] = starting_credits;
-        updateAttrs[`credits_final`] = starting_credits;
+    const starting_credits = (data?.equipment?.values?.credits) ? data.equipment.values.credits : "Not Rolled";
 
-        const trinket = (data?.equipment?.values?.trinket) ? data.equipment.values.trinket : "Not Rolled";
+    updateHTML[`t__credits`] = starting_credits;
+    updateAttrs[`credits_final`] = starting_credits;
 
-        updateHTML[`t__trinket`] = trinket;
-        updateAttrs[`trinket_final`] = trinket;
+    const trinket = (data?.equipment?.values?.trinket) ? data.equipment.values.trinket : "Not Rolled";
 
-        const patch = (data?.equipment?.values?.patch) ? data.equipment.values.patch : "Not Rolled";
+    updateHTML[`t__trinket`] = trinket;
+    updateAttrs[`trinket_final`] = trinket;
 
-        updateHTML[`t__patch`] = patch;
-        updateAttrs[`patch_final`] = patch;
+    const patch = (data?.equipment?.values?.patch) ? data.equipment.values.patch : "Not Rolled";
 
-        const pkg = (data?.equipment?.values?.equipment) ? parseJSON(data.equipment.values.equipment) : [];
+    updateHTML[`t__patch`] = patch;
+    updateAttrs[`patch_final`] = patch;
 
-        const items = pkg.map(item => (Array.isArray(item)) ? `${item[0]} (${item[1]})` : item).join(", ");
+    const pkg = (data?.equipment?.values?.equipment) ? parseJSON(data.equipment.values.equipment) : [];
 
-        updateHTML[`t__equipmentlist`] = items;
-        updateAttrs[`equipment_final`] = data?.equipment?.values?.equipment;
+    const items = pkg.map((item) => (Array.isArray(item)) ? `${item[0]} (${item[1]})` : item).join(", ");
 
-        setCharmancerText(updateHTML)
-        setAttrs(updateAttrs);
-    }
+    updateHTML[`t__equipmentlist`] = items;
+    updateAttrs[`equipment_final`] = data?.equipment?.values?.equipment;
 
-    on(`page:review`, eventInfo => onLoadReview());
+    setCharmancerText(updateHTML);
+    setAttrs(updateAttrs);
+  };
 
+  on(`page:review`, (eventInfo) => { onLoadReview(); });
 }

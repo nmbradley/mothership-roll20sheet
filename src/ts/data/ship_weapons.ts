@@ -1,9 +1,9 @@
-export interface ShipWeapon {
+export type ShipWeapon = {
   name: string;
   cost: string;
   bonus: string;
   description: string;
-}
+};
 
 export const shipWeapons: ShipWeapon[] = [
   {
@@ -56,13 +56,13 @@ export const shipWeapons: ShipWeapon[] = [
   },
 ];
 
-export interface Class0Vessel {
+export type Class0Vessel = {
   name: string;
   cost: string;
   capacity: string;
   travel: string;
   description: string;
-}
+};
 
 export const class0Vessels: Class0Vessel[] = [
   {

@@ -1,4 +1,4 @@
-export interface ShipTemplate {
+export type ShipTemplate = {
   make: string;
   model: string;
   class_type: string;
@@ -14,7 +14,7 @@ export interface ShipTemplate {
   thrusters: number;
   battle: number;
   systems: number;
-}
+};
 
 export const shipsTable: ShipTemplate[] = [
   {

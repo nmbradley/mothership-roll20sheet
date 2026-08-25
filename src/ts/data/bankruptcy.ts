@@ -1,7 +1,7 @@
-export interface BankruptcyEffect {
+export type BankruptcyEffect = {
   result: string;
   consequence: string;
-}
+};
 
 export const bankruptcyTable: BankruptcyEffect[] = [
   {

@@ -1,4 +1,4 @@
-export interface WoundEffect {
+export type WoundEffect = {
   roll: number;
   severity: string;
   blunt: string;
@@ -6,7 +6,7 @@ export interface WoundEffect {
   gunshot: string;
   fire: string;
   gore: string;
-}
+};
 
 export const woundsTable: WoundEffect[] = [
   {
@@ -101,10 +101,10 @@ export const woundsTable: WoundEffect[] = [
   },
 ];
 
-export interface DeathEffect {
+export type DeathEffect = {
   roll: string;
   result: string;
-}
+};
 
 export const deathTable: DeathEffect[] = [
   {

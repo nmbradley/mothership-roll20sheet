@@ -1,4 +1,4 @@
-export interface Weapon {
+export type Weapon = {
   name: string;
   cost: string;
   range: string;
@@ -6,7 +6,7 @@ export interface Weapon {
   shots: string;
   wound: string;
   special: string;
-}
+};
 
 export const weapons: Weapon[] = [
   {

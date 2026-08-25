@@ -1,41 +1,41 @@
 /* eslint-disable @typescript-eslint/ban-types */
-interface RollResults {
-  [roll: string]: RollResult
-}
+type RollResults = {
+  [roll: string]: RollResult;
+};
 
-interface RollResult {
-  dice: number[],
-  expression: string,
-  result: number,
-  rolls: Roll[],
-}
+type RollResult = {
+  dice: number[];
+  expression: string;
+  result: number;
+  rolls: Roll[];
+};
 
-interface Roll {
-  dice: number,
-  results: number[],
-  sides: number
-}
-interface GetAttrsResponse {
+type Roll = {
+  dice: number;
+  results: number[];
+  sides: number;
+};
+type GetAttrsResponse = {
   [x: string]: string | number;
-}
+};
 
-interface EventInfo {
-  sourceAttribute: string,
-  newValue: string,
-  previousValue: string,
-}
+type EventInfo = {
+  sourceAttribute: string;
+  newValue: string;
+  previousValue: string;
+};
 
 declare function on(events: string, callback: Function): void;
-declare function setAttrs(object: Object, callback?: Function): void;
+declare function setAttrs(object: object, callback?: Function): void;
 declare function getAttrs(request: string[], callback: (response: Record<string, string>) => void): void;
 declare function getSectionIDs(section: string, callback: Function): void;
 declare function generateRowID(): string;
-declare function removeRepeatingRow(RowID:string): void;
+declare function removeRepeatingRow(RowID: string): void;
 declare function getTranslationByKey(key: string | string[]): string;
 declare function getTranslationLanguage(): string;
-declare function setDefaultToken(settings:object): void;
-declare function startRoll(roll:string): Promise< {rollId: string, results: RollResults }>;
-declare function finishRoll(rollId: string, finish: object): void;declare function getCharmancerData(): any;
+declare function setDefaultToken(settings: object): void;
+declare function startRoll(roll: string): Promise<{ rollId: string; results: RollResults }>;
+declare function finishRoll(rollId: string, finish: object): void; declare function getCharmancerData(): any;
 declare function setCharmancerText(obj: any): void;
 declare function startCharactermancer(page: string): void;
 declare function finishCharactermancer(): void;

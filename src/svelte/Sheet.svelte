@@ -1,24 +1,24 @@
 <script>
-    import CharacterSheet from './CharacterSheet.svelte';
-    import ShipSheet from './ShipSheet.svelte';
-    
+    import CharacterSheet from "./CharacterSheet.svelte";
+    import ShipSheet from "./ShipSheet.svelte";
+
     // We can use variables just to define static data at compile-time!
-    let title = "Mothership 1e Character Sheet";
-    
+    const title = "Mothership 1e Character Sheet";
+
     // Bypassing Svelte parser for the worker script tag
-    let workerScriptOpen = '<script type="text/worker">';
-    let workerScriptClose = '</s' + 'cript>';
+    const workerScriptOpen = "<script type=\"text/worker\">";
+    const workerScriptClose = "</s" + "cript>";
 </script>
 
 <div class="sheet-wrapper">
     <h1>{title}</h1>
-    
+
     <input type="hidden" name="attr_sheet_type" class="sheet-type-toggle" value="character" />
-    
+
     <div class="character-sheet">
         <CharacterSheet />
     </div>
-    
+
     <div class="ship-sheet">
         <ShipSheet />
     </div>

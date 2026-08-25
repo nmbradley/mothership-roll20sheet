@@ -1,9 +1,9 @@
 <script>
     const stats = [
-        { name: "Strength", attr: "strength" },
-        { name: "Speed", attr: "speed" },
-        { name: "Intellect", attr: "intellect" },
-        { name: "Combat", attr: "combat" }
+      { name: "Strength", attr: "strength" },
+      { name: "Speed", attr: "speed" },
+      { name: "Intellect", attr: "intellect" },
+      { name: "Combat", attr: "combat" },
     ];
 </script>
 

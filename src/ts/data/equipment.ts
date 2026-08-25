@@ -1,8 +1,8 @@
-export interface Equipment {
+export type Equipment = {
   name: string;
   cost: string;
   description: string;
-}
+};
 
 export const equipment: Equipment[] = [
   {

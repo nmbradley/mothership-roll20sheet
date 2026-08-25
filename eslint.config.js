@@ -1,0 +1,209 @@
+import stylistic from "@stylistic/eslint-plugin";
+import importX from "eslint-plugin-import-x";
+import jsdoc from "eslint-plugin-jsdoc";
+import tseslint from "typescript-eslint";
+import sveltePlugin from "eslint-plugin-svelte";
+import svelteParser from "svelte-eslint-parser";
+
+const CASTS = ":matches(TSAsExpression, TSNonNullExpression, TSSatisfiesExpression)";
+// `x as unknown as T` nests two cast nodes, so each guarded position needs both depths.
+const CASTS_2 = `${CASTS} > ${CASTS}`;
+
+const NO_NESTED_CALLS = [
+  {
+    selector: "CallExpression > CallExpression",
+    message: "No nested calls. Bind the inner call to a named value first.",
+  },
+  {
+    selector: "IfStatement > CallExpression",
+    message: "No call in a condition. Bind it to a named value first.",
+  },
+  {
+    selector: "WhileStatement > CallExpression",
+    message: "No call in a condition. Bind it to a named value first.",
+  },
+  {
+    selector: "ReturnStatement > CallExpression",
+    message: "No call in a return. Bind it to a named value first.",
+  },
+  {
+    selector: `CallExpression > ${CASTS} > CallExpression`,
+    message: "No nested calls. Bind the inner call to a named value first, then cast.",
+  },
+  {
+    selector: `ReturnStatement > ${CASTS} > CallExpression`,
+    message: "No call in a return. Bind it to a named value first, then cast.",
+  },
+  {
+    selector: `:matches(IfStatement, WhileStatement) > ${CASTS} > CallExpression`,
+    message: "No call in a condition. Bind it to a named value first, then cast.",
+  },
+  {
+    selector: `CallExpression > ${CASTS_2} > CallExpression`,
+    message: "No nested calls. Bind the inner call to a named value first, then cast.",
+  },
+  {
+    selector: `ReturnStatement > ${CASTS_2} > CallExpression`,
+    message: "No call in a return. Bind it to a named value first, then cast.",
+  },
+  {
+    selector: `:matches(IfStatement, WhileStatement) > ${CASTS_2} > CallExpression`,
+    message: "No call in a condition. Bind it to a named value first, then cast.",
+  },
+  {
+    selector: `ArrowFunctionExpression > ${CASTS} > CallExpression`,
+    message: "No call under a cast in an arrow body. Use a block and bind it first.",
+  },
+  {
+    selector: `ArrowFunctionExpression > ${CASTS_2} > CallExpression`,
+    message: "No call under a cast in an arrow body. Use a block and bind it first.",
+  },
+];
+
+const NO_CLASSES = [
+  { selector: "ClassDeclaration", message: "Classes are banned. Use a module of functions." },
+  { selector: "ClassExpression", message: "Classes are banned. Use a module of functions." },
+  { selector: "ThisExpression", message: "`this` is banned. Pass values as parameters." },
+];
+
+const NO_DOC_CITATIONS = [
+  {
+    selector: "Literal[value=/ADR ?[0-9]/]",
+    message: "Cite no ADR in a name or message. Describe the behaviour; ADRs get superseded.",
+  },
+  {
+    selector: "TemplateElement[value.raw=/ADR ?[0-9]/]",
+    message: "Cite no ADR in a name or message. Describe the behaviour; ADRs get superseded.",
+  },
+  {
+    selector: "Literal[value=/#[0-9]/]",
+    message: "Do not cite a ticket in a name or message. Describe the behaviour.",
+  },
+];
+
+const MISC_BANS = [
+  { selector: "ExportAllDeclaration", message: "No `export *`. Re-export by name." },
+];
+
+export default tseslint.config(
+  { ignores: ["**/dist/**", "**/node_modules/**", "src/js/**"] },
+
+  ...sveltePlugin.configs["flat/recommended"],
+
+  {
+    files: ["**/*.ts", "**/*.js", "**/*.svelte"],
+    extends: [tseslint.configs.base, stylistic.configs.customize({
+      semi: true,
+      quotes: "double",
+      indent: 2,
+      commaDangle: "always-multiline",
+      arrowParens: true,
+      braceStyle: "1tbs",
+    })],
+    plugins: { "import-x": importX, jsdoc },
+    settings: {
+      "import-x/resolver": { typescript: true },
+    },
+    rules: {
+      "@stylistic/max-len": ["error", { code: 100, ignoreUrls: true }],
+      "@stylistic/operator-linebreak": ["error", "before", { overrides: { "=": "after" } }],
+    },
+  },
+
+  {
+    files: ["src/**/*.ts", "src/**/*.svelte"],
+    extends: [tseslint.configs.strictTypeChecked],
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+        extraFileExtensions: [".svelte"],
+      },
+    },
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        ...NO_CLASSES,
+        ...NO_NESTED_CALLS,
+        ...NO_DOC_CITATIONS,
+        ...MISC_BANS,
+      ],
+      "no-restricted-properties": [
+        "error",
+        { property: "then", message: "No .then() chains. Use async/await." },
+      ],
+      "no-else-return": ["error", { allowElseIf: false }],
+      "no-param-reassign": ["error", { props: true }],
+      "max-params": ["error", 2],
+
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
+      "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        { fixStyle: "separate-type-imports" },
+      ],
+      "@typescript-eslint/naming-convention": [
+        "error",
+        { selector: "typeLike", format: ["PascalCase"] },
+        {
+          selector: "variable",
+          types: ["boolean"],
+          format: ["PascalCase"],
+          prefix: ["is", "has", "should", "can", "was"],
+        },
+      ],
+
+      "import-x/no-default-export": "error",
+      "@typescript-eslint/no-restricted-imports": [
+        "error",
+        {
+          patterns: [{
+            group: ["../*"],
+            message: "No parent-relative imports. Use a #subpath import.",
+          }],
+        },
+      ],
+      "import-x/no-unassigned-import": "error",
+      "import-x/order": [
+        "error",
+        {
+          "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
+          "alphabetize": { order: "asc" },
+          "newlines-between": "always",
+        },
+      ],
+
+      "jsdoc/require-description": "error",
+      "jsdoc/require-jsdoc": [
+        "error",
+        {
+          publicOnly: true,
+          require: {
+            FunctionDeclaration: true,
+            ArrowFunctionExpression: true,
+            FunctionExpression: true,
+          },
+        },
+      ],
+    },
+  },
+
+  {
+    files: ["**/*.svelte"],
+    languageOptions: {
+      parser: svelteParser,
+      parserOptions: {
+        parser: tseslint.parser,
+      },
+    },
+    rules: {
+      "import-x/no-default-export": "off",
+      "import-x/no-unassigned-import": "off", // Bypassing for Svelte styling imports
+      "svelte/valid-compile": "error",
+      "svelte/button-has-type": "error",
+      "svelte/require-each-key": "error",
+      "svelte/no-dupe-use-directives": "error",
+    },
+  },
+);

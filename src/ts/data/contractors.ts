@@ -1,4 +1,4 @@
-export interface Contractor {
+export type Contractor = {
   roll: string;
   occupation: string;
   salary: string;
@@ -6,7 +6,7 @@ export interface Contractor {
   instinct: number;
   wounds: number;
   motivation: string;
-}
+};
 
 export const contractorsTable: Contractor[] = [
   {

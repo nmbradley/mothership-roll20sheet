@@ -1,8 +1,8 @@
-export interface Armor {
+export type Armor = {
   name: string;
   points: string;
   description: string;
-}
+};
 
 export const armor: Armor[] = [
   {
