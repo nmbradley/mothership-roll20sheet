@@ -1,62 +1,11 @@
 import {
-  Stats, Saves, SkillLevels, Skills,
+  Stats, Saves, SkillLevels, Skills, type Stat, type Save, type SkillLevel, type Skill,
 } from "./enums";
-
-export type HeaderField = {
-  label: string;
-  attr: string;
-  type: "text" | "number";
-};
-
-export const headerfields = [
-  {
-    label: "name",
-    attr: "character_name",
-    type: "text",
-  },
-  {
-    label: "level",
-    attr: "level",
-    type: "number",
-  },
-  {
-    label: "rank / title",
-    attr: "rank_title",
-    type: "text",
-  },
-  {
-    label: "XP",
-    attr: "xp",
-    type: "text",
-  },
-  {
-    label: "class",
-    attr: "class",
-    type: "text",
-  },
-] as const satisfies readonly HeaderField[];
-
-export type TopRowField = {
-  attr: string;
-  subtext: string;
-  placeholder: string;
-};
-
-export const toprowfields = [
-  {
-    attr: "stress",
-    subtext: "starts at 2",
-    placeholder: "2",
-  },
-  {
-    attr: "resolve",
-    subtext: "starts at 0",
-    placeholder: "0",
-  },
-] as const satisfies readonly TopRowField[];
 
 export type StatDef = { attr: Stat;
   label: string; };
+
+export type StatsMap = Record<Stat, StatDef>;
 
 export const stats = {
   [Stats.Strength]: { attr: Stats.Strength,
@@ -67,10 +16,12 @@ export const stats = {
     label: "Recalling your training and experience under duress, thinking through difficult problems, inventing or fixing things." },
   [Stats.Combat]: { attr: Stats.Combat,
     label: "Fighting for your life." },
-} as const satisfies Record<Stat, StatDef>;
+} as const satisfies StatsMap;
 
 export type SaveDef = { name: Save;
   desc: string; };
+
+export type SavesMap = Record<Save, SaveDef>;
 
 export const saves = {
   [Saves.Sanity]: { name: Saves.Sanity,
@@ -79,7 +30,7 @@ export const saves = {
     desc: "Maintain a level head while struggling with fear, loneliness, depression, and other emotional surges." },
   [Saves.Body]: { name: Saves.Body,
     desc: "Employ quick reflexes and resist hunger, disease, or organisms that might try and invade your insides." },
-} as const satisfies Record<Save, SaveDef>;
+} as const satisfies SavesMap;
 
 export type SkillDef = {
   name: Skill;
@@ -87,6 +38,8 @@ export type SkillDef = {
   desc: string;
   prereq?: readonly Skill[];
 };
+
+export type SkillsMap = Record<Skill, SkillDef>;
 
 export const skills = {
   [Skills.Linguistics]: {
@@ -327,7 +280,7 @@ export const skills = {
     prereq: [Skills.Piloting, Skills.Firearms],
     desc: "Leadership, management, and authority.",
   },
-} as const satisfies Record<Skill, SkillDef>;
+} as const satisfies SkillsMap;
 
 export const shipfields = [
   {
