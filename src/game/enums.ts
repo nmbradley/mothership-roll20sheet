@@ -14,7 +14,6 @@ export const Saves = {
   Sanity: "sanity",
   Fear: "fear",
   Body: "body",
-  Armor: "armor",
 } as const;
 export type Save = EntryOf<typeof Saves>;
 export type SavesKey = KeyOf<typeof Saves>;
