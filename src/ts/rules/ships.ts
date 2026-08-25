@@ -1,7 +1,217 @@
+import { bankruptcyTable } from "#game/data/bankruptcy";
 import {
   maintenanceTable,
   type MaintenanceIssue,
-} from "#data/maintenance";
+} from "#game/data/maintenance";
+
+import { evaluateRoll, type RollResultType } from "./rolls";
+
+export type AnnualMaintenanceResult = {
+  result: RollResultType;
+  stressGain: number;
+  panicCheck: boolean;
+  issues: MaintenanceIssue[];
+  message: string;
+};
+
+export type BankruptcySaveResult = {
+  result: RollResultType;
+  consequence: string;
+  message: string;
+};
+
+/**
+ * Retrieves a maintenance issue from the Maintenance Issues Table by roll index (0-99).
+ */
+export function getMaintenanceIssue(roll: number): MaintenanceIssue {
+  const roundedRoll = Math.floor(roll);
+  const clampedMax = Math.min(99, roundedRoll);
+  const index = Math.max(0, clampedMax);
+  return maintenanceTable[index];
+}
+
+/**
+ * Evaluates an Annual Maintenance Check (Systems Check) according to Mothership 1e rules:
+ * - Success: No issues.
+ * - Critical Success: Peak efficiency, no issues.
+ * - Failure: 1 roll on Maintenance Issues Table (everyone gains 1 Stress).
+ * - Critical Failure: 2 rolls on Maintenance Issues Table (everyone makes a Panic Check).
+ */
+export function evaluateAnnualMaintenance(
+  roll: number,
+  target: number,
+  maintRoll1: number,
+  maintRoll2: number,
+): AnnualMaintenanceResult {
+  const result = evaluateRoll(roll, target);
+
+  if (result === "CRITICAL SUCCESS") {
+    return {
+      result,
+      stressGain: 0,
+      panicCheck: false,
+      issues: [],
+      message:
+        "CRITICAL SUCCESS: Systems operating at peak efficiency. No maintenance issues encountered.",
+    };
+  }
+
+  if (result === "SUCCESS") {
+    return {
+      result,
+      stressGain: 0,
+      panicCheck: false,
+      issues: [],
+      message:
+        "SUCCESS: Systems check passed. Maintenance in order with no issues.",
+    };
+  }
+
+  if (result === "FAILURE") {
+    const issue = getMaintenanceIssue(maintRoll1);
+    return {
+      result,
+      stressGain: 1,
+      panicCheck: false,
+      issues: [issue],
+      message: `FAILURE: Everyone gains 1 Stress.\nMaintenance Issue [${issue.roll} - ${issue.issue_type}]: ${issue.description}`,
+    };
+  }
+
+  // CRITICAL FAILURE
+  const issue1 = getMaintenanceIssue(maintRoll1);
+  const issue2 = getMaintenanceIssue(maintRoll2);
+  return {
+    result,
+    stressGain: 0,
+    panicCheck: true,
+    issues: [issue1, issue2],
+    message: `CRITICAL FAILURE: Everyone makes a Panic Check!\nMaintenance Issue 1 [${issue1.roll} - ${issue1.issue_type}]: ${issue1.description}\nMaintenance Issue 2 [${issue2.roll} - ${issue2.issue_type}]: ${issue2.description}`,
+  };
+}
+
+/**
+ * Evaluates a Bankruptcy Save roll (1d100 under Bankruptcy Save) and returns consequence.
+ */
+export function evaluateBankruptcySave(
+  roll: number,
+  target: number,
+): BankruptcySaveResult {
+  const result = evaluateRoll(roll, target);
+  const effect = bankruptcyTable.find((entry) => entry.result === result);
+  const consequence = effect ? effect.consequence : "";
+
+  return {
+    result,
+    consequence,
+    message: `${result}: ${consequence}`,
+  };
+}
+
+/**
+ * Roll20 Sheetworker: Annual Maintenance Check
+ */
+export async function handleAnnualMaintenanceCheck(): Promise<void> {
+  const rollFormula =
+    "&{template:ms} {{name=Annual Maintenance Check}} {{character_name=@{character_name}}} {{roll=[[?{Advantage/Disadvantage|Normal,1d100|Advantage [+],2d100kl1|Disadvantage [-],2d100kh1}]]}} {{target=[[@{systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=placeholder}}";
+  const rollData = await startRoll(rollFormula);
+
+  const rollEntry = rollData.results.roll;
+  const targetEntry = rollData.results.target;
+  const maint1Entry = rollData.results.maint_roll1;
+  const maint2Entry = rollData.results.maint_roll2;
+
+  const roll = rollEntry.result;
+  const target = targetEntry.result;
+  const maintRoll1 = maint1Entry.result;
+  const maintRoll2 = maint2Entry.result;
+
+  const evaluation = evaluateAnnualMaintenance(
+    roll,
+    target,
+    maintRoll1,
+    maintRoll2,
+  );
+
+  finishRoll(rollData.rollId, {
+    notes: evaluation.message,
+  });
+}
+
+/**
+ * Roll20 Sheetworker: Bankruptcy Save
+ */
+export async function handleBankruptcySave(): Promise<void> {
+  const rollFormula =
+    "&{template:ms} {{name=Bankruptcy Save}} {{character_name=@{character_name}}} {{roll=[[1d100]]}} {{target=[[@{bankruptcy_save}+0]]}} {{notes=placeholder}}";
+  const rollData = await startRoll(rollFormula);
+
+  const rollEntry = rollData.results.roll;
+  const targetEntry = rollData.results.target;
+
+  const roll = rollEntry.result;
+  const target = targetEntry.result;
+
+  const evaluation = evaluateBankruptcySave(roll, target);
+
+  finishRoll(rollData.rollId, {
+    notes: evaluation.message,
+  });
+}
+
+/**
+ * Roll20 Sheetworker: Systems Check
+ */
+export async function handleSystemsCheck(): Promise<void> {
+  const rollFormula =
+    "&{template:ms} {{name=Systems Check}} {{character_name=@{character_name}}} {{roll=[[1d100]]}} {{target=[[@{systems}+0]]}} {{notes=placeholder}}";
+  const rollData = await startRoll(rollFormula);
+  const rollEntry = rollData.results.roll;
+  const targetEntry = rollData.results.target;
+  const roll = rollEntry.result;
+  const target = targetEntry.result;
+  const result = evaluateRoll(roll, target);
+
+  finishRoll(rollData.rollId, {
+    notes: `Systems Check: ${result}`,
+  });
+}
+
+/**
+ * Roll20 Sheetworker: Thrusters Check
+ */
+export async function handleThrustersCheck(): Promise<void> {
+  const rollFormula =
+    "&{template:ms} {{name=Thrusters Check}} {{character_name=@{character_name}}} {{roll=[[1d100]]}} {{target=[[@{thrusters}+0]]}} {{notes=placeholder}}";
+  const rollData = await startRoll(rollFormula);
+  const rollEntry = rollData.results.roll;
+  const targetEntry = rollData.results.target;
+  const roll = rollEntry.result;
+  const target = targetEntry.result;
+  const result = evaluateRoll(roll, target);
+
+  finishRoll(rollData.rollId, {
+    notes: `Thrusters Check: ${result}`,
+  });
+}
+
+/**
+ * Roll20 Sheetworker: Battle Check
+ */
+export async function handleBattleCheck(): Promise<void> {
+  const rollFormula =
+    "&{template:ms} {{name=Battle Check}} {{character_name=@{character_name}}} {{roll=[[1d100]]}} {{target=[[@{battle}+0]]}} {{notes=placeholder}}";
+  const rollData = await startRoll(rollFormula);
+  const rollEntry = rollData.results.roll;
+  const targetEntry = rollData.results.target;
+  const roll = rollEntry.result;
+  const target = targetEntry.result;
+  const result = evaluateRoll(roll, target);
+
+  finishRoll(rollData.rollId, {
+    notes: `Battle Check: ${result}`,
+  });
+}
 
 export type StartingConditionResult = {
   count: number;
@@ -9,79 +219,32 @@ export type StartingConditionResult = {
   message: string;
 };
 
-/**
- * Retrieves a maintenance issue from the Maintenance Issues Table by roll index (0-99).
- *
- * @param roll - The 0-99 roll value.
- * @returns The corresponding MaintenanceIssue object.
- */
-export function getMaintenanceIssue(roll: number): MaintenanceIssue {
-  const floored = Math.floor(roll);
-  const minClamped = Math.max(0, floored);
-  const clamped = Math.min(99, minClamped);
-  const issue = maintenanceTable[clamped];
-  return issue;
-}
-
-/**
- * Randomly selects unique maintenance issues from the table.
- *
- * @param count - The number of unique issues to select.
- * @param table - The table of maintenance issues to select from.
- * @param randomFn - The random number generator function.
- * @returns An array of uniquely selected MaintenanceIssue objects.
- */
 export function getRandomUniqueIssues(
   count: number,
   table: MaintenanceIssue[] = maintenanceTable,
   randomFn: () => number = Math.random,
 ): MaintenanceIssue[] {
-  if (count <= 0) {
-    return [];
-  }
+  if (count <= 0) return [];
   const pool = [...table];
   const targetCount = Math.min(count, pool.length);
   const selected: MaintenanceIssue[] = [];
 
   for (let i = 0; i < targetCount; i++) {
     const remaining = pool.length - i;
-    const rand = randomFn();
-    const offset = Math.floor(rand * remaining);
+    const offset = Math.floor(randomFn() * remaining);
     const targetIndex = i + offset;
     const temp = pool[i];
     pool[i] = pool[targetIndex];
     pool[targetIndex] = temp;
     selected.push(pool[i]);
   }
-
   return selected;
 }
 
-/**
- * Formats a list of maintenance issues into a chat message string.
- *
- * @param issues - The list of maintenance issues.
- * @returns The formatted message string.
- */
-export function formatStartingConditionMessage(
-  issues: MaintenanceIssue[],
-): string {
-  const lines = issues.map((issue) => {
-    const line = `[${issue.roll} - ${issue.issue_type}]: ${issue.description}`;
-    return line;
-  });
-  const formatted = lines.join("\n");
-  return formatted;
+export function formatStartingConditionMessage(issues: MaintenanceIssue[]): string {
+  return issues.map(issue => `[${issue.roll} - ${issue.issue_type}]: ${issue.description}`).join("\n");
 }
 
-/**
- * Evaluates the starting condition repairs for a new ship.
- *
- * @param count - The evaluated 1d5+1 repairs count.
- * @param table - The table of maintenance issues.
- * @param randomFn - The random number generator function.
- * @returns The evaluation result including count, selected issues, and formatted message.
- */
 export function evaluateStartingCondition(
   count: number,
   table: MaintenanceIssue[] = maintenanceTable,
@@ -89,21 +252,11 @@ export function evaluateStartingCondition(
 ): StartingConditionResult {
   const issues = getRandomUniqueIssues(count, table, randomFn);
   const message = formatStartingConditionMessage(issues);
-  const result: StartingConditionResult = {
-    count,
-    issues,
-    message,
-  };
-  return result;
+  return { count, issues, message };
 }
 
-/**
- * Roll20 Sheetworker action handler for the Ship Starting Condition button.
- * Evaluates 1d5+1 repairs and broadcasts randomly selected unique maintenance issues to chat.
- */
 export async function handleStartingCondition(): Promise<void> {
-  const rollFormula =
-    "&{template:ms} {{name=Starting Condition}} {{character_name=@{character_name}}} {{roll=[[1d5+1]]}} {{notes=placeholder}}";
+  const rollFormula = "&{template:ms} {{name=Starting Condition}} {{character_name=@{character_name}}} {{roll=[[1d5+1]]}} {{notes=placeholder}}";
   const rollData = await startRoll(rollFormula);
   const rollResult = rollData.results.roll as RollResult | undefined;
   const count = rollResult ? rollResult.result : 2;

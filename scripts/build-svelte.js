@@ -2,10 +2,14 @@ import * as esbuild from "esbuild";
 import esbuildSvelte from "esbuild-svelte";
 import { sveltePreprocess } from "svelte-preprocess";
 import { execSync } from "child_process";
-import path from "path";
+import fs from "fs";
 
 async function build() {
   console.log("⚙️ Compiling Svelte components via esbuild...");
+
+  if (!fs.existsSync("dist")) {
+    fs.mkdirSync("dist", { recursive: true });
+  }
 
   // Bundle our compile.js wrapper which renders the Svelte tree
   await esbuild.build({
@@ -14,6 +18,7 @@ async function build() {
     outfile: "dist/compile-ssr.js",
     format: "esm",
     platform: "node",
+    packages: "external",
     plugins: [
       esbuildSvelte({
         preprocess: sveltePreprocess(),

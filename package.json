@@ -29,6 +29,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.2.2",
     "nodemon": "^3.1.14",
+    "prettier": "^3.9.6",
     "sass": "^1.80.6",
     "svelte": "^5.56.10",
     "svelte-eslint-parser": "^1.8.1",
@@ -47,6 +48,7 @@
   "imports": {
     "#game/*": "./src/game/*",
     "#rules/*": "./src/ts/rules/*",
-    "#data/*": "./src/game/data/*"
+    "#data/*": "./src/game/data/*",
+    "#svelte/*": "./src/svelte/*"
   }
 }

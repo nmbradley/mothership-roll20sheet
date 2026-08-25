@@ -2,3 +2,5 @@ package-lock.json
 node_modules
 sources/
 src/js/
+dist/
+.dist/

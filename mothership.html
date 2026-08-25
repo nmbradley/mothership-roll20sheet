@@ -1,1 +1,1161 @@
-<!--[--><div class="sheet-wrapper svelte-deygyw"><h1 class="svelte-deygyw">Mothership 1e Character Sheet</h1> <input type="hidden" name="attr_sheet_type" class="sheet-type-toggle" value="character"/> <div class="character-sheet"><div class="section"><h2>Character Stats</h2> <!--[--><div class="stat-row"><label>Strength</label> <input type="number" name="attr_strength" value="25"/></div><div class="stat-row"><label>Speed</label> <input type="number" name="attr_speed" value="25"/></div><div class="stat-row"><label>Intellect</label> <input type="number" name="attr_intellect" value="25"/></div><div class="stat-row"><label>Combat</label> <input type="number" name="attr_combat" value="25"/></div><!--]--></div><!----></div> <div class="ship-sheet"><div class="section"><h2>Ship Sheet</h2> <label>Hull <input type="number" name="attr_hull"/></label> <button class="button button--action svelte-ovjhya" type="action" name="act_starting_condition"><!--[0--><span class="button__label svelte-ovjhya" data-i18n="starting condition">starting condition</span><!--]--> <!--[--><!---->Starting Condition<!--]--></button><!----></div><!----></div></div> <!----><script type="text/worker"><!----> console.log("Roll20 Sheetworker code here"); <!----></script><!----><!--]-->
+<!--[-->
+<div class="sheet-wrapper svelte-deygyw">
+  <h1 class="svelte-deygyw">Mothership 1e Character Sheet</h1>
+  <input
+    type="hidden"
+    name="attr_sheet_type"
+    class="sheet-type-toggle"
+    value="character"
+  />
+  <div class="character-sheet">
+    <div class="section">
+      <h2>Character Stats</h2>
+      <!--[-->
+      <div class="stat-row">
+        <label>Strength</label>
+        <input type="number" name="attr_strength" value="25" />
+      </div>
+      <div class="stat-row">
+        <label>Speed</label>
+        <input type="number" name="attr_speed" value="25" />
+      </div>
+      <div class="stat-row">
+        <label>Intellect</label>
+        <input type="number" name="attr_intellect" value="25" />
+      </div>
+      <div class="stat-row">
+        <label>Combat</label>
+        <input type="number" name="attr_combat" value="25" />
+      </div>
+      <!--]-->
+    </div>
+    <!---->
+  </div>
+  <div class="ship-sheet">
+    <div class="ship-sheet svelte-u01ar6">
+      <header class="ship-sheet__header svelte-u01ar6">
+        <div class="frame frame--mode-dark frame--corner-large svelte-spcupx">
+          <!--[-->
+          <div class="ship-header svelte-cb3bub">
+            <div class="ship-header__logo svelte-cb3bub">
+              <img
+                src="https://s3.amazonaws.com/files.d20.io/images/145353993/itv_F4exdWuwHavdksYfCQ/max.png?1592850121"
+                alt="Mothership Logo"
+                class="ship-header__img svelte-cb3bub"
+              />
+            </div>
+            <div class="ship-header__fields svelte-cb3bub">
+              <div
+                class="ship-header__field ship-header__field--name svelte-cb3bub"
+              >
+                <div class="attribute svelte-1clqgs2">
+                  <!--[0--><label
+                    class="attribute__label svelte-1clqgs2"
+                    for="attr_ship_name"
+                    >Ship Name</label
+                  ><!--]-->
+                  <!--[-1--><input
+                    class="attribute__input attribute__input--text svelte-1clqgs2"
+                    type="text"
+                    name="attr_ship_name"
+                  /><!--]-->
+                </div>
+                <!---->
+              </div>
+              <div class="ship-header__field ship-header__field--type">
+                <div class="attribute svelte-1clqgs2">
+                  <!--[0--><label
+                    class="attribute__label svelte-1clqgs2"
+                    for="attr_ship_type"
+                    >Type</label
+                  ><!--]-->
+                  <!--[-1--><input
+                    class="attribute__input attribute__input--text svelte-1clqgs2"
+                    type="text"
+                    name="attr_ship_type"
+                  /><!--]-->
+                </div>
+                <!---->
+              </div>
+              <div class="ship-header__field ship-header__field--class">
+                <div class="attribute svelte-1clqgs2">
+                  <!--[0--><label
+                    class="attribute__label svelte-1clqgs2"
+                    for="attr_ship_class"
+                    >Class</label
+                  ><!--]-->
+                  <!--[-1--><input
+                    class="attribute__input attribute__input--text svelte-1clqgs2"
+                    type="text"
+                    name="attr_ship_class"
+                  /><!--]-->
+                </div>
+                <!---->
+              </div>
+            </div>
+          </div>
+          <!--]-->
+        </div>
+        <!---->
+      </header>
+      <div class="ship-sheet__grid svelte-u01ar6">
+        <section class="ship-stats-panel svelte-1ejsf5l">
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Ship Stats (1e)"
+            >
+              Ship Stats (1e)
+            </h2>
+            <!---->
+            <div class="ship-stats-list svelte-1ejsf5l">
+              <div class="ship-stat-row svelte-1ejsf5l">
+                <div class="ship-stat-row__btn">
+                  <button
+                    class="button button--action svelte-ovjhya"
+                    type="action"
+                    name="act_systems_check"
+                  >
+                    <!--[0--><span
+                      class="button__label svelte-ovjhya"
+                      data-i18n="Systems"
+                      >Systems</span
+                    ><!--]-->
+                    <!--[--><!--]--></button
+                  ><!---->
+                </div>
+                <input
+                  class="ship-stat-row__input svelte-1ejsf5l"
+                  type="number"
+                  name="attr_systems"
+                  placeholder="0"
+                />
+              </div>
+              <div class="ship-stat-row svelte-1ejsf5l">
+                <div class="ship-stat-row__btn">
+                  <button
+                    class="button button--action svelte-ovjhya"
+                    type="action"
+                    name="act_thrusters_check"
+                  >
+                    <!--[0--><span
+                      class="button__label svelte-ovjhya"
+                      data-i18n="Thrusters"
+                      >Thrusters</span
+                    ><!--]-->
+                    <!--[--><!--]--></button
+                  ><!---->
+                </div>
+                <input
+                  class="ship-stat-row__input svelte-1ejsf5l"
+                  type="number"
+                  name="attr_thrusters"
+                  placeholder="0"
+                />
+              </div>
+              <div class="ship-stat-row svelte-1ejsf5l">
+                <div class="ship-stat-row__btn">
+                  <button
+                    class="button button--action svelte-ovjhya"
+                    type="action"
+                    name="act_battle_check"
+                  >
+                    <!--[0--><span
+                      class="button__label svelte-ovjhya"
+                      data-i18n="Battle"
+                      >Battle</span
+                    ><!--]-->
+                    <!--[--><!--]--></button
+                  ><!---->
+                </div>
+                <input
+                  class="ship-stat-row__input svelte-1ejsf5l"
+                  type="number"
+                  name="attr_battle"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+            <!--]-->
+          </div>
+          <!---->
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Saves &amp; Defenses"
+            >
+              Saves &amp; Defenses
+            </h2>
+            <!---->
+            <div class="ship-stats-list svelte-1ejsf5l">
+              <div class="ship-stat-row svelte-1ejsf5l">
+                <label
+                  class="ship-stat-row__label svelte-1ejsf5l"
+                  for="attr_ship_armor"
+                  >Armor</label
+                >
+                <input
+                  class="ship-stat-row__input svelte-1ejsf5l"
+                  type="number"
+                  name="attr_ship_armor"
+                  placeholder="0"
+                />
+              </div>
+              <div class="ship-stat-row svelte-1ejsf5l">
+                <div class="ship-stat-row__btn">
+                  <button
+                    class="button button--action svelte-ovjhya"
+                    type="action"
+                    name="act_bankruptcy_save"
+                  >
+                    <!--[0--><span
+                      class="button__label svelte-ovjhya"
+                      data-i18n="Bankruptcy Save"
+                      >Bankruptcy Save</span
+                    ><!--]-->
+                    <!--[--><!--]--></button
+                  ><!---->
+                </div>
+                <input
+                  class="ship-stat-row__input svelte-1ejsf5l"
+                  type="number"
+                  name="attr_bankruptcy_save"
+                  placeholder="21"
+                  value="21"
+                />
+              </div>
+            </div>
+            <!--]-->
+          </div>
+          <!---->
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Hull &amp; Wounds"
+            >
+              Hull &amp; Wounds
+            </h2>
+            <!---->
+            <div class="ship-hull-wounds svelte-1ejsf5l">
+              <div class="ship-minmax-stat svelte-1ejsf5l">
+                <span class="ship-minmax-stat__label svelte-1ejsf5l"
+                  >Wounds</span
+                >
+                <div class="ship-minmax-stat__inputs svelte-1ejsf5l">
+                  <input
+                    class="ship-minmax-stat__input svelte-1ejsf5l"
+                    type="number"
+                    name="attr_ship_wounds"
+                    placeholder="2"
+                  />
+                  <span class="ship-minmax-stat__sep svelte-1ejsf5l">/</span>
+                  <input
+                    class="ship-minmax-stat__input svelte-1ejsf5l"
+                    type="number"
+                    name="attr_ship_wounds_max"
+                    placeholder="2"
+                  />
+                </div>
+              </div>
+              <div class="ship-minmax-stat svelte-1ejsf5l">
+                <span class="ship-minmax-stat__label svelte-1ejsf5l">Hull</span>
+                <div class="ship-minmax-stat__inputs svelte-1ejsf5l">
+                  <input
+                    class="ship-minmax-stat__input svelte-1ejsf5l"
+                    type="number"
+                    name="attr_ship_hull"
+                    placeholder="10"
+                  />
+                  <span class="ship-minmax-stat__sep svelte-1ejsf5l">/</span>
+                  <input
+                    class="ship-minmax-stat__input svelte-1ejsf5l"
+                    type="number"
+                    name="attr_ship_hull_max"
+                    placeholder="10"
+                  />
+                </div>
+              </div>
+              <div class="ship-hull-thresholds svelte-1ejsf5l">
+                <div class="ship-hull-threshold svelte-1ejsf5l">
+                  <span class="ship-hull-threshold__pct svelte-1ejsf5l"
+                    >25%</span
+                  >
+                  <input
+                    class="ship-hull-threshold__input svelte-1ejsf5l"
+                    type="number"
+                    name="attr_hull_25"
+                    placeholder="8"
+                  />
+                </div>
+                <div class="ship-hull-threshold svelte-1ejsf5l">
+                  <span class="ship-hull-threshold__pct svelte-1ejsf5l"
+                    >50%</span
+                  >
+                  <input
+                    class="ship-hull-threshold__input svelte-1ejsf5l"
+                    type="number"
+                    name="attr_hull_50"
+                    placeholder="5"
+                  />
+                </div>
+                <div class="ship-hull-threshold svelte-1ejsf5l">
+                  <span class="ship-hull-threshold__pct svelte-1ejsf5l"
+                    >75%</span
+                  >
+                  <input
+                    class="ship-hull-threshold__input svelte-1ejsf5l"
+                    type="number"
+                    name="attr_hull_75"
+                    placeholder="3"
+                  />
+                </div>
+              </div>
+            </div>
+            <!--]-->
+          </div>
+          <!---->
+        </section>
+        <!---->
+        <section class="ship-operations-panel svelte-4ql83q">
+          <div
+            class="frame frame--mode-light-grey frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Ship Operations &amp; Maintenance"
+            >
+              Ship Operations &amp; Maintenance
+            </h2>
+            <!---->
+            <div class="ship-operations svelte-4ql83q">
+              <div class="ship-operation-card svelte-4ql83q">
+                <div class="ship-operation-card__header svelte-4ql83q">
+                  <button
+                    class="button button--action svelte-ovjhya"
+                    type="action"
+                    name="act_starting_condition"
+                  >
+                    <!--[0--><span
+                      class="button__label svelte-ovjhya"
+                      data-i18n="Starting Condition"
+                      >Starting Condition</span
+                    ><!--]-->
+                    <!--[--><!--]--></button
+                  ><!---->
+                </div>
+                <p class="ship-operation-card__desc svelte-4ql83q">
+                  Rolls <strong>1d5+1</strong> to determine the number of
+                  starting issues.
+                </p>
+              </div>
+              <div class="ship-operation-card svelte-4ql83q">
+                <div class="ship-operation-card__header svelte-4ql83q">
+                  <button
+                    class="button button--action svelte-ovjhya"
+                    type="action"
+                    name="act_annual_maintenance"
+                  >
+                    <!--[0--><span
+                      class="button__label svelte-ovjhya"
+                      data-i18n="Annual Maintenance Check"
+                      >Annual Maintenance Check</span
+                    ><!--]-->
+                    <!--[--><!--]--></button
+                  ><!---->
+                </div>
+                <p class="ship-operation-card__desc svelte-4ql83q">
+                  Rolls a <strong>Systems Check</strong>. Failure rolls once on
+                  the <em>Maintenance Issues Table</em> (everyone gains 1
+                  Stress). Critical Failure rolls twice on the table (everyone
+                  makes a Panic Check).
+                </p>
+              </div>
+              <div class="ship-operation-card svelte-4ql83q">
+                <div class="ship-operation-card__header svelte-4ql83q">
+                  <button
+                    class="button button--action svelte-ovjhya"
+                    type="action"
+                    name="act_bankruptcy_save"
+                  >
+                    <!--[0--><span
+                      class="button__label svelte-ovjhya"
+                      data-i18n="Bankruptcy Save"
+                      >Bankruptcy Save</span
+                    ><!--]-->
+                    <!--[--><!--]--></button
+                  ><!---->
+                </div>
+                <p class="ship-operation-card__desc svelte-4ql83q">
+                  Rolls 1d100 under your
+                  <strong>Bankruptcy Save</strong> (defaults to 2d10+10) and
+                  resolves consequences from the <em>Bankruptcy Table</em>.
+                </p>
+              </div>
+            </div>
+            <!--]-->
+          </div>
+          <!---->
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Secondary Stats"
+            >
+              Secondary Stats
+            </h2>
+            <!---->
+            <div class="ship-secondary-stats svelte-4ql83q">
+              <div class="ship-minmax-stat svelte-4ql83q">
+                <span class="ship-minmax-stat__label svelte-4ql83q">Crew</span>
+                <div class="ship-minmax-stat__inputs svelte-4ql83q">
+                  <input
+                    class="ship-minmax-stat__input svelte-4ql83q"
+                    type="number"
+                    name="attr_crew"
+                    placeholder="0"
+                  />
+                  <span class="ship-minmax-stat__sep svelte-4ql83q">/</span>
+                  <input
+                    class="ship-minmax-stat__input svelte-4ql83q"
+                    type="number"
+                    name="attr_crew_max"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+              <div class="ship-minmax-stat svelte-4ql83q">
+                <span class="ship-minmax-stat__label svelte-4ql83q">Fuel</span>
+                <div class="ship-minmax-stat__inputs svelte-4ql83q">
+                  <input
+                    class="ship-minmax-stat__input svelte-4ql83q"
+                    type="number"
+                    name="attr_fuel"
+                    placeholder="0"
+                  />
+                  <span class="ship-minmax-stat__sep svelte-4ql83q">/</span>
+                  <input
+                    class="ship-minmax-stat__input svelte-4ql83q"
+                    type="number"
+                    name="attr_fuel_max"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+              <div class="ship-stat-row svelte-4ql83q">
+                <label
+                  class="ship-stat-row__label svelte-4ql83q"
+                  for="attr_loadout_max"
+                  >Max Cargo</label
+                >
+                <input
+                  class="ship-stat-row__input svelte-4ql83q"
+                  type="number"
+                  name="attr_loadout_max"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+            <!--]-->
+          </div>
+          <!---->
+        </section>
+        <!---->
+        <section class="ship-weapons-panel svelte-x1f127">
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Ship Weapons"
+            >
+              Ship Weapons
+            </h2>
+            <!---->
+            <div
+              class="ship-repeating-head ship-repeating-head--weapons svelte-x1f127"
+            >
+              <span>Weapon</span> <span>Damage</span>
+            </div>
+            <fieldset class="repeating_shipweapons">
+              <div class="ship-weapon-row svelte-x1f127">
+                <input
+                  class="ship-weapon-row__name svelte-x1f127"
+                  type="text"
+                  name="attr_shipweapon_name"
+                  placeholder="Weapon Name"
+                />
+                <input
+                  class="ship-weapon-row__damage svelte-x1f127"
+                  type="text"
+                  name="attr_shipweapon_damage"
+                  placeholder="Damage"
+                />
+                <textarea
+                  class="ship-weapon-row__notes svelte-x1f127"
+                  name="attr_shipweapon_notes"
+                  placeholder="Notes"
+                ></textarea>
+              </div>
+            </fieldset>
+            <!--]-->
+          </div>
+          <!---->
+        </section>
+        <!---->
+        <section class="ship-crew-panel svelte-1ixnck9">
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Officers &amp; Crew"
+            >
+              Officers &amp; Crew
+            </h2>
+            <!---->
+            <div
+              class="ship-repeating-head ship-repeating-head--crew svelte-1ixnck9"
+            >
+              <span>Name</span> <span>Rank / Role</span>
+            </div>
+            <fieldset class="repeating_shipcrew">
+              <div class="ship-crew-row svelte-1ixnck9">
+                <input
+                  class="ship-crew-row__name svelte-1ixnck9"
+                  type="text"
+                  name="attr_shipcrew_name"
+                  placeholder="Name"
+                />
+                <input
+                  class="ship-crew-row__rank svelte-1ixnck9"
+                  type="text"
+                  name="attr_shipcrew_rank"
+                  placeholder="Rank / Role"
+                />
+              </div>
+            </fieldset>
+            <!--]-->
+          </div>
+          <!---->
+        </section>
+        <!---->
+        <section class="ship-cargo-panel svelte-i9elg4">
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Cargo &amp; Loadout"
+            >
+              Cargo &amp; Loadout
+            </h2>
+            <!---->
+            <div
+              class="ship-repeating-head ship-repeating-head--cargo svelte-i9elg4"
+            >
+              <span>Item</span> <span>Amount</span>
+            </div>
+            <fieldset class="repeating_shiploadout">
+              <div class="ship-cargo-row svelte-i9elg4">
+                <input
+                  class="ship-cargo-row__item svelte-i9elg4"
+                  type="text"
+                  name="attr_shiploadout_item"
+                  placeholder="Item"
+                />
+                <input
+                  class="ship-cargo-row__number svelte-i9elg4"
+                  type="text"
+                  name="attr_shiploadout_number"
+                  placeholder="#"
+                />
+              </div>
+            </fieldset>
+            <!--]-->
+          </div>
+          <!---->
+        </section>
+        <!---->
+      </div>
+    </div>
+    <!---->
+  </div>
+  <div class="npc-sheet-wrapper">
+    <div class="npc-sheet svelte-dyo6wd">
+      <header class="npc-header svelte-1rkmemd">
+        <div class="frame frame--mode-dark frame--corner-medium svelte-spcupx">
+          <!--[-->
+          <div class="npc-header__content svelte-1rkmemd">
+            <span class="npc-header__badge svelte-1rkmemd" data-i18n="npc"
+              >NPC / CONTRACTOR</span
+            >
+            <input
+              class="npc-header__name-input svelte-1rkmemd"
+              name="attr_character_name"
+              type="text"
+              placeholder="NPC Name"
+              data-i18n-placeholder="NPC Name"
+              aria-label="NPC Name"
+            />
+          </div>
+          <!--]-->
+        </div>
+        <!---->
+      </header>
+      <!---->
+      <section class="npc-stats-panel svelte-cqn8c3">
+        <div class="frame frame--mode-light frame--corner-medium svelte-spcupx">
+          <!--[-->
+          <h2
+            class="header header--section svelte-8a1vj3"
+            data-i18n="Stats &amp; Vitals"
+          >
+            Stats &amp; Vitals
+          </h2>
+          <!---->
+          <div class="npc-stats-grid svelte-cqn8c3">
+            <!--[-->
+            <div class="npc-stat-card svelte-cqn8c3">
+              <div class="npc-stat-card__header svelte-cqn8c3">
+                <button
+                  class="npc-stat-card__roll-btn svelte-cqn8c3"
+                  type="roll"
+                  name="roll_combat"
+                  title="Roll Combat"
+                  aria-label="Roll Combat"
+                  value="{{template:ms}} {{name=Combat}} {{character_name=@{character_name}}} {{roll=[[1d100-1cs1cf99]]}} {{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99}]]}} {{target=@{combat}}}"
+                >
+                  <span class="npc-stat-card__title" data-i18n="Combat"
+                    >Combat (C)</span
+                  >
+                </button>
+                <span class="npc-stat-card__tooltip svelte-cqn8c3"
+                  >This works exactly like the Combat Stat, showing how good
+                  they are in a fight.</span
+                >
+              </div>
+              <input
+                class="npc-stat-card__input svelte-cqn8c3"
+                name="attr_combat"
+                type="number"
+                placeholder="20"
+                aria-label="Combat value"
+              />
+            </div>
+            <div class="npc-stat-card svelte-cqn8c3">
+              <div class="npc-stat-card__header svelte-cqn8c3">
+                <button
+                  class="npc-stat-card__roll-btn svelte-cqn8c3"
+                  type="roll"
+                  name="roll_instinct"
+                  title="Roll Instinct"
+                  aria-label="Roll Instinct"
+                  value="{{template:ms}} {{name=Instinct}} {{character_name=@{character_name}}} {{roll=[[1d100-1cs1cf99]]}} {{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99}]]}} {{target=@{instinct}}}"
+                >
+                  <span class="npc-stat-card__title" data-i18n="Instinct"
+                    >Instinct (I)</span
+                  >
+                </button>
+                <span class="npc-stat-card__tooltip svelte-cqn8c3"
+                  >This is a catchall Stat for Fear, Sanity, Body, Speed,
+                  Intellect, and everything else.</span
+                >
+              </div>
+              <input
+                class="npc-stat-card__input svelte-cqn8c3"
+                name="attr_instinct"
+                type="number"
+                placeholder="25"
+                aria-label="Instinct value"
+              />
+            </div>
+            <!--]-->
+            <div class="npc-stat-card npc-stat-card--initiative svelte-cqn8c3">
+              <div class="npc-stat-card__header svelte-cqn8c3">
+                <button
+                  class="npc-stat-card__roll-btn npc-stat-card__roll-btn--initiative svelte-cqn8c3"
+                  type="roll"
+                  name="roll_initiative"
+                  title="Roll Initiative into Turn Tracker"
+                  aria-label="Roll Initiative into Turn Tracker"
+                  value="{{template:ms}} {{name=Initiative}} {{character_name=@{character_name}}} {{roll=[[1d100-1cs1cf99 &amp;{tracker}]]}} {{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99 &amp;{tracker}}]]}} {{target=@{instinct}}}"
+                >
+                  <span class="npc-stat-card__title" data-i18n="initiative"
+                    >Initiative</span
+                  >
+                </button>
+                <span
+                  class="npc-stat-card__tooltip svelte-cqn8c3"
+                  data-i18n="Rolls Instinct and adds to the Turn Tracker"
+                  >Rolls Instinct and adds to Turn Tracker
+                  (&amp;{tracker})</span
+                >
+              </div>
+              <div class="npc-stat-card__initiative-subtext svelte-cqn8c3">
+                Instinct + Tracker
+              </div>
+            </div>
+            <div class="npc-vital-card npc-vital-card--wounds svelte-cqn8c3">
+              <div
+                class="npc-vital-card__label svelte-cqn8c3"
+                data-i18n="wounds"
+              >
+                Wounds (W)
+              </div>
+              <div class="npc-vital-card__minmax-wrapper svelte-cqn8c3">
+                <input
+                  class="npc-vital-card__input svelte-cqn8c3"
+                  name="attr_wounds"
+                  type="number"
+                  placeholder="1"
+                  title="Current Wounds"
+                  aria-label="Current Wounds"
+                />
+                <span class="npc-vital-card__separator svelte-cqn8c3">/</span>
+                <input
+                  class="npc-vital-card__input svelte-cqn8c3"
+                  name="attr_wounds_max"
+                  type="number"
+                  placeholder="1"
+                  title="Max Wounds"
+                  aria-label="Max Wounds"
+                />
+              </div>
+              <div class="npc-vital-card__sublabels svelte-cqn8c3">
+                <span data-i18n="current">Current</span>
+                <span data-i18n="max">Max</span>
+              </div>
+            </div>
+            <div class="npc-vital-card npc-vital-card--health svelte-cqn8c3">
+              <div
+                class="npc-vital-card__label svelte-cqn8c3"
+                data-i18n="health"
+              >
+                Health (HP)
+              </div>
+              <div class="npc-vital-card__minmax-wrapper svelte-cqn8c3">
+                <input
+                  class="npc-vital-card__input svelte-cqn8c3"
+                  name="attr_health"
+                  type="number"
+                  placeholder="20"
+                  title="Current Health"
+                  aria-label="Current Health"
+                />
+                <span class="npc-vital-card__separator svelte-cqn8c3">/</span>
+                <input
+                  class="npc-vital-card__input svelte-cqn8c3"
+                  name="attr_health_max"
+                  type="number"
+                  placeholder="20"
+                  title="Health per Wound"
+                  aria-label="Health per Wound"
+                />
+              </div>
+              <div class="npc-vital-card__sublabels svelte-cqn8c3">
+                <span data-i18n="current">Current</span>
+                <span data-i18n="per wound">Per Wound</span>
+              </div>
+            </div>
+            <div class="npc-vital-card npc-vital-card--ap svelte-cqn8c3">
+              <div
+                class="npc-vital-card__label svelte-cqn8c3"
+                data-i18n="armor points"
+              >
+                Armor Points (AP)
+              </div>
+              <input
+                class="npc-stat-card__input npc-stat-card__input--ap svelte-cqn8c3"
+                name="attr_armor_points"
+                type="number"
+                placeholder="0"
+                aria-label="Armor Points"
+              />
+            </div>
+          </div>
+          <!--]-->
+        </div>
+        <!---->
+      </section>
+      <!---->
+      <section class="npc-sheet__main-content svelte-dyo6wd">
+        <div class="npc-attacks-panel svelte-141oqux">
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Attacks"
+            >
+              Attacks
+            </h2>
+            <!---->
+            <div class="npc-attacks-table-header svelte-141oqux">
+              <span class="npc-attacks-table-head-cell" data-i18n="attack"
+                >Attack</span
+              >
+              <span class="npc-attacks-table-head-cell" data-i18n="type"
+                >Type</span
+              >
+              <span class="npc-attacks-table-head-cell" data-i18n="damage"
+                >Damage</span
+              >
+              <span
+                class="npc-attacks-table-head-cell npc-attacks-table-head-cell--cog"
+              ></span>
+            </div>
+            <fieldset class="repeating_attacks">
+              <div class="npc-attack-row svelte-141oqux">
+                <button
+                  class="npc-attack-row__roll-btn svelte-141oqux"
+                  type="roll"
+                  name="roll_attack"
+                  title="Roll Attack"
+                  aria-label="Roll Attack"
+                  value="{{template:ms}} {{name=@{attack_name}}} {{character_name=@{character_name}}} {{roll=[[1d100-1cs1cf99]]}} {{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99}]]}} {{target=[[@{combat}]]}} {{ranges=@{attack_range_s}}} {{rangem=@{attack_range_m}}} {{rangel=@{attack_range_l}}} {{damage=[[@{attack_damage}]]}} {{notes=@{attack_notes}}}"
+                >
+                  <span
+                    class="npc-attack-row__name-display"
+                    name="attr_attack_name"
+                  ></span>
+                </button>
+                <select
+                  class="npc-attack-row__type-select svelte-141oqux"
+                  name="attr_attack_type"
+                  aria-label="Attack Type"
+                >
+                  <option value="Ranged" data-i18n="Ranged">Ranged</option>
+                  <option value="Melee" data-i18n="Melee">Melee</option>
+                </select>
+                <input
+                  class="npc-attack-row__damage-input svelte-141oqux"
+                  name="attr_attack_damage"
+                  type="text"
+                  placeholder="Damage"
+                  data-i18n-placeholder="damage"
+                  aria-label="Attack Damage"
+                />
+                <label class="npc-attack-row__cog-label svelte-141oqux"
+                  ><input
+                    class="npc-attack-row__settings-toggle svelte-141oqux"
+                    name="attr_attack_settings"
+                    type="checkbox"
+                    checked=""
+                  />
+                  <span class="npc-attack-row__cog-icon svelte-141oqux"
+                    >y</span
+                  ></label
+                >
+                <div class="npc-attack-row__settings-drawer svelte-141oqux">
+                  <div class="npc-attack-row__settings-row svelte-141oqux">
+                    <span
+                      class="npc-attack-row__settings-label svelte-141oqux"
+                      data-i18n="name"
+                      >Name</span
+                    >
+                    <input
+                      class="npc-attack-row__settings-input svelte-141oqux"
+                      name="attr_attack_name"
+                      type="text"
+                      placeholder="Attack name"
+                      data-i18n-placeholder="attack name"
+                      aria-label="Attack Name"
+                    />
+                  </div>
+                  <div
+                    class="npc-attack-row__settings-row npc-attack-row__settings-row--ranges svelte-141oqux"
+                  >
+                    <span
+                      class="npc-attack-row__settings-label svelte-141oqux"
+                      data-i18n="range"
+                      >Range (S/M/L)</span
+                    >
+                    <div class="npc-attack-row__range-inputs svelte-141oqux">
+                      <input
+                        class="npc-attack-row__settings-input svelte-141oqux"
+                        name="attr_attack_range_s"
+                        type="text"
+                        placeholder="Short"
+                        data-i18n-placeholder="short"
+                        aria-label="Short Range"
+                      />
+                      <input
+                        class="npc-attack-row__settings-input svelte-141oqux"
+                        name="attr_attack_range_m"
+                        type="text"
+                        placeholder="Med"
+                        data-i18n-placeholder="medium"
+                        aria-label="Medium Range"
+                      />
+                      <input
+                        class="npc-attack-row__settings-input svelte-141oqux"
+                        name="attr_attack_range_l"
+                        type="text"
+                        placeholder="Long"
+                        data-i18n-placeholder="long"
+                        aria-label="Long Range"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="npc-attack-row__settings-row npc-attack-row__settings-row--grid svelte-141oqux"
+                  >
+                    <div>
+                      <span
+                        class="npc-attack-row__settings-label svelte-141oqux"
+                        data-i18n="critical damage"
+                        >Critical Damage</span
+                      >
+                      <input
+                        class="npc-attack-row__settings-input svelte-141oqux"
+                        name="attr_attack_crit_damage"
+                        type="text"
+                        placeholder="Crit Damage"
+                        data-i18n-placeholder="damage"
+                        aria-label="Critical Damage"
+                      />
+                    </div>
+                    <div>
+                      <span
+                        class="npc-attack-row__settings-label svelte-141oqux"
+                        data-i18n="critical effect"
+                        >Critical Effect</span
+                      >
+                      <input
+                        class="npc-attack-row__settings-input svelte-141oqux"
+                        name="attr_attack_crit_effect"
+                        type="text"
+                        placeholder="Crit Effect"
+                        data-i18n-placeholder="effect"
+                        aria-label="Critical Effect"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="npc-attack-row__settings-row npc-attack-row__settings-row--grid svelte-141oqux"
+                  >
+                    <div>
+                      <span
+                        class="npc-attack-row__settings-label svelte-141oqux"
+                        data-i18n="shots"
+                        >Shots</span
+                      >
+                      <input
+                        class="npc-attack-row__settings-input svelte-141oqux"
+                        name="attr_attack_shots"
+                        type="text"
+                        placeholder="Shots"
+                        data-i18n-placeholder="shots"
+                        aria-label="Shots"
+                      />
+                    </div>
+                    <div>
+                      <span
+                        class="npc-attack-row__settings-label svelte-141oqux"
+                        data-i18n="ammunition"
+                        >Ammunition</span
+                      >
+                      <input
+                        class="npc-attack-row__settings-input svelte-141oqux"
+                        name="attr_attack_ammunition"
+                        type="text"
+                        placeholder="Ammo"
+                        data-i18n-placeholder="ammunition"
+                        aria-label="Ammunition"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="npc-attack-row__settings-row npc-attack-row__settings-row--full svelte-141oqux"
+                  >
+                    <span
+                      class="npc-attack-row__settings-label svelte-141oqux"
+                      data-i18n="notes"
+                      >Notes</span
+                    >
+                    <textarea
+                      class="npc-attack-row__settings-textarea svelte-141oqux"
+                      name="attr_attack_notes"
+                      placeholder="Special rules, wound types, or ammunition effects..."
+                      data-i18n-placeholder="notes"
+                      aria-label="Attack Notes"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+            <!--]-->
+          </div>
+          <!---->
+        </div>
+        <!---->
+        <div class="npc-traits-panel svelte-1azpqr7">
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2 class="header header--section svelte-8a1vj3" data-i18n="Traits">
+              Traits
+            </h2>
+            <!---->
+            <fieldset class="repeating_traits">
+              <div class="npc-trait-row svelte-1azpqr7">
+                <button
+                  class="npc-trait-row__roll-btn svelte-1azpqr7"
+                  type="roll"
+                  name="roll_trait"
+                  title="Roll Trait"
+                  aria-label="Roll Trait"
+                  value="{{template:ms}} {{name=@{trait_name}}} {{character_name=@{character_name}}} {{notes=@{trait_description}}}"
+                >
+                  <span
+                    class="npc-trait-row__name-display"
+                    name="attr_trait_name"
+                  ></span>
+                </button>
+                <label class="npc-trait-row__cog-label svelte-1azpqr7"
+                  ><input
+                    class="npc-trait-row__settings-toggle svelte-1azpqr7"
+                    name="attr_trait_settings"
+                    type="checkbox"
+                    checked=""
+                  />
+                  <span class="npc-trait-row__cog-icon svelte-1azpqr7"
+                    >y</span
+                  ></label
+                >
+                <div
+                  class="npc-trait-row__preview svelte-1azpqr7"
+                  name="attr_trait_description"
+                ></div>
+                <div class="npc-trait-row__settings-drawer svelte-1azpqr7">
+                  <div class="npc-trait-row__settings-row svelte-1azpqr7">
+                    <span
+                      class="npc-trait-row__settings-label svelte-1azpqr7"
+                      data-i18n="name"
+                      >Trait Name</span
+                    >
+                    <input
+                      class="npc-trait-row__settings-input svelte-1azpqr7"
+                      name="attr_trait_name"
+                      type="text"
+                      placeholder="Trait name"
+                      data-i18n-placeholder="trait name"
+                      aria-label="Trait Name"
+                    />
+                  </div>
+                  <div
+                    class="npc-trait-row__settings-row npc-trait-row__settings-row--full svelte-1azpqr7"
+                  >
+                    <span
+                      class="npc-trait-row__settings-label svelte-1azpqr7"
+                      data-i18n="description"
+                      >Description</span
+                    >
+                    <textarea
+                      class="npc-trait-row__settings-textarea svelte-1azpqr7"
+                      name="attr_trait_description"
+                      placeholder="Describe the trait or special rule..."
+                      data-i18n-placeholder="trait description"
+                      aria-label="Trait Description"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+            <!--]-->
+          </div>
+          <!---->
+        </div>
+        <!---->
+      </section>
+      <section class="npc-narrative-grid svelte-1v22pak">
+        <div class="npc-narrative-card svelte-1v22pak">
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Description"
+            >
+              Description
+            </h2>
+            <!---->
+            <div class="npc-narrative-field svelte-1v22pak">
+              <div class="attribute svelte-1clqgs2">
+                <!--[0--><label
+                  class="attribute__label svelte-1clqgs2"
+                  for="attr_description"
+                  >Description</label
+                ><!--]-->
+                <!--[0--><textarea
+                  class="attribute__input attribute__input--textarea svelte-1clqgs2"
+                  name="attr_description"
+                ></textarea
+                ><!--]-->
+              </div>
+              <!---->
+            </div>
+            <!--]-->
+          </div>
+          <!---->
+        </div>
+        <div class="npc-narrative-card svelte-1v22pak">
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Equipment &amp; Notes"
+            >
+              Equipment &amp; Notes
+            </h2>
+            <!---->
+            <div class="npc-narrative-field svelte-1v22pak">
+              <div class="attribute svelte-1clqgs2">
+                <!--[0--><label
+                  class="attribute__label svelte-1clqgs2"
+                  for="attr_equipment"
+                  >Equipment</label
+                ><!--]-->
+                <!--[0--><textarea
+                  class="attribute__input attribute__input--textarea svelte-1clqgs2"
+                  name="attr_equipment"
+                ></textarea
+                ><!--]-->
+              </div>
+              <!---->
+            </div>
+            <!--]-->
+          </div>
+          <!---->
+        </div>
+      </section>
+      <!---->
+    </div>
+    <!---->
+  </div>
+</div>
+<!---->
+<script type="text/worker">
+  <!----> console.log("Roll20 Sheetworker code here"); <!---->
+</script>
+<!----><!--]-->

@@ -8,12 +8,27 @@
     "strict": true,
     "strictNullChecks": true,
     "skipLibCheck": true,
-    "lib": ["es2022", "dom"],
+    "lib": [
+      "es2022",
+      "dom"
+    ],
+    "baseUrl": ".",
     "paths": {
-      "#data/*": ["./src/game/data/*"],
-      "#game/*": ["./src/game/*"],
-      "#rules/*": ["./src/ts/rules/*"]
+      "#data/*": [
+        "src/game/data/*"
+      ],
+      "#game/*": [
+        "src/game/*"
+      ],
+      "#rules/*": [
+        "src/ts/rules/*"
+      ],
+      "#svelte/*": [
+        "src/svelte/*"
+      ]
     }
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*"
+  ]
 }
