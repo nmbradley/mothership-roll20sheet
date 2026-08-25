@@ -134,7 +134,6 @@ export default tseslint.config(
       ],
       "no-else-return": ["error", { allowElseIf: false }],
       "no-param-reassign": ["error", { props: true }],
-      "max-params": ["error", 2],
 
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/restrict-template-expressions": ["error", { allowNumber: true }],
