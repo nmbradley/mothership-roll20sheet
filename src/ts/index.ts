@@ -1,4 +1,5 @@
 import {
+  handleStartingCondition,
   handleAnnualMaintenanceCheck,
   handleBankruptcySave,
   handleBattleCheck,
@@ -8,6 +9,9 @@ import {
 import { incrementHighScore } from "./rules/stats";
 
 on("clicked:increment_score", incrementHighScore);
+on("clicked:starting_condition", () => {
+  void handleStartingCondition();
+});
 on("clicked:annual_maintenance", () => {
   void handleAnnualMaintenanceCheck();
 });

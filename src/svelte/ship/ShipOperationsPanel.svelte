@@ -10,6 +10,15 @@
     <div class="ship-operations">
       <div class="ship-operation-card">
         <div class="ship-operation-card__header">
+          <Button action="starting_condition" label="Starting Condition" />
+        </div>
+        <p class="ship-operation-card__desc">
+          Rolls <strong>1d5+1</strong> to determine the number of starting issues.
+        </p>
+      </div>
+
+      <div class="ship-operation-card">
+        <div class="ship-operation-card__header">
           <Button action="annual_maintenance" label="Annual Maintenance Check" />
         </div>
         <p class="ship-operation-card__desc">

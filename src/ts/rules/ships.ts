@@ -212,3 +212,57 @@ export async function handleBattleCheck(): Promise<void> {
     notes: `Battle Check: ${result}`,
   });
 }
+
+export type StartingConditionResult = {
+  count: number;
+  issues: MaintenanceIssue[];
+  message: string;
+};
+
+export function getRandomUniqueIssues(
+  count: number,
+  table: MaintenanceIssue[] = maintenanceTable,
+  randomFn: () => number = Math.random,
+): MaintenanceIssue[] {
+  if (count <= 0) return [];
+  const pool = [...table];
+  const targetCount = Math.min(count, pool.length);
+  const selected: MaintenanceIssue[] = [];
+
+  for (let i = 0; i < targetCount; i++) {
+    const remaining = pool.length - i;
+    const offset = Math.floor(randomFn() * remaining);
+    const targetIndex = i + offset;
+    const temp = pool[i];
+    pool[i] = pool[targetIndex];
+    pool[targetIndex] = temp;
+    selected.push(pool[i]);
+  }
+  return selected;
+}
+
+export function formatStartingConditionMessage(issues: MaintenanceIssue[]): string {
+  return issues.map(issue => `[${issue.roll} - ${issue.issue_type}]: ${issue.description}`).join("\n");
+}
+
+export function evaluateStartingCondition(
+  count: number,
+  table: MaintenanceIssue[] = maintenanceTable,
+  randomFn: () => number = Math.random,
+): StartingConditionResult {
+  const issues = getRandomUniqueIssues(count, table, randomFn);
+  const message = formatStartingConditionMessage(issues);
+  return { count, issues, message };
+}
+
+export async function handleStartingCondition(): Promise<void> {
+  const rollFormula = "&{template:ms} {{name=Starting Condition}} {{character_name=@{character_name}}} {{roll=[[1d5+1]]}} {{notes=placeholder}}";
+  const rollData = await startRoll(rollFormula);
+  const rollResult = rollData.results.roll as RollResult | undefined;
+  const count = rollResult ? rollResult.result : 2;
+  const evaluation = evaluateStartingCondition(count);
+
+  finishRoll(rollData.rollId, {
+    notes: evaluation.message,
+  });
+}

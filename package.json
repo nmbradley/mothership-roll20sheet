@@ -48,6 +48,7 @@
   "imports": {
     "#game/*": "./src/game/*",
     "#rules/*": "./src/ts/rules/*",
+    "#data/*": "./src/game/data/*",
     "#svelte/*": "./src/svelte/*"
   }
 }

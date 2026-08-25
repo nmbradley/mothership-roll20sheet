@@ -14,6 +14,9 @@
     ],
     "baseUrl": ".",
     "paths": {
+      "#data/*": [
+        "src/game/data/*"
+      ],
       "#game/*": [
         "src/game/*"
       ],
