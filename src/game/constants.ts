@@ -1,33 +1,11 @@
 import { Stats, Saves, SkillLevels } from "./enums";
 
-export type HeaderField = {
-  label: string;
-  attr: string;
-  type: "text" | "number";
-};
-
-export const headerfields: HeaderField[] = [
-  { label: "name", attr: "character_name", type: "text" },
-  { label: "class", attr: "class", type: "text" },
-];
-
-export type TopRowField = {
-  attr: string;
-  subtext: string;
-  placeholder: string;
-};
-
-export const toprowfields: TopRowField[] = [
-  { attr: "stress", subtext: "starts at 2", placeholder: "2" },
-  { attr: "resolve", subtext: "starts at 0", placeholder: "0" },
-];
-
 export type StatDef = {
   attr: typeof Stats[keyof typeof Stats];
   label: string;
 };
 
-export const stats: StatDef[] = [
+export const stats = [
   {
     attr: Stats.Strength,
     label: "Holding airlocks closed, carrying fallen comrades, climbing, pushing, jumping.",
@@ -44,14 +22,14 @@ export const stats: StatDef[] = [
     attr: Stats.Combat,
     label: "Fighting for your life.",
   },
-];
+] as const satisfies readonly StatDef[];
 
 export type SaveDef = {
   name: typeof Saves[keyof typeof Saves];
   desc: string;
 };
 
-export const saves: SaveDef[] = [
+export const saves = [
   {
     name: Saves.Sanity,
     desc: "Rationalize logical inconsistencies in the universe, make sense out of chaos, detect illusions and mimicry, cope with Stress.",
@@ -64,7 +42,7 @@ export const saves: SaveDef[] = [
     name: Saves.Body,
     desc: "Employ quick reflexes and resist hunger, disease, or organisms that might try and invade your insides.",
   },
-];
+] as const satisfies readonly SaveDef[];
 
 export type SkillDef = {
   name: string;
@@ -72,7 +50,7 @@ export type SkillDef = {
   prereq?: string[];
 };
 
-export const skills: Record<typeof SkillLevels[keyof typeof SkillLevels], SkillDef[]> = {
+export const skills = {
   [SkillLevels.Trained]: [
     { name: "linguistics", desc: "The study of languages (alive, dead, and undiscovered)." },
     { name: "zoology", desc: "The study of animal life." },
@@ -121,7 +99,7 @@ export const skills: Record<typeof SkillLevels[keyof typeof SkillLevels], SkillD
     { name: "xenoesotericism", prereq: ["mysticism"], desc: "Obscure beliefs, mysticism, and religion regarding non-human entities." },
     { name: "command", prereq: ["piloting", "firearms"], desc: "Leadership, management, and authority." },
   ],
-};
+} as const satisfies Record<typeof SkillLevels[keyof typeof SkillLevels], readonly SkillDef[]>;
 
 export const shipfields = [
   {
