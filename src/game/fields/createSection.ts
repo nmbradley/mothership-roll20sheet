@@ -18,7 +18,7 @@ export type Field = {
   max: boolean;
 };
 
-type ResolvedFieldData = {
+export type ResolvedFieldData = {
   type: "number" | "string" | "boolean";
   seed: number | string | boolean;
 };
@@ -28,14 +28,15 @@ type ResolvedFieldData = {
  * Safely infers the type if only a seed is provided, and generates
  * an appropriate default seed if only a type is provided.
  */
-function resolveTypeAndSeed(
+export function resolveTypeAndSeed(
   type: FieldArgs["type"],
   seed: FieldArgs["seed"],
-  section: string,
   name: string,
+  section?: string,
 ): ResolvedFieldData {
   if (!type && seed === undefined) {
-    throw new Error(`${section} field ${name} has neither type nor seed`);
+    const prefix = section ? `${section} field` : "Attribute";
+    throw new Error(`${prefix} ${name} has neither type nor seed`);
   }
 
   let resolvedType = type;
@@ -70,7 +71,7 @@ function resolveTypeAndSeed(
 export function createField({
   name, section, label, type, seed, max,
 }: FieldArgs): Field {
-  const resolved = resolveTypeAndSeed(type, seed, section, name);
+  const resolved = resolveTypeAndSeed(type, seed, name, section);
   return {
     name,
     section,
