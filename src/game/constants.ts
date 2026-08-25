@@ -55,7 +55,7 @@ export const toprowfields = [
   },
 ] as const satisfies readonly TopRowField[];
 
-export type StatDef = { attr: typeof Stats[keyof typeof Stats];
+export type StatDef = { attr: Stat;
   label: string; };
 
 export const stats = {
