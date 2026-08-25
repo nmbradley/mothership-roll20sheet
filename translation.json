@@ -4,6 +4,7 @@
     "rank / title": "rank / title",
     "stress": "stress",
     "starts at 2": "starts at 2",
+    "resolve": "resolve",
     "starts at 0": "starts at 0",
     "health": "health",
     "max": "max",
@@ -334,7 +335,7 @@
     "Enter the NPC's description here.": "Enter the NPC's description here.",
     "Enter the NPC's equipment here.": "Enter the NPC's equipment here.",
     "NPC": "NPC",
-    "wounds": "wounds",
-    "armor points": "armor points",
-    "AP": "AP"
+    "loadout": "loadout",
+    "max loadout": "max loadout",
+    "wounds": "wounds"
 }
