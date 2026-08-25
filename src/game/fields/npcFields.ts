@@ -5,19 +5,16 @@ export const npc_name = createAttribute({
   name: "npc_name",
   label: "Name",
   type: "string",
-  max: false,
 });
 export const npc_combat = createAttribute({
   name: "npc_combat",
   label: "Combat",
   type: "number",
-  max: false,
 });
 export const npc_instinct = createAttribute({
   name: "npc_instinct",
   label: "Instinct",
   type: "number",
-  max: false,
 });
 
 export const npcAttributes = {
@@ -31,14 +28,12 @@ export const attack_name = createField({
   label: "Attack",
   section: "npc_attacks",
   type: "string",
-  max: false,
 });
 export const attack_damage = createField({
   name: "attack_damage",
   label: "Damage",
   section: "npc_attacks",
   type: "string",
-  max: false,
 });
 
 export const npcAttacks = createSection({

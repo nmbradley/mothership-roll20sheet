@@ -5,19 +5,16 @@ export const character_name = createAttribute({
   name: "character_name",
   label: "Name",
   type: "string",
-  max: false,
 });
 export const strength = createAttribute({
   name: "strength",
   label: "Strength",
   type: "number",
-  max: false,
 });
 export const speed = createAttribute({
   name: "speed",
   label: "Speed",
   type: "number",
-  max: false,
 });
 
 export const pcAttributes = {
@@ -31,14 +28,12 @@ export const weapon_name = createField({
   label: "Weapon",
   section: "weapons",
   type: "string",
-  max: false,
 });
 export const weapon_damage = createField({
   name: "weapon_damage",
   label: "Damage",
   section: "weapons",
   type: "string",
-  max: false,
 });
 
 export const pcWeapons = createSection({

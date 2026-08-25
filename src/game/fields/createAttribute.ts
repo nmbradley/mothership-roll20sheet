@@ -5,7 +5,7 @@ export type AttributeArgs<TName extends string = string> = {
   label: string;
   type?: "number" | "string" | "boolean";
   seed?: number | string | boolean;
-  max: boolean;
+  max?: boolean;
 };
 
 export type Attribute<TName extends string = string> = {
@@ -24,7 +24,7 @@ export type Attribute<TName extends string = string> = {
  * type or seed information.
  */
 export function createAttribute<TName extends string>({
-  name, label, type, seed, max,
+  name, label, type, seed, max = false,
 }: AttributeArgs<TName>): Attribute<TName> {
   const resolved = resolveTypeAndSeed(type, seed, name);
   return {

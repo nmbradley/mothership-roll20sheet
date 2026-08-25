@@ -4,7 +4,6 @@ export const ship_name = createAttribute({
   name: "ship_name",
   label: "Ship Name",
   type: "string",
-  max: false,
 });
 export const ship_hull = createAttribute({
   name: "ship_hull",
@@ -16,7 +15,6 @@ export const ship_armor = createAttribute({
   name: "ship_armor",
   label: "Armor",
   type: "number",
-  max: false,
 });
 
 export const shipAttributes = {

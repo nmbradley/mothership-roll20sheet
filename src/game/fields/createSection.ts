@@ -4,7 +4,7 @@ export type FieldArgs<TName extends string = string> = {
   label: string;
   type?: "number" | "string" | "boolean";
   seed?: number | string | boolean;
-  max: boolean;
+  max?: boolean;
 };
 
 export type Field<TName extends string = string> = {
@@ -69,7 +69,7 @@ export function resolveTypeAndSeed(
  * type or seed information.
  */
 export function createField<TName extends string>({
-  name, section, label, type, seed, max,
+  name, section, label, type, seed, max = false,
 }: FieldArgs<TName>): Field<TName> {
   const resolved = resolveTypeAndSeed(type, seed, name, section);
   return {
