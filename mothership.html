@@ -32,9 +32,546 @@
     <!---->
   </div>
   <div class="ship-sheet">
-    <div class="section">
-      <h2>Ship Sheet</h2>
-      <label>Hull <input type="number" name="attr_hull" /></label>
+    <div class="ship-sheet svelte-u01ar6">
+      <header class="ship-sheet__header svelte-u01ar6">
+        <div class="frame frame--mode-dark frame--corner-large svelte-spcupx">
+          <!--[-->
+          <div class="ship-header svelte-cb3bub">
+            <div class="ship-header__logo svelte-cb3bub">
+              <img
+                src="https://s3.amazonaws.com/files.d20.io/images/145353993/itv_F4exdWuwHavdksYfCQ/max.png?1592850121"
+                alt="Mothership Logo"
+                class="ship-header__img svelte-cb3bub"
+              />
+            </div>
+            <div class="ship-header__fields svelte-cb3bub">
+              <div
+                class="ship-header__field ship-header__field--name svelte-cb3bub"
+              >
+                <div class="attribute svelte-1clqgs2">
+                  <!--[0--><label
+                    class="attribute__label svelte-1clqgs2"
+                    for="attr_ship_name"
+                    >Ship Name</label
+                  ><!--]-->
+                  <!--[-1--><input
+                    class="attribute__input attribute__input--text svelte-1clqgs2"
+                    type="text"
+                    name="attr_ship_name"
+                  /><!--]-->
+                </div>
+                <!---->
+              </div>
+              <div class="ship-header__field ship-header__field--type">
+                <div class="attribute svelte-1clqgs2">
+                  <!--[0--><label
+                    class="attribute__label svelte-1clqgs2"
+                    for="attr_ship_type"
+                    >Type</label
+                  ><!--]-->
+                  <!--[-1--><input
+                    class="attribute__input attribute__input--text svelte-1clqgs2"
+                    type="text"
+                    name="attr_ship_type"
+                  /><!--]-->
+                </div>
+                <!---->
+              </div>
+              <div class="ship-header__field ship-header__field--class">
+                <div class="attribute svelte-1clqgs2">
+                  <!--[0--><label
+                    class="attribute__label svelte-1clqgs2"
+                    for="attr_ship_class"
+                    >Class</label
+                  ><!--]-->
+                  <!--[-1--><input
+                    class="attribute__input attribute__input--text svelte-1clqgs2"
+                    type="text"
+                    name="attr_ship_class"
+                  /><!--]-->
+                </div>
+                <!---->
+              </div>
+            </div>
+          </div>
+          <!--]-->
+        </div>
+        <!---->
+      </header>
+      <div class="ship-sheet__grid svelte-u01ar6">
+        <section class="ship-stats-panel svelte-1ejsf5l">
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Ship Stats (1e)"
+            >
+              Ship Stats (1e)
+            </h2>
+            <!---->
+            <div class="ship-stats-list svelte-1ejsf5l">
+              <div class="ship-stat-row svelte-1ejsf5l">
+                <div class="ship-stat-row__btn">
+                  <button
+                    class="button button--action svelte-ovjhya"
+                    type="action"
+                    name="act_systems_check"
+                  >
+                    <!--[0--><span
+                      class="button__label svelte-ovjhya"
+                      data-i18n="Systems"
+                      >Systems</span
+                    ><!--]-->
+                    <!--[--><!--]--></button
+                  ><!---->
+                </div>
+                <input
+                  class="ship-stat-row__input svelte-1ejsf5l"
+                  type="number"
+                  name="attr_systems"
+                  placeholder="0"
+                />
+              </div>
+              <div class="ship-stat-row svelte-1ejsf5l">
+                <div class="ship-stat-row__btn">
+                  <button
+                    class="button button--action svelte-ovjhya"
+                    type="action"
+                    name="act_thrusters_check"
+                  >
+                    <!--[0--><span
+                      class="button__label svelte-ovjhya"
+                      data-i18n="Thrusters"
+                      >Thrusters</span
+                    ><!--]-->
+                    <!--[--><!--]--></button
+                  ><!---->
+                </div>
+                <input
+                  class="ship-stat-row__input svelte-1ejsf5l"
+                  type="number"
+                  name="attr_thrusters"
+                  placeholder="0"
+                />
+              </div>
+              <div class="ship-stat-row svelte-1ejsf5l">
+                <div class="ship-stat-row__btn">
+                  <button
+                    class="button button--action svelte-ovjhya"
+                    type="action"
+                    name="act_battle_check"
+                  >
+                    <!--[0--><span
+                      class="button__label svelte-ovjhya"
+                      data-i18n="Battle"
+                      >Battle</span
+                    ><!--]-->
+                    <!--[--><!--]--></button
+                  ><!---->
+                </div>
+                <input
+                  class="ship-stat-row__input svelte-1ejsf5l"
+                  type="number"
+                  name="attr_battle"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+            <!--]-->
+          </div>
+          <!---->
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Saves &amp; Defenses"
+            >
+              Saves &amp; Defenses
+            </h2>
+            <!---->
+            <div class="ship-stats-list svelte-1ejsf5l">
+              <div class="ship-stat-row svelte-1ejsf5l">
+                <label
+                  class="ship-stat-row__label svelte-1ejsf5l"
+                  for="attr_ship_armor"
+                  >Armor</label
+                >
+                <input
+                  class="ship-stat-row__input svelte-1ejsf5l"
+                  type="number"
+                  name="attr_ship_armor"
+                  placeholder="0"
+                />
+              </div>
+              <div class="ship-stat-row svelte-1ejsf5l">
+                <div class="ship-stat-row__btn">
+                  <button
+                    class="button button--action svelte-ovjhya"
+                    type="action"
+                    name="act_bankruptcy_save"
+                  >
+                    <!--[0--><span
+                      class="button__label svelte-ovjhya"
+                      data-i18n="Bankruptcy Save"
+                      >Bankruptcy Save</span
+                    ><!--]-->
+                    <!--[--><!--]--></button
+                  ><!---->
+                </div>
+                <input
+                  class="ship-stat-row__input svelte-1ejsf5l"
+                  type="number"
+                  name="attr_bankruptcy_save"
+                  placeholder="21"
+                  value="21"
+                />
+              </div>
+            </div>
+            <!--]-->
+          </div>
+          <!---->
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Hull &amp; Wounds"
+            >
+              Hull &amp; Wounds
+            </h2>
+            <!---->
+            <div class="ship-hull-wounds svelte-1ejsf5l">
+              <div class="ship-minmax-stat svelte-1ejsf5l">
+                <span class="ship-minmax-stat__label svelte-1ejsf5l"
+                  >Wounds</span
+                >
+                <div class="ship-minmax-stat__inputs svelte-1ejsf5l">
+                  <input
+                    class="ship-minmax-stat__input svelte-1ejsf5l"
+                    type="number"
+                    name="attr_ship_wounds"
+                    placeholder="2"
+                  />
+                  <span class="ship-minmax-stat__sep svelte-1ejsf5l">/</span>
+                  <input
+                    class="ship-minmax-stat__input svelte-1ejsf5l"
+                    type="number"
+                    name="attr_ship_wounds_max"
+                    placeholder="2"
+                  />
+                </div>
+              </div>
+              <div class="ship-minmax-stat svelte-1ejsf5l">
+                <span class="ship-minmax-stat__label svelte-1ejsf5l">Hull</span>
+                <div class="ship-minmax-stat__inputs svelte-1ejsf5l">
+                  <input
+                    class="ship-minmax-stat__input svelte-1ejsf5l"
+                    type="number"
+                    name="attr_ship_hull"
+                    placeholder="10"
+                  />
+                  <span class="ship-minmax-stat__sep svelte-1ejsf5l">/</span>
+                  <input
+                    class="ship-minmax-stat__input svelte-1ejsf5l"
+                    type="number"
+                    name="attr_ship_hull_max"
+                    placeholder="10"
+                  />
+                </div>
+              </div>
+              <div class="ship-hull-thresholds svelte-1ejsf5l">
+                <div class="ship-hull-threshold svelte-1ejsf5l">
+                  <span class="ship-hull-threshold__pct svelte-1ejsf5l"
+                    >25%</span
+                  >
+                  <input
+                    class="ship-hull-threshold__input svelte-1ejsf5l"
+                    type="number"
+                    name="attr_hull_25"
+                    placeholder="8"
+                  />
+                </div>
+                <div class="ship-hull-threshold svelte-1ejsf5l">
+                  <span class="ship-hull-threshold__pct svelte-1ejsf5l"
+                    >50%</span
+                  >
+                  <input
+                    class="ship-hull-threshold__input svelte-1ejsf5l"
+                    type="number"
+                    name="attr_hull_50"
+                    placeholder="5"
+                  />
+                </div>
+                <div class="ship-hull-threshold svelte-1ejsf5l">
+                  <span class="ship-hull-threshold__pct svelte-1ejsf5l"
+                    >75%</span
+                  >
+                  <input
+                    class="ship-hull-threshold__input svelte-1ejsf5l"
+                    type="number"
+                    name="attr_hull_75"
+                    placeholder="3"
+                  />
+                </div>
+              </div>
+            </div>
+            <!--]-->
+          </div>
+          <!---->
+        </section>
+        <!---->
+        <section class="ship-operations-panel svelte-4ql83q">
+          <div
+            class="frame frame--mode-light-grey frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Ship Operations &amp; Maintenance"
+            >
+              Ship Operations &amp; Maintenance
+            </h2>
+            <!---->
+            <div class="ship-operations svelte-4ql83q">
+              <div class="ship-operation-card svelte-4ql83q">
+                <div class="ship-operation-card__header svelte-4ql83q">
+                  <button
+                    class="button button--action svelte-ovjhya"
+                    type="action"
+                    name="act_annual_maintenance"
+                  >
+                    <!--[0--><span
+                      class="button__label svelte-ovjhya"
+                      data-i18n="Annual Maintenance Check"
+                      >Annual Maintenance Check</span
+                    ><!--]-->
+                    <!--[--><!--]--></button
+                  ><!---->
+                </div>
+                <p class="ship-operation-card__desc svelte-4ql83q">
+                  Rolls a <strong>Systems Check</strong>. Failure rolls once on
+                  the <em>Maintenance Issues Table</em> (everyone gains 1
+                  Stress). Critical Failure rolls twice on the table (everyone
+                  makes a Panic Check).
+                </p>
+              </div>
+              <div class="ship-operation-card svelte-4ql83q">
+                <div class="ship-operation-card__header svelte-4ql83q">
+                  <button
+                    class="button button--action svelte-ovjhya"
+                    type="action"
+                    name="act_bankruptcy_save"
+                  >
+                    <!--[0--><span
+                      class="button__label svelte-ovjhya"
+                      data-i18n="Bankruptcy Save"
+                      >Bankruptcy Save</span
+                    ><!--]-->
+                    <!--[--><!--]--></button
+                  ><!---->
+                </div>
+                <p class="ship-operation-card__desc svelte-4ql83q">
+                  Rolls 1d100 under your
+                  <strong>Bankruptcy Save</strong> (defaults to 2d10+10) and
+                  resolves consequences from the <em>Bankruptcy Table</em>.
+                </p>
+              </div>
+            </div>
+            <!--]-->
+          </div>
+          <!---->
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Secondary Stats"
+            >
+              Secondary Stats
+            </h2>
+            <!---->
+            <div class="ship-secondary-stats svelte-4ql83q">
+              <div class="ship-minmax-stat svelte-4ql83q">
+                <span class="ship-minmax-stat__label svelte-4ql83q">Crew</span>
+                <div class="ship-minmax-stat__inputs svelte-4ql83q">
+                  <input
+                    class="ship-minmax-stat__input svelte-4ql83q"
+                    type="number"
+                    name="attr_crew"
+                    placeholder="0"
+                  />
+                  <span class="ship-minmax-stat__sep svelte-4ql83q">/</span>
+                  <input
+                    class="ship-minmax-stat__input svelte-4ql83q"
+                    type="number"
+                    name="attr_crew_max"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+              <div class="ship-minmax-stat svelte-4ql83q">
+                <span class="ship-minmax-stat__label svelte-4ql83q">Fuel</span>
+                <div class="ship-minmax-stat__inputs svelte-4ql83q">
+                  <input
+                    class="ship-minmax-stat__input svelte-4ql83q"
+                    type="number"
+                    name="attr_fuel"
+                    placeholder="0"
+                  />
+                  <span class="ship-minmax-stat__sep svelte-4ql83q">/</span>
+                  <input
+                    class="ship-minmax-stat__input svelte-4ql83q"
+                    type="number"
+                    name="attr_fuel_max"
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+              <div class="ship-stat-row svelte-4ql83q">
+                <label
+                  class="ship-stat-row__label svelte-4ql83q"
+                  for="attr_loadout_max"
+                  >Max Cargo</label
+                >
+                <input
+                  class="ship-stat-row__input svelte-4ql83q"
+                  type="number"
+                  name="attr_loadout_max"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+            <!--]-->
+          </div>
+          <!---->
+        </section>
+        <!---->
+        <section class="ship-weapons-panel svelte-x1f127">
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Ship Weapons"
+            >
+              Ship Weapons
+            </h2>
+            <!---->
+            <div
+              class="ship-repeating-head ship-repeating-head--weapons svelte-x1f127"
+            >
+              <span>Weapon</span> <span>Damage</span>
+            </div>
+            <fieldset class="repeating_shipweapons">
+              <div class="ship-weapon-row svelte-x1f127">
+                <input
+                  class="ship-weapon-row__name svelte-x1f127"
+                  type="text"
+                  name="attr_shipweapon_name"
+                  placeholder="Weapon Name"
+                />
+                <input
+                  class="ship-weapon-row__damage svelte-x1f127"
+                  type="text"
+                  name="attr_shipweapon_damage"
+                  placeholder="Damage"
+                />
+                <textarea
+                  class="ship-weapon-row__notes svelte-x1f127"
+                  name="attr_shipweapon_notes"
+                  placeholder="Notes"
+                ></textarea>
+              </div>
+            </fieldset>
+            <!--]-->
+          </div>
+          <!---->
+        </section>
+        <!---->
+        <section class="ship-crew-panel svelte-1ixnck9">
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Officers &amp; Crew"
+            >
+              Officers &amp; Crew
+            </h2>
+            <!---->
+            <div
+              class="ship-repeating-head ship-repeating-head--crew svelte-1ixnck9"
+            >
+              <span>Name</span> <span>Rank / Role</span>
+            </div>
+            <fieldset class="repeating_shipcrew">
+              <div class="ship-crew-row svelte-1ixnck9">
+                <input
+                  class="ship-crew-row__name svelte-1ixnck9"
+                  type="text"
+                  name="attr_shipcrew_name"
+                  placeholder="Name"
+                />
+                <input
+                  class="ship-crew-row__rank svelte-1ixnck9"
+                  type="text"
+                  name="attr_shipcrew_rank"
+                  placeholder="Rank / Role"
+                />
+              </div>
+            </fieldset>
+            <!--]-->
+          </div>
+          <!---->
+        </section>
+        <!---->
+        <section class="ship-cargo-panel svelte-i9elg4">
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Cargo &amp; Loadout"
+            >
+              Cargo &amp; Loadout
+            </h2>
+            <!---->
+            <div
+              class="ship-repeating-head ship-repeating-head--cargo svelte-i9elg4"
+            >
+              <span>Item</span> <span>Amount</span>
+            </div>
+            <fieldset class="repeating_shiploadout">
+              <div class="ship-cargo-row svelte-i9elg4">
+                <input
+                  class="ship-cargo-row__item svelte-i9elg4"
+                  type="text"
+                  name="attr_shiploadout_item"
+                  placeholder="Item"
+                />
+                <input
+                  class="ship-cargo-row__number svelte-i9elg4"
+                  type="text"
+                  name="attr_shiploadout_number"
+                  placeholder="#"
+                />
+              </div>
+            </fieldset>
+            <!--]-->
+          </div>
+          <!---->
+        </section>
+        <!---->
+      </div>
     </div>
     <!---->
   </div>
