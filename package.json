@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "npm-run-all": "^1.0.1",
-    "pug": "^3.0.2",
+    "npm-run-all": "^4.1.5",
+    "pug": "^3.0.4",
     "pug-cli": "^1.0.0-alpha6"
   },
   "scripts": {
@@ -10,7 +10,10 @@
     "compile:pug": "npx pug src/pug/mothership.pug -o ./ -w -P",
     "compile:ts": "tsdown",
     "test": "vitest run",
-    "compile:svelte": "node build.mjs"
+    "compile:svelte": "node scripts/build-svelte.js",
+    "prepare": "husky",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "^5.10.0",
@@ -20,6 +23,8 @@
     "eslint-plugin-import-x": "^4.17.1",
     "eslint-plugin-jsdoc": "^64.2.1",
     "eslint-plugin-svelte": "^3.23.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0",
     "sass": "^1.80.6",
     "svelte": "^5.56.10",
     "svelte-eslint-parser": "^1.8.1",
@@ -27,5 +32,11 @@
     "typescript": "^5.4.5",
     "typescript-eslint": "^8.68.0",
     "vitest": "^0.28.5"
+  },
+  "type": "module",
+  "lint-staged": {
+    "*.{js,ts,svelte}": [
+      "eslint --fix"
+    ]
   }
 }
