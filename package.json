@@ -9,10 +9,14 @@
     "compile:sass": "sass ./src/scss/mothership.scss ./mothership.css",
     "compile:pug": "npx pug src/pug/mothership.pug -o ./ -w -P",
     "compile:ts": "tsdown",
-    "test": "vitest run"
+    "test": "vitest run",
+    "compile:svelte": "node build.mjs"
   },
   "devDependencies": {
+    "esbuild": "^0.28.2",
+    "esbuild-svelte": "^0.9.5",
     "sass": "^1.103.1",
+    "svelte": "^5.56.10",
     "tsdown": "^0.14.0",
     "typescript": "^5.4.5",
     "vitest": "^0.28.5"
