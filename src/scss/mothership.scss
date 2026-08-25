@@ -436,7 +436,7 @@ $ms-font-input: 1.45rem;
 
                 &__toprow {
                     display: grid;
-                        grid-template-columns: 1fr 1fr 1.5fr;
+                        grid-template-columns: repeat(4, 1fr);
                         grid-gap: $ms-margin;
                         align-items: start; 
                         justify-items: center;

@@ -28,7 +28,8 @@
 
         updateAttrs["health"] = updateAttrs["strength"] * 2;
         updateAttrs["stress"] = 2;
-        updateAttrs["resolve"] = "0";
+        updateAttrs["wounds"] = 2;
+        updateAttrs["armor_points"] = 0;
         
         setCharmancerText(updateHTML);
         setAttrs(updateAttrs);
