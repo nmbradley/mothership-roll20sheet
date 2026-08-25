@@ -86,7 +86,7 @@ export function createField<TName extends string>({
 
 export type SectionArgs<
   TName extends string = string,
-  TFields extends readonly Field[] = readonly Field[],
+  TFields extends Record<string, Field> = Record<string, Field>,
 > = {
   name: TName;
   fields: TFields;
@@ -94,19 +94,19 @@ export type SectionArgs<
 
 export type Section<
   TName extends string = string,
-  TFields extends readonly Field[] = readonly Field[],
+  TFields extends Record<string, Field> = Record<string, Field>,
 > = {
   name: TName;
   fields: TFields;
 };
 
 /**
- * Wraps an array of fields into a Roll20 repeating section.
+ * Wraps an object of fields into a Roll20 repeating section.
  * Automatically prefixes the section name with "repeating_".
  */
 export function createSection<
   TName extends string,
-  TFields extends readonly Field[],
+  TFields extends Record<string, Field>,
 >({
   name, fields,
 }: SectionArgs<TName, TFields>): Section<`repeating_${TName}`, TFields> {
