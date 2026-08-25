@@ -13,3 +13,4 @@ export * from "./ship_upgrades";
 export * from "./ship_weapons";
 export * from "./megadamage";
 export * from "./maintenance";
+export * from "./bankruptcy";
