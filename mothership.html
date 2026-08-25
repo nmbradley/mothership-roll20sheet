@@ -1,1 +1,604 @@
-<!--[--><div class="sheet-wrapper svelte-deygyw"><h1 class="svelte-deygyw">Mothership 1e Character Sheet</h1> <input type="hidden" name="attr_sheet_type" class="sheet-type-toggle" value="character"/> <div class="character-sheet"><div class="section"><h2>Character Stats</h2> <!--[--><div class="stat-row"><label>Strength</label> <input type="number" name="attr_strength" value="25"/></div><div class="stat-row"><label>Speed</label> <input type="number" name="attr_speed" value="25"/></div><div class="stat-row"><label>Intellect</label> <input type="number" name="attr_intellect" value="25"/></div><div class="stat-row"><label>Combat</label> <input type="number" name="attr_combat" value="25"/></div><!--]--></div><!----></div> <div class="ship-sheet"><div class="section"><h2>Ship Sheet</h2> <label>Hull <input type="number" name="attr_hull"/></label></div><!----></div> <div class="npc-sheet-wrapper"><div class="npc-sheet svelte-dyo6wd"><header class="npc-sheet__header svelte-dyo6wd"><div class="npc-sheet__title-group svelte-dyo6wd"><span class="npc-sheet__badge svelte-dyo6wd" data-i18n="npc">NPC / CONTRACTOR</span> <input class="npc-sheet__name-input svelte-dyo6wd" name="attr_character_name" type="text" placeholder="NPC Name" data-i18n-placeholder="NPC Name" aria-label="NPC Name"/></div></header> <section class="npc-sheet__stats-section svelte-dyo6wd"><div class="npc-sheet__stats-grid svelte-dyo6wd"><!--[--><div class="npc-sheet__stat-card svelte-dyo6wd"><div class="npc-sheet__stat-header svelte-dyo6wd"><button class="npc-sheet__stat-roll-btn svelte-dyo6wd" type="roll" name="roll_combat" title="Roll Combat" aria-label="Roll Combat" value="{{template:ms}} {{name=Combat}} {{character_name=@{character_name}}} {{roll=[[1d100-1cs1cf99]]}} {{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99}]]}} {{target=@{combat}}}"><span class="npc-sheet__stat-title" data-i18n="Combat">Combat (C)</span></button> <span class="npc-sheet__tooltip svelte-dyo6wd">This works exactly like the Combat Stat, showing how good they are in a fight.</span></div> <input class="npc-sheet__stat-input svelte-dyo6wd" name="attr_combat" type="number" placeholder="20" aria-label="Combat value"/></div><div class="npc-sheet__stat-card svelte-dyo6wd"><div class="npc-sheet__stat-header svelte-dyo6wd"><button class="npc-sheet__stat-roll-btn svelte-dyo6wd" type="roll" name="roll_instinct" title="Roll Instinct" aria-label="Roll Instinct" value="{{template:ms}} {{name=Instinct}} {{character_name=@{character_name}}} {{roll=[[1d100-1cs1cf99]]}} {{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99}]]}} {{target=@{instinct}}}"><span class="npc-sheet__stat-title" data-i18n="Instinct">Instinct (I)</span></button> <span class="npc-sheet__tooltip svelte-dyo6wd">This is a catchall Stat for Fear, Sanity, Body, Speed, Intellect, and everything else.</span></div> <input class="npc-sheet__stat-input svelte-dyo6wd" name="attr_instinct" type="number" placeholder="25" aria-label="Instinct value"/></div><!--]--> <div class="npc-sheet__stat-card npc-sheet__stat-card--initiative svelte-dyo6wd"><div class="npc-sheet__stat-header svelte-dyo6wd"><button class="npc-sheet__stat-roll-btn npc-sheet__stat-roll-btn--initiative svelte-dyo6wd" type="roll" name="roll_initiative" title="Roll Initiative into Turn Tracker" aria-label="Roll Initiative into Turn Tracker" value="{{template:ms}} {{name=Initiative}} {{character_name=@{character_name}}} {{roll=[[1d100-1cs1cf99 &amp;{tracker}]]}} {{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99 &amp;{tracker}}]]}} {{target=@{instinct}}}"><span class="npc-sheet__stat-title" data-i18n="initiative">Initiative</span></button> <span class="npc-sheet__tooltip svelte-dyo6wd" data-i18n="Rolls Instinct and adds to the Turn Tracker">Rolls Instinct and adds to Turn Tracker (&amp;{tracker})</span></div> <div class="npc-sheet__initiative-subtext svelte-dyo6wd">Instinct + Tracker</div></div> <div class="npc-sheet__vital-card npc-sheet__vital-card--wounds svelte-dyo6wd"><div class="npc-sheet__vital-label svelte-dyo6wd" data-i18n="wounds">Wounds (W)</div> <div class="npc-sheet__minmax-wrapper svelte-dyo6wd"><input class="npc-sheet__vital-input svelte-dyo6wd" name="attr_wounds" type="number" placeholder="1" title="Current Wounds" aria-label="Current Wounds"/> <span class="npc-sheet__separator svelte-dyo6wd">/</span> <input class="npc-sheet__vital-input svelte-dyo6wd" name="attr_wounds_max" type="number" placeholder="1" title="Max Wounds" aria-label="Max Wounds"/></div> <div class="npc-sheet__vital-sublabels svelte-dyo6wd"><span data-i18n="current">Current</span> <span data-i18n="max">Max</span></div></div> <div class="npc-sheet__vital-card npc-sheet__vital-card--health svelte-dyo6wd"><div class="npc-sheet__vital-label svelte-dyo6wd" data-i18n="health">Health (HP)</div> <div class="npc-sheet__minmax-wrapper svelte-dyo6wd"><input class="npc-sheet__vital-input svelte-dyo6wd" name="attr_health" type="number" placeholder="20" title="Current Health" aria-label="Current Health"/> <span class="npc-sheet__separator svelte-dyo6wd">/</span> <input class="npc-sheet__vital-input svelte-dyo6wd" name="attr_health_max" type="number" placeholder="20" title="Health per Wound" aria-label="Health per Wound"/></div> <div class="npc-sheet__vital-sublabels svelte-dyo6wd"><span data-i18n="current">Current</span> <span data-i18n="per wound">Per Wound</span></div></div> <div class="npc-sheet__vital-card npc-sheet__vital-card--ap svelte-dyo6wd"><div class="npc-sheet__vital-label svelte-dyo6wd" data-i18n="armor points">Armor Points (AP)</div> <input class="npc-sheet__stat-input npc-sheet__stat-input--ap svelte-dyo6wd" name="attr_armor_points" type="number" placeholder="0" aria-label="Armor Points"/></div></div></section> <section class="npc-sheet__main-content svelte-dyo6wd"><div class="npc-sheet__section npc-sheet__attacks svelte-dyo6wd"><div class="npc-sheet__section-header svelte-dyo6wd"><h3 class="npc-sheet__section-title svelte-dyo6wd" data-i18n="attacks">Attacks</h3></div> <div class="npc-sheet__table-header svelte-dyo6wd"><span class="npc-sheet__table-head-cell" data-i18n="attack">Attack</span> <span class="npc-sheet__table-head-cell" data-i18n="type">Type</span> <span class="npc-sheet__table-head-cell" data-i18n="damage">Damage</span> <span class="npc-sheet__table-head-cell npc-sheet__table-head-cell--cog"></span></div> <fieldset class="repeating_attacks"><div class="npc-sheet__attack-row svelte-dyo6wd"><button class="npc-sheet__row-roll-btn svelte-dyo6wd" type="roll" name="roll_attack" title="Roll Attack" aria-label="Roll Attack" value="{{template:ms}} {{name=@{attack_name}}} {{character_name=@{character_name}}} {{roll=[[1d100-1cs1cf99]]}} {{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99}]]}} {{target=[[@{combat}]]}} {{ranges=@{attack_range_s}}} {{rangem=@{attack_range_m}}} {{rangel=@{attack_range_l}}} {{damage=[[@{attack_damage}]]}} {{notes=@{attack_notes}}}"><span class="npc-sheet__attack-name-display" name="attr_attack_name"></span></button> <select class="npc-sheet__attack-type-select svelte-dyo6wd" name="attr_attack_type" aria-label="Attack Type"><option value="Ranged" data-i18n="Ranged">Ranged</option><option value="Melee" data-i18n="Melee">Melee</option></select> <input class="npc-sheet__attack-damage-input svelte-dyo6wd" name="attr_attack_damage" type="text" placeholder="Damage" data-i18n-placeholder="damage" aria-label="Attack Damage"/> <label class="npc-sheet__cog-label svelte-dyo6wd"><input class="npc-sheet__settings-toggle svelte-dyo6wd" name="attr_attack_settings" type="checkbox" checked=""/> <span class="npc-sheet__cog-icon svelte-dyo6wd">y</span></label> <div class="npc-sheet__settings-drawer npc-sheet__attack-settings svelte-dyo6wd"><div class="npc-sheet__settings-row svelte-dyo6wd"><span class="npc-sheet__settings-label svelte-dyo6wd" data-i18n="name">Name</span> <input class="npc-sheet__settings-input svelte-dyo6wd" name="attr_attack_name" type="text" placeholder="Attack name" data-i18n-placeholder="attack name" aria-label="Attack Name"/></div> <div class="npc-sheet__settings-row npc-sheet__settings-row--ranges svelte-dyo6wd"><span class="npc-sheet__settings-label svelte-dyo6wd" data-i18n="range">Range (S/M/L)</span> <div class="npc-sheet__range-inputs svelte-dyo6wd"><input class="npc-sheet__settings-input svelte-dyo6wd" name="attr_attack_range_s" type="text" placeholder="Short" data-i18n-placeholder="short" aria-label="Short Range"/> <input class="npc-sheet__settings-input svelte-dyo6wd" name="attr_attack_range_m" type="text" placeholder="Med" data-i18n-placeholder="medium" aria-label="Medium Range"/> <input class="npc-sheet__settings-input svelte-dyo6wd" name="attr_attack_range_l" type="text" placeholder="Long" data-i18n-placeholder="long" aria-label="Long Range"/></div></div> <div class="npc-sheet__settings-row npc-sheet__settings-row--grid svelte-dyo6wd"><div><span class="npc-sheet__settings-label svelte-dyo6wd" data-i18n="critical damage">Critical Damage</span> <input class="npc-sheet__settings-input svelte-dyo6wd" name="attr_attack_crit_damage" type="text" placeholder="Crit Damage" data-i18n-placeholder="damage" aria-label="Critical Damage"/></div> <div><span class="npc-sheet__settings-label svelte-dyo6wd" data-i18n="critical effect">Critical Effect</span> <input class="npc-sheet__settings-input svelte-dyo6wd" name="attr_attack_crit_effect" type="text" placeholder="Crit Effect" data-i18n-placeholder="effect" aria-label="Critical Effect"/></div></div> <div class="npc-sheet__settings-row npc-sheet__settings-row--grid svelte-dyo6wd"><div><span class="npc-sheet__settings-label svelte-dyo6wd" data-i18n="shots">Shots</span> <input class="npc-sheet__settings-input svelte-dyo6wd" name="attr_attack_shots" type="text" placeholder="Shots" data-i18n-placeholder="shots" aria-label="Shots"/></div> <div><span class="npc-sheet__settings-label svelte-dyo6wd" data-i18n="ammunition">Ammunition</span> <input class="npc-sheet__settings-input svelte-dyo6wd" name="attr_attack_ammunition" type="text" placeholder="Ammo" data-i18n-placeholder="ammunition" aria-label="Ammunition"/></div></div> <div class="npc-sheet__settings-row npc-sheet__settings-row--full svelte-dyo6wd"><span class="npc-sheet__settings-label svelte-dyo6wd" data-i18n="notes">Notes</span> <textarea class="npc-sheet__settings-textarea svelte-dyo6wd" name="attr_attack_notes" placeholder="Special rules, wound types, or ammunition effects..." data-i18n-placeholder="notes" aria-label="Attack Notes"></textarea></div></div></div></fieldset></div> <div class="npc-sheet__section npc-sheet__traits svelte-dyo6wd"><div class="npc-sheet__section-header svelte-dyo6wd"><h3 class="npc-sheet__section-title svelte-dyo6wd" data-i18n="traits">Traits</h3></div> <fieldset class="repeating_traits"><div class="npc-sheet__trait-row svelte-dyo6wd"><button class="npc-sheet__row-roll-btn svelte-dyo6wd" type="roll" name="roll_trait" title="Roll Trait" aria-label="Roll Trait" value="{{template:ms}} {{name=@{trait_name}}} {{character_name=@{character_name}}} {{notes=@{trait_description}}}"><span class="npc-sheet__trait-name-display" name="attr_trait_name"></span></button> <label class="npc-sheet__cog-label svelte-dyo6wd"><input class="npc-sheet__settings-toggle svelte-dyo6wd" name="attr_trait_settings" type="checkbox" checked=""/> <span class="npc-sheet__cog-icon svelte-dyo6wd">y</span></label> <div class="npc-sheet__trait-preview svelte-dyo6wd" name="attr_trait_description"></div> <div class="npc-sheet__settings-drawer npc-sheet__trait-settings svelte-dyo6wd"><div class="npc-sheet__settings-row svelte-dyo6wd"><span class="npc-sheet__settings-label svelte-dyo6wd" data-i18n="name">Trait Name</span> <input class="npc-sheet__settings-input svelte-dyo6wd" name="attr_trait_name" type="text" placeholder="Trait name" data-i18n-placeholder="trait name" aria-label="Trait Name"/></div> <div class="npc-sheet__settings-row npc-sheet__settings-row--full svelte-dyo6wd"><span class="npc-sheet__settings-label svelte-dyo6wd" data-i18n="description">Description</span> <textarea class="npc-sheet__settings-textarea svelte-dyo6wd" name="attr_trait_description" placeholder="Describe the trait or special rule..." data-i18n-placeholder="trait description" aria-label="Trait Description"></textarea></div></div></div></fieldset></div></section> <section class="npc-sheet__narrative-grid svelte-dyo6wd"><div class="npc-sheet__narrative-card svelte-dyo6wd"><h3 class="npc-sheet__section-title svelte-dyo6wd" data-i18n="description">Description</h3> <textarea class="npc-sheet__textarea svelte-dyo6wd" name="attr_description" placeholder="Enter the NPC's description, motivation, or behavior here." data-i18n-placeholder="Enter the NPC's description here." aria-label="NPC Description"></textarea></div> <div class="npc-sheet__narrative-card svelte-dyo6wd"><h3 class="npc-sheet__section-title svelte-dyo6wd" data-i18n="equipment">Equipment &amp; Notes</h3> <textarea class="npc-sheet__textarea svelte-dyo6wd" name="attr_equipment" placeholder="Enter the NPC's equipment, gear, salary, or notes here." data-i18n-placeholder="Enter the NPC's equipment here." aria-label="NPC Equipment and Notes"></textarea></div></section></div><!----></div></div> <!----><script type="text/worker"><!----> console.log("Roll20 Sheetworker code here"); <!----></script><!----><!--]-->
+<!--[-->
+<div class="sheet-wrapper svelte-deygyw">
+  <h1 class="svelte-deygyw">Mothership 1e Character Sheet</h1>
+  <input
+    type="hidden"
+    name="attr_sheet_type"
+    class="sheet-type-toggle"
+    value="character"
+  />
+  <div class="character-sheet">
+    <div class="section">
+      <h2>Character Stats</h2>
+      <!--[-->
+      <div class="stat-row">
+        <label>Strength</label>
+        <input type="number" name="attr_strength" value="25" />
+      </div>
+      <div class="stat-row">
+        <label>Speed</label>
+        <input type="number" name="attr_speed" value="25" />
+      </div>
+      <div class="stat-row">
+        <label>Intellect</label>
+        <input type="number" name="attr_intellect" value="25" />
+      </div>
+      <div class="stat-row">
+        <label>Combat</label>
+        <input type="number" name="attr_combat" value="25" />
+      </div>
+      <!--]-->
+    </div>
+    <!---->
+  </div>
+  <div class="ship-sheet">
+    <div class="section">
+      <h2>Ship Sheet</h2>
+      <label>Hull <input type="number" name="attr_hull" /></label>
+    </div>
+    <!---->
+  </div>
+  <div class="npc-sheet-wrapper">
+    <div class="npc-sheet svelte-dyo6wd">
+      <header class="npc-header svelte-1rkmemd">
+        <div class="frame frame--mode-dark frame--corner-medium svelte-spcupx">
+          <!--[-->
+          <div class="npc-header__content svelte-1rkmemd">
+            <span class="npc-header__badge svelte-1rkmemd" data-i18n="npc"
+              >NPC / CONTRACTOR</span
+            >
+            <input
+              class="npc-header__name-input svelte-1rkmemd"
+              name="attr_character_name"
+              type="text"
+              placeholder="NPC Name"
+              data-i18n-placeholder="NPC Name"
+              aria-label="NPC Name"
+            />
+          </div>
+          <!--]-->
+        </div>
+        <!---->
+      </header>
+      <!---->
+      <section class="npc-stats-panel svelte-cqn8c3">
+        <div class="frame frame--mode-light frame--corner-medium svelte-spcupx">
+          <!--[-->
+          <h2
+            class="header header--section svelte-8a1vj3"
+            data-i18n="Stats &amp; Vitals"
+          >
+            Stats &amp; Vitals
+          </h2>
+          <!---->
+          <div class="npc-stats-grid svelte-cqn8c3">
+            <!--[-->
+            <div class="npc-stat-card svelte-cqn8c3">
+              <div class="npc-stat-card__header svelte-cqn8c3">
+                <button
+                  class="npc-stat-card__roll-btn svelte-cqn8c3"
+                  type="roll"
+                  name="roll_combat"
+                  title="Roll Combat"
+                  aria-label="Roll Combat"
+                  value="{{template:ms}} {{name=Combat}} {{character_name=@{character_name}}} {{roll=[[1d100-1cs1cf99]]}} {{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99}]]}} {{target=@{combat}}}"
+                >
+                  <span class="npc-stat-card__title" data-i18n="Combat"
+                    >Combat (C)</span
+                  >
+                </button>
+                <span class="npc-stat-card__tooltip svelte-cqn8c3"
+                  >This works exactly like the Combat Stat, showing how good
+                  they are in a fight.</span
+                >
+              </div>
+              <input
+                class="npc-stat-card__input svelte-cqn8c3"
+                name="attr_combat"
+                type="number"
+                placeholder="20"
+                aria-label="Combat value"
+              />
+            </div>
+            <div class="npc-stat-card svelte-cqn8c3">
+              <div class="npc-stat-card__header svelte-cqn8c3">
+                <button
+                  class="npc-stat-card__roll-btn svelte-cqn8c3"
+                  type="roll"
+                  name="roll_instinct"
+                  title="Roll Instinct"
+                  aria-label="Roll Instinct"
+                  value="{{template:ms}} {{name=Instinct}} {{character_name=@{character_name}}} {{roll=[[1d100-1cs1cf99]]}} {{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99}]]}} {{target=@{instinct}}}"
+                >
+                  <span class="npc-stat-card__title" data-i18n="Instinct"
+                    >Instinct (I)</span
+                  >
+                </button>
+                <span class="npc-stat-card__tooltip svelte-cqn8c3"
+                  >This is a catchall Stat for Fear, Sanity, Body, Speed,
+                  Intellect, and everything else.</span
+                >
+              </div>
+              <input
+                class="npc-stat-card__input svelte-cqn8c3"
+                name="attr_instinct"
+                type="number"
+                placeholder="25"
+                aria-label="Instinct value"
+              />
+            </div>
+            <!--]-->
+            <div class="npc-stat-card npc-stat-card--initiative svelte-cqn8c3">
+              <div class="npc-stat-card__header svelte-cqn8c3">
+                <button
+                  class="npc-stat-card__roll-btn npc-stat-card__roll-btn--initiative svelte-cqn8c3"
+                  type="roll"
+                  name="roll_initiative"
+                  title="Roll Initiative into Turn Tracker"
+                  aria-label="Roll Initiative into Turn Tracker"
+                  value="{{template:ms}} {{name=Initiative}} {{character_name=@{character_name}}} {{roll=[[1d100-1cs1cf99 &amp;{tracker}]]}} {{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99 &amp;{tracker}}]]}} {{target=@{instinct}}}"
+                >
+                  <span class="npc-stat-card__title" data-i18n="initiative"
+                    >Initiative</span
+                  >
+                </button>
+                <span
+                  class="npc-stat-card__tooltip svelte-cqn8c3"
+                  data-i18n="Rolls Instinct and adds to the Turn Tracker"
+                  >Rolls Instinct and adds to Turn Tracker
+                  (&amp;{tracker})</span
+                >
+              </div>
+              <div class="npc-stat-card__initiative-subtext svelte-cqn8c3">
+                Instinct + Tracker
+              </div>
+            </div>
+            <div class="npc-vital-card npc-vital-card--wounds svelte-cqn8c3">
+              <div
+                class="npc-vital-card__label svelte-cqn8c3"
+                data-i18n="wounds"
+              >
+                Wounds (W)
+              </div>
+              <div class="npc-vital-card__minmax-wrapper svelte-cqn8c3">
+                <input
+                  class="npc-vital-card__input svelte-cqn8c3"
+                  name="attr_wounds"
+                  type="number"
+                  placeholder="1"
+                  title="Current Wounds"
+                  aria-label="Current Wounds"
+                />
+                <span class="npc-vital-card__separator svelte-cqn8c3">/</span>
+                <input
+                  class="npc-vital-card__input svelte-cqn8c3"
+                  name="attr_wounds_max"
+                  type="number"
+                  placeholder="1"
+                  title="Max Wounds"
+                  aria-label="Max Wounds"
+                />
+              </div>
+              <div class="npc-vital-card__sublabels svelte-cqn8c3">
+                <span data-i18n="current">Current</span>
+                <span data-i18n="max">Max</span>
+              </div>
+            </div>
+            <div class="npc-vital-card npc-vital-card--health svelte-cqn8c3">
+              <div
+                class="npc-vital-card__label svelte-cqn8c3"
+                data-i18n="health"
+              >
+                Health (HP)
+              </div>
+              <div class="npc-vital-card__minmax-wrapper svelte-cqn8c3">
+                <input
+                  class="npc-vital-card__input svelte-cqn8c3"
+                  name="attr_health"
+                  type="number"
+                  placeholder="20"
+                  title="Current Health"
+                  aria-label="Current Health"
+                />
+                <span class="npc-vital-card__separator svelte-cqn8c3">/</span>
+                <input
+                  class="npc-vital-card__input svelte-cqn8c3"
+                  name="attr_health_max"
+                  type="number"
+                  placeholder="20"
+                  title="Health per Wound"
+                  aria-label="Health per Wound"
+                />
+              </div>
+              <div class="npc-vital-card__sublabels svelte-cqn8c3">
+                <span data-i18n="current">Current</span>
+                <span data-i18n="per wound">Per Wound</span>
+              </div>
+            </div>
+            <div class="npc-vital-card npc-vital-card--ap svelte-cqn8c3">
+              <div
+                class="npc-vital-card__label svelte-cqn8c3"
+                data-i18n="armor points"
+              >
+                Armor Points (AP)
+              </div>
+              <input
+                class="npc-stat-card__input npc-stat-card__input--ap svelte-cqn8c3"
+                name="attr_armor_points"
+                type="number"
+                placeholder="0"
+                aria-label="Armor Points"
+              />
+            </div>
+          </div>
+          <!--]-->
+        </div>
+        <!---->
+      </section>
+      <!---->
+      <section class="npc-sheet__main-content svelte-dyo6wd">
+        <div class="npc-attacks-panel svelte-141oqux">
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Attacks"
+            >
+              Attacks
+            </h2>
+            <!---->
+            <div class="npc-attacks-table-header svelte-141oqux">
+              <span class="npc-attacks-table-head-cell" data-i18n="attack"
+                >Attack</span
+              >
+              <span class="npc-attacks-table-head-cell" data-i18n="type"
+                >Type</span
+              >
+              <span class="npc-attacks-table-head-cell" data-i18n="damage"
+                >Damage</span
+              >
+              <span
+                class="npc-attacks-table-head-cell npc-attacks-table-head-cell--cog"
+              ></span>
+            </div>
+            <fieldset class="repeating_attacks">
+              <div class="npc-attack-row svelte-141oqux">
+                <button
+                  class="npc-attack-row__roll-btn svelte-141oqux"
+                  type="roll"
+                  name="roll_attack"
+                  title="Roll Attack"
+                  aria-label="Roll Attack"
+                  value="{{template:ms}} {{name=@{attack_name}}} {{character_name=@{character_name}}} {{roll=[[1d100-1cs1cf99]]}} {{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99}]]}} {{target=[[@{combat}]]}} {{ranges=@{attack_range_s}}} {{rangem=@{attack_range_m}}} {{rangel=@{attack_range_l}}} {{damage=[[@{attack_damage}]]}} {{notes=@{attack_notes}}}"
+                >
+                  <span
+                    class="npc-attack-row__name-display"
+                    name="attr_attack_name"
+                  ></span>
+                </button>
+                <select
+                  class="npc-attack-row__type-select svelte-141oqux"
+                  name="attr_attack_type"
+                  aria-label="Attack Type"
+                >
+                  <option value="Ranged" data-i18n="Ranged">Ranged</option>
+                  <option value="Melee" data-i18n="Melee">Melee</option>
+                </select>
+                <input
+                  class="npc-attack-row__damage-input svelte-141oqux"
+                  name="attr_attack_damage"
+                  type="text"
+                  placeholder="Damage"
+                  data-i18n-placeholder="damage"
+                  aria-label="Attack Damage"
+                />
+                <label class="npc-attack-row__cog-label svelte-141oqux"
+                  ><input
+                    class="npc-attack-row__settings-toggle svelte-141oqux"
+                    name="attr_attack_settings"
+                    type="checkbox"
+                    checked=""
+                  />
+                  <span class="npc-attack-row__cog-icon svelte-141oqux"
+                    >y</span
+                  ></label
+                >
+                <div class="npc-attack-row__settings-drawer svelte-141oqux">
+                  <div class="npc-attack-row__settings-row svelte-141oqux">
+                    <span
+                      class="npc-attack-row__settings-label svelte-141oqux"
+                      data-i18n="name"
+                      >Name</span
+                    >
+                    <input
+                      class="npc-attack-row__settings-input svelte-141oqux"
+                      name="attr_attack_name"
+                      type="text"
+                      placeholder="Attack name"
+                      data-i18n-placeholder="attack name"
+                      aria-label="Attack Name"
+                    />
+                  </div>
+                  <div
+                    class="npc-attack-row__settings-row npc-attack-row__settings-row--ranges svelte-141oqux"
+                  >
+                    <span
+                      class="npc-attack-row__settings-label svelte-141oqux"
+                      data-i18n="range"
+                      >Range (S/M/L)</span
+                    >
+                    <div class="npc-attack-row__range-inputs svelte-141oqux">
+                      <input
+                        class="npc-attack-row__settings-input svelte-141oqux"
+                        name="attr_attack_range_s"
+                        type="text"
+                        placeholder="Short"
+                        data-i18n-placeholder="short"
+                        aria-label="Short Range"
+                      />
+                      <input
+                        class="npc-attack-row__settings-input svelte-141oqux"
+                        name="attr_attack_range_m"
+                        type="text"
+                        placeholder="Med"
+                        data-i18n-placeholder="medium"
+                        aria-label="Medium Range"
+                      />
+                      <input
+                        class="npc-attack-row__settings-input svelte-141oqux"
+                        name="attr_attack_range_l"
+                        type="text"
+                        placeholder="Long"
+                        data-i18n-placeholder="long"
+                        aria-label="Long Range"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="npc-attack-row__settings-row npc-attack-row__settings-row--grid svelte-141oqux"
+                  >
+                    <div>
+                      <span
+                        class="npc-attack-row__settings-label svelte-141oqux"
+                        data-i18n="critical damage"
+                        >Critical Damage</span
+                      >
+                      <input
+                        class="npc-attack-row__settings-input svelte-141oqux"
+                        name="attr_attack_crit_damage"
+                        type="text"
+                        placeholder="Crit Damage"
+                        data-i18n-placeholder="damage"
+                        aria-label="Critical Damage"
+                      />
+                    </div>
+                    <div>
+                      <span
+                        class="npc-attack-row__settings-label svelte-141oqux"
+                        data-i18n="critical effect"
+                        >Critical Effect</span
+                      >
+                      <input
+                        class="npc-attack-row__settings-input svelte-141oqux"
+                        name="attr_attack_crit_effect"
+                        type="text"
+                        placeholder="Crit Effect"
+                        data-i18n-placeholder="effect"
+                        aria-label="Critical Effect"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="npc-attack-row__settings-row npc-attack-row__settings-row--grid svelte-141oqux"
+                  >
+                    <div>
+                      <span
+                        class="npc-attack-row__settings-label svelte-141oqux"
+                        data-i18n="shots"
+                        >Shots</span
+                      >
+                      <input
+                        class="npc-attack-row__settings-input svelte-141oqux"
+                        name="attr_attack_shots"
+                        type="text"
+                        placeholder="Shots"
+                        data-i18n-placeholder="shots"
+                        aria-label="Shots"
+                      />
+                    </div>
+                    <div>
+                      <span
+                        class="npc-attack-row__settings-label svelte-141oqux"
+                        data-i18n="ammunition"
+                        >Ammunition</span
+                      >
+                      <input
+                        class="npc-attack-row__settings-input svelte-141oqux"
+                        name="attr_attack_ammunition"
+                        type="text"
+                        placeholder="Ammo"
+                        data-i18n-placeholder="ammunition"
+                        aria-label="Ammunition"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="npc-attack-row__settings-row npc-attack-row__settings-row--full svelte-141oqux"
+                  >
+                    <span
+                      class="npc-attack-row__settings-label svelte-141oqux"
+                      data-i18n="notes"
+                      >Notes</span
+                    >
+                    <textarea
+                      class="npc-attack-row__settings-textarea svelte-141oqux"
+                      name="attr_attack_notes"
+                      placeholder="Special rules, wound types, or ammunition effects..."
+                      data-i18n-placeholder="notes"
+                      aria-label="Attack Notes"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+            <!--]-->
+          </div>
+          <!---->
+        </div>
+        <!---->
+        <div class="npc-traits-panel svelte-1azpqr7">
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2 class="header header--section svelte-8a1vj3" data-i18n="Traits">
+              Traits
+            </h2>
+            <!---->
+            <fieldset class="repeating_traits">
+              <div class="npc-trait-row svelte-1azpqr7">
+                <button
+                  class="npc-trait-row__roll-btn svelte-1azpqr7"
+                  type="roll"
+                  name="roll_trait"
+                  title="Roll Trait"
+                  aria-label="Roll Trait"
+                  value="{{template:ms}} {{name=@{trait_name}}} {{character_name=@{character_name}}} {{notes=@{trait_description}}}"
+                >
+                  <span
+                    class="npc-trait-row__name-display"
+                    name="attr_trait_name"
+                  ></span>
+                </button>
+                <label class="npc-trait-row__cog-label svelte-1azpqr7"
+                  ><input
+                    class="npc-trait-row__settings-toggle svelte-1azpqr7"
+                    name="attr_trait_settings"
+                    type="checkbox"
+                    checked=""
+                  />
+                  <span class="npc-trait-row__cog-icon svelte-1azpqr7"
+                    >y</span
+                  ></label
+                >
+                <div
+                  class="npc-trait-row__preview svelte-1azpqr7"
+                  name="attr_trait_description"
+                ></div>
+                <div class="npc-trait-row__settings-drawer svelte-1azpqr7">
+                  <div class="npc-trait-row__settings-row svelte-1azpqr7">
+                    <span
+                      class="npc-trait-row__settings-label svelte-1azpqr7"
+                      data-i18n="name"
+                      >Trait Name</span
+                    >
+                    <input
+                      class="npc-trait-row__settings-input svelte-1azpqr7"
+                      name="attr_trait_name"
+                      type="text"
+                      placeholder="Trait name"
+                      data-i18n-placeholder="trait name"
+                      aria-label="Trait Name"
+                    />
+                  </div>
+                  <div
+                    class="npc-trait-row__settings-row npc-trait-row__settings-row--full svelte-1azpqr7"
+                  >
+                    <span
+                      class="npc-trait-row__settings-label svelte-1azpqr7"
+                      data-i18n="description"
+                      >Description</span
+                    >
+                    <textarea
+                      class="npc-trait-row__settings-textarea svelte-1azpqr7"
+                      name="attr_trait_description"
+                      placeholder="Describe the trait or special rule..."
+                      data-i18n-placeholder="trait description"
+                      aria-label="Trait Description"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+            </fieldset>
+            <!--]-->
+          </div>
+          <!---->
+        </div>
+        <!---->
+      </section>
+      <section class="npc-narrative-grid svelte-1v22pak">
+        <div class="npc-narrative-card svelte-1v22pak">
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Description"
+            >
+              Description
+            </h2>
+            <!---->
+            <div class="npc-narrative-field svelte-1v22pak">
+              <div class="attribute svelte-1clqgs2">
+                <!--[0--><label
+                  class="attribute__label svelte-1clqgs2"
+                  for="attr_description"
+                  >Description</label
+                ><!--]-->
+                <!--[0--><textarea
+                  class="attribute__input attribute__input--textarea svelte-1clqgs2"
+                  name="attr_description"
+                ></textarea
+                ><!--]-->
+              </div>
+              <!---->
+            </div>
+            <!--]-->
+          </div>
+          <!---->
+        </div>
+        <div class="npc-narrative-card svelte-1v22pak">
+          <div
+            class="frame frame--mode-light frame--corner-medium svelte-spcupx"
+          >
+            <!--[-->
+            <h2
+              class="header header--section svelte-8a1vj3"
+              data-i18n="Equipment &amp; Notes"
+            >
+              Equipment &amp; Notes
+            </h2>
+            <!---->
+            <div class="npc-narrative-field svelte-1v22pak">
+              <div class="attribute svelte-1clqgs2">
+                <!--[0--><label
+                  class="attribute__label svelte-1clqgs2"
+                  for="attr_equipment"
+                  >Equipment</label
+                ><!--]-->
+                <!--[0--><textarea
+                  class="attribute__input attribute__input--textarea svelte-1clqgs2"
+                  name="attr_equipment"
+                ></textarea
+                ><!--]-->
+              </div>
+              <!---->
+            </div>
+            <!--]-->
+          </div>
+          <!---->
+        </div>
+      </section>
+      <!---->
+    </div>
+    <!---->
+  </div>
+</div>
+<!---->
+<script type="text/worker">
+  <!----> console.log("Roll20 Sheetworker code here"); <!---->
+</script>
+<!----><!--]-->
