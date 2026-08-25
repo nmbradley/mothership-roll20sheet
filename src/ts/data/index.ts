@@ -7,3 +7,4 @@ export * from "./armor";
 export * from "./panic";
 export * from "./skill_descriptions";
 export * from "./wounds";
+export * from "./contractors";
