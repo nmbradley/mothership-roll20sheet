@@ -9,3 +9,4 @@ export * from "./skill_descriptions";
 export * from "./wounds";
 export * from "./contractors";
 export * from "./ships";
+export * from "./ship_upgrades";
