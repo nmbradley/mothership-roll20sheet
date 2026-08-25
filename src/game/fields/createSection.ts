@@ -48,6 +48,65 @@ export type ResolvedFieldData = {
   options?: readonly FieldOption[];
 };
 
+function inferType(
+  type?: FieldArgs["type"],
+  seed?: FieldArgs["seed"],
+  uiType?: UiType,
+  options?: readonly FieldOption[],
+): "number" | "string" | "boolean" {
+  if (type) return type;
+
+  if (seed !== undefined) {
+    if (typeof seed === "number") return "number";
+    if (typeof seed === "boolean") return "boolean";
+    return "string";
+  }
+
+  if (uiType) {
+    if (uiType === "number" || uiType === "number-max") return "number";
+    if (uiType === "checkbox") return "boolean";
+    return "string";
+  }
+
+  if (options && options.length > 0) {
+    const firstOption = options[0];
+    const val = typeof firstOption === "object" ? firstOption.value : firstOption;
+    return typeof val === "number" ? "number" : "string";
+  }
+
+  return "string"; // Default fallback
+}
+
+function inferUiType(
+  type: "number" | "string" | "boolean",
+  uiType?: UiType,
+  options?: readonly FieldOption[],
+  max?: boolean,
+): UiType {
+  if (uiType) return uiType;
+  if (type === "boolean") return "checkbox";
+  if (options && options.length > 0) return "select";
+  if (type === "number") return max ? "number-max" : "number";
+  return "text";
+}
+
+function inferSeed(
+  type: "number" | "string" | "boolean",
+  seed?: FieldArgs["seed"],
+  uiType?: UiType,
+  options?: readonly FieldOption[],
+): string | number | boolean {
+  if (seed !== undefined && !(seed === false && type === "boolean")) return seed;
+
+  if (type === "boolean") return "off";
+  if (uiType === "select" && options && options.length > 0) {
+    const firstOption = options[0];
+    return typeof firstOption === "object" ? firstOption.value : firstOption;
+  }
+
+  return type === "number" ? 0 : "";
+}
+
 /**
  * Resolves the underlying data type, default seed value, and UI type for a field.
  * Safely infers missing type, seed, or UI type information with sound fallbacks.
@@ -66,79 +125,10 @@ export function resolveTypeAndSeed(
     throw new Error(`${prefix} ${name} has neither type nor seed`);
   }
 
-  let resolvedType = type;
-  if (!resolvedType) {
-    if (seed !== undefined) {
-      if (typeof seed === "string") resolvedType = "string";
-      else if (typeof seed === "number") resolvedType = "number";
-      else if (typeof seed === "boolean") resolvedType = "boolean";
-    } else if (uiType) {
-      if (uiType === "number" || uiType === "number-max") {
-        resolvedType = "number";
-      } else if (uiType === "checkbox") {
-        resolvedType = "boolean";
-      } else {
-        resolvedType = "string";
-      }
-    } else if (options && options.length > 0) {
-      const firstOption = options[0];
-      if (typeof firstOption === "object" && typeof firstOption.value === "number") {
-        resolvedType = "number";
-      } else if (typeof firstOption === "number") {
-        resolvedType = "number";
-      } else {
-        resolvedType = "string";
-      }
-    }
-  }
-
-  let resolvedUiType = uiType;
-  if (!resolvedUiType) {
-    if (resolvedType === "number") {
-      resolvedUiType = max ? "number-max" : "number";
-    } else if (resolvedType === "boolean") {
-      resolvedUiType = "checkbox";
-    } else if (options && options.length > 0) {
-      resolvedUiType = "select";
-    } else {
-      resolvedUiType = "text";
-    }
-  }
-
+  const resolvedType = inferType(type, seed, uiType, options);
+  const resolvedUiType = inferUiType(resolvedType, uiType, options, max);
+  const resolvedSeed = inferSeed(resolvedType, seed, resolvedUiType, options);
   const isNumberMax = max || resolvedUiType === "number-max";
-
-  let resolvedSeed = seed;
-  if (resolvedSeed === undefined || (resolvedSeed === false && resolvedType === "boolean")) {
-    if (resolvedType === "string") {
-      if (resolvedUiType === "select" && options && options.length > 0) {
-        const firstOption = options[0];
-        if (typeof firstOption === "object") {
-          resolvedSeed = firstOption.value;
-        } else {
-          resolvedSeed = firstOption;
-        }
-      } else {
-        resolvedSeed = "";
-      }
-    } else if (resolvedType === "number") {
-      if (resolvedUiType === "select" && options && options.length > 0) {
-        const firstOption = options[0];
-        if (typeof firstOption === "object") {
-          resolvedSeed = firstOption.value;
-        } else {
-          resolvedSeed = firstOption;
-        }
-      } else {
-        resolvedSeed = 0;
-      }
-    } else if (resolvedType === "boolean") {
-      resolvedSeed = "off";
-    }
-  }
-
-  if (!resolvedType || resolvedSeed === undefined) {
-    throw new Error("Failed to resolve type or seed");
-  }
 
   return {
     type: resolvedType,
