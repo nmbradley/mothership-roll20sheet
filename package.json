@@ -1,13 +1,47 @@
 {
   "dependencies": {
-    "node-sass": "^4.14.1",
-    "npm-run-all": "^1.0.1",
-    "pug": "^3.0.2",
-    "pug-cli": "^1.0.1-alpha6"
+    "npm-run-all": "^4.1.5",
+    "pug": "^3.0.4",
+    "pug-cli": "^1.0.0-alpha6"
   },
   "scripts": {
-    "start": "npx npm-run-all --parallel compile:sass compile:pug",
-    "compile:sass": "npx node-sass ./src/scss/mothership.scss ./mothership.css -w",
-    "compile:pug": "npx pug src/pug/mothership.pug -o ./ -w -P"
+    "start": "npm-run-all --parallel watch:*",
+    "build": "npm-run-all --parallel build:*",
+    "build:sass": "sass ./src/scss/mothership.scss ./mothership.css",
+    "build:svelte": "node scripts/build-svelte.js",
+    "build:ts": "tsdown",
+    "watch:sass": "sass --watch ./src/scss/mothership.scss ./mothership.css",
+    "watch:svelte": "nodemon --watch src/svelte -e svelte,js --exec 'npm run build:svelte'",
+    "watch:ts": "tsdown --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "esbuild": "^0.28.2",
+    "esbuild-svelte": "^0.9.5",
+    "eslint": "^10.9.1",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint-plugin-import-x": "^4.17.1",
+    "eslint-plugin-jsdoc": "^50.0.0",
+    "eslint-plugin-svelte": "^3.23.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.2",
+    "nodemon": "^3.1.14",
+    "sass": "^1.80.6",
+    "svelte": "^5.56.10",
+    "svelte-eslint-parser": "^1.8.1",
+    "svelte-preprocess": "^6.0.5",
+    "tsdown": "^0.14.0",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^8.68.0",
+    "vitest": "^0.28.5"
+  },
+  "type": "module",
+  "lint-staged": {
+    "*.{js,ts,svelte}": [
+      "eslint --fix"
+    ]
   }
 }

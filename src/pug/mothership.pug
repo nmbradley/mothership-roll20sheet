@@ -46,12 +46,23 @@ include sheetdata.pug
                         input.ms-topstat__stat(placeholder=field.placeholder, name=`attr_${field.attr}`, type="number")
                         .ms-topstat__label--invert(data-i18n=field.subtext)
                 .ms-topstat--minmax
+                    .ms-topstat__label(data-i18n="wounds")
+                    .ms-topstat__minmaxwrapper
+                        input.ms-topstat__max(name="attr_wounds_max", placeholder="2", type="number")
+                        input.ms-topstat__min(name="attr_wounds", placeholder="2", type="number")
+                    .ms-topstat__label--small(data-i18n="max")
+                    .ms-topstat__label--small(data-i18n="current")
+                .ms-topstat--minmax
                     .ms-topstat__label(data-i18n="health")
                     .ms-topstat__minmaxwrapper
                         input.ms-topstat__max(name="attr_health_max", placeholder="78", type="number")
                         input.ms-topstat__min(name="attr_health", placeholder="78", type="number")
                     .ms-topstat__label--small(data-i18n="max")
                     .ms-topstat__label--small(data-i18n="current")
+                .ms-topstat
+                    .ms-topstat__label(data-i18n="armor points")
+                    input.ms-topstat__stat(placeholder="0", name="attr_armor_points", type="number")
+                    .ms-topstat__label--invert(data-i18n="AP")
                 .ms-stats__main
                     each stat in stats
                         -
@@ -98,7 +109,7 @@ include sheetdata.pug
                         .ms-saves__inputwrapper
                             input.ms-saves__input(name=`attr_${save.name}`, type="number")
             .ms-stress_panic
-                .ms-stress_panic__label(data-i18n="stress & panic")
+                button.ms-stress_panic__btn(data-i18n="stress & panic", type="roll", value="&{template:ms} {{name=panic check}} {{character_name=@{character_name}}} {{roll=[[1d20]]}} {{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d20}]]}} {{target=@{stress} (Pass if >)}}")
                 input.ms-stress_panic__input.ms-rounded(name=`attr_stress_panic`, type="text")
 
         .ms-skills
@@ -438,12 +449,5 @@ include charactermancer/7-final.pug
 script(type="text/worker")
 
     include ../js/sheetworkers.js
-    include ../js/charactermancer/1-intro.js
-    include ../js/charactermancer/2-stats.js
-    include ../js/charactermancer/3-class.js
-    include ../js/charactermancer/4-skills.js
-    include ../js/charactermancer/5-equipment.js
-    include ../js/charactermancer/6-review.js
-    include ../js/charactermancer/7-final.js
 
     //# sourceURL=sheetworker.js    

@@ -1,3 +1,4 @@
+// @ts-nocheck
 {
     const onLoadClass = () => {
         const data = getCharmancerData();
@@ -146,7 +147,6 @@
                     sanity: "",
                     fear: "",
                     body: "",
-                    armor: "",
                     strength_mod: "",
                     speed_mod: "",
                     intellect_mod: "",
