@@ -1,13 +1,15 @@
 <script lang="ts">
-  import { allStats } from "#game/enums.js";
+  import { allSaves, allStats } from "#game/enums.js";
   import CharmancerGuide from "#svelte/charactermancer/components/CharmancerGuide.svelte";
   import CharmancerPageControl from "#svelte/charactermancer/components/CharmancerPageControl.svelte";
+  import CharmancerSave from "#svelte/charactermancer/components/CharmancerSave.svelte";
   import CharmancerSlide from "#svelte/charactermancer/components/CharmancerSlide.svelte";
   import CharmancerStat from "#svelte/charactermancer/components/CharmancerStat.svelte";
 
   // Plain string: Roll20's braces need no escaping outside markup.
-  const statRoll = "{{template:ms-cm}} {{title=stats roll}} {{strength=[[6d10]]}}"
-    + " {{speed=[[6d10]]}} {{intellect=[[6d10]]}} {{combat=[[6d10]]}}";
+  const statRoll = "{{template:ms-cm}} {{title=stats roll}} {{strength=[[2d10+25]]}}"
+    + " {{speed=[[2d10+25]]}} {{intellect=[[2d10+25]]}} {{combat=[[2d10+25]]}}"
+    + " {{sanity=[[2d10+10]]}} {{fear=[[2d10+10]]}} {{body=[[2d10+10]]}}";
 </script>
 
 <CharmancerSlide name="stats">
@@ -29,6 +31,13 @@
           <CharmancerStat {stat}>
             <input name="comp_{stat}" type="hidden" />
           </CharmancerStat>
+        {/each}
+      </div>
+      <div class="ms-cm-savegroup choice showstats">
+        {#each allSaves as save (save)}
+          <CharmancerSave {save}>
+            <input name="comp_{save}" type="hidden" />
+          </CharmancerSave>
         {/each}
       </div>
       <div class="ms-cm-center">

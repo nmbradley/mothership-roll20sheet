@@ -29,7 +29,8 @@ export type CharmancerData = Partial<Record<Step, StepData>>;
 
 /**
  * Stats carried across every step and shown on the topbar and review.
- * `armor` and the saves are set by the class, the rest by the stat roll.
+ * `armor` is set by the class; the rest come from the stats-and-saves roll,
+ * with the class's stat and save modifiers layered on top.
  */
 export const TrackedStats = [
   "strength",

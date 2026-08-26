@@ -17,9 +17,9 @@ const CUSTOM_CLASS = "custom";
 /** Attributes the class step owns, cleared before a new class writes its own. */
 const CLASS_ATTRIBUTES = [
   "class",
-  "sanity",
-  "fear",
-  "body",
+  "sanity_mod",
+  "fear_mod",
+  "body_mod",
   "strength_mod",
   "speed_mod",
   "intellect_mod",
@@ -210,9 +210,13 @@ function applyClass(definition: ClassDef): void {
   attrs["class"] = definition.name;
   text["t__cname"] = definition.name;
 
-  for (const [save, bonus] of Object.entries(definition.saveBonus)) {
-    attrs[save] = bonus;
-    text[`t__${save}`] = String(bonus);
+  // Saves are rolled on the Stats step; the class only adds a modifier on top,
+  // so the roll stays visible in `${save}` and the bonus lives in `${save}_mod`.
+  const data = charmancerData();
+  for (const save of allSaves) {
+    const bonus = definition.saveBonus[save] ?? 0;
+    attrs[`${save}_mod`] = bonus;
+    text[`t__${save}`] = String(resolveNumber(data, save) + bonus);
   }
 
   for (const stat of allStats) {

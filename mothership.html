@@ -2086,13 +2086,30 @@
             <input name="comp_combat" type="hidden" />
           </div>
         </div>
+        <div class="ms-cm-savegroup choice showstats">
+          <div class="ms-cm-mainsave ms-cm-mainsave--sanity">
+            <div class="ms-cm-mainsave__title" data-i18n="Sanity">Sanity</div>
+            <div class="ms-cm-mainsave__value t__sanity"></div>
+            <input name="comp_sanity" type="hidden" />
+          </div>
+          <div class="ms-cm-mainsave ms-cm-mainsave--fear">
+            <div class="ms-cm-mainsave__title" data-i18n="Fear">Fear</div>
+            <div class="ms-cm-mainsave__value t__fear"></div>
+            <input name="comp_fear" type="hidden" />
+          </div>
+          <div class="ms-cm-mainsave ms-cm-mainsave--body">
+            <div class="ms-cm-mainsave__title" data-i18n="Body">Body</div>
+            <div class="ms-cm-mainsave__value t__body"></div>
+            <input name="comp_body" type="hidden" />
+          </div>
+        </div>
         <div class="ms-cm-center">
           <button
             class="ms-cm-button--roll"
             data-i18n="Roll Stats"
             name="roll_stats"
             type="roll"
-            value="{{template:ms-cm}} {{title=stats roll}} {{strength=[[6d10]]}} {{speed=[[6d10]]}} {{intellect=[[6d10]]}} {{combat=[[6d10]]}}"
+            value="{{template:ms-cm}} {{title=stats roll}} {{strength=[[2d10+25]]}} {{speed=[[2d10+25]]}} {{intellect=[[2d10+25]]}} {{combat=[[2d10+25]]}} {{sanity=[[2d10+10]]}} {{fear=[[2d10+10]]}} {{body=[[2d10+10]]}}"
           >
             Roll Stats
           </button>
@@ -4054,32 +4071,40 @@
   var STARTING_STRESS = 2;
   var STARTING_WOUNDS = 2;
   var STARTING_ARMOR = 0;
+  var ROLLED_FIELDS = [...allStats, ...allSaves];
   function onLoadStats() {
     const data = charmancerData();
     const values = stepValues(data, Steps.Stats);
     if (values["strength"] === void 0) return;
     showChoices(["showstats"]);
     const updates = {};
-    for (const stat of allStats) {
-      updates[`t__${stat}`] = values[stat] ?? "";
+    for (const field of ROLLED_FIELDS) {
+      updates[`t__${field}`] = values[field] ?? "";
     }
     setCharmancerText(updates);
   }
-  function onRollStats(rolls) {
-    showChoices(["showstats"]);
-    const updates = {};
+  function rolledAttrs(rolls) {
     const attrs = {};
-    allStats.forEach((stat, index) => {
+    for (const [index, field] of ROLLED_FIELDS.entries()) {
       const roll = rolls[index];
-      if (roll === void 0) return;
-      updates[`t__${stat}`] = String(roll.result);
-      attrs[stat] = roll.result;
-    });
+      if (roll === void 0) continue;
+      attrs[field] = roll.result;
+    }
     const strength = rolls[0]?.result ?? 0;
     attrs["health"] = strength * 2;
     attrs["stress"] = STARTING_STRESS;
     attrs["wounds"] = STARTING_WOUNDS;
     attrs["armor_points"] = STARTING_ARMOR;
+    return attrs;
+  }
+  function onRollStats(rolls) {
+    showChoices(["showstats"]);
+    const attrs = rolledAttrs(rolls);
+    const updates = {};
+    for (const field of ROLLED_FIELDS) {
+      const value = attrs[field];
+      if (value !== void 0) updates[`t__${field}`] = String(value);
+    }
     setCharmancerText(updates);
     setAttrs(attrs);
   }
@@ -4179,9 +4204,9 @@
   var CUSTOM_CLASS = "custom";
   var CLASS_ATTRIBUTES = [
     "class",
-    "sanity",
-    "fear",
-    "body",
+    "sanity_mod",
+    "fear_mod",
+    "body_mod",
     "strength_mod",
     "speed_mod",
     "intellect_mod",
@@ -4320,9 +4345,11 @@
     }
     attrs["class"] = definition.name;
     text["t__cname"] = definition.name;
-    for (const [save, bonus] of Object.entries(definition.saveBonus)) {
-      attrs[save] = bonus;
-      text[`t__${save}`] = String(bonus);
+    const data = charmancerData();
+    for (const save of allSaves) {
+      const bonus = definition.saveBonus[save] ?? 0;
+      attrs[`${save}_mod`] = bonus;
+      text[`t__${save}`] = String(resolveNumber(data, save) + bonus);
     }
     for (const stat of allStats) {
       const bonus = definition.statBonus[stat] ?? 0;
