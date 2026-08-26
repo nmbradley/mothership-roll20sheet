@@ -1,19 +1,14 @@
-<script>
-  import Frame from "../components/Frame.svelte";
+<script lang="ts">
+  import { character_name } from "#game/fields/npcFields.js";
+  import Attribute from "#svelte/components/Attribute.svelte";
+  import Frame from "#svelte/components/Frame.svelte";
 </script>
 
 <header class="npc-header">
   <Frame mode="dark" corner="medium">
     <div class="npc-header__content">
-      <span class="npc-header__badge" data-i18n="npc">NPC / CONTRACTOR</span>
-      <input
-        class="npc-header__name-input"
-        name="attr_character_name"
-        type="text"
-        placeholder="NPC Name"
-        data-i18n-placeholder="NPC Name"
-        aria-label="NPC Name"
-      />
+      <span class="npc-header__badge" data-i18n="NPC / CONTRACTOR">NPC / CONTRACTOR</span>
+      <Attribute field={character_name} isLabelHidden />
     </div>
   </Frame>
 </header>
@@ -25,32 +20,34 @@
     &__content {
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
+      gap: var(--ms-space-sm);
     }
 
     &__badge {
-      font-family: var(--font-header, "Montserrat", "Arial Black", sans-serif);
-      font-size: 0.8rem;
+      font-size: var(--ms-text-sm);
+      font-family: var(--ms-font-header);
       font-weight: 900;
-      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--color-accent, #ff3366);
+      letter-spacing: 0.12em;
+      color: var(--ms-accent);
     }
 
-    &__name-input {
-      font-family: var(--font-header, "Montserrat", "Arial Black", sans-serif);
-      font-size: 1.75rem;
-      font-weight: bold;
-      text-transform: uppercase;
+    :global(.attribute__input--text) {
       border: none;
       border-bottom: 2px solid transparent;
-      background: transparent;
-      color: var(--color-frame-dark-text, #ffffff);
-      width: 100%;
       outline: none;
+      width: 100%;
+
+      background: transparent;
+
+      font-size: var(--ms-text-xl);
+      font-family: var(--ms-font-header);
+      font-weight: bold;
+      text-transform: uppercase;
+      color: var(--ms-fg-inverse);
 
       &:focus {
-        border-bottom-color: var(--color-accent, #ff3366);
+        border-bottom-color: var(--ms-accent);
       }
     }
   }

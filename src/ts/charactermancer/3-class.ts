@@ -1,264 +1,293 @@
-// @ts-nocheck
-{
-    const onLoadClass = () => {
-        const data = getCharmancerData();
+import { skillsByLevel } from "#game/constants.js";
+import { classes, type ClassDef } from "#game/data/classes.js";
+import {
+  SkillLevels, allSaves, allStats,
+} from "#game/enums.js";
+import { titleCase } from "#game/text.js";
 
-        if (data?.class?.values?.["selected"]) instanceClass(data.class.values.selected);
-        else generateClassList();
+import {
+  attributeKey, charmancerData, resolveNumber, stepRows, stepValues,
+} from "./helpers";
+import { Steps } from "./types";
+
+const CLASS_LIST = "sheet-t__classes";
+const SKILL_CHOICE_LIST = "sheet-t__skill_choice";
+const CUSTOM_CLASS = "custom";
+
+/** Attributes the class step owns, cleared before a new class writes its own. */
+const CLASS_ATTRIBUTES = [
+  "class",
+  "sanity",
+  "fear",
+  "body",
+  "strength_mod",
+  "speed_mod",
+  "intellect_mod",
+  "combat_mod",
+  "skill_points",
+  "stress_effect",
+  "skills",
+] as const;
+
+/** Shows the chosen class, or the picker when nothing is chosen yet. */
+export function onLoadClass(): void {
+  const data = charmancerData();
+  const selected = stepValues(data, Steps.Class)["selected"];
+  if (selected === undefined || selected === "") {
+    generateClassList();
+    return;
+  }
+  instanceClass(selected);
+}
+
+/** Builds one selectable card per class, plus the custom option. */
+export function generateClassList(): void {
+  hideChoices([]);
+  showChoices(["showclasses"]);
+  clearRepeatingSections(CLASS_LIST);
+
+  for (const definition of Object.values(classes)) {
+    addClassCard(definition);
+  }
+  addClassCard(undefined);
+}
+
+function addClassCard(definition: ClassDef | undefined): void {
+  const name = definition?.name ?? CUSTOM_CLASS;
+
+  addRepeatingSection(CLASS_LIST, "class", (rowId: string) => {
+    const title = definition === undefined ? getTranslationByKey(CUSTOM_CLASS) : name;
+    const description = definition?.desc
+      ?? getTranslationByKey("choose this option to enter your own information");
+
+    setAttrs({ [`${rowId}_name`]: name });
+    setCharmancerText({
+      [`${rowId} .sheet-t__title`]: title,
+      [`${rowId} .sheet-t__desc`]: `<p>${description}</p>`,
+      [`${rowId} .sheet-t__grants`]: grantsList(definition),
+    });
+  });
+}
+
+/**
+ * What a class gives, as a list.
+ *
+ * This replaces the class art the compendium used to supply: the numbers are
+ * what the player is actually choosing between, and they come straight from the
+ * rules data rather than being baked into an image.
+ */
+function grantsList(definition: ClassDef | undefined): string {
+  if (definition === undefined) return "";
+
+  const items: string[] = [];
+  for (const line of grantLines(definition)) {
+    items.push(`<li>${line}</li>`);
+  }
+  const joined = items.join("");
+  return `<ul class="ms-cm-class__grantlist">${joined}</ul>`;
+}
+
+function grantLines(definition: ClassDef): readonly string[] {
+  const lines: string[] = [];
+
+  const stats = describeBonuses(definition.statBonus, allStats.length, "Stats");
+  for (const line of stats) lines.push(line);
+
+  const saves = describeBonuses(definition.saveBonus, allSaves.length, "Saves");
+  for (const line of saves) lines.push(`${line} Save`);
+
+  const floating = definition.floating;
+  if (floating !== undefined) {
+    const sign = floating.amount > 0 ? "+" : "";
+    lines.push(`${sign}${floating.amount} to ${floating.count} Stat of your choice`);
+  }
+
+  if (definition.maxWoundsBonus > 0) {
+    lines.push(`+${definition.maxWoundsBonus} Maximum Wound`);
+  }
+
+  const granted = definition.skills.granted;
+  if (granted.length > 0) {
+    const names: string[] = [];
+    for (const skill of granted) {
+      const display = titleCase(skill);
+      names.push(display);
     }
+    const joined = names.join(", ");
+    lines.push(joined);
+  }
 
-    const generateClassList = () => {
+  lines.push(`${definition.skills.skillPoints} Skill Points`);
+  return lines;
+}
 
-        hideChoices();
-        showChoices(["showclasses"]);
+/**
+ * Renders a bonus map, collapsing a bonus applied to everything into one line
+ * so the Teamster reads "+5 All" rather than the same number four times.
+ */
+function describeBonuses(
+  bonuses: Partial<Record<string, number>>,
+  total: number,
+  collectiveNoun: string,
+): readonly string[] {
+  const entries = Object.entries(bonuses);
+  if (entries.length === 0) return [];
 
-        clearRepeatingSections("sheet-t__classes");
+  const amounts = new Set<number>();
+  for (const [, amount] of entries) amounts.add(amount ?? 0);
 
-        getCompendiumQuery("Category:Classes", function(data) {
+  const first = entries[0]?.[1] ?? 0;
+  const isUniform = entries.length === total && amounts.size === 1;
+  if (isUniform) return [`+${first} All ${collectiveNoun}`];
 
-            custom = [{name:"custom"}];
-            data = [...data, ...custom];
+  const lines: string[] = [];
+  for (const [name, amount] of entries) {
+    const value = amount ?? 0;
+    const sign = value > 0 ? "+" : "";
+    lines.push(`${sign}${value} ${titleCase(name)}`);
+  }
+  return lines;
+}
 
-            data.forEach(class_object => {
-                const saves = (class_object?.data?.["Saves"]) ? JSON.parse(class_object.data["Saves"]) : false;
-                const skills = (class_object?.data?.["Skills"]) ? JSON.parse(class_object.data["Skills"]) : false;
-                const skills_choice = (class_object?.data?.["Skill Choice"]) ? JSON.parse(class_object.data["Skill Choice"]) : false;
-                const stat_bonus = (class_object?.data?.["Stat Bonus"]) ? JSON.parse(class_object.data["Stat Bonus"]) : false;
-                const description = (class_object?.data?.["data-Description"]) ? class_object.data["data-Description"] : "Undefined"; 
-                const img = (class_object?.data?.["data-class_image"]) ? class_object.data["data-class_image"] : "Undefined";
+/** Looks a class up by the name stored on the sheet. */
+function findClass(name: string): ClassDef | undefined {
+  for (const definition of Object.values(classes)) {
+    if (definition.name === name) return definition;
+  }
+  return undefined;
+}
 
-                addRepeatingSection(`sheet-t__classes`, `class`, section_id => {
+/** Records the player's pick and deselects every other card. */
+export function onSelectClass(sourceSection: string, sourceType: string): void {
+  if (sourceType !== "player") return;
 
-                    const updateHTML = {};
-                    const updateAttrs = {};
-                    
-                    if (class_object.name === "custom") {
+  const data = charmancerData();
+  const chosen = stepValues(data, Steps.Class)[`${sourceSection}_name`];
+  if (chosen === undefined) return;
 
-                        updateAttrs[`${section_id}_name`] = "custom";
-
-                        updateHTML[`${section_id} .sheet-t__img`] = `<img src="https://s3.amazonaws.com/files.d20.io/images/156707384/n7TD2kDSyn433GHWIRI58g/max.png" />`;
-                        updateHTML[`${section_id} .sheet-t__title`] = getTranslationByKey("custom");
-                        updateHTML[`${section_id} .sheet-t__desc`] = getTranslationByKey("choose this option to enter your own information");
-
-                    } else {
-
-                        updateAttrs[`${section_id}_name`] = class_object.name;
-
-                        updateHTML[`${section_id} .sheet-t__img`] = `<img src="${img}" />`;
-                        updateHTML[`${section_id} .sheet-t__title`] = class_object.name;
-                        updateHTML[`${section_id} .sheet-t__desc`] = `
-                            <p>${description}</p>
-                        `;
-
-                        // updateHTML[`${section_id} .sheet-t__desc`] += `
-                        //     <h3>${getTranslationByKey("saves")}:</h3>
-                        // `;
-
-                        // const saves_array = [];
-
-                        // Object.entries(saves).forEach(([key, value]) => {
-                        //     saves_array.push(`<strong>${key}</strong> ${value}`);
-                        // })
-                        
-                        // updateHTML[`${section_id} .sheet-t__desc`] += saves_array.join("<br />");
-
-                        // updateHTML[`${section_id} .sheet-t__desc`] += `<h3>${getTranslationByKey("stats")}:</h3>`;
-
-                        // const stats_array = [];
-
-                        // Object.entries(stat_bonus).forEach(([key, value]) => {
-                        //     stats_array.push(`<strong>${key}</strong> +${value}`);
-                        // });
-
-                        // updateHTML[`${section_id} .sheet-t__desc`] += stats_array.join(", ");
-
-                        // updateHTML[`${section_id} .sheet-t__desc`] += `<h3>${getTranslationByKey("skills")}:</h3>`;
-
-                        // if (skills) {
-
-                        //     const skills_array = [];
-
-                        //     skills.forEach(skill => skills_array.push(skill));
-
-                        //     updateHTML[`${section_id} .sheet-t__desc`] += `<p>${skills_array.join(", ")}</p>`;
-
-                        // } 
-
-                        // if (skills_choice) {
-
-                        //     const skillchoice_array = [];
-
-                        //     skills_choice[0].forEach((choice) => skillchoice_array.push(choice));
-
-                        //     updateHTML[`${section_id} .sheet-t__desc`] += `<p>${skillchoice_array.join(" or ")}</p>`;
-
-                        // }
-
-                    }
-                    
-                    setAttrs(updateAttrs);
-                    setCharmancerText(updateHTML);
-
-                });
-
-            });
-
-        }); 
+  getRepeatingSections(CLASS_LIST, (details) => {
+    const attrs: Record<string, string | number> = { selected: chosen };
+    for (const rowId of details.list) {
+      if (rowId !== sourceSection) attrs[`${rowId}_selected`] = 0;
     }
+    setAttrs(attrs, () => {
+      instanceClass(chosen);
+    });
+  });
+}
 
-    const onSelectClass = (source_section, source_type) => {
-        const data = getCharmancerData();
+/** Loads a class's saves, modifiers and skills onto the sheet. */
+export function instanceClass(className: string): void {
+  hideChoices([]);
+  showChoices(["showclassinfo"]);
 
-        if (source_type !== "player") return;
+  if (className === CUSTOM_CLASS) {
+    hideChoices(["presetclass"]);
+    showChoices(["customclass"]);
+    clearRepeatingSections(SKILL_CHOICE_LIST);
+    return;
+  }
 
-        getRepeatingSections("sheet-t__classes", repeating_ids => {
-            const updateAttrs = {};
+  const definition = findClass(className);
+  if (definition === undefined) {
+    generateClassList();
+    return;
+  }
 
-            repeating_ids.list.filter(id => id !== source_section).forEach(id=> updateAttrs[`${id}_selected`] = 0);
+  showChoices(["presetclass"]);
+  hideChoices(["customclass"]);
+  applyClass(definition);
+}
 
-            const new_class = data.class.values[`${source_section}_name`];
-            
-            updateAttrs[`selected`] = new_class;
+function applyClass(definition: ClassDef): void {
+  const attrs: Record<string, string | number> = {};
+  const text: Record<string, string> = {};
 
-            setAttrs(updateAttrs, callback => instanceClass(new_class));
-        });
+  for (const attribute of CLASS_ATTRIBUTES) {
+    attrs[attribute] = "";
+  }
 
+  attrs["class"] = definition.name;
+  text["t__cname"] = definition.name;
+
+  for (const [save, bonus] of Object.entries(definition.saveBonus)) {
+    attrs[save] = bonus;
+    text[`t__${save}`] = String(bonus);
+  }
+
+  for (const stat of allStats) {
+    const bonus = definition.statBonus[stat] ?? 0;
+    attrs[`${stat}_mod`] = bonus;
+  }
+
+  attrs["health"] = classHealth();
+  attrs["stress_effect"] = definition.traumaResponse;
+  text["t__stress_effect"] = definition.traumaResponse;
+
+  const granted = definition.skills.granted;
+  attrs["skills"] = JSON.stringify(granted);
+  text["t__skills"] = granted.join(", ");
+
+  attrs["skill_points"] = definition.skills.skillPoints;
+  text["t__skill_points"] = String(definition.skills.skillPoints);
+
+  setAttrs(attrs);
+  setCharmancerText(text);
+  offerSkillChoices(definition);
+}
+
+/**
+ * Health is twice Strength, taken after the class modifier so a class that
+ * boosts Strength raises health with it.
+ */
+function classHealth(): number {
+  const data = charmancerData();
+  const strength = resolveNumber(data, "strength");
+  const modifier = resolveNumber(data, "strength_mod");
+  return (strength + modifier) * 2;
+}
+
+/**
+ * Adds a picker row for a class that chooses a Master skill.
+ *
+ * Only the Scientist does this: it takes a Master skill outright, so the player
+ * picks which one and its prerequisites come with it.
+ */
+function offerSkillChoices(definition: ClassDef): void {
+  clearRepeatingSections(SKILL_CHOICE_LIST);
+  if (definition.skills.grantsMasterChain !== true) return;
+
+  const masters = skillsByLevel[SkillLevels.Master];
+  const options: string[] = [];
+  for (const skill of masters) {
+    options.push(skill.name);
+  }
+
+  addRepeatingSection(SKILL_CHOICE_LIST, "skillselection", (rowId: string) => {
+    setCharmancerOptions(`${rowId}_skill`, options);
+  });
+}
+
+/** Clears the pick and returns to the class list. */
+export function reselectClass(): void {
+  getRepeatingSections(CLASS_LIST, (details) => {
+    hideChoices([]);
+    const attrs: Record<string, string | number> = { selected: "" };
+    for (const rowId of details.list) {
+      attrs[`${rowId}_selected`] = 0;
     }
+    setAttrs(attrs, () => {
+      onLoadClass();
+    });
+  });
+}
 
-    const instanceClass = (class_name) => {
-        const cm_data = getCharmancerData();
-
-        hideChoices();
-        showChoices(["showclassinfo"]);
-
-        if (class_name === "custom") {
-            hideChoices(["presetclass"]);
-            showChoices(["customclass"]);
-
-            clearRepeatingSections("sheet-t__skill_choice"); 
-        } else {
-            showChoices(["presetclass"]);
-            hideChoices(["customclass"]);
-
-            getCompendiumPage(`Classes:${class_name}`, data => {
-
-                const updateAttrs = {
-                    class: "",
-                    sanity: "",
-                    fear: "",
-                    body: "",
-                    strength_mod: "",
-                    speed_mod: "",
-                    intellect_mod: "",
-                    combat_mod: "",
-                    skill_points: "",
-                };
-
-                const updateHTML = {};
-                
-                updateHTML[`t__cname`] = data.name;
-                updateAttrs[`class`] = data.name;
-                
-                const saves = JSON.parse(data.data["Saves"]);   
-
-                Object.entries(saves).forEach(([key, value]) => {
-
-                    const key_lower = key.toLowerCase();
-
-                    updateHTML[`t__${key_lower}`] = value;
-                    updateAttrs[key_lower] = value;
-
-                });
-                
-                const stats = JSON.parse(data.data["Stat Bonus"]);
-
-                Object.entries(stats).forEach(([key, value]) => {
-
-                    const key_lower = key.toLowerCase();
-                    
-                    updateAttrs[`${key_lower}_mod`] = value;
-
-                });
-
-                const strength = (cm_data?.class?.values?.strength) ? parseInt(cm_data.class.values.strength) :
-                                 (cm_data?.stats?.values?.strength) ? parseInt(cm_data.stats.values.strength) :
-                                 0;
-
-                const strength_mod = (cm_data?.class?.values?.strength_mod) ? parseInt(cm_data.class.values.strength_mod) :
-                                     (cm_data?.stats?.values?.strength_mod) ? parseInt(cm_data.stats.values.strength_mod) :
-                                     0;
-
-                const health = (strength + strength_mod) * 2;
-
-                updateAttrs["health"] = health;
-
-                ["Skills", "Skill Points", "Stress Effect"].forEach(item => {
-                    const parsed = item.toLowerCase().replace(/ /g,"_");
-
-                    if (data?.data?.[item]) {
-                        const json = (parseJSON(data.data[item])) ? parseJSON(data.data[item]) : data.data[item];
-                        const display = (Array.isArray(json)) ? json.join(", ") : json;
-
-                        updateAttrs[parsed] = data.data[item];
-                        updateHTML[`t__${parsed}`] = display;
-                    } else {
-                        updateAttrs[parsed] = "";
-                        updateHTML[`t__${parsed}`] = "";
-                    }
-                });
-
-                clearRepeatingSections("sheet-t__skill_choice"); 
-
-                if (data?.data?.["Skill Choice"]) {
-                    const choices = parseJSON(data.data["Skill Choice"]);
-
-                    choices.forEach(group => addRepeatingSection("sheet-t__skill_choice", "skillselection", "choicerow", section_id => setCharmancerOptions(`${section_id}_skill`, group)));
-
-                }
-
-                setAttrs(updateAttrs);
-                setCharmancerText(updateHTML);
-    
-            });
-
-        }
-
-    }
-
-    const reselectClass = () => {
-        const data = getCharmancerData();
-
-        getRepeatingSections("sheet-t__classes", repeating_ids => {
-
-            hideChoices();
-
-            const updateAttrs = {};
-
-            repeating_ids.list.forEach(id=> updateAttrs[`${id}_selected`] = 0);
-            
-            updateAttrs[`selected`] = "";
-
-            setAttrs(updateAttrs, callback => onLoadClass());
-        });
-    }
-
-    const disableSkills = (new_value) => {
-        const data = getCharmancerData();
-        const disable = [];
-        disable.push(new_value);
-
-        if (data?.class?.repeating) {
-            data.class.repeating.forEach(repeating_id => {
-
-               disableCharmancerOptions(`${repeating_id}_skill`, disable);
-                
-            });
-        }
-
-    }
-
-    on(`page:class`, eventInfo => onLoadClass());
-    on(`mancerchange:repeating_class_selected`, eventInfo => onSelectClass(eventInfo.sourceSection, eventInfo.sourceType));
-    on(`clicked:reselectc`, eventInfo => reselectClass());
-    on(`mancerchange:repeating_choicerow`, eventInfo => disableSkills(eventInfo.newValue));
+/** Stops the same skill being chosen twice across the choice rows. */
+export function disableChosenSkill(chosen: string): void {
+  const data = charmancerData();
+  const key = attributeKey(chosen);
+  const rows = stepRows(data, Steps.Class);
+  for (const rowId of rows) {
+    disableCharmancerOptions(`${rowId}_skill`, [key]);
+  }
 }

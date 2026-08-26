@@ -4,3 +4,4 @@ sources/
 src/js/
 dist/
 .dist/
+.DS_Store

@@ -1,27 +1,24 @@
-<script>
-  import Frame from "../components/Frame.svelte";
-  import Header from "../components/Header.svelte";
-  import Attribute from "../components/Attribute.svelte";
-  import { description, equipment } from "../../game/fields/npcFields";
+<script lang="ts">
+  import { npc_description, npc_equipment } from "#game/fields/npcFields";
+  import Attribute from "#svelte/components/Attribute.svelte";
+  import Panel from "#svelte/components/Panel.svelte";
 </script>
 
 <section class="npc-narrative-grid">
   <div class="npc-narrative-card">
-    <Frame mode="light" corner="medium">
-      <Header title="Description" />
+    <Panel title="Description">
       <div class="npc-narrative-field">
-        <Attribute field={description} />
+        <Attribute field={npc_description} isLabelHidden />
       </div>
-    </Frame>
+    </Panel>
   </div>
 
   <div class="npc-narrative-card">
-    <Frame mode="light" corner="medium">
-      <Header title="Equipment & Notes" />
+    <Panel title="Equipment & Notes">
       <div class="npc-narrative-field">
-        <Attribute field={equipment} />
+        <Attribute field={npc_equipment} isLabelHidden />
       </div>
-    </Frame>
+    </Panel>
   </div>
 </section>
 
@@ -29,7 +26,7 @@
   .npc-narrative-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
+    gap: var(--ms-space-xl);
 
     @media (max-width: 768px) {
       grid-template-columns: 1fr;
@@ -42,7 +39,7 @@
   }
 
   .npc-narrative-field {
-    margin-top: 0.5rem;
+    margin-top: var(--ms-space-md);
 
     :global(.attribute) {
       display: flex;
@@ -50,20 +47,18 @@
       align-items: stretch;
     }
 
-    :global(.attribute__label) {
-      display: none;
-    }
-
     :global(.attribute__input--textarea) {
-      font-size: 0.9rem;
-      padding: 0.5rem;
-      border: 1px solid var(--color-border, #000000);
-      background: var(--color-bg, #ffffff);
-      color: var(--color-text, #000000);
-      border-radius: 4px;
-      resize: vertical;
+      border: 1px solid var(--ms-border);
+      border-radius: var(--ms-radius-sm);
       min-height: 6rem;
+      padding: var(--ms-space-md);
+
+      background: var(--ms-surface);
+
+      font-size: var(--ms-text-md);
       font-family: inherit;
+      color: var(--ms-fg);
+      resize: vertical;
     }
   }
 </style>

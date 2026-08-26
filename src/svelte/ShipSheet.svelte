@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import ShipCargoPanel from "./ship/ShipCargoPanel.svelte";
   import ShipCrewPanel from "./ship/ShipCrewPanel.svelte";
   import ShipHeader from "./ship/ShipHeader.svelte";
@@ -28,9 +28,11 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    font-family: var(--font-body, "Century Gothic", "Diadact Gothic", sans-serif);
-    color: var(--color-text, #000000);
-    background-color: var(--color-bg, #ffffff);
+
+    background-color: var(--ms-surface);
+
+    font-family: var(--ms-font-body);
+    color: var(--ms-fg);
 
     &__header {
       width: 100%;

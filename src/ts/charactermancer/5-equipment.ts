@@ -1,103 +1,147 @@
-// @ts-nocheck
-import { parseJSON } from "../index";
-{
-  let packages = {};
+import { loadouts, type LoadoutOption } from "#game/data/loadouts.js";
+import { patches } from "#game/data/patches.js";
+import { trinkets } from "#game/data/trinkets.js";
+import { Classes, type Class } from "#game/enums.js";
 
-  const onLoadEquipment = () => {
-    initEquipmentPackages();
-    initTrinketsandPatches();
-  };
+import { charmancerData, stepValues } from "./helpers";
+import { Steps } from "./types";
 
-  const initEquipmentPackages = () => {
-    getCompendiumPage("Character Creation", (data) => {
-      const choices = ["custom"];
+const CUSTOM_PACKAGE = "custom";
+const UNCHOSEN = "choose";
 
-      if (data?.data?.equipment_packages) {
-        packages = JSON.parse(data.data.equipment_packages);
+/** Loads the loadout list and the trinket and patch roll buttons. */
+export function onLoadEquipment(): void {
+  offerLoadouts();
+  buildTableRoll("trinket", trinkets, "t__trinketroll");
+  buildTableRoll("patch", patches, "t__patchroll");
+  restoreChosenEquipment();
+}
 
-        Object.keys(packages).forEach((key) => choices.unshift(key));
-      }
+/**
+ * Offers the loadouts for the chosen class.
+ *
+ * Loadouts are per class in the rules, so an unchosen class leaves only the
+ * custom option rather than every class's kit at once.
+ */
+function offerLoadouts(): void {
+  const options = [...loadoutNames(), CUSTOM_PACKAGE];
+  setCharmancerOptions("package", options);
+}
 
-      setCharmancerOptions(`package`, choices);
-    });
-  };
+function loadoutNames(): readonly string[] {
+  const options = chosenLoadouts();
+  const names: string[] = [];
+  for (const option of options) {
+    const label = loadoutLabel(option);
+    names.push(label);
+  }
+  return names;
+}
 
-  const chooseEquipmentPackage = (new_value) => {
-    hideChoices();
+/** A loadout is identified by its roll number on the class's table. */
+function loadoutLabel(option: LoadoutOption): string {
+  const label = String(option.roll);
+  return label;
+}
 
-    if (new_value === "choose") return;
+function chosenLoadouts(): readonly LoadoutOption[] {
+  const data = charmancerData();
+  const chosen = stepValues(data, Steps.Class)["class"];
+  if (chosen === undefined) return [];
 
-    if (packages[new_value]) {
-      const items = packages[new_value].map((item) => (Array.isArray(item)) ? `${item[0]} (${item[1]})` : item).join(", ");
+  const key = chosen.toLowerCase();
+  const isKnown = Object.values(Classes).includes(key as Class);
+  if (!isKnown) return [];
+  return loadouts[key as Class];
+}
 
-      setCharmancerText({ t__package: items });
-      setAttrs({ equipment: JSON.stringify(packages[new_value]) });
-    } else if (new_value === "custom") {
-      showChoices(["custompackage"]);
+/** Records the chosen loadout, or opens the free-text option. */
+export function chooseEquipmentPackage(choice: string): void {
+  hideChoices([]);
+  if (choice === UNCHOSEN) return;
 
-      setCharmancerText({ t__package: "" });
-      setAttrs({ equipment: "" });
-    }
-  };
+  if (choice === CUSTOM_PACKAGE) {
+    showChoices(["custompackage"]);
+    setCharmancerText({ t__package: "" });
+    setAttrs({ equipment: "" });
+    return;
+  }
 
-  const initTrinketsandPatches = () => {
-    const data = getCharmancerData();
+  const options = chosenLoadouts();
+  for (const option of options) {
+    const label = loadoutLabel(option);
+    if (label !== choice) continue;
 
-    let trinkets = [];
-    let patches = [];
+    const described = option.items.join(", ");
+    const encoded = JSON.stringify(option.items);
+    setCharmancerText({ t__package: described });
+    setAttrs({ equipment: encoded });
+    return;
+  }
+}
 
-    getCompendiumPage("Trinkets", (data) => {
-      trinkets = (data?.data?.trinkets) ? parseJSON(data.data.trinkets) : [];
+/**
+ * Builds a roll button for a d100 table.
+ *
+ * Each entry is passed to the roll template as an option, so the template can
+ * show the rolled result without a second lookup.
+ */
+function buildTableRoll(name: string, entries: readonly string[], target: string): void {
+  const options: string[] = [];
+  for (let index = 0; index < entries.length; index += 1) {
+    options.push(`{{opt${index}=${entries[index] ?? ""}}}`);
+  }
 
-      getCompendiumPage("Patches", (data) => {
-        patches = (data?.data?.patches) ? parseJSON(data.data.patches) : [];
+  const joined = options.join(" ");
+  const value = `&{template:ms-cm} {{title=${name} roll}} {{roll=[[1d100-1]]}} ${joined}`;
+  setCharmancerText({
+    [target]: `<button class="ms-cm-${name}roll" name="roll_${name}" `
+      + `type="roll" value="${value}"></button>`,
+  });
+}
 
-        const trinkets_map = trinkets.map((trinket, index) => `{{opt${index}=${trinket}}}`);
-        const patches_map = patches.map((patch, index) => `{{opt${index}=${patch}}}`);
+/** Repaints anything the player already rolled on a previous visit. */
+function restoreChosenEquipment(): void {
+  const data = charmancerData();
+  const values = stepValues(data, Steps.Equipment);
 
-        const trinkets_roll = `&{template:ms-cm} {{title=trinket roll}} {{roll=[[1d100-1]]}} ${trinkets_map.join(" ")}`;
-        const patches_roll = `&{template:ms-cm} {{title=patch roll}} {{roll=[[1d100-1]]}} ${patches_map.join(" ")}`;
+  const text: Record<string, string> = {};
+  for (const field of ["credits", "trinket", "patch"]) {
+    const value = values[field];
+    if (value !== undefined) text[`t__${field}`] = value;
+  }
+  setCharmancerText(text);
+}
 
-        const updateHTML = {};
+/** Records rolled starting credits. */
+export function rollCredits(rolls: readonly RollResult[]): void {
+  const result = rolls[0]?.result;
+  if (result === undefined) return;
+  setAttrs({ credits: result });
+  setCharmancerText({ t__credits: String(result) });
+}
 
-        updateHTML[`t__trinketroll`] = `<button class="sheet-ms-cm-trinketroll" name="roll_trinket" type="roll" value="${trinkets_roll}"></button>`;
-        updateHTML[`t__patchroll`] = `<button class="sheet-ms-cm-patchesroll" name="roll_patch" type="roll" value="${patches_roll}"></button>`;
+/** Records a rolled trinket. */
+export function rollTrinket(rolls: readonly RollResult[]): void {
+  applyTableRoll(rolls, trinkets, "trinket");
+}
 
-        setCharmancerText(updateHTML);
-      });
-    });
+/** Records a rolled patch. */
+export function rollPatch(rolls: readonly RollResult[]): void {
+  applyTableRoll(rolls, patches, "patch");
+}
 
-    if (data?.equipment?.values?.credits) setCharmancerText({ t__credits: data.equipment.values.credits });
-    if (data?.equipment?.values?.trinket) setCharmancerText({ t__trinket: data.equipment.values.trinket });
-    if (data?.equipment?.values?.patch) setCharmancerText({ t__patch: data.equipment.values.patch });
-  };
+function applyTableRoll(
+  rolls: readonly RollResult[],
+  entries: readonly string[],
+  attribute: string,
+): void {
+  const index = rolls[0]?.result;
+  if (index === undefined) return;
 
-  const rollCredits = (roll) => {
-    setAttrs({ credits: roll[0].result });
-    setCharmancerText({ t__credits: `${roll[0].result}` });
-  };
+  const chosen = entries[index];
+  if (chosen === undefined) return;
 
-  const rollTrinket = (roll) => {
-    getCompendiumPage("Trinkets", (data) => {
-      const trinkets = (data?.data?.trinkets) ? parseJSON(data.data.trinkets) : [];
-
-      setAttrs({ trinket: trinkets[roll[0].result] });
-      setCharmancerText({ t__trinket: trinkets[roll[0].result] });
-    });
-  };
-
-  const rollPatch = (roll) => {
-    getCompendiumPage("Patches", (data) => {
-      const patches = (data?.data?.patches) ? parseJSON(data.data.patches) : [];
-
-      setAttrs({ patch: patches[roll[0].result] });
-      setCharmancerText({ t__patch: patches[roll[0].result] });
-    });
-  };
-
-  on(`page:equipment`, (eventInfo) => { onLoadEquipment(); });
-  on(`mancerchange:package`, (eventInfo) => { chooseEquipmentPackage(eventInfo.newValue); });
-  on(`mancerroll:credits`, (eventInfo) => { rollCredits(eventInfo.roll); });
-  on(`mancerroll:trinket`, (eventInfo) => { rollTrinket(eventInfo.roll); });
-  on(`mancerroll:patch`, (eventInfo) => { rollPatch(eventInfo.roll); });
+  setAttrs({ [attribute]: chosen });
+  setCharmancerText({ [`t__${attribute}`]: chosen });
 }

@@ -13,6 +13,11 @@ type Roll = {
   sides: number;
 };
 
+/** Row ids for one repeating section, in sheet order. */
+type RepeatingSectionDetails = {
+  list: string[];
+};
+
 type GetAttrsResponse = { [x: string]: string | number };
 
 type EventInfo = {
@@ -21,12 +26,20 @@ type EventInfo = {
   previousValue: string;
   sourceType: string;
   triggerName: string;
+  /** Present on repeating-section events: the row that raised it. */
+  sourceSection?: string;
+  /** Present on `mancerroll:` events. */
+  roll?: RollResult[];
+  /** Present on `mancerfinish:` events: the completed charactermancer data. */
+  data?: Record<string, unknown>;
 };
 
 type CompendiumResponse = {
   Category: string;
+  /** Roll20 returns the page name lowercase on query results. */
+  name: string;
   Name: string;
-  data: Record<string, string>;
+  data: Record<string, string | undefined>;
 };
 
 // --- CORE SHEETWORKER FUNCTIONS ---
@@ -34,6 +47,13 @@ declare function on(events: string, callback: (eventInfo: EventInfo) => void): v
 
 declare function setAttrs(
   object: Record<string, string | number>,
+  callback?: () => void,
+): void;
+
+// `silent` suppresses the change events the write would otherwise raise.
+declare function setAttrs(
+  object: Record<string, string | number>,
+  options: { silent: boolean },
   callback?: () => void,
 ): void;
 
@@ -79,6 +99,12 @@ declare function getCompendiumPage(
   callback: (pageData: CompendiumResponse) => void,
 ): void;
 
+// Passing several page names returns them together.
+declare function getCompendiumPage(
+  pages: readonly string[],
+  callback: (pageData: CompendiumResponse[]) => void,
+): void;
+
 declare function getCompendiumQuery(
   query: string,
   callback?: (queryData: CompendiumResponse[]) => void,
@@ -106,7 +132,7 @@ declare function disableCharmancerOptions(
 ): void;
 
 declare function deleteCharmancerData(
-  nodes: string[],
+  nodes?: string[],
   callback?: () => void,
 ): void;
 
@@ -114,15 +140,16 @@ declare function hideChoices(arr: string[]): void;
 
 declare function showChoices(arr: string[]): void;
 
+// The callback receives the id of the row just added.
 declare function addRepeatingSection(
   section: string,
   data: string,
-  callback?: () => void,
+  callback?: (rowId: string) => void,
 ): void;
 
 declare function getRepeatingSections(
   section: string,
-  callback?: (details: Record<string, unknown>) => void,
+  callback?: (details: RepeatingSectionDetails) => void,
 ): void;
 
 declare function clearRepeatingSections(

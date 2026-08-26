@@ -85,6 +85,7 @@ export const patches: string[] = [
   "“NOMAD”",
   "“GOOD BOY”",
   "Dice (Snake Eyes)",
+  // eslint-disable-next-line no-restricted-syntax -- a patch name from the book, not a ticket
   "“#1 Worker”",
   "“Good” (Brain)",
   "“Bad Bitch”",

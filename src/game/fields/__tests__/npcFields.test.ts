@@ -1,176 +1,161 @@
-import { describe, expect, it } from "vitest";
+import {
+  describe, expect, it,
+} from "vitest";
 
 import {
-  armor_points,
-  attack_ammunition,
-  attack_crit_damage,
-  attack_crit_effect,
-  attack_damage,
-  attack_name,
-  attack_notes,
-  attack_range_l,
-  attack_range_m,
-  attack_range_s,
-  attack_shots,
-  attack_type,
+  npc_armor_points,
+  npc_attack_ammunition,
+  npc_attack_crit_damage,
+  npc_attack_crit_effect,
+  npc_attack_damage,
+  npc_attack_name,
+  npc_attack_notes,
+  npc_attack_range,
+  npc_attack_shots,
+  npc_attack_type,
   character_name,
-  combat,
-  description,
-  equipment,
-  health,
-  instinct,
+  npc_combat,
+  npc_description,
+  npc_equipment,
+  npc_health,
+  npc_instinct,
   npcAttacks,
   npcAttributes,
   npcTraits,
-  trait_description,
-  trait_name,
-  wounds,
-} from "../npcFields";
+  npc_trait_description,
+  npc_trait_name,
+  npc_wounds,
+} from "#game/fields/npcFields";
 
 describe("NPC Fields (1e Conversion)", () => {
   describe("Core NPC Attributes", () => {
-    it("should define character name and combat / instinct stats (excluding speed)", () => {
+    it("should define character name and npc_combat / npc_instinct stats (excluding speed)", () => {
       const charNameExpect = expect(character_name.name);
       charNameExpect.toBe("character_name");
 
-      const combatNameExpect = expect(combat.name);
-      combatNameExpect.toBe("combat");
+      const combatNameExpect = expect(npc_combat.name);
+      combatNameExpect.toBe("npc_combat");
 
-      const combatTypeExpect = expect(combat.type);
-      combatTypeExpect.toBe("number");
-
-      const combatUiTypeExpect = expect(combat.uiType);
+      const combatUiTypeExpect = expect(npc_combat.control);
       combatUiTypeExpect.toBe("number");
 
-      const instinctNameExpect = expect(instinct.name);
-      instinctNameExpect.toBe("instinct");
+      const instinctNameExpect = expect(npc_instinct.name);
+      instinctNameExpect.toBe("npc_instinct");
 
-      const instinctTypeExpect = expect(instinct.type);
-      instinctTypeExpect.toBe("number");
-
-      const instinctUiTypeExpect = expect(instinct.uiType);
+      const instinctUiTypeExpect = expect(npc_instinct.control);
       instinctUiTypeExpect.toBe("number");
     });
 
-    it("should define wounds and health with max support", () => {
-      const woundsNameExpect = expect(wounds.name);
-      woundsNameExpect.toBe("wounds");
+    it("should define npc_wounds and npc_health with max support", () => {
+      const woundsNameExpect = expect(npc_wounds.name);
+      woundsNameExpect.toBe("npc_wounds");
 
-      const woundsMaxExpect = expect(wounds.max);
-      woundsMaxExpect.toBe(true);
+      const woundsMaxExpect = expect(npc_wounds.max);
+      woundsMaxExpect.toBe(0);
 
-      const woundsUiTypeExpect = expect(wounds.uiType);
-      woundsUiTypeExpect.toBe("number-max");
+      const woundsUiTypeExpect = expect(npc_wounds.control);
+      woundsUiTypeExpect.toBe("number");
 
-      const healthNameExpect = expect(health.name);
-      healthNameExpect.toBe("health");
+      const healthNameExpect = expect(npc_health.name);
+      healthNameExpect.toBe("npc_health");
 
-      const healthMaxExpect = expect(health.max);
-      healthMaxExpect.toBe(true);
+      const healthMaxExpect = expect(npc_health.max);
+      healthMaxExpect.toBe(0);
 
-      const healthUiTypeExpect = expect(health.uiType);
-      healthUiTypeExpect.toBe("number-max");
+      const healthUiTypeExpect = expect(npc_health.control);
+      healthUiTypeExpect.toBe("number");
     });
 
     it("should define armor points attribute", () => {
-      const apNameExpect = expect(armor_points.name);
-      apNameExpect.toBe("armor_points");
+      const apNameExpect = expect(npc_armor_points.name);
+      apNameExpect.toBe("npc_armor_points");
 
-      const apTypeExpect = expect(armor_points.type);
-      apTypeExpect.toBe("number");
-
-      const apUiTypeExpect = expect(armor_points.uiType);
+      const apUiTypeExpect = expect(npc_armor_points.control);
       apUiTypeExpect.toBe("number");
     });
 
-    it("should define description and equipment attributes as textareas", () => {
-      const descUiTypeExpect = expect(description.uiType);
+    it("should define npc_description and npc_equipment attributes as textareas", () => {
+      const descUiTypeExpect = expect(npc_description.control);
       descUiTypeExpect.toBe("textarea");
 
-      const equipUiTypeExpect = expect(equipment.uiType);
+      const equipUiTypeExpect = expect(npc_equipment.control);
       equipUiTypeExpect.toBe("textarea");
     });
 
     it("should contain all attributes in npcAttributes map", () => {
-      const mapCombatExpect = expect(npcAttributes.combat);
-      mapCombatExpect.toBe(combat);
+      const mapCombatExpect = expect(npcAttributes.npc_combat);
+      mapCombatExpect.toBe(npc_combat);
 
-      const mapInstinctExpect = expect(npcAttributes.instinct);
-      mapInstinctExpect.toBe(instinct);
+      const mapInstinctExpect = expect(npcAttributes.npc_instinct);
+      mapInstinctExpect.toBe(npc_instinct);
 
-      const mapWoundsExpect = expect(npcAttributes.wounds);
-      mapWoundsExpect.toBe(wounds);
+      const mapWoundsExpect = expect(npcAttributes.npc_wounds);
+      mapWoundsExpect.toBe(npc_wounds);
 
-      const mapHealthExpect = expect(npcAttributes.health);
-      mapHealthExpect.toBe(health);
+      const mapHealthExpect = expect(npcAttributes.npc_health);
+      mapHealthExpect.toBe(npc_health);
 
-      const mapApExpect = expect(npcAttributes.armor_points);
-      mapApExpect.toBe(armor_points);
+      const mapApExpect = expect(npcAttributes.npc_armor_points);
+      mapApExpect.toBe(npc_armor_points);
     });
   });
 
   describe("Attacks Repeating Section", () => {
-    it("should define repeating section named repeating_attacks", () => {
+    it("should define repeating section named repeating_npcattacks", () => {
       const sectionNameExpect = expect(npcAttacks.name);
-      sectionNameExpect.toBe("repeating_attacks");
+      sectionNameExpect.toBe("repeating_npcattacks");
     });
 
     it("should define all weapon-equivalent fields in attacks section", () => {
-      const nameExpect = expect(npcAttacks.fields.attack_name);
-      nameExpect.toBe(attack_name);
+      const nameExpect = expect(npcAttacks.attributes.npc_attack_name);
+      nameExpect.toMatchObject(npc_attack_name);
 
-      const typeExpect = expect(npcAttacks.fields.attack_type);
-      typeExpect.toBe(attack_type);
+      const typeExpect = expect(npcAttacks.attributes.npc_attack_type);
+      typeExpect.toMatchObject(npc_attack_type);
 
-      const typeOptionsExpect = expect(attack_type.options);
+      const typeOptionsExpect = expect(npc_attack_type.options);
       typeOptionsExpect.toEqual(["Ranged", "Melee"]);
 
-      const dmgExpect = expect(npcAttacks.fields.attack_damage);
-      dmgExpect.toBe(attack_damage);
+      const dmgExpect = expect(npcAttacks.attributes.npc_attack_damage);
+      dmgExpect.toMatchObject(npc_attack_damage);
 
-      const rangeSExpect = expect(npcAttacks.fields.attack_range_s);
-      rangeSExpect.toBe(attack_range_s);
+      const rangeExpect = expect(npcAttacks.attributes.npc_attack_range);
+      rangeExpect.toMatchObject(npc_attack_range);
 
-      const rangeMExpect = expect(npcAttacks.fields.attack_range_m);
-      rangeMExpect.toBe(attack_range_m);
+      const critDmgExpect = expect(npcAttacks.attributes.npc_attack_crit_damage);
+      critDmgExpect.toMatchObject(npc_attack_crit_damage);
 
-      const rangeLExpect = expect(npcAttacks.fields.attack_range_l);
-      rangeLExpect.toBe(attack_range_l);
+      const critEffExpect = expect(npcAttacks.attributes.npc_attack_crit_effect);
+      critEffExpect.toMatchObject(npc_attack_crit_effect);
 
-      const critDmgExpect = expect(npcAttacks.fields.attack_crit_damage);
-      critDmgExpect.toBe(attack_crit_damage);
+      const shotsExpect = expect(npcAttacks.attributes.npc_attack_shots);
+      shotsExpect.toMatchObject(npc_attack_shots);
 
-      const critEffExpect = expect(npcAttacks.fields.attack_crit_effect);
-      critEffExpect.toBe(attack_crit_effect);
+      const ammoExpect = expect(npcAttacks.attributes.npc_attack_ammunition);
+      ammoExpect.toMatchObject(npc_attack_ammunition);
 
-      const shotsExpect = expect(npcAttacks.fields.attack_shots);
-      shotsExpect.toBe(attack_shots);
+      const notesExpect = expect(npcAttacks.attributes.npc_attack_notes);
+      notesExpect.toMatchObject(npc_attack_notes);
 
-      const ammoExpect = expect(npcAttacks.fields.attack_ammunition);
-      ammoExpect.toBe(attack_ammunition);
-
-      const notesExpect = expect(npcAttacks.fields.attack_notes);
-      notesExpect.toBe(attack_notes);
-
-      const notesUiTypeExpect = expect(attack_notes.uiType);
+      const notesUiTypeExpect = expect(npc_attack_notes.control);
       notesUiTypeExpect.toBe("textarea");
     });
   });
 
   describe("Traits Repeating Section", () => {
-    it("should define repeating section named repeating_traits", () => {
+    it("should define repeating section named repeating_npctraits", () => {
       const sectionNameExpect = expect(npcTraits.name);
-      sectionNameExpect.toBe("repeating_traits");
+      sectionNameExpect.toBe("repeating_npctraits");
     });
 
-    it("should define trait name and description fields", () => {
-      const nameExpect = expect(npcTraits.fields.trait_name);
-      nameExpect.toBe(trait_name);
+    it("should define trait name and npc_description fields", () => {
+      const nameExpect = expect(npcTraits.attributes.npc_trait_name);
+      nameExpect.toMatchObject(npc_trait_name);
 
-      const descExpect = expect(npcTraits.fields.trait_description);
-      descExpect.toBe(trait_description);
+      const descExpect = expect(npcTraits.attributes.npc_trait_description);
+      descExpect.toMatchObject(npc_trait_description);
 
-      const descUiTypeExpect = expect(trait_description.uiType);
+      const descUiTypeExpect = expect(npc_trait_description.control);
       descUiTypeExpect.toBe("textarea");
     });
   });

@@ -1,4 +1,8 @@
-import { describe, it, expect, vi } from "vitest";
+import {
+  describe, it, expect, vi,
+} from "vitest";
+
+import { Outcomes } from "../src/ts/rules/rolls";
 import { maintenanceTable } from "../src/game/data/maintenance";
 import {
   evaluateAnnualMaintenance,
@@ -28,7 +32,7 @@ describe("Ship Rules & Mechanics", () => {
   describe("evaluateAnnualMaintenance", () => {
     it("should handle SUCCESS with no stress or panic", () => {
       const result = evaluateAnnualMaintenance(20, 40, 0, 0);
-      expect(result.result).toBe("SUCCESS");
+      expect(result.result).toBe(Outcomes.Success);
       expect(result.stressGain).toBe(0);
       expect(result.panicCheck).toBe(false);
       expect(result.issues.length).toBe(0);
@@ -38,7 +42,7 @@ describe("Ship Rules & Mechanics", () => {
   describe("evaluateBankruptcySave", () => {
     it("should evaluate SUCCESS and return matching consequence", () => {
       const result = evaluateBankruptcySave(25, 30);
-      expect(result.result).toBe("SUCCESS");
+      expect(result.result).toBe(Outcomes.Success);
     });
   });
 
@@ -51,7 +55,11 @@ describe("Ship Rules & Mechanics", () => {
 
   describe("formatStartingConditionMessage", () => {
     it("should format issues", () => {
-      const issues = [{ roll: "05", issue_type: "Minor", description: "test" }];
+      const issues = [{
+        roll: "05",
+        issue_type: "Minor",
+        description: "test",
+      }];
       expect(formatStartingConditionMessage(issues)).toContain("test");
     });
   });
@@ -67,7 +75,8 @@ describe("Ship Rules & Mechanics", () => {
   describe("Sheetworkers startRoll / finishRoll integration", () => {
     it("should execute handleStartingCondition", async () => {
       const mockStartRoll = vi.fn().mockResolvedValue({
-        rollId: "id", results: {}
+        rollId: "id",
+        results: {},
       });
       const mockFinishRoll = vi.fn();
       vi.stubGlobal("startRoll", mockStartRoll);
@@ -79,10 +88,13 @@ describe("Ship Rules & Mechanics", () => {
 
     it("should execute handleAnnualMaintenanceCheck", async () => {
       const mockStartRoll = vi.fn().mockResolvedValue({
-        rollId: "id", results: {
-          roll: { result: 45 }, target: { result: 30 },
-          maint_roll1: { result: 5 }, maint_roll2: { result: 10 }
-        }
+        rollId: "id",
+        results: {
+          roll: { result: 45 },
+          target: { result: 30 },
+          maint_roll1: { result: 5 },
+          maint_roll2: { result: 10 },
+        },
       });
       const mockFinishRoll = vi.fn();
       vi.stubGlobal("startRoll", mockStartRoll);

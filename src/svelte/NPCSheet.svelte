@@ -1,9 +1,9 @@
-<script>
-  import NPCHeader from "./npc/NPCHeader.svelte";
-  import NPCStatsPanel from "./npc/NPCStatsPanel.svelte";
+<script lang="ts">
   import NPCAttacksPanel from "./npc/NPCAttacksPanel.svelte";
-  import NPCTraitsPanel from "./npc/NPCTraitsPanel.svelte";
+  import NPCHeader from "./npc/NPCHeader.svelte";
   import NPCNarrativePanel from "./npc/NPCNarrativePanel.svelte";
+  import NPCStatsPanel from "./npc/NPCStatsPanel.svelte";
+  import NPCTraitsPanel from "./npc/NPCTraitsPanel.svelte";
 </script>
 
 <div class="npc-sheet">
@@ -20,16 +20,19 @@
   .npc-sheet {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
-    padding: 1rem;
-    background-color: var(--color-bg, #ffffff);
-    color: var(--color-text, #000000);
+    gap: var(--ms-space-xl);
+
     box-sizing: border-box;
+    padding: var(--ms-space-lg);
+
+    background-color: var(--ms-surface);
+
+    color: var(--ms-fg);
 
     &__main-content {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1.25rem;
+      gap: var(--ms-space-xl);
 
       @media (max-width: 768px) {
         grid-template-columns: 1fr;
