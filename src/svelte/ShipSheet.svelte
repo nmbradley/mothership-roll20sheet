@@ -3,6 +3,7 @@
   import ShipCrewPanel from "./ship/ShipCrewPanel.svelte";
   import ShipEnginesPanel from "./ship/ShipEnginesPanel.svelte";
   import ShipHeader from "./ship/ShipHeader.svelte";
+  import ShipMegadamagePanel from "./ship/ShipMegadamagePanel.svelte";
   import ShipOperationsPanel from "./ship/ShipOperationsPanel.svelte";
   import ShipStatsPanel from "./ship/ShipStatsPanel.svelte";
   import ShipSurvivalPanel from "./ship/ShipSurvivalPanel.svelte";
@@ -21,6 +22,7 @@
     <ShipEnginesPanel />
     <ShipSurvivalPanel />
     <ShipWeaponsPanel />
+    <ShipMegadamagePanel />
     <ShipOperationsPanel />
     <ShipCrewPanel />
     <ShipCargoPanel />

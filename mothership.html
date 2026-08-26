@@ -956,26 +956,6 @@
               </div>
             </div>
           </section>
-          <section class="panel">
-            <div class="frame frame--mode-light frame--corner-medium">
-              <h2 class="header header--section" data-i18n="Hull">Hull</h2>
-              <div class="ship-hull">
-                <div class="attribute attribute--number attribute--default">
-                  <label
-                    class="attribute__label attribute__label--number-input attribute__label--number-input--default"
-                    for="attr_ship_hull"
-                    data-i18n="Hull"
-                    >Hull</label>
-                  <input
-                    class="attribute__input attribute__input--number attribute__input--number--default"
-                    type="number"
-                    name="attr_ship_hull"
-                    value="0"
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
         </section>
         <section class="panel">
           <div class="frame frame--mode-light frame--corner-medium">
@@ -1081,6 +1061,86 @@
             <h2 class="header header--section" data-i18n="Ship Weapons">
               Ship Weapons
             </h2>
+            <div class="ship-weapons-totals">
+              <div class="ship-weapons-pair">
+                <div class="attribute attribute--number attribute--default">
+                  <label
+                    class="attribute__label attribute__label--number-input attribute__label--number-input--default"
+                    for="attr_ship_weapons_base"
+                    data-i18n="Weapons Base"
+                    >Weapons Base</label>
+                  <input
+                    class="attribute__input attribute__input--number attribute__input--number--default"
+                    type="number"
+                    name="attr_ship_weapons_base"
+                    value="0"
+                  />
+                </div>
+                <div class="attribute attribute--number attribute--default">
+                  <label
+                    class="attribute__label attribute__label--number-input attribute__label--number-input--default"
+                    for="attr_ship_weapons_total"
+                    data-i18n="Weapons Total"
+                    >Weapons Total</label>
+                  <input
+                    class="attribute__input attribute__input--number attribute__input--number--default"
+                    type="number"
+                    name="attr_ship_weapons_total"
+                    value="0"
+                  />
+                </div>
+              </div>
+              <div class="ship-weapons-pair">
+                <div class="attribute attribute--number attribute--default">
+                  <label
+                    class="attribute__label attribute__label--number-input attribute__label--number-input--default"
+                    for="attr_ship_mdmg_base"
+                    data-i18n="MDMG Base"
+                    >MDMG Base</label>
+                  <input
+                    class="attribute__input attribute__input--number attribute__input--number--default"
+                    type="number"
+                    name="attr_ship_mdmg_base"
+                    value="0"
+                  />
+                </div>
+                <div class="attribute attribute--number attribute--default">
+                  <label
+                    class="attribute__label attribute__label--number-input attribute__label--number-input--default"
+                    for="attr_ship_mdmg_total"
+                    data-i18n="MDMG Total"
+                    >MDMG Total</label>
+                  <input
+                    class="attribute__input attribute__input--number attribute__input--number--default"
+                    type="number"
+                    name="attr_ship_mdmg_total"
+                    value="0"
+                  />
+                </div>
+              </div>
+              <div class="attribute attribute--number-max">
+                <label
+                  class="attribute__label attribute__label--number-max"
+                  for="attr_ship_hardpoints"
+                  data-i18n="Hardpoints"
+                  >Hardpoints</label>
+                <div class="attribute__minmax-wrapper">
+                  <input
+                    class="attribute__input attribute__input--number"
+                    type="number"
+                    name="attr_ship_hardpoints"
+                    value="0"
+                  />
+                  <span class="attribute__separator">/</span>
+                  <input
+                    class="attribute__input attribute__input--number"
+                    type="number"
+                    name="attr_ship_hardpoints_max"
+                    value="0"
+                  />
+                </div>
+              </div>
+            </div>
             <div class="repeating">
               <div
                 class="repeating__head"
@@ -1142,6 +1202,42 @@
                   </div>
                 </div>
               </fieldset>
+            </div>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="frame frame--mode-light frame--corner-medium">
+            <h2
+              class="header header--section"
+              data-i18n="MegaDamage &amp; Hull"
+            >
+              MegaDamage &amp; Hull
+            </h2>
+            <div class="attribute attribute--number attribute--default">
+              <label
+                class="attribute__label attribute__label--number-input attribute__label--number-input--default"
+                for="attr_ship_mdmg"
+                data-i18n="MDMG"
+                >MDMG</label>
+              <input
+                class="attribute__input attribute__input--number attribute__input--number--default"
+                type="number"
+                name="attr_ship_mdmg"
+                value="0"
+              />
+            </div>
+            <div class="attribute attribute--number attribute--default">
+              <label
+                class="attribute__label attribute__label--number-input attribute__label--number-input--default"
+                for="attr_ship_hull"
+                data-i18n="Hull"
+                >Hull</label>
+              <input
+                class="attribute__input attribute__input--number attribute__input--number--default"
+                type="number"
+                name="attr_ship_hull"
+                value="0"
+              />
             </div>
           </div>
         </section>
