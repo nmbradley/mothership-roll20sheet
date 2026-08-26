@@ -100,7 +100,7 @@ const MISC_BANS = [
 ];
 
 export default tseslint.config(
-  { ignores: ["**/dist/**", "**/node_modules/**", "src/js/**", "sources/**"] },
+  { ignores: ["**/dist/**", "**/node_modules/**", "src/js/**", "sources/**", ".claude/**"] },
 
   ...sveltePlugin.configs["flat/recommended"],
 
