@@ -6,8 +6,10 @@ import {
   vi,
 } from "vitest";
 
-import { SKILL_BONUS } from "../src/ts/rules/rolls";
-import { skillQuery } from "../src/ts/rules/checks";
+import { Outcomes, SKILL_BONUS } from "../src/ts/rules/rolls";
+import {
+  applyStressDelta, rollCheck, skillQuery,
+} from "../src/ts/rules/checks";
 
 /** Stands in for Roll20's translator with a fixed table. */
 function translateWith(table: Record<string, string>): void {
@@ -63,5 +65,69 @@ describe("Skill query", () => {
   it("should keep the English when a translation is nothing but syntax", () => {
     translateWith({ Expert: "|,{}" });
     expect(skillQuery()).toContain("Expert,15");
+  });
+});
+
+describe("rollCheck", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("should return the resolved CheckResult so a caller can act on it", async () => {
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        roll: { result: 30 },
+        roll2: { result: 80 },
+        edge: { result: 0 },
+        target: { result: 45 },
+      },
+    });
+    const mockFinishRoll = vi.fn();
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", mockFinishRoll);
+
+    const check = await rollCheck({
+      name: "Strength Check",
+      target: "@{strength}",
+    });
+
+    expect(check.roll).toBe(30);
+    expect(check.target).toBe(45);
+    expect(check.outcome).toBe(Outcomes.Success);
+    expect(mockFinishRoll).toHaveBeenCalled();
+  });
+});
+
+describe("applyStressDelta", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("should write back a plain in-bounds change", () => {
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    applyStressDelta(5, 1, 0, 10);
+
+    expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 6 });
+  });
+
+  it("should clamp a reduction at the given minimum", () => {
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    applyStressDelta(3, -5, 2, 10);
+
+    expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 2 });
+  });
+
+  it("should clamp a gain at the given maximum", () => {
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    applyStressDelta(9, 5, 0, 10);
+
+    expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 10 });
   });
 });

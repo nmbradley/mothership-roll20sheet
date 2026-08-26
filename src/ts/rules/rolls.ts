@@ -50,6 +50,13 @@ const ALWAYS_CRITICAL_SUCCESS = 0;
 const ALWAYS_CRITICAL_FAILURE = 99;
 
 /**
+ * A roll-under check fails outright once the d100 reads 90 or over, whatever
+ * the target says -- 99 is still caught by ALWAYS_CRITICAL_FAILURE above, so
+ * this only needs to turn the rest of the 90s into a plain failure.
+ */
+const AUTO_FAIL_THRESHOLD = 90;
+
+/**
  * Doubles on a d100: 00, 11, 22 and so on.
  *
  * Doubles are what make a roll critical, in whichever direction it already
@@ -95,13 +102,18 @@ export function selectRoll(
  * Grades a roll against its target.
  *
  * A roll of 00 is always a Critical Success and 99 always a Critical Failure,
- * whatever the target says.
+ * whatever the target says. Rolling under also auto-fails on 90-98: the 1e
+ * rules treat the 90s as the dice turning on you regardless of target. This
+ * does not apply rolling over, since the only roll-over check is the Panic
+ * Die, which is a d20 and never reads that high.
  */
 export function outcomeOf(roll: number, target: number, comparison: Comparison): Outcome {
   if (roll === ALWAYS_CRITICAL_SUCCESS) return Outcomes.CriticalSuccess;
   if (roll === ALWAYS_CRITICAL_FAILURE) return Outcomes.CriticalFailure;
 
   const isUnder = comparison === Comparisons.RollUnder;
+  if (isUnder && roll >= AUTO_FAIL_THRESHOLD) return Outcomes.Failure;
+
   const isSuccess = isUnder ? roll <= target : roll > target;
   const isCritical = isDoubles(roll);
 
