@@ -891,36 +891,18 @@
                   />
                 </div>
               </div>
-              <div class="ship-header__field ship-header__field--type">
-                <div class="attribute attribute--text">
+              <div class="ship-header__field ship-header__field--transponder">
+                <div class="attribute attribute--textarea">
                   <label
-                    class="attribute__label attribute__label--text"
-                    for="attr_ship_type"
-                    data-i18n="Type"
-                    >Type</label>
-                  <input
-                    class="attribute__input attribute__input--text"
-                    type="text"
-                    name="attr_ship_type"
-                    value=""
+                    class="attribute__label attribute__label--textarea"
+                    for="attr_ship_transponder"
+                    data-i18n="Make, Model, Jump, Class, &amp; Type"
+                    >Make, Model, Jump, Class, &amp; Type</label>
+                  <textarea
+                    class="attribute__input attribute__input--textarea"
+                    name="attr_ship_transponder"
                     spellcheck="false"
-                  />
-                </div>
-              </div>
-              <div class="ship-header__field ship-header__field--class">
-                <div class="attribute attribute--text">
-                  <label
-                    class="attribute__label attribute__label--text"
-                    for="attr_ship_class"
-                    data-i18n="Class"
-                    >Class</label>
-                  <input
-                    class="attribute__input attribute__input--text"
-                    type="text"
-                    name="attr_ship_class"
-                    value=""
-                    spellcheck="false"
-                  />
+                  ></textarea>
                 </div>
               </div>
             </div>
@@ -1004,21 +986,6 @@
                 Saves &amp; Defenses
               </h2>
               <div class="ship-stat-row">
-                <div class="attribute attribute--number attribute--default">
-                  <label
-                    class="attribute__label attribute__label--number-input attribute__label--number-input--default"
-                    for="attr_ship_armor"
-                    data-i18n="Armor"
-                    >Armor</label>
-                  <input
-                    class="attribute__input attribute__input--number attribute__input--number--default"
-                    type="number"
-                    name="attr_ship_armor"
-                    value="0"
-                  />
-                </div>
-              </div>
-              <div class="ship-stat-row">
                 <div class="ship-stat-row__btn">
                   <button
                     class="button button--action"
@@ -1042,94 +1009,20 @@
           </section>
           <section class="panel">
             <div class="frame frame--mode-light frame--corner-medium">
-              <h2 class="header header--section" data-i18n="Hull &amp; Wounds">
-                Hull &amp; Wounds
-              </h2>
-              <div class="ship-hull-wounds">
-                <div class="attribute attribute--number-max">
+              <h2 class="header header--section" data-i18n="Hull">Hull</h2>
+              <div class="ship-hull">
+                <div class="attribute attribute--number attribute--default">
                   <label
-                    class="attribute__label attribute__label--number-max"
-                    for="attr_ship_wounds"
-                    data-i18n="Wounds"
-                    >Wounds</label>
-                  <div class="attribute__minmax-wrapper">
-                    <input
-                      class="attribute__input attribute__input--number"
-                      type="number"
-                      name="attr_ship_wounds"
-                      value="0"
-                    />
-                    <span class="attribute__separator">/</span>
-                    <input
-                      class="attribute__input attribute__input--number"
-                      type="number"
-                      name="attr_ship_wounds_max"
-                      value="0"
-                    />
-                  </div>
-                </div>
-                <div class="attribute attribute--number-max">
-                  <label
-                    class="attribute__label attribute__label--number-max"
+                    class="attribute__label attribute__label--number-input attribute__label--number-input--default"
                     for="attr_ship_hull"
                     data-i18n="Hull"
                     >Hull</label>
-                  <div class="attribute__minmax-wrapper">
-                    <input
-                      class="attribute__input attribute__input--number"
-                      type="number"
-                      name="attr_ship_hull"
-                      value="0"
-                    />
-                    <span class="attribute__separator">/</span>
-                    <input
-                      class="attribute__input attribute__input--number"
-                      type="number"
-                      name="attr_ship_hull_max"
-                      value="0"
-                    />
-                  </div>
-                </div>
-                <div class="ship-hull-thresholds">
-                  <div class="attribute attribute--number attribute--default">
-                    <label
-                      class="attribute__label attribute__label--number-input attribute__label--number-input--default"
-                      for="attr_ship_hull_25"
-                      data-i18n="25%"
-                      >25%</label>
-                    <input
-                      class="attribute__input attribute__input--number attribute__input--number--default"
-                      type="number"
-                      name="attr_ship_hull_25"
-                      value="0"
-                    />
-                  </div>
-                  <div class="attribute attribute--number attribute--default">
-                    <label
-                      class="attribute__label attribute__label--number-input attribute__label--number-input--default"
-                      for="attr_ship_hull_50"
-                      data-i18n="50%"
-                      >50%</label>
-                    <input
-                      class="attribute__input attribute__input--number attribute__input--number--default"
-                      type="number"
-                      name="attr_ship_hull_50"
-                      value="0"
-                    />
-                  </div>
-                  <div class="attribute attribute--number attribute--default">
-                    <label
-                      class="attribute__label attribute__label--number-input attribute__label--number-input--default"
-                      for="attr_ship_hull_75"
-                      data-i18n="75%"
-                      >75%</label>
-                    <input
-                      class="attribute__input attribute__input--number attribute__input--number--default"
-                      type="number"
-                      name="attr_ship_hull_75"
-                      value="0"
-                    />
-                  </div>
+                  <input
+                    class="attribute__input attribute__input--number attribute__input--number--default"
+                    type="number"
+                    name="attr_ship_hull"
+                    value="0"
+                  />
                 </div>
               </div>
             </div>
@@ -1251,18 +1144,27 @@
                 </div>
               </div>
               <div class="ship-stat-row">
-                <div class="attribute attribute--number attribute--default">
+                <div class="attribute attribute--number-max">
                   <label
-                    class="attribute__label attribute__label--number-input attribute__label--number-input--default"
-                    for="attr_ship_max_cargo"
-                    data-i18n="Max Cargo"
-                    >Max Cargo</label>
-                  <input
-                    class="attribute__input attribute__input--number attribute__input--number--default"
-                    type="number"
-                    name="attr_ship_max_cargo"
-                    value="0"
-                  />
+                    class="attribute__label attribute__label--number-max"
+                    for="attr_ship_cargo"
+                    data-i18n="Cargo"
+                    >Cargo</label>
+                  <div class="attribute__minmax-wrapper">
+                    <input
+                      class="attribute__input attribute__input--number"
+                      type="number"
+                      name="attr_ship_cargo"
+                      value="0"
+                    />
+                    <span class="attribute__separator">/</span>
+                    <input
+                      class="attribute__input attribute__input--number"
+                      type="number"
+                      name="attr_ship_cargo_max"
+                      value="0"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -5859,6 +5761,7 @@
   };
   var ALWAYS_CRITICAL_SUCCESS = 0;
   var ALWAYS_CRITICAL_FAILURE = 99;
+  var AUTO_FAIL_THRESHOLD = 90;
   function isDoubles(roll) {
     const tens = Math.floor(roll / 10);
     const ones = roll % 10;
@@ -5883,6 +5786,7 @@
     if (roll === ALWAYS_CRITICAL_SUCCESS) return Outcomes.CriticalSuccess;
     if (roll === ALWAYS_CRITICAL_FAILURE) return Outcomes.CriticalFailure;
     const isUnder = comparison === Comparisons.RollUnder;
+    if (isUnder && roll >= AUTO_FAIL_THRESHOLD) return Outcomes.Failure;
     const isSuccess2 = isUnder ? roll <= target : roll > target;
     const isCritical = isDoubles(roll);
     if (isCritical) return isSuccess2 ? Outcomes.CriticalSuccess : Outcomes.CriticalFailure;
@@ -6250,6 +6154,7 @@
     const check = makeCheck(request);
     const computed = checkComputed(check);
     finishRoll(roll.rollId, computed);
+    return check;
   }
   async function rollPanicCheck() {
     const template = `${panicTemplate()} {{edge=[[${EDGE_QUERY}]]}}`;
@@ -6849,8 +6754,9 @@ Maintenance Issue 2 [${issue2.roll} - ${issue2.issue_type}]: ${issue2.descriptio
       message: `${result}: ${consequence}`
     };
   }
+  var MAINTENANCE_EDGE_QUERY = "?{Advantage/Disadvantage|Normal,1d100-1|Advantage,2d100kl1-1|Disadvantage,2d100kh1-1}";
   async function handleAnnualMaintenanceCheck() {
-    const rollFormula = "&{template:ms} {{name=Annual Maintenance Check}} {{character_name=@{character_name}}} {{roll=[[?{Advantage/Disadvantage|Normal,1d100|Advantage [+],2d100kl1|Disadvantage [-],2d100kh1}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}}";
+    const rollFormula = `&{template:ms} {{name=Annual Maintenance Check}} {{character_name=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}}`;
     const rollData = await startRoll(rollFormula);
     const rollEntry = rollData.results.roll;
     const targetEntry = rollData.results.target;
