@@ -854,36 +854,18 @@
                   />
                 </div>
               </div>
-              <div class="ship-header__field ship-header__field--type">
-                <div class="attribute attribute--text">
+              <div class="ship-header__field ship-header__field--transponder">
+                <div class="attribute attribute--textarea">
                   <label
-                    class="attribute__label attribute__label--text"
-                    for="attr_ship_type"
-                    data-i18n="Type"
-                    >Type</label>
-                  <input
-                    class="attribute__input attribute__input--text"
-                    type="text"
-                    name="attr_ship_type"
-                    value=""
+                    class="attribute__label attribute__label--textarea"
+                    for="attr_transponder"
+                    data-i18n="Make, Model, Jump, Class, &amp; Type"
+                    >Make, Model, Jump, Class, &amp; Type</label>
+                  <textarea
+                    class="attribute__input attribute__input--textarea"
+                    name="attr_transponder"
                     spellcheck="false"
-                  />
-                </div>
-              </div>
-              <div class="ship-header__field ship-header__field--class">
-                <div class="attribute attribute--text">
-                  <label
-                    class="attribute__label attribute__label--text"
-                    for="attr_ship_class"
-                    data-i18n="Class"
-                    >Class</label>
-                  <input
-                    class="attribute__input attribute__input--text"
-                    type="text"
-                    name="attr_ship_class"
-                    value=""
-                    spellcheck="false"
-                  />
+                  ></textarea>
                 </div>
               </div>
             </div>
@@ -912,7 +894,7 @@
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
-                    name="attr_ship_systems"
+                    name="attr_systems"
                     value="0"
                   />
                 </div>
@@ -932,7 +914,7 @@
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
-                    name="attr_ship_thrusters"
+                    name="attr_thrusters"
                     value="0"
                   />
                 </div>
@@ -951,7 +933,7 @@
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
-                    name="attr_ship_battle"
+                    name="attr_battle"
                     value="0"
                   />
                 </div>
@@ -967,21 +949,6 @@
                 Saves &amp; Defenses
               </h2>
               <div class="ship-stat-row">
-                <div class="attribute attribute--number attribute--default">
-                  <label
-                    class="attribute__label attribute__label--number-input attribute__label--number-input--default"
-                    for="attr_ship_armor"
-                    data-i18n="Armor"
-                    >Armor</label>
-                  <input
-                    class="attribute__input attribute__input--number attribute__input--number--default"
-                    type="number"
-                    name="attr_ship_armor"
-                    value="0"
-                  />
-                </div>
-              </div>
-              <div class="ship-stat-row">
                 <div class="ship-stat-row__btn">
                   <button
                     class="button button--action"
@@ -996,7 +963,7 @@
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
-                    name="attr_ship_bankruptcy_save"
+                    name="attr_bankruptcy_save"
                     value="21"
                   />
                 </div>
@@ -1005,94 +972,20 @@
           </section>
           <section class="panel">
             <div class="frame frame--mode-light frame--corner-medium">
-              <h2 class="header header--section" data-i18n="Hull &amp; Wounds">
-                Hull &amp; Wounds
-              </h2>
-              <div class="ship-hull-wounds">
-                <div class="attribute attribute--number-max">
+              <h2 class="header header--section" data-i18n="Hull">Hull</h2>
+              <div class="ship-hull">
+                <div class="attribute attribute--number attribute--default">
                   <label
-                    class="attribute__label attribute__label--number-max"
-                    for="attr_ship_wounds"
-                    data-i18n="Wounds"
-                    >Wounds</label>
-                  <div class="attribute__minmax-wrapper">
-                    <input
-                      class="attribute__input attribute__input--number"
-                      type="number"
-                      name="attr_ship_wounds"
-                      value="0"
-                    />
-                    <span class="attribute__separator">/</span>
-                    <input
-                      class="attribute__input attribute__input--number"
-                      type="number"
-                      name="attr_ship_wounds_max"
-                      value="0"
-                    />
-                  </div>
-                </div>
-                <div class="attribute attribute--number-max">
-                  <label
-                    class="attribute__label attribute__label--number-max"
-                    for="attr_ship_hull"
+                    class="attribute__label attribute__label--number-input attribute__label--number-input--default"
+                    for="attr_hull"
                     data-i18n="Hull"
                     >Hull</label>
-                  <div class="attribute__minmax-wrapper">
-                    <input
-                      class="attribute__input attribute__input--number"
-                      type="number"
-                      name="attr_ship_hull"
-                      value="0"
-                    />
-                    <span class="attribute__separator">/</span>
-                    <input
-                      class="attribute__input attribute__input--number"
-                      type="number"
-                      name="attr_ship_hull_max"
-                      value="0"
-                    />
-                  </div>
-                </div>
-                <div class="ship-hull-thresholds">
-                  <div class="attribute attribute--number attribute--default">
-                    <label
-                      class="attribute__label attribute__label--number-input attribute__label--number-input--default"
-                      for="attr_ship_hull_25"
-                      data-i18n="25%"
-                      >25%</label>
-                    <input
-                      class="attribute__input attribute__input--number attribute__input--number--default"
-                      type="number"
-                      name="attr_ship_hull_25"
-                      value="0"
-                    />
-                  </div>
-                  <div class="attribute attribute--number attribute--default">
-                    <label
-                      class="attribute__label attribute__label--number-input attribute__label--number-input--default"
-                      for="attr_ship_hull_50"
-                      data-i18n="50%"
-                      >50%</label>
-                    <input
-                      class="attribute__input attribute__input--number attribute__input--number--default"
-                      type="number"
-                      name="attr_ship_hull_50"
-                      value="0"
-                    />
-                  </div>
-                  <div class="attribute attribute--number attribute--default">
-                    <label
-                      class="attribute__label attribute__label--number-input attribute__label--number-input--default"
-                      for="attr_ship_hull_75"
-                      data-i18n="75%"
-                      >75%</label>
-                    <input
-                      class="attribute__input attribute__input--number attribute__input--number--default"
-                      type="number"
-                      name="attr_ship_hull_75"
-                      value="0"
-                    />
-                  </div>
+                  <input
+                    class="attribute__input attribute__input--number attribute__input--number--default"
+                    type="number"
+                    name="attr_hull"
+                    value="0"
+                  />
                 </div>
               </div>
             </div>
@@ -1172,21 +1065,21 @@
               <div class="attribute attribute--number-max">
                 <label
                   class="attribute__label attribute__label--number-max"
-                  for="attr_ship_crew"
+                  for="attr_crew"
                   data-i18n="Crew"
                   >Crew</label>
                 <div class="attribute__minmax-wrapper">
                   <input
                     class="attribute__input attribute__input--number"
                     type="number"
-                    name="attr_ship_crew"
+                    name="attr_crew"
                     value="0"
                   />
                   <span class="attribute__separator">/</span>
                   <input
                     class="attribute__input attribute__input--number"
                     type="number"
-                    name="attr_ship_crew_max"
+                    name="attr_crew_max"
                     value="0"
                   />
                 </div>
@@ -1194,38 +1087,47 @@
               <div class="attribute attribute--number-max">
                 <label
                   class="attribute__label attribute__label--number-max"
-                  for="attr_ship_fuel"
+                  for="attr_fuel"
                   data-i18n="Fuel"
                   >Fuel</label>
                 <div class="attribute__minmax-wrapper">
                   <input
                     class="attribute__input attribute__input--number"
                     type="number"
-                    name="attr_ship_fuel"
+                    name="attr_fuel"
                     value="0"
                   />
                   <span class="attribute__separator">/</span>
                   <input
                     class="attribute__input attribute__input--number"
                     type="number"
-                    name="attr_ship_fuel_max"
+                    name="attr_fuel_max"
                     value="0"
                   />
                 </div>
               </div>
               <div class="ship-stat-row">
-                <div class="attribute attribute--number attribute--default">
+                <div class="attribute attribute--number-max">
                   <label
-                    class="attribute__label attribute__label--number-input attribute__label--number-input--default"
-                    for="attr_ship_max_cargo"
-                    data-i18n="Max Cargo"
-                    >Max Cargo</label>
-                  <input
-                    class="attribute__input attribute__input--number attribute__input--number--default"
-                    type="number"
-                    name="attr_ship_max_cargo"
-                    value="0"
-                  />
+                    class="attribute__label attribute__label--number-max"
+                    for="attr_cargo"
+                    data-i18n="Cargo"
+                    >Cargo</label>
+                  <div class="attribute__minmax-wrapper">
+                    <input
+                      class="attribute__input attribute__input--number"
+                      type="number"
+                      name="attr_cargo"
+                      value="0"
+                    />
+                    <span class="attribute__separator">/</span>
+                    <input
+                      class="attribute__input attribute__input--number"
+                      type="number"
+                      name="attr_cargo_max"
+                      value="0"
+                    />
+                  </div>
                 </div>
               </div>
             </div>

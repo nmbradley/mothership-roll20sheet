@@ -7,133 +7,226 @@ import {
   type RowAttributeName,
 } from "./_factories";
 
-// Header fields
+// Transponder
+// `ship_name` keeps its prefix: an attribute literally named "name" would
+// collide with Roll20's built-in `@{name}` (the character/token name), the
+// same reason pcFields/npcFields use `character_name` instead of `name`.
 export const ship_name = attribute({
   name: "ship_name",
   label: "Ship Name",
   control: Controls.Text,
   value: "",
 });
-export const ship_type = attribute({
-  name: "ship_type",
-  label: "Type",
+export const captain = attribute({
+  name: "captain",
+  label: "Captain",
   control: Controls.Text,
   value: "",
 });
-export const ship_class = attribute({
-  name: "ship_class",
-  label: "Class",
-  control: Controls.Text,
+// Make, Model, Jump, Class & Type merged into one field per #58; replaces the
+// old standalone ship_type/ship_class attributes.
+export const transponder = attribute({
+  name: "transponder",
+  label: "Make, Model, Jump, Class, & Type",
+  control: Controls.Textarea,
   value: "",
 });
 
-// Core Stats (Mothership 1e)
-export const ship_systems = attribute({
-  name: "ship_systems",
+// Stats & Saves
+export const systems = attribute({
+  name: "systems",
   label: "Systems",
   control: Controls.Number,
   value: 0,
 });
-export const ship_thrusters = attribute({
-  name: "ship_thrusters",
+export const thrusters = attribute({
+  name: "thrusters",
   label: "Thrusters",
   control: Controls.Number,
   value: 0,
 });
-export const ship_battle = attribute({
-  name: "ship_battle",
+export const battle = attribute({
+  name: "battle",
   label: "Battle",
   control: Controls.Number,
   value: 0,
 });
-
-// Saves / Defenses
-export const ship_armor = attribute({
-  name: "ship_armor",
-  label: "Armor",
-  control: Controls.Number,
-  value: 0,
-});
-export const ship_bankruptcy_save = attribute({
-  name: "ship_bankruptcy_save",
+export const bankruptcy_save = attribute({
+  name: "bankruptcy_save",
   label: "Bankruptcy Save",
   control: Controls.Number,
   value: 21,
 });
 
-// Hull & Wounds
-export const ship_hull = attribute({
-  name: "ship_hull",
-  label: "Hull",
-  control: Controls.Number,
-  value: 0,
-  max: 0,
-});
-export const ship_hull_25 = attribute({
-  name: "ship_hull_25",
-  label: "25%",
-  control: Controls.Number,
-  value: 0,
-});
-export const ship_hull_50 = attribute({
-  name: "ship_hull_50",
-  label: "50%",
-  control: Controls.Number,
-  value: 0,
-});
-export const ship_hull_75 = attribute({
-  name: "ship_hull_75",
-  label: "75%",
-  control: Controls.Number,
-  value: 0,
-});
-export const ship_wounds = attribute({
-  name: "ship_wounds",
-  label: "Wounds",
-  control: Controls.Number,
-  value: 0,
-  max: 0,
-});
-
-// Secondary Stats
-export const ship_crew = attribute({
-  name: "ship_crew",
-  label: "Crew",
-  control: Controls.Number,
-  value: 0,
-  max: 0,
-});
-export const ship_fuel = attribute({
-  name: "ship_fuel",
+// Engines
+export const fuel = attribute({
+  name: "fuel",
   label: "Fuel",
   control: Controls.Number,
   value: 0,
   max: 0,
 });
-export const ship_max_cargo = attribute({
-  name: "ship_max_cargo",
-  label: "Max Cargo",
+// Movement-phase bid, named to match the #60 macro/sheetworker (act_reveal_bid
+// reads and resets attr_fuel_bid directly).
+export const fuel_bid = attribute({
+  name: "fuel_bid",
+  label: "Fuel Bid",
+  control: Controls.Number,
+  value: 0,
+});
+export const warp_cores = attribute({
+  name: "warp_cores",
+  label: "Warp Cores",
   control: Controls.Number,
   value: 0,
 });
 
+// Survival
+export const o2 = attribute({
+  name: "o2",
+  label: "O2 Remaining",
+  control: Controls.Number,
+  value: 0,
+});
+export const cryopods = attribute({
+  name: "cryopods",
+  label: "Cryopods",
+  control: Controls.Number,
+  value: 0,
+});
+export const escape_pods = attribute({
+  name: "escape_pods",
+  label: "Escape Pods",
+  control: Controls.Number,
+  value: 0,
+});
+
+// Weapons
+export const weapons_base = attribute({
+  name: "weapons_base",
+  label: "Weapons Base",
+  control: Controls.Number,
+  value: 0,
+});
+export const weapons_total = attribute({
+  name: "weapons_total",
+  label: "Weapons Total",
+  control: Controls.Number,
+  value: 0,
+});
+export const mdmg_base = attribute({
+  name: "mdmg_base",
+  label: "MDMG Base",
+  control: Controls.Number,
+  value: 0,
+});
+export const mdmg_total = attribute({
+  name: "mdmg_total",
+  label: "MDMG Total",
+  control: Controls.Number,
+  value: 0,
+});
+export const hardpoints = attribute({
+  name: "hardpoints",
+  label: "Hardpoints",
+  control: Controls.Number,
+  value: 0,
+  max: 0,
+});
+
+// MegaDamage & Hull
+// The 0-9 MDMG track has no dedicated radio control yet (`Controls` in
+// _factories.ts only backs plain inputs). #61/#86 can render this number as a
+// bubble track in CSS/Svelte without a new control; adding a real `radio`
+// control plus AttributeRadio.svelte is only worth it if that later turns out
+// not to be enough.
+export const mdmg = attribute({
+  name: "mdmg",
+  label: "MDMG",
+  control: Controls.Number,
+  value: 0,
+});
+export const hull = attribute({
+  name: "hull",
+  label: "Hull",
+  control: Controls.Number,
+  value: 0,
+});
+
+// Crew
+export const crew = attribute({
+  name: "crew",
+  label: "Crew",
+  control: Controls.Number,
+  value: 0,
+  max: 0,
+});
+
+// Status / Manifest
+export const upgrades = attribute({
+  name: "upgrades",
+  label: "Upgrades",
+  control: Controls.Number,
+  value: 0,
+  max: 0,
+});
+export const cargo = attribute({
+  name: "cargo",
+  label: "Cargo",
+  control: Controls.Number,
+  value: 0,
+  max: 0,
+});
+export const minor_repairs = attribute({
+  name: "minor_repairs",
+  label: "Minor Repairs",
+  control: Controls.Number,
+  value: 0,
+  max: 0,
+});
+export const major_repairs = attribute({
+  name: "major_repairs",
+  label: "Major Repairs",
+  control: Controls.Number,
+  value: 0,
+  max: 0,
+});
+
+// Settings
+export const npc_ship = attribute({
+  name: "npc_ship",
+  label: "NPC Ship",
+  control: Controls.Checkbox,
+  checkedValue: "on",
+});
+
 export const shipAttributes = {
   ship_name,
-  ship_type,
-  ship_class,
-  ship_systems,
-  ship_thrusters,
-  ship_battle,
-  ship_armor,
-  ship_bankruptcy_save,
-  ship_hull,
-  ship_hull_25,
-  ship_hull_50,
-  ship_hull_75,
-  ship_wounds,
-  ship_crew,
-  ship_fuel,
-  ship_max_cargo,
+  captain,
+  transponder,
+  systems,
+  thrusters,
+  battle,
+  bankruptcy_save,
+  fuel,
+  fuel_bid,
+  warp_cores,
+  o2,
+  cryopods,
+  escape_pods,
+  weapons_base,
+  weapons_total,
+  mdmg_base,
+  mdmg_total,
+  hardpoints,
+  mdmg,
+  hull,
+  crew,
+  upgrades,
+  cargo,
+  minor_repairs,
+  major_repairs,
+  npc_ship,
 } as const;
 
 export type ShipAttributeNames = keyof typeof shipAttributes;
@@ -219,6 +312,21 @@ export const shipLoadout = section({
   } as const,
 });
 
+// Repeating section fields: Upgrades
+export const upgrade_name = attribute({
+  name: "upgrade_name",
+  label: "Upgrade",
+  control: Controls.Text,
+  value: "",
+});
+
+export const shipUpgrades = section({
+  name: "shipupgrades",
+  attributes: {
+    upgrade_name,
+  } as const,
+});
+
 export type ShipWeaponFields = keyof typeof shipWeapons.attributes;
 export type ShipWeaponAttributes = RowAttributeName<typeof shipWeapons>;
 
@@ -228,8 +336,12 @@ export type ShipCrewAttributes = RowAttributeName<typeof shipCrew>;
 export type ShipLoadoutFields = keyof typeof shipLoadout.attributes;
 export type ShipLoadoutAttributes = RowAttributeName<typeof shipLoadout>;
 
+export type ShipUpgradeFields = keyof typeof shipUpgrades.attributes;
+export type ShipUpgradeAttributes = RowAttributeName<typeof shipUpgrades>;
+
 export type AllShipAttributes =
   | ShipAttributeNames
   | ShipWeaponAttributes
   | ShipCrewAttributes
-  | ShipLoadoutAttributes;
+  | ShipLoadoutAttributes
+  | ShipUpgradeAttributes;

@@ -1,8 +1,7 @@
 <script lang="ts">
   import {
     ship_name,
-    ship_type,
-    ship_class,
+    transponder,
   } from "#game/fields/shipFields";
   import Attribute from "#svelte/components/Attribute.svelte";
   import Frame from "#svelte/components/Frame.svelte";
@@ -20,11 +19,8 @@
       <div class="ship-header__field ship-header__field--name">
         <Attribute field={ship_name} />
       </div>
-      <div class="ship-header__field ship-header__field--type">
-        <Attribute field={ship_type} />
-      </div>
-      <div class="ship-header__field ship-header__field--class">
-        <Attribute field={ship_class} />
+      <div class="ship-header__field ship-header__field--transponder">
+        <Attribute field={transponder} />
       </div>
     </div>
   </div>

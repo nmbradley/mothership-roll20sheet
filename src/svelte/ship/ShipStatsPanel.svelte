@@ -1,15 +1,10 @@
 <script lang="ts">
   import {
-    ship_armor,
-    ship_bankruptcy_save,
-    ship_battle,
-    ship_hull,
-    ship_hull_25,
-    ship_hull_50,
-    ship_hull_75,
-    ship_systems,
-    ship_thrusters,
-    ship_wounds,
+    bankruptcy_save,
+    battle,
+    hull,
+    systems,
+    thrusters,
   } from "#game/fields/shipFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
   import Panel from "#svelte/components/Panel.svelte";
@@ -17,20 +12,18 @@
 
   const checks = [
     {
-      field: ship_systems,
+      field: systems,
       action: "systems_check",
     },
     {
-      field: ship_thrusters,
+      field: thrusters,
       action: "thrusters_check",
     },
     {
-      field: ship_battle,
+      field: battle,
       action: "battle_check",
     },
   ];
-
-  const thresholds = [ship_hull_25, ship_hull_50, ship_hull_75];
 </script>
 
 <section class="ship-stats-panel">
@@ -41,20 +34,12 @@
   </Panel>
 
   <Panel title="Saves & Defenses">
-    <ShipStatRow field={ship_armor} />
-    <ShipStatRow field={ship_bankruptcy_save} action="bankruptcy_save" />
+    <ShipStatRow field={bankruptcy_save} action="bankruptcy_save" />
   </Panel>
 
-  <Panel title="Hull & Wounds">
-    <div class="ship-hull-wounds">
-      <Attribute field={ship_wounds} />
-      <Attribute field={ship_hull} />
-
-      <div class="ship-hull-thresholds">
-        {#each thresholds as threshold (threshold.name)}
-          <Attribute field={threshold} />
-        {/each}
-      </div>
+  <Panel title="Hull">
+    <div class="ship-hull">
+      <Attribute field={hull} />
     </div>
   </Panel>
 </section>
@@ -66,17 +51,9 @@
   gap: var(--ms-space-lg);
 }
 
-.ship-hull-wounds {
+.ship-hull {
   display: flex;
   flex-direction: column;
   gap: var(--ms-space-lg);
-}
-
-.ship-hull-thresholds {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--ms-space-md);
-
-  margin-top: var(--ms-space-md);
 }
 </style>

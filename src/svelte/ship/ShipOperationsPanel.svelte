@@ -1,8 +1,8 @@
 <script lang="ts">
   import {
-    ship_crew,
-    ship_fuel,
-    ship_max_cargo,
+    cargo,
+    crew,
+    fuel,
   } from "#game/fields/shipFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
   import Panel from "#svelte/components/Panel.svelte";
@@ -31,9 +31,9 @@
   </Panel>
 
   <Panel title="Secondary Stats">
-    <Attribute field={ship_crew} />
-    <Attribute field={ship_fuel} />
-    <ShipStatRow field={ship_max_cargo} />
+    <Attribute field={crew} />
+    <Attribute field={fuel} />
+    <ShipStatRow field={cargo} />
   </Panel>
 </section>
 
