@@ -13,6 +13,7 @@ import {
   resolveEdge,
   SKILL_BONUS,
   type CheckRequest,
+  type CheckResult,
   type Edge,
 } from "./rolls";
 import { makePanicCheck } from "./tables";
@@ -72,7 +73,7 @@ export const ROLL_PHRASES: readonly string[] = rollPhrases();
 const QUERY_SYNTAX = /[|,{}]/g;
 
 /** Asked once as a roll query, so the player answers in place. */
-const EDGE_QUERY = "?{Advantage/Disadvantage|Normal,0|Advantage,1|Disadvantage,2}";
+export const EDGE_QUERY = "?{Advantage/Disadvantage|Normal,0|Advantage,1|Disadvantage,2}";
 const MODIFIER_QUERY = "?{Modifier?|0}";
 
 /**
@@ -183,9 +184,11 @@ export type CheckOptions = {
  * Rolls a stat check, save or attack.
  *
  * All three are the same roll against a different target, which is why they
- * share one entry point.
+ * share one entry point. Returns the graded CheckResult so a caller that
+ * needs to act on it -- granting Stress on a failure, say -- can do so once
+ * the roll is resolved, without reinventing the grading itself.
  */
-export async function rollCheck(options: CheckOptions): Promise<void> {
+export async function rollCheck(options: CheckOptions): Promise<CheckResult> {
   const templateOptions = {
     target: `${options.target}+${options.bonus ?? MODIFIER_QUERY}`,
     die: D100,
@@ -208,6 +211,22 @@ export async function rollCheck(options: CheckOptions): Promise<void> {
   const check = makeCheck(request);
   const computed = checkComputed(check);
   finishRoll(roll.rollId, computed);
+  return check;
+}
+
+/**
+ * Applies a Stress change and writes it back, clamped to the given bounds.
+ *
+ * stress_min and stress_max are not declared attributes yet (#42 owns that),
+ * so the bounds travel with the call rather than being read here; once they
+ * exist, a caller passes them straight through from getAttrs. This is the one
+ * place that writes Stress so the several checks that grant or reduce it
+ * (#47, #48, #51) agree on how the clamp works.
+ */
+export function applyStressDelta(current: number, delta: number, min: number, max: number): void {
+  const floored = Math.max(min, current + delta);
+  const next = Math.min(max, floored);
+  setAttrs({ stress: next });
 }
 
 /**

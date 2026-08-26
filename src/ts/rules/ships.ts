@@ -116,11 +116,28 @@ export function evaluateBankruptcySave(
 }
 
 /**
+ * The advantage query for the Annual Maintenance Check.
+ *
+ * Same prompt and option order as EDGE_QUERY in checks.ts, so the two read as
+ * one convention to a player, but the options here pick a dice formula
+ * directly rather than a code for makeCheck to grade: this check rolls one
+ * kept-or-dropped d100 server-side instead of two dice for the rules to
+ * choose between.
+ */
+export const MAINTENANCE_EDGE_QUERY =
+  "?{Advantage/Disadvantage|Normal,1d100-1|Advantage,2d100kl1-1|Disadvantage,2d100kh1-1}";
+
+/**
  * Roll20 Sheetworker: Annual Maintenance Check
+ *
+ * Does not go through rollCheck(): that helper is tied to checkTemplate's
+ * fixed fields (counted/result/rank), and this check needs two extra
+ * maintenance-table rolls plus a multi-line notes message that combines
+ * Stress, Panic and the drawn issues, none of which checkTemplate carries.
  */
 export async function handleAnnualMaintenanceCheck(): Promise<void> {
   const rollFormula =
-    "&{template:ms} {{name=Annual Maintenance Check}} {{character_name=@{character_name}}} {{roll=[[?{Advantage/Disadvantage|Normal,1d100|Advantage [+],2d100kl1|Disadvantage [-],2d100kh1}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}}";
+    `&{template:ms} {{name=Annual Maintenance Check}} {{character_name=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}}`;
   const rollData = await startRoll(rollFormula);
 
   const rollEntry = rollData.results.roll;

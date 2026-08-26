@@ -78,6 +78,24 @@ describe("Roll Rules (Mothership 1e)", () => {
       expect(outcomeOf(15, 10, Comparisons.RollOver)).toBe(Outcomes.Success);
       expect(outcomeOf(5, 10, Comparisons.RollOver)).toBe(Outcomes.Failure);
     });
+
+    it("should still succeed one roll below the 90s auto-fail band", () => {
+      expect(outcomeOf(89, 95, Comparisons.RollUnder)).toBe(Outcomes.Success);
+    });
+
+    it("should auto-fail 90-98 rolling under even when the target is met", () => {
+      for (const roll of [90, 91, 95, 98]) {
+        expect(outcomeOf(roll, 99, Comparisons.RollUnder)).toBe(Outcomes.Failure);
+      }
+    });
+
+    it("should still read 99 as a Critical Failure rather than a plain auto-fail", () => {
+      expect(outcomeOf(99, 99, Comparisons.RollUnder)).toBe(Outcomes.CriticalFailure);
+    });
+
+    it("should not auto-fail the 90s rolling over", () => {
+      expect(outcomeOf(95, 10, Comparisons.RollOver)).toBe(Outcomes.Success);
+    });
   });
 
   describe("makeCheck", () => {
