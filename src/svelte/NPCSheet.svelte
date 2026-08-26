@@ -2,11 +2,13 @@
   import NPCAttacksPanel from "./npc/NPCAttacksPanel.svelte";
   import NPCHeader from "./npc/NPCHeader.svelte";
   import NPCNarrativePanel from "./npc/NPCNarrativePanel.svelte";
+  import NPCSettingsPanel from "./npc/NPCSettingsPanel.svelte";
   import NPCStatsPanel from "./npc/NPCStatsPanel.svelte";
   import NPCTraitsPanel from "./npc/NPCTraitsPanel.svelte";
 </script>
 
 <div class="npc-sheet">
+  <NPCSettingsPanel />
   <NPCHeader />
   <NPCStatsPanel />
   <section class="npc-sheet__main-content">

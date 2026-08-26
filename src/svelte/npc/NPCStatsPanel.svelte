@@ -163,7 +163,12 @@
       }
     }
 
+    // Hidden until Speed Check Initiative (#50) is switched on in the
+    // settings panel -- a sheet cannot run JS outside its sheetworkers, so
+    // this rereads NPCSettingsPanel's checkbox via :has() rather than script.
     &--initiative {
+      display: none;
+
       border-color: var(--ms-border);
 
       background-color: var(--ms-inverse);
@@ -277,5 +282,9 @@
       text-transform: uppercase;
       color: var(--ms-fg-muted);
     }
+  }
+
+  .npc-sheet:has(input[name="attr_speed_initiative"]:checked) .npc-stat-card--initiative {
+    display: flex;
   }
 </style>

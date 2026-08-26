@@ -187,6 +187,14 @@ export const settings_toggle = attribute({
   control: Controls.Checkbox,
   checkedValue: "on",
 });
+// #50: gates the NPC sheet's Initiative button as well as the PC one, since
+// both live in the same settings drawer pattern and share this attribute.
+export const speed_initiative = attribute({
+  name: "speed_initiative",
+  label: "Speed Check Initiative",
+  control: Controls.Checkbox,
+  checkedValue: "on",
+});
 export const sheet_skill_toggles = attribute({
   name: "sheet_skill_toggles",
   label: "Skill Toggles",
@@ -249,6 +257,7 @@ export const pcAttributes = {
   init,
   sheet_toggle,
   settings_toggle,
+  speed_initiative,
   sheet_skill_toggles,
   drop_category,
   drop_name,

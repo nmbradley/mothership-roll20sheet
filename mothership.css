@@ -840,6 +840,9 @@ body.sheet-darkmode
   ~ .settings__drawer {
   display: none;
 }
+.charsheet.charsheet.charsheet .settings-panel {
+  display: block;
+}
 .charsheet.charsheet.charsheet .settings__row {
   display: flex;
   flex-direction: column;
@@ -981,6 +984,7 @@ body.sheet-darkmode
   color: var(--ms-fg-inverse);
 }
 .charsheet.charsheet.charsheet .npc-stat-card--initiative {
+  display: none;
   border-color: var(--ms-border);
   background-color: var(--ms-inverse);
   color: var(--ms-fg-inverse);
@@ -1069,6 +1073,11 @@ body.sheet-darkmode
   font-family: var(--ms-font-header);
   text-transform: uppercase;
   color: var(--ms-fg-muted);
+}
+.charsheet.charsheet.charsheet
+  .npc-sheet:has(input[name="attr_speed_initiative"]:checked)
+  .npc-stat-card--initiative {
+  display: flex;
 }
 .charsheet.charsheet.charsheet .pc-attack-pair {
   display: grid;

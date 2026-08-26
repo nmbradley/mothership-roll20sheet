@@ -13,21 +13,7 @@
           type="hidden"
           name="attr_init"
           value="0"
-        />
-        <div class="attribute attribute--checkbox">
-          <label
-            class="attribute__label attribute__label--checkbox"
-            for="attr_settings_toggle"
-            data-i18n="Settings Toggle"
-            >Settings Toggle</label>
-          <input
-            class="attribute__input attribute__input--checkbox"
-            type="checkbox"
-            name="attr_settings_toggle"
-            value="on"
-          />
-        </div>
-        <input
+        /><input
           class="attribute__input attribute__input--hidden"
           type="hidden"
           name="attr_sheet_skill_toggles"
@@ -55,6 +41,39 @@
         />
       </div>
       <div class="pc-sheet__column pc-sheet__column--left">
+        <section class="settings-panel">
+          <section class="panel">
+            <div class="frame frame--mode-light frame--corner-small">
+              <h2 class="header header--section" data-i18n="Settings">
+                Settings
+              </h2>
+              <label class="settings__cog"
+                ><input
+                  class="settings__toggle"
+                  type="checkbox"
+                  name="attr_settings_toggle"
+                  value="on"
+                />
+                <span class="settings__icon">y</span></label>
+              <div class="settings__drawer">
+                <div class="settings__row">
+                  <span
+                    class="settings__label"
+                    data-i18n="Speed Check Initiative"
+                    >Speed Check Initiative</span>
+                  <div class="attribute attribute--checkbox">
+                    <input
+                      class="attribute__input attribute__input--checkbox"
+                      type="checkbox"
+                      name="attr_speed_initiative"
+                      value="on"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
         <div class="frame frame--mode-light frame--corner-large">
           <div class="pc-masthead">
             <img
@@ -827,6 +846,24 @@
   </div>
   <div class="sheet-view sheet-view--ship">
     <div class="ship-sheet">
+      <section class="settings-panel">
+        <section class="panel">
+          <div class="frame frame--mode-light frame--corner-small">
+            <h2 class="header header--section" data-i18n="Settings">
+              Settings
+            </h2>
+            <label class="settings__cog"
+              ><input
+                class="settings__toggle"
+                type="checkbox"
+                name="attr_settings_toggle"
+                value="on"
+              />
+              <span class="settings__icon">y</span></label>
+            <div class="settings__drawer"></div>
+          </div>
+        </section>
+      </section>
       <header class="ship-sheet__header">
         <div class="frame frame--mode-dark frame--corner-large">
           <div class="ship-header">
@@ -1386,6 +1423,37 @@
   </div>
   <div class="sheet-view sheet-view--npc">
     <div class="npc-sheet">
+      <section class="settings-panel">
+        <section class="panel">
+          <div class="frame frame--mode-light frame--corner-small">
+            <h2 class="header header--section" data-i18n="Settings">
+              Settings
+            </h2>
+            <label class="settings__cog"
+              ><input
+                class="settings__toggle"
+                type="checkbox"
+                name="attr_settings_toggle"
+                value="on"
+              />
+              <span class="settings__icon">y</span></label>
+            <div class="settings__drawer">
+              <div class="settings__row">
+                <span class="settings__label" data-i18n="Speed Check Initiative"
+                  >Speed Check Initiative</span>
+                <div class="attribute attribute--checkbox">
+                  <input
+                    class="attribute__input attribute__input--checkbox"
+                    type="checkbox"
+                    name="attr_speed_initiative"
+                    value="on"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
       <header class="npc-header">
         <div class="frame frame--mode-dark frame--corner-medium">
           <div class="npc-header__content">
