@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import {
     ship_name,
     ship_type,
@@ -43,14 +43,14 @@
     }
 
     &__img {
-      max-height: 4.5rem;
       width: auto;
+      max-height: 4.5rem;
     }
 
     &__fields {
       display: grid;
       grid-template-columns: 2fr 1fr 1fr;
-      gap: 1rem;
+      gap: var(--ms-space-lg);
     }
 
     &__field {

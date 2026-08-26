@@ -1,122 +1,185 @@
-// @ts-nocheck
-import { skillList, parseJSON } from "../index";
-const clearSheet = (data) => {
-  const clearAttrs = {};
+import { skillsByKey } from "#game/constants.js";
+import { findItem, type Item } from "#game/data/items.js";
+import { type Weapon } from "#game/data/weapons.js";
+import { RangeBands } from "#game/enums.js";
 
-  const all_repeating_sections = ["equipment", "attacks"];
+import {
+  parseJSON, parseStringList, stepValues,
+} from "./helpers";
+import { Steps, type CharmancerData } from "./types";
 
-  all_repeating_sections.forEach((section) => {
-    getSectionIDs(`repeating_${section}`, (ids) => {
-      ids.forEach((id) => {
-        removeRepeatingRow(`repeating_${section}_${id}`);
-      });
-    });
+/** Attributes written to the sheet, keyed by attribute name. */
+type SheetAttributes = Record<string, string | number>;
+
+/** Repeating sections rebuilt from scratch when a character is created. */
+const REBUILT_SECTIONS = ["equipment", "attacks"] as const;
+
+/** Review attributes copied straight onto the sheet under the same name. */
+const COPIED_ATTRIBUTES = [
+  "armor",
+  "body",
+  "class",
+  "combat",
+  "credits",
+  "fear",
+  "intellect",
+  "patch",
+  "sanity",
+  "speed",
+  "strength",
+  "trinket",
+  "stress",
+  "resolve",
+] as const;
+
+/** Clears the sheet, then writes the finished character onto it. */
+export function onFinish(data: CharmancerData): void {
+  clearSheet(() => {
+    compileCharacter(data);
   });
+}
 
-  for (const skill in skillList) {
-    clearAttrs[skill] = "0";
+/** Empties the repeating sections and every skill toggle. */
+function clearSheet(done: () => void): void {
+  for (const section of REBUILT_SECTIONS) {
+    clearRepeatingSections(`repeating_${section}`);
   }
 
-  setAttrs(clearAttrs, { silent: true }, (callback) => { compileCharacter(data); });
-};
+  const attrs: Record<string, string> = {};
+  for (const key of Object.keys(skillsByKey)) {
+    attrs[key] = "0";
+  }
+  setAttrs(attrs, { silent: true }, done);
+}
 
-const compileCharacter = (data) => {
-  const updateAttrs = {};
+/** Writes the reviewed character onto the sheet. */
+function compileCharacter(data: CharmancerData): void {
+  const review = stepValues(data, Steps.Review);
+  const attrs: SheetAttributes = {};
 
-  ["armor", "body", "class", "combat", "credits", "fear", "intellect", "patch", "sanity", "speed", "strength", "trinket", "stress", "resolve"].forEach((item) => {
-    updateAttrs[item] = data?.review?.values?.[`${item}_final`] || "";
-  });
-
-  updateAttrs["stress_panic"] = data?.review?.values?.[`stressresponse_final`] || "";
-  updateAttrs["health"] = data?.review?.values?.[`health_final`] || "";
-  updateAttrs["health_max"] = data?.review?.values?.[`health_final`] || "";
-  updateAttrs["skill_points"] = data?.review?.values?.[`skillpoints_final`] || "";
-  updateAttrs["level"] = "0";
-  updateAttrs["xp"] = "0";
-
-  if (parseJSON(data?.review?.values?.skills_final)) {
-    parseJSON(data.review.values.skills_final).forEach((skill) => {
-      updateAttrs[skill] = "on";
-    });
+  for (const key of COPIED_ATTRIBUTES) {
+    attrs[key] = review[`${key}_final`] ?? "";
   }
 
-  if (parseJSON(data?.review?.values?.equipment_final)) {
-    const request = [];
+  const health = review["health_final"] ?? "";
+  attrs["health"] = health;
+  attrs["health_max"] = health;
+  attrs["stress_panic"] = review["stressresponse_final"] ?? "";
+  attrs["skill_points"] = review["skillpoints_final"] ?? "";
+  attrs["level"] = "0";
+  attrs["xp"] = "0";
 
-    parseJSON(data.review.values.equipment_final).forEach((item) => {
-      if (Array.isArray(item)) {
-        request.push(item[0]);
-      } else {
-        request.push(item);
-      }
-    });
-
-    getCompendiumPage(request, (pages) => {
-      pages.forEach((data) => {
-        console.log(data);
-
-        const id = generateRowID();
-        const address = `repeating_equipment_${id}_equipment`;
-
-        updateAttrs[`${address}_name`] = data.name;
-        updateAttrs[`${address}_notes`] = data.Special || "";
-        updateAttrs[`${address}_settings`] = "0";
-
-        if (data.data.Damage) {
-          const attack_id = generateRowID();
-          const attack_address = `repeating_attacks_${id}_attack`;
-
-          updateAttrs[`${address}_type`] = "Weapon";
-          updateAttrs[`${address}_linkedid`] = attack_id;
-
-          updateAttrs[`${attack_address}_linkedid`] = id;
-          updateAttrs[`${attack_address}_name`] = data.name;
-          updateAttrs[`${attack_address}_damage`] = data.data.Damage;
-          updateAttrs[`${attack_address}_critical_damage`] = data.data["Critical Damage"] || "";
-          updateAttrs[`${attack_address}_critical_effect`] = data.data["Critical Effect"] || "-";
-          updateAttrs[`${attack_address}_settings`] = "0";
-
-          let combined_string = (data.data.Description) ? `${data.data.Description} ` : ``;
-          combined_string += (data.data.Special) ? `${data.data.Special} ` : ``;
-
-          updateAttrs[`${attack_address}_notes`] = combined_string;
-
-          const range = JSON.parse(data.data.Range) || {};
-
-          if (range && range.CQC !== "Yes") {
-            updateAttrs[`${attack_address}_type`] = "Ranged";
-
-            updateAttrs[`${attack_address}_shots`] = data.data.Shots;
-            updateAttrs[`${attack_address}_ammunition`] = data.data.Ammunition;
-
-            updateAttrs[`${attack_address}_range_s`] = range.Short;
-            updateAttrs[`${attack_address}_range_m`] = range.Medium || "-";
-            updateAttrs[`${attack_address}_range_l`] = range.Long || "-";
-          } else {
-            updateAttrs[`${attack_address}_type`] = "Melee";
-          }
-        } else if (data["Armor Save"]) {
-          updateAttrs[`${address}_type`] = "Armor";
-          updateAttrs[`${address}_armor_bonus`] = data.data["Armor Save"];
-        } else {
-          updateAttrs[`${address}_type`] = "Gear";
-        }
-      });
-
-      const total = Object.keys(updateAttrs).length;
-
-      Object.entries(updateAttrs).forEach(([key, value], index) => {
-        const percentage = (100 / total) * index;
-        const progress_bar = `<div style="width:${percentage}%"> </div>`;
-
-        setAttrs({ [key]: value }, { silent: true });
-        setCharmancerText({ t__progressbar: progress_bar });
-      });
-
-      deleteCharmancerData();
-      finishCharactermancer();
-    });
+  // Already attribute keys, so they go straight on the sheet.
+  const skills = parseStringList(review["skills_final"]);
+  for (const key of skills) {
+    attrs[key] = "on";
   }
-};
 
-on("mancerfinish:newcharacter", (eventInfo) => { clearSheet(eventInfo.data); });
+  for (const name of equipmentNames(review["equipment_final"])) {
+    const rows = equipmentRows(name);
+    Object.assign(attrs, rows);
+  }
+
+  writeCharacter(attrs);
+}
+
+/** The bare item names from a package, dropping any quantities. */
+function equipmentNames(packed: string | undefined): readonly string[] {
+  const parsed = parseJSON(packed);
+  if (!Array.isArray(parsed)) return [];
+
+  const names: string[] = [];
+  for (const item of parsed) {
+    const isPair = Array.isArray(item);
+    const name: unknown = isPair ? item[0] : item;
+    const text = String(name);
+    names.push(text);
+  }
+  return names;
+}
+
+/** One item as an equipment row, plus an attack row where it is a weapon. */
+function equipmentRows(name: string): SheetAttributes {
+  const rowId = generateRowID();
+  const row = `repeating_equipment_${rowId}_equipment`;
+  const item = findItem(name);
+
+  const attrs: SheetAttributes = {
+    [`${row}_name`]: name,
+    [`${row}_notes`]: itemNotes(item),
+    [`${row}_settings`]: "0",
+    [`${row}_type`]: itemType(item),
+  };
+
+  if (item?.kind === "armor") {
+    attrs[`${row}_armor_bonus`] = item.entry.points;
+    return attrs;
+  }
+
+  if (item?.kind === "weapon") {
+    const attackId = generateRowID();
+    attrs[`${row}_linkedid`] = attackId;
+    const attack = attackRow(item.entry, attackId, rowId);
+    Object.assign(attrs, attack);
+  }
+
+  return attrs;
+}
+
+/** An unrecognised item is still carried, just as plain gear. */
+function itemType(item: Item | undefined): string {
+  if (item === undefined) return "Gear";
+  if (item.kind === "weapon") return "Weapon";
+  if (item.kind === "armor") return "Armor";
+  return "Gear";
+}
+
+function itemNotes(item: Item | undefined): string {
+  if (item === undefined) return "";
+  if (item.kind === "weapon") return item.entry.special;
+  return item.entry.description;
+}
+
+/** The attack row a weapon in the equipment list implies. */
+function attackRow(
+  weapon: Weapon,
+  attackId: string,
+  equipmentId: string,
+): SheetAttributes {
+  const row = `repeating_attacks_${attackId}_attack`;
+  const isMelee = weapon.range === RangeBands.Adjacent;
+
+  return {
+    [`${row}_linkedid`]: equipmentId,
+    [`${row}_name`]: weapon.name,
+    [`${row}_damage`]: weapon.damage,
+    [`${row}_crit_effect`]: weapon.wound,
+    [`${row}_notes`]: weapon.special,
+    [`${row}_settings`]: "0",
+    [`${row}_range`]: weapon.range,
+    [`${row}_type`]: isMelee ? "Melee" : "Ranged",
+    [`${row}_shots`]: weapon.shots,
+  };
+}
+
+/**
+ * Writes the character one attribute at a time so the progress bar can advance,
+ * then hands control back to Roll20.
+ */
+function writeCharacter(attrs: SheetAttributes): void {
+  const entries = Object.entries(attrs);
+  const total = entries.length;
+
+  for (let index = 0; index < total; index += 1) {
+    const entry = entries[index];
+    if (entry === undefined) continue;
+    const [key, value] = entry;
+    const percentage = (100 / total) * (index + 1);
+
+    setAttrs({ [key]: value }, { silent: true });
+    setCharmancerText({ t__progressbar: `<div style="width:${percentage}%"> </div>` });
+  }
+
+  deleteCharmancerData([]);
+  finishCharactermancer();
+}

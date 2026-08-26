@@ -1,51 +1,435 @@
-import { createAttribute } from "./createAttribute";
-import { createSection, createField } from "./createSection";
+import { rangeBandOptions } from "#game/constants.js";
 
-export const character_name = createAttribute({
+import {
+  Controls, attribute, section, type RowAttributeName,
+} from "./_factories";
+
+export const character_name = attribute({
   name: "character_name",
   label: "Name",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
-export const strength = createAttribute({
+export const player_name = attribute({
+  name: "player_name",
+  label: "Player Name",
+  control: Controls.Text,
+  value: "",
+});
+export const pronouns = attribute({
+  name: "pronouns",
+  label: "Pronouns",
+  control: Controls.Text,
+  value: "",
+});
+// Written by incrementHighScore in rules/stats.ts, which had no field to match.
+export const high_score = attribute({
+  name: "high_score",
+  label: "High Score",
+  control: Controls.Text,
+  value: "",
+});
+export const conditions = attribute({
+  name: "conditions",
+  label: "Conditions",
+  control: Controls.Textarea,
+  value: "",
+});
+export const skill_training = attribute({
+  name: "skill_training",
+  label: "In Progress",
+  control: Controls.Text,
+  value: "",
+});
+export const skill_training_time = attribute({
+  name: "skill_training_time",
+  label: "Time Remaining",
+  control: Controls.Text,
+  value: "",
+});
+export const level = attribute({
+  name: "level",
+  label: "Level",
+  control: Controls.Number,
+  value: 0,
+});
+export const rank_title = attribute({
+  name: "rank_title",
+  label: "Rank / Title",
+  control: Controls.Text,
+  value: "",
+});
+export const xp = attribute({
+  name: "xp",
+  label: "XP",
+  control: Controls.Text,
+  value: "",
+});
+export const class_ = attribute({
+  name: "class",
+  label: "Class",
+  control: Controls.Text,
+  value: "",
+});
+export const stress = attribute({
+  name: "stress",
+  label: "Stress",
+  control: Controls.Number,
+  value: 2,
+});
+export const stress_panic = attribute({
+  name: "stress_panic",
+  label: "Stress & Panic",
+  control: Controls.Text,
+  value: "",
+});
+export const health = attribute({
+  name: "health",
+  label: "Health",
+  control: Controls.Number,
+  value: 78,
+  max: 78,
+});
+export const wounds = attribute({
+  name: "wounds",
+  label: "Wounds",
+  control: Controls.Number,
+  value: 2,
+  max: 2,
+});
+export const armor_points = attribute({
+  name: "armor_points",
+  label: "Armor Points",
+  control: Controls.Number,
+  value: 0,
+});
+export const strength = attribute({
   name: "strength",
   label: "Strength",
-  type: "number",
+  control: Controls.Number,
+  value: 0,
 });
-export const speed = createAttribute({
+export const speed = attribute({
   name: "speed",
   label: "Speed",
-  type: "number",
+  control: Controls.Number,
+  value: 0,
+});
+export const intellect = attribute({
+  name: "intellect",
+  label: "Intellect",
+  control: Controls.Number,
+  value: 0,
+});
+export const combat = attribute({
+  name: "combat",
+  label: "Combat",
+  control: Controls.Number,
+  value: 0,
+});
+export const sanity = attribute({
+  name: "sanity",
+  label: "Sanity",
+  control: Controls.Number,
+  value: 0,
+});
+export const fear = attribute({
+  name: "fear",
+  label: "Fear",
+  control: Controls.Number,
+  value: 0,
+});
+export const body = attribute({
+  name: "body",
+  label: "Body",
+  control: Controls.Number,
+  value: 0,
+});
+export const credits = attribute({
+  name: "credits",
+  label: "Credits",
+  control: Controls.Text,
+  value: "",
+});
+export const patch = attribute({
+  name: "patch",
+  label: "Patch",
+  control: Controls.Text,
+  value: "",
+});
+export const trinket = attribute({
+  name: "trinket",
+  label: "Trinket",
+  control: Controls.Text,
+  value: "",
+});
+export const skill_points = attribute({
+  name: "skill_points",
+  label: "Skill Points",
+  control: Controls.Number,
+  value: 0,
+});
+export const init = attribute({
+  name: "init",
+  label: "Initiative",
+  control: Controls.Hidden,
+  value: "0",
+});
+export const sheet_toggle = attribute({
+  name: "sheet_toggle",
+  label: "Sheet Toggle",
+  control: Controls.Hidden,
+  value: "pc",
+});
+export const settings_toggle = attribute({
+  name: "settings_toggle",
+  label: "Settings Toggle",
+  control: Controls.Checkbox,
+  checkedValue: "on",
+});
+export const sheet_skill_toggles = attribute({
+  name: "sheet_skill_toggles",
+  label: "Skill Toggles",
+  control: Controls.Hidden,
+  value: "",
+});
+export const drop_category = attribute({
+  name: "drop_category",
+  label: "Drop Category",
+  control: Controls.Hidden,
+  value: "",
+});
+export const drop_name = attribute({
+  name: "drop_name",
+  label: "Drop Name",
+  control: Controls.Hidden,
+  value: "",
+});
+export const drop_data = attribute({
+  name: "drop_data",
+  label: "Drop Data",
+  control: Controls.Hidden,
+  value: "",
+});
+export const drop_content = attribute({
+  name: "drop_content",
+  label: "Drop Content",
+  control: Controls.Hidden,
+  value: "",
 });
 
 export const pcAttributes = {
   character_name,
+  level,
+  rank_title,
+  xp,
+  class: class_,
+  stress,
+  stress_panic,
+  health,
+  wounds,
+  armor_points,
   strength,
   speed,
+  intellect,
+  combat,
+  sanity,
+  fear,
+  body,
+  credits,
+  patch,
+  trinket,
+  skill_points,
+  player_name,
+  pronouns,
+  high_score,
+  conditions,
+  skill_training,
+  skill_training_time,
+  init,
+  sheet_toggle,
+  settings_toggle,
+  sheet_skill_toggles,
+  drop_category,
+  drop_name,
+  drop_data,
+  drop_content,
 } as const;
 
-export const weapon_name = createField({
-  name: "weapon_name",
+export const attack_name = attribute({
+  name: "attack_name",
   label: "Weapon",
-  section: "weapons",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
-export const weapon_damage = createField({
-  name: "weapon_damage",
+export const attack_type = attribute({
+  name: "attack_type",
+  label: "Type",
+  control: Controls.Select,
+  options: ["", "Melee", "Ranged", "Skill"],
+  value: "",
+});
+export const attack_range = attribute({
+  name: "attack_range",
+  label: "Range",
+  control: Controls.Select,
+  options: rangeBandOptions,
+  value: "adjacent",
+});
+export const attack_damage = attribute({
+  name: "attack_damage",
   label: "Damage",
-  section: "weapons",
-  type: "string",
+  control: Controls.Text,
+  value: "",
+});
+export const attack_ammunition = attribute({
+  name: "attack_ammunition",
+  label: "Ammo",
+  control: Controls.Text,
+  value: "",
+});
+export const attack_shots = attribute({
+  name: "attack_shots",
+  label: "Shots",
+  control: Controls.Text,
+  value: "",
+});
+export const attack_notes = attribute({
+  name: "attack_notes",
+  label: "Notes",
+  control: Controls.Textarea,
+  value: "",
+});
+export const attack_crit_damage = attribute({
+  name: "attack_crit_damage",
+  label: "Crit Damage",
+  control: Controls.Text,
+  value: "",
+});
+export const attack_crit_effect = attribute({
+  name: "attack_crit_effect",
+  label: "Crit Effect",
+  control: Controls.Textarea,
+  value: "",
+});
+export const attack_settings = attribute({
+  name: "attack_settings",
+  label: "Settings",
+  control: Controls.Hidden,
+  value: "on",
+});
+export const attack_linkedid = attribute({
+  name: "attack_linkedid",
+  label: "Linked ID",
+  control: Controls.Hidden,
+  value: "",
 });
 
-export const pcWeapons = createSection({
-  name: "weapons",
-  fields: {
-    weapon_name,
-    weapon_damage,
+export const pcAttacks = section({
+  name: "attacks",
+  attributes: {
+    attack_name,
+    attack_type,
+    attack_range,
+    attack_damage,
+    attack_ammunition,
+    attack_shots,
+    attack_notes,
+    attack_crit_damage,
+    attack_crit_effect,
+    attack_settings,
+    attack_linkedid,
+  } as const,
+});
+
+export const equipment_name = attribute({
+  name: "equipment_name",
+  label: "Name",
+  control: Controls.Text,
+  value: "",
+});
+export const equipment_type = attribute({
+  name: "equipment_type",
+  label: "Type",
+  control: Controls.Select,
+  options: ["Gear", "Weapon", "Ammunition", "Armor"],
+  value: "Gear",
+});
+export const equipment_armor_bonus = attribute({
+  name: "equipment_armor_bonus",
+  label: "Armor Bonus",
+  control: Controls.Text,
+  value: "",
+});
+export const equipment_notes = attribute({
+  name: "equipment_notes",
+  label: "Notes",
+  control: Controls.Textarea,
+  value: "",
+});
+export const equipment_settings = attribute({
+  name: "equipment_settings",
+  label: "Settings",
+  control: Controls.Hidden,
+  value: "on",
+});
+export const equipment_linkedid = attribute({
+  name: "equipment_linkedid",
+  label: "Linked ID",
+  control: Controls.Hidden,
+  value: "",
+});
+
+export const pcEquipment = section({
+  name: "equipment",
+  attributes: {
+    equipment_name,
+    equipment_type,
+    equipment_armor_bonus,
+    equipment_notes,
+    equipment_settings,
+    equipment_linkedid,
+  } as const,
+});
+
+export const skill_name = attribute({
+  name: "skill_name",
+  label: "Name",
+  control: Controls.Text,
+  value: "",
+});
+
+export const pcTrainedSkills = section({
+  name: "trained",
+  attributes: {
+    skill_name,
+  } as const,
+});
+export const pcExpertSkills = section({
+  name: "expert",
+  attributes: {
+    skill_name,
+  } as const,
+});
+export const pcMasterSkills = section({
+  name: "master",
+  attributes: {
+    skill_name,
   } as const,
 });
 
 export type PCAttributeNames = keyof typeof pcAttributes;
-export type PCWeaponFields = keyof typeof pcWeapons.fields;
-export type PCWeaponAttributes = `repeating_weapons_${string}_${PCWeaponFields}`;
+export type PCAttacksFields = keyof typeof pcAttacks.attributes;
+export type PCAttacksAttributes = RowAttributeName<typeof pcAttacks>;
+export type PCEquipmentAttributes = RowAttributeName<typeof pcEquipment>;
+export type PCTrainedSkillsAttributes = RowAttributeName<typeof pcTrainedSkills>;
+export type PCExpertSkillsAttributes = RowAttributeName<typeof pcExpertSkills>;
+export type PCMasterSkillsAttributes = RowAttributeName<typeof pcMasterSkills>;
 
-export type AllPCAttributes = PCAttributeNames | PCWeaponAttributes;
+export type AllPCAttributes =
+  | PCAttributeNames
+  | PCAttacksAttributes
+  | PCEquipmentAttributes
+  | PCTrainedSkillsAttributes
+  | PCExpertSkillsAttributes
+  | PCMasterSkillsAttributes;

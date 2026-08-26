@@ -1,0 +1,65 @@
+// Extendable generics.
+//
+// These emit nothing on their own, so this file is safe to @use from any
+// component. The build compiles every component's <style> block as one Sass
+// document (see scripts/build-svelte.js), so a generic extended from three
+// components emits one grouped rule rather than three copies. Reach for a
+// generic when several components share a treatment; reach for a token or a
+// base element rule in _base.scss when the whole sheet does.
+
+%ms-btn-reset {
+  margin: 0;
+  border: none;
+  width: auto;
+  padding: 0;
+
+  background: none;
+
+  font: inherit;
+  color: inherit;
+}
+
+// A panel in the reference sheet: generous padding, rounded, optional rule.
+%ms-panel {
+  border-radius: var(--ms-radius-md);
+  padding: var(--ms-space-lg);
+}
+
+// Small caps heading used above each panel and field group.
+%ms-caption {
+  font-size: var(--ms-text-xs);
+  font-family: var(--ms-font-header);
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-stretch: var(--ms-stretch-label);
+}
+
+// The circular stat wells on the stats and saves blocks.
+%ms-well-round {
+  display: grid;
+  place-items: center;
+
+  border: var(--ms-border-width-thick) solid var(--ms-border);
+  border-radius: var(--ms-radius-pill);
+  width: 64px;
+  height: 64px;
+
+  text-align: center;
+}
+
+// Available to assistive tech, absent from the layout.
+%ms-visually-hidden {
+  position: absolute;
+
+  overflow: hidden;
+  clip-path: inset(50%);
+
+  margin: -1px;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+
+  white-space: nowrap;
+}

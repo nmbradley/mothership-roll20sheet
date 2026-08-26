@@ -4,10 +4,13 @@ import {
   type MaintenanceIssue,
 } from "#game/data/maintenance";
 
-import { evaluateRoll, type RollResultType } from "./rolls";
+import { checkKey, rollCheck } from "./checks";
+import {
+  Outcomes, evaluateRoll, type Outcome,
+} from "./rolls";
 
 export type AnnualMaintenanceResult = {
-  result: RollResultType;
+  result: Outcome;
   stressGain: number;
   panicCheck: boolean;
   issues: MaintenanceIssue[];
@@ -15,7 +18,7 @@ export type AnnualMaintenanceResult = {
 };
 
 export type BankruptcySaveResult = {
-  result: RollResultType;
+  result: Outcome;
   consequence: string;
   message: string;
 };
@@ -27,7 +30,11 @@ export function getMaintenanceIssue(roll: number): MaintenanceIssue {
   const roundedRoll = Math.floor(roll);
   const clampedMax = Math.min(99, roundedRoll);
   const index = Math.max(0, clampedMax);
-  return maintenanceTable[index];
+  const issue = maintenanceTable[index];
+  if (issue === undefined) {
+    throw new Error(`No maintenance issue at index ${index}`);
+  }
+  return issue;
 }
 
 /**
@@ -45,7 +52,7 @@ export function evaluateAnnualMaintenance(
 ): AnnualMaintenanceResult {
   const result = evaluateRoll(roll, target);
 
-  if (result === "CRITICAL SUCCESS") {
+  if (result === Outcomes.CriticalSuccess) {
     return {
       result,
       stressGain: 0,
@@ -56,7 +63,7 @@ export function evaluateAnnualMaintenance(
     };
   }
 
-  if (result === "SUCCESS") {
+  if (result === Outcomes.Success) {
     return {
       result,
       stressGain: 0,
@@ -67,7 +74,7 @@ export function evaluateAnnualMaintenance(
     };
   }
 
-  if (result === "FAILURE") {
+  if (result === Outcomes.Failure) {
     const issue = getMaintenanceIssue(maintRoll1);
     return {
       result,
@@ -113,13 +120,22 @@ export function evaluateBankruptcySave(
  */
 export async function handleAnnualMaintenanceCheck(): Promise<void> {
   const rollFormula =
-    "&{template:ms} {{name=Annual Maintenance Check}} {{character_name=@{character_name}}} {{roll=[[?{Advantage/Disadvantage|Normal,1d100|Advantage [+],2d100kl1|Disadvantage [-],2d100kh1}]]}} {{target=[[@{systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=placeholder}}";
+    "&{template:ms} {{name=Annual Maintenance Check}} {{character_name=@{character_name}}} {{roll=[[?{Advantage/Disadvantage|Normal,1d100|Advantage [+],2d100kl1|Disadvantage [-],2d100kh1}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}}";
   const rollData = await startRoll(rollFormula);
 
   const rollEntry = rollData.results.roll;
   const targetEntry = rollData.results.target;
   const maint1Entry = rollData.results.maint_roll1;
   const maint2Entry = rollData.results.maint_roll2;
+
+  if (
+    rollEntry === undefined
+    || targetEntry === undefined
+    || maint1Entry === undefined
+    || maint2Entry === undefined
+  ) {
+    return;
+  }
 
   const roll = rollEntry.result;
   const target = targetEntry.result;
@@ -143,11 +159,13 @@ export async function handleAnnualMaintenanceCheck(): Promise<void> {
  */
 export async function handleBankruptcySave(): Promise<void> {
   const rollFormula =
-    "&{template:ms} {{name=Bankruptcy Save}} {{character_name=@{character_name}}} {{roll=[[1d100]]}} {{target=[[@{bankruptcy_save}+0]]}} {{notes=placeholder}}";
+    "&{template:ms} {{name=Bankruptcy Save}} {{character_name=@{character_name}}} {{roll=[[1d100-1]]}} {{target=[[@{ship_bankruptcy_save}+0]]}} {{notes=[[0]]}}";
   const rollData = await startRoll(rollFormula);
 
   const rollEntry = rollData.results.roll;
   const targetEntry = rollData.results.target;
+
+  if (rollEntry === undefined || targetEntry === undefined) return;
 
   const roll = rollEntry.result;
   const target = targetEntry.result;
@@ -163,17 +181,9 @@ export async function handleBankruptcySave(): Promise<void> {
  * Roll20 Sheetworker: Systems Check
  */
 export async function handleSystemsCheck(): Promise<void> {
-  const rollFormula =
-    "&{template:ms} {{name=Systems Check}} {{character_name=@{character_name}}} {{roll=[[1d100]]}} {{target=[[@{systems}+0]]}} {{notes=placeholder}}";
-  const rollData = await startRoll(rollFormula);
-  const rollEntry = rollData.results.roll;
-  const targetEntry = rollData.results.target;
-  const roll = rollEntry.result;
-  const target = targetEntry.result;
-  const result = evaluateRoll(roll, target);
-
-  finishRoll(rollData.rollId, {
-    notes: `Systems Check: ${result}`,
+  await rollCheck({
+    i18nKey: checkKey("systems"),
+    target: "@{ship_systems}",
   });
 }
 
@@ -181,17 +191,9 @@ export async function handleSystemsCheck(): Promise<void> {
  * Roll20 Sheetworker: Thrusters Check
  */
 export async function handleThrustersCheck(): Promise<void> {
-  const rollFormula =
-    "&{template:ms} {{name=Thrusters Check}} {{character_name=@{character_name}}} {{roll=[[1d100]]}} {{target=[[@{thrusters}+0]]}} {{notes=placeholder}}";
-  const rollData = await startRoll(rollFormula);
-  const rollEntry = rollData.results.roll;
-  const targetEntry = rollData.results.target;
-  const roll = rollEntry.result;
-  const target = targetEntry.result;
-  const result = evaluateRoll(roll, target);
-
-  finishRoll(rollData.rollId, {
-    notes: `Thrusters Check: ${result}`,
+  await rollCheck({
+    i18nKey: checkKey("thrusters"),
+    target: "@{ship_thrusters}",
   });
 }
 
@@ -199,17 +201,9 @@ export async function handleThrustersCheck(): Promise<void> {
  * Roll20 Sheetworker: Battle Check
  */
 export async function handleBattleCheck(): Promise<void> {
-  const rollFormula =
-    "&{template:ms} {{name=Battle Check}} {{character_name=@{character_name}}} {{roll=[[1d100]]}} {{target=[[@{battle}+0]]}} {{notes=placeholder}}";
-  const rollData = await startRoll(rollFormula);
-  const rollEntry = rollData.results.roll;
-  const targetEntry = rollData.results.target;
-  const roll = rollEntry.result;
-  const target = targetEntry.result;
-  const result = evaluateRoll(roll, target);
-
-  finishRoll(rollData.rollId, {
-    notes: `Battle Check: ${result}`,
+  await rollCheck({
+    i18nKey: checkKey("battle"),
+    target: "@{ship_battle}",
   });
 }
 
@@ -219,6 +213,10 @@ export type StartingConditionResult = {
   message: string;
 };
 
+/**
+ * Draws `count` distinct maintenance issues from the table by partial
+ * Fisher-Yates shuffle, capped at the table size.
+ */
 export function getRandomUniqueIssues(
   count: number,
   table: MaintenanceIssue[] = maintenanceTable,
@@ -233,18 +231,29 @@ export function getRandomUniqueIssues(
     const remaining = pool.length - i;
     const offset = Math.floor(randomFn() * remaining);
     const targetIndex = i + offset;
-    const temp = pool[i];
-    pool[i] = pool[targetIndex];
-    pool[targetIndex] = temp;
-    selected.push(pool[i]);
+    const current = pool[i];
+    const target = pool[targetIndex];
+    if (current === undefined || target === undefined) continue;
+
+    pool[i] = target;
+    pool[targetIndex] = current;
+    selected.push(target);
   }
   return selected;
 }
 
+/**
+ * Renders drawn issues as one chat line each: `[roll - type]: description`.
+ */
 export function formatStartingConditionMessage(issues: MaintenanceIssue[]): string {
-  return issues.map(issue => `[${issue.roll} - ${issue.issue_type}]: ${issue.description}`).join("\n");
+  const lines = issues.map((issue) => `[${issue.roll} - ${issue.issue_type}]: ${issue.description}`);
+  const message = lines.join("\n");
+  return message;
 }
 
+/**
+ * Draws the starting-condition issues for a ship and formats them for chat.
+ */
 export function evaluateStartingCondition(
   count: number,
   table: MaintenanceIssue[] = maintenanceTable,
@@ -252,13 +261,20 @@ export function evaluateStartingCondition(
 ): StartingConditionResult {
   const issues = getRandomUniqueIssues(count, table, randomFn);
   const message = formatStartingConditionMessage(issues);
-  return { count, issues, message };
+  return {
+    count,
+    issues,
+    message,
+  };
 }
 
+/**
+ * Rolls the starting condition on the sheet and posts the resulting issues.
+ */
 export async function handleStartingCondition(): Promise<void> {
-  const rollFormula = "&{template:ms} {{name=Starting Condition}} {{character_name=@{character_name}}} {{roll=[[1d5+1]]}} {{notes=placeholder}}";
+  const rollFormula = "&{template:ms} {{name=Starting Condition}} {{character_name=@{character_name}}} {{roll=[[1d5+1]]}} {{notes=[[0]]}}";
   const rollData = await startRoll(rollFormula);
-  const rollResult = rollData.results.roll as RollResult | undefined;
+  const rollResult = rollData.results.roll;
   const count = rollResult ? rollResult.result : 2;
   const evaluation = evaluateStartingCondition(count);
 

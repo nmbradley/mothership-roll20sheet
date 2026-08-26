@@ -1,41 +1,48 @@
-// @ts-nocheck
-{
-  const stats = ["strength", "speed", "intellect", "combat"];
+import { allStats } from "#game/enums.js";
 
-  const onLoadStats = () => {
-    const data = getCharmancerData();
+import { charmancerData, stepValues } from "./helpers";
+import { Steps } from "./types";
 
-    if (data?.stats?.values?.["strength"]) {
-      const updateHTML = {};
+/** Stress and wounds every character starts with, before class modifiers. */
+const STARTING_STRESS = 2;
+const STARTING_WOUNDS = 2;
+const STARTING_ARMOR = 0;
 
-      showChoices(["showstats"]);
+/** Restores the rolled stats when the player returns to the slide. */
+export function onLoadStats(): void {
+  const data = charmancerData();
+  const values = stepValues(data, Steps.Stats);
+  if (values["strength"] === undefined) return;
 
-      stats.forEach((stat) => updateHTML[`t__${stat}`] = data.stats.values[stat]);
+  showChoices(["showstats"]);
 
-      setCharmancerText(updateHTML);
-    }
-  };
+  const updates: Record<string, string> = {};
+  for (const stat of allStats) {
+    updates[`t__${stat}`] = values[stat] ?? "";
+  }
+  setCharmancerText(updates);
+}
 
-  const onRollStats = (rolls) => {
-    const updateHTML = {};
-    const updateAttrs = {};
+/** Records a fresh set of rolled stats and the vitals derived from them. */
+export function onRollStats(rolls: readonly RollResult[]): void {
+  showChoices(["showstats"]);
 
-    showChoices(["showstats"]);
+  const updates: Record<string, string> = {};
+  const attrs: Record<string, string | number> = {};
 
-    rolls.forEach((roll, index) => {
-      updateHTML[`t__${stats[index]}`] = roll.result;
-      updateAttrs[stats[index]] = roll.result;
-    });
+  allStats.forEach((stat, index) => {
+    const roll = rolls[index];
+    if (roll === undefined) return;
+    updates[`t__${stat}`] = String(roll.result);
+    attrs[stat] = roll.result;
+  });
 
-    updateAttrs["health"] = updateAttrs["strength"] * 2;
-    updateAttrs["stress"] = 2;
-    updateAttrs["wounds"] = 2;
-    updateAttrs["armor_points"] = 0;
+  const strength = rolls[0]?.result ?? 0;
+  attrs["health"] = strength * 2;
+  attrs["stress"] = STARTING_STRESS;
+  attrs["wounds"] = STARTING_WOUNDS;
+  attrs["armor_points"] = STARTING_ARMOR;
 
-    setCharmancerText(updateHTML);
-    setAttrs(updateAttrs);
-  };
-
-  on(`mancerroll:stats`, (eventInfo) => { onRollStats(eventInfo.roll); });
-  on(`page:stats`, (eventInfo) => { onLoadStats(eventInfo.roll); });
+  setCharmancerText(updates);
+  setAttrs(attrs);
 }

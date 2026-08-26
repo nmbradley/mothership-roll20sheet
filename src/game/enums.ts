@@ -9,6 +9,8 @@ export const Stats = {
 } as const;
 export type Stat = EntryOf<typeof Stats>;
 export type StatsKey = KeyOf<typeof Stats>;
+/** Every stat in the order the sheet presents them. */
+export const allStats: readonly Stat[] = Object.values(Stats);
 
 export const Saves = {
   Sanity: "sanity",
@@ -17,6 +19,29 @@ export const Saves = {
 } as const;
 export type Save = EntryOf<typeof Saves>;
 export type SavesKey = KeyOf<typeof Saves>;
+/** Every save in the order the sheet presents them. */
+export const allSaves: readonly Save[] = Object.values(Saves);
+
+// Range, distance and movement are tracked abstractly in Range Bands.
+// Named RangeBand rather than Range so it does not shadow the DOM's Range type.
+export const RangeBands = {
+  Adjacent: "adjacent",
+  Close: "close",
+  Long: "long",
+  Extreme: "extreme",
+} as const;
+export type RangeBand = EntryOf<typeof RangeBands>;
+export type RangeBandsKey = KeyOf<typeof RangeBands>;
+
+// Ship-to-ship combat uses its own bands, listed closest first. A ship at
+// Contact range can be boarded; only the longest weapons reach Detection.
+export const ShipRangeBands = {
+  Contact: "contact",
+  Firing: "firing",
+  Detection: "detection",
+} as const;
+export type ShipRangeBand = EntryOf<typeof ShipRangeBands>;
+export type ShipRangeBandsKey = KeyOf<typeof ShipRangeBands>;
 
 export const Classes = {
   Marine: "marine",

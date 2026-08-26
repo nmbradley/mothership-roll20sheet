@@ -6,16 +6,15 @@
   },
   "scripts": {
     "start": "npm-run-all --parallel watch:*",
-    "build": "npm-run-all --parallel build:*",
-    "build:sass": "sass ./src/scss/mothership.scss ./mothership.css",
+    "build": "npm-run-all --serial build:svelte build:translations",
     "build:svelte": "node scripts/build-svelte.js",
-    "build:ts": "tsdown",
-    "watch:sass": "sass --watch ./src/scss/mothership.scss ./mothership.css",
-    "watch:svelte": "nodemon --watch src/svelte -e svelte,js --exec 'npm run build:svelte'",
-    "watch:ts": "tsdown --watch",
+    "watch:svelte": "nodemon --watch src --watch scripts -e svelte,js,ts,scss,html --exec 'npm run build:svelte'",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "vitest run"
+    "test": "vitest run",
+    "lint:css": "stylelint \"src/svelte/**/*.{scss,svelte}\"",
+    "lint:css:fix": "stylelint \"src/svelte/**/*.{scss,svelte}\" --fix",
+    "build:translations": "node scripts/build-translations.js"
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "^5.10.0",
@@ -24,25 +23,34 @@
     "eslint": "^10.9.1",
     "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-plugin-import-x": "^4.17.1",
-    "eslint-plugin-jsdoc": "^50.0.0",
+    "eslint-plugin-jsdoc": "^64.2.1",
     "eslint-plugin-svelte": "^3.23.0",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.2",
     "nodemon": "^3.1.14",
+    "postcss-html": "^2.0.0",
+    "postcss-scss": "^4.0.9",
     "prettier": "^3.9.6",
     "sass": "^1.80.6",
+    "stylelint": "^17.14.1",
+    "stylelint-order": "^8.1.1",
     "svelte": "^5.56.10",
     "svelte-eslint-parser": "^1.8.1",
     "svelte-preprocess": "^6.0.5",
-    "tsdown": "^0.14.0",
     "typescript": "^5.4.5",
     "typescript-eslint": "^8.68.0",
     "vitest": "^0.28.5"
   },
   "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "lint-staged": {
     "*.{js,ts,svelte}": [
       "eslint --fix"
+    ],
+    "*.{scss,svelte}": [
+      "stylelint --fix"
     ]
   },
   "imports": {

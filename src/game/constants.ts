@@ -1,5 +1,6 @@
 import {
-  Stats, Saves, SkillLevels, Skills, type Stat, type Save, type SkillLevel, type Skill,
+  Stats, Saves, SkillLevels, Skills, RangeBands, ShipRangeBands,
+  type Stat, type Save, type SkillLevel, type Skill, type RangeBand, type ShipRangeBand,
 } from "./enums";
 
 export type StatDef = {
@@ -299,3 +300,158 @@ export const skills = {
     desc: "Leadership, management, and authority.",
   },
 } as const satisfies SkillsMap;
+
+export type SkillEntry = SkillDef & {
+  /** Attribute-safe form of the name: spaces become underscores. */
+  key: string;
+  /** Skills that name this one as a prerequisite. */
+  unlocks: readonly Skill[];
+};
+
+export type SkillsByLevel = Record<SkillLevel, readonly SkillEntry[]>;
+
+/** Attribute-safe form of a skill name: spaces become underscores. */
+export function skillKey(name: Skill): string {
+  const key = name.replaceAll(" ", "_");
+  return key;
+}
+
+/**
+ * Groups skills by tier and inverts `prereq` into `unlocks`, which is the
+ * direction the charactermancer and the skills panel read them in.
+ */
+function buildSkillsByLevel(): SkillsByLevel {
+  // Widened to SkillDef: the const assertion gives a literal union in which
+  // entries without a prereq lack the property entirely.
+  const allSkills: readonly SkillDef[] = Object.values(skills);
+
+  const unlockedBy = new Map<Skill, Skill[]>();
+  for (const skill of allSkills) {
+    const required = skill.prereq ?? [];
+    for (const prerequisite of required) {
+      const existing = unlockedBy.get(prerequisite) ?? [];
+      existing.push(skill.name);
+      unlockedBy.set(prerequisite, existing);
+    }
+  }
+
+  const grouped: Record<SkillLevel, SkillEntry[]> = {
+    [SkillLevels.Trained]: [],
+    [SkillLevels.Expert]: [],
+    [SkillLevels.Master]: [],
+  };
+  for (const skill of allSkills) {
+    const key = skillKey(skill.name);
+    const unlocks = unlockedBy.get(skill.name) ?? [];
+    grouped[skill.level].push({
+      ...skill,
+      key,
+      unlocks,
+    });
+  }
+  return grouped;
+}
+
+export const skillsByLevel: SkillsByLevel = buildSkillsByLevel();
+
+/** Every skill keyed by its attribute-safe name, for sheet lookups. */
+function buildSkillsByKey(): Record<string, SkillEntry> {
+  const entries = Object.values(skillsByLevel).flat();
+  const byKey: Record<string, SkillEntry> = {};
+  for (const entry of entries) {
+    byKey[entry.key] = entry;
+  }
+  return byKey;
+}
+
+export const skillsByKey: Record<string, SkillEntry> = buildSkillsByKey();
+
+export type RangeBandDef = {
+  band: RangeBand;
+  /** How the book writes it, e.g. "Close Range". */
+  label: string;
+  /** The one-line test the book gives for the band. */
+  test: string;
+  metric: string;
+  imperial: string;
+  desc: string;
+};
+
+export type RangeBandsMap = Record<RangeBand, RangeBandDef>;
+
+export const rangeBands = {
+  [RangeBands.Adjacent]: {
+    band: RangeBands.Adjacent,
+    label: "Adjacent",
+    test: "It can touch you.",
+    metric: "less than 1 m",
+    imperial: "less than 3 ft",
+    desc: "You are basically touching. Fist fights, close-quarters combat, "
+      + "using a terminal, or administering first aid.",
+  },
+  [RangeBands.Close]: {
+    band: RangeBands.Close,
+    label: "Close Range",
+    test: "It can get to you.",
+    metric: "5-10 m",
+    imperial: "15-30 ft",
+    desc: "Reachable by running over in a few seconds, and near enough to throw "
+      + "something and hit. Shotguns are most effective here or Adjacent.",
+  },
+  [RangeBands.Long]: {
+    band: RangeBands.Long,
+    label: "Long Range",
+    test: "You can shoot it.",
+    metric: "20-100 m",
+    imperial: "50-300 ft",
+    desc: "Far enough to take an entire round or longer to reach. Rifles are "
+      + "effective here; handguns and shotguns less so.",
+  },
+  [RangeBands.Extreme]: {
+    band: RangeBands.Extreme,
+    label: "Extreme Range",
+    test: "You can hear them scream.",
+    metric: "more than 100 m",
+    imperial: "more than 300 ft",
+    desc: "Only the longest range weapons, like smart rifles, can hit "
+      + "accurately. It takes more than one turn to reach.",
+  },
+} as const satisfies RangeBandsMap;
+
+export type ShipRangeBandDef = {
+  band: ShipRangeBand;
+  label: string;
+  desc: string;
+};
+
+export type ShipRangeBandsMap = Record<ShipRangeBand, ShipRangeBandDef>;
+
+export const shipRangeBands = {
+  [ShipRangeBands.Contact]: {
+    band: ShipRangeBands.Contact,
+    label: "Contact Range",
+    desc: "Close enough to attach to an enemy ship and force a boarding party aboard.",
+  },
+  [ShipRangeBands.Firing]: {
+    band: ShipRangeBands.Firing,
+    label: "Firing Range",
+    desc: "Ships at firing range or closer choose a target in the Attack Phase.",
+  },
+  [ShipRangeBands.Detection]: {
+    band: ShipRangeBands.Detection,
+    label: "Detection Range",
+    desc: "The outermost band. Only the longest weapons, such as railguns, reach this far.",
+  },
+} as const satisfies ShipRangeBandsMap;
+
+/** Select options for an attack's range band, ordered closest first. */
+export const rangeBandOptions = Object.values(rangeBands).map((band) => ({
+  label: band.label,
+  value: band.band,
+}));
+
+/** Select options for a ship weapon's range band, ordered closest first. */
+export const shipRangeBandOptions = Object.values(shipRangeBands).map((band) => ({
+  label: band.label,
+  value: band.band,
+}));

@@ -1,198 +1,156 @@
-// @ts-nocheck
-import { skillList } from "../index";
-{
-  const trained_skills = [
-    "linguistics",
-    "biology",
-    "first_aid",
-    "hydroponics",
-    "geology",
-    "zero-g",
-    "scavenging",
-    "heavy_machinery",
-    "computers",
-    "mechanical_repair",
-    "driving",
-    "piloting",
-    "mathematics",
-    "art",
-    "archaeology",
-    "theology",
-    "military_training",
-    "rimwise",
-    "athletics",
-    "chemistry",
-  ];
+import { skillsByKey, skillsByLevel } from "#game/constants.js";
+import { SkillLevels, type SkillLevel } from "#game/enums.js";
 
-  const expert_skills = [
-    "psychology",
-    "genetics",
-    "pathology",
-    "botany",
-    "planetology",
-    "asteroid_mining",
-    "jury_rigging",
-    "engineering",
-    "hacking",
-    "vehicle_specialization",
-    "astrogation",
-    "physics",
-    "mysticism",
-    "tactics",
-    "gunnery",
-    "firearms",
-    "close-quarters_combat",
-    "explosives",
-  ];
+import {
+  charmancerData, parseStringList, stepRows, stepValues,
+} from "./helpers";
+import { Steps } from "./types";
 
-  const master_skills = [
-    "sophontology",
-    "xenobiology",
-    "surgery",
-    "cybernetics",
-    "robotics",
-    "artificial_intelligence",
-    "command",
-    "hyperspace",
-    "xenoesotericism",
-    "weapon_specialization",
-  ];
+/** What one skill costs, by tier. */
+const SKILL_COST: Record<SkillLevel, number> = {
+  [SkillLevels.Trained]: 1,
+  [SkillLevels.Expert]: 2,
+  [SkillLevels.Master]: 3,
+};
 
-  const onLoadSkills = () => {
-    const data = getCharmancerData();
+/** Marks a skill granted by the class rather than bought with points. */
+const CLASS_SKILL = "class";
 
-    resetClassSkills();
+/** Loads the slide, seeding the point budget from the chosen class. */
+export function onLoadSkills(): void {
+  resetClassSkills();
 
-    if (data?.skills?.values?.skillpoints_max) calcAllSkills();
-    else if (data?.class?.values?.skill_points) setAttrs({ skillpoints_max: data.class.values.skill_points }, (callback) => { calcAllSkills(); });
-    else setCharmancerText({ [`t__skillpointserror`]: getTranslationByKey("Ensure you have selected a class") });
-  };
+  const data = charmancerData();
+  const skills = stepValues(data, Steps.Skills);
+  if (skills["skillpoints_max"] !== undefined) {
+    recalculateSkillPoints();
+    return;
+  }
 
-  const resetClassSkills = () => {
-    const data = getCharmancerData();
-    const all_skills = [...trained_skills, ...expert_skills, ...master_skills];
-
-    const updateAttrs = {};
-
-    all_skills.forEach((skill) => {
-      if (data?.skills?.values[`${skill}_type`] === "class") {
-        updateAttrs[skill] = 0;
-        updateAttrs[`${skill}_type`] = "";
-      }
+  const classPoints = stepValues(data, Steps.Class)["skill_points"];
+  if (classPoints === undefined) {
+    setCharmancerText({
+      t__skillpointserror: getTranslationByKey("Ensure you have selected a class"),
     });
+    return;
+  }
 
-    const class_skills = (data?.class?.values?.skills) ? JSON.parse(data.class.values.skills).map((skill) => skill.replace(/ /g, "_")) : [];
+  setAttrs({ skillpoints_max: classPoints }, () => {
+    recalculateSkillPoints();
+  });
+}
 
-    class_skills.forEach((skill) => {
-      updateAttrs[skill] = "on";
-      updateAttrs[`${skill}_type`] = "class";
-    });
+/**
+ * Re-grants the class's skills, clearing any granted by a previous class.
+ * Skills the player bought are left alone.
+ */
+function resetClassSkills(): void {
+  const data = charmancerData();
+  const skills = stepValues(data, Steps.Skills);
+  const attrs: Record<string, string | number> = {};
 
-    if (data?.class?.repeating?.length > 0) {
-      const skill_choices = data.class.repeating.filter((repeating_id) => repeating_id.indexOf("choicerow") > -1);
-
-      if (skill_choices.length > 0) {
-        skill_choices.forEach((repeating_id) => {
-          const skill_name = data.class.values[`${repeating_id}_skill`].toLowerCase().replace(/ /g, "_");
-
-          if (skill_name !== "choose") {
-            updateAttrs[skill_name] = "on";
-            updateAttrs[`${skill_name}_type`] = "class";
-          }
-        });
-      }
+  for (const key of Object.keys(skillsByKey)) {
+    if (skills[`${key}_type`] === CLASS_SKILL) {
+      attrs[key] = 0;
+      attrs[`${key}_type`] = "";
     }
+  }
 
-    setAttrs(updateAttrs, (callback) => { checkAllSkills(); });
-  };
+  for (const key of classGrantedSkills()) {
+    attrs[key] = "on";
+    attrs[`${key}_type`] = CLASS_SKILL;
+  }
 
-  const calcAllSkills = () => {
-    const data = getCharmancerData();
+  setAttrs(attrs, () => {
+    recordOwnedSkills();
+  });
+}
 
-    const sp_total = (data?.skills?.values?.skillpoints_max) ? parseInt(data.skills.values.skillpoints_max) : 0;
-    let sp_spent = 0;
+/** Skills the class grants outright, plus any the player picked from a group. */
+function classGrantedSkills(): readonly string[] {
+  const data = charmancerData();
+  const values = stepValues(data, Steps.Class);
 
-    trained_skills.forEach((skill) => {
-      const skill_toggle = data.skills.values[skill];
-      const skill_type = data.skills.values[`${skill}_type`];
-      if (skill_toggle === "on" && skill_type !== "class") sp_spent += 1;
-    });
+  const granted = parseStringList(values["skills"]);
+  const keys = granted.map((name) => name.replaceAll(" ", "_"));
 
-    expert_skills.forEach((skill) => {
-      const skill_toggle = data.skills.values[skill];
-      const skill_type = data.skills.values[`${skill}_type`];
-      if (skill_toggle === "on" && skill_type !== "class") sp_spent += 2;
-    });
+  const choiceRows = stepRows(data, Steps.Class).filter((id) => id.includes("choicerow"));
+  for (const rowId of choiceRows) {
+    const chosen = values[`${rowId}_skill`];
+    if (chosen === undefined || chosen === "choose") continue;
+    const lower = chosen.toLowerCase();
+    const key = lower.replaceAll(" ", "_");
+    keys.push(key);
+  }
+  return keys;
+}
 
-    master_skills.forEach((skill) => {
-      const skill_toggle = data.skills.values[skill];
-      const skill_type = data.skills.values[`${skill}_type`];
-      if (skill_toggle === "on" && skill_type !== "class") sp_spent += 3;
-    });
+/**
+ * Totals what the player has spent and locks the tiers they can no longer
+ * afford, so the UI cannot offer a skill there are no points for.
+ */
+export function recalculateSkillPoints(): void {
+  const data = charmancerData();
+  const skills = stepValues(data, Steps.Skills);
 
-    const updateAttrs = {
-      trained_lock: "0",
-      expert_lock: "0",
-      master_lock: "0",
-    };
+  const budgetRaw = skills["skillpoints_max"] ?? "0";
+  const budget = Number.parseInt(budgetRaw, 10);
+  const total = Number.isNaN(budget) ? 0 : budget;
 
-    const updateHTML = {};
-
-    const sp_remaining = sp_total - sp_spent;
-
-    if (sp_remaining <= 2) updateAttrs["master_lock"] = "on";
-    if (sp_remaining <= 1) updateAttrs["expert_lock"] = "on";
-    if (sp_remaining <= 0) updateAttrs["trained_lock"] = "on";
-
-    updateAttrs["skillpoints"] = sp_remaining;
-    updateHTML["t__skillpoints"] = `${sp_remaining} / ${sp_total}`;
-
-    setCharmancerText(updateHTML);
-    setAttrs(updateAttrs);
-  };
-
-  const toggleSkill = (skill) => {
-    const data = getCharmancerData();
-
-    if (!data?.skills?.values?.[`${skill}_type`] || data.skills.values[`${skill}_type`] !== "class") {
-      if (data?.skills?.values?.[skill] === "on") {
-        data.skills.values[skill] = "0";
-        setAttrs({ [skill]: 0 }, (callback) => { checkAllSkills(); });
-      } else {
-        data.skills.values[skill] = "on";
-        setAttrs({ [skill]: "on" }, (callback) => { checkAllSkills(); });
-      }
+  let spent = 0;
+  for (const [level, entries] of Object.entries(skillsByLevel)) {
+    const cost = SKILL_COST[level as SkillLevel];
+    for (const entry of entries) {
+      const isOwned = skills[entry.key] === "on";
+      const isGranted = skills[`${entry.key}_type`] === CLASS_SKILL;
+      if (isOwned && !isGranted) spent += cost;
     }
-  };
+  }
 
-  const checkAllSkills = () => {
-    const data = getCharmancerData();
+  const remaining = total - spent;
+  setAttrs({
+    skillpoints: remaining,
+    trained_lock: remaining <= 0 ? "on" : "0",
+    expert_lock: remaining <= 1 ? "on" : "0",
+    master_lock: remaining <= 2 ? "on" : "0",
+  });
+  setCharmancerText({ t__skillpoints: `${remaining} / ${total}` });
+}
 
-    const owned = [];
-    const unlocked = [];
+/** Buys or refunds a skill. Class-granted skills cannot be toggled off. */
+export function toggleSkill(key: string): void {
+  const data = charmancerData();
+  const skills = stepValues(data, Steps.Skills);
+  if (skills[`${key}_type`] === CLASS_SKILL) return;
 
-    for (const key in skillList) {
-      if (data?.skills?.values?.[key] === "on") {
-        owned.push(key);
+  const isOwned = skills[key] === "on";
+  setAttrs({ [key]: isOwned ? 0 : "on" }, () => {
+    recordOwnedSkills();
+  });
+}
 
-        for (const skill of skillList[key].unlocks) {
-          if (!unlocked.includes(skill)) unlocked.push(skill);
-        }
-      }
+/**
+ * Publishes which skills are owned and which the player has thereby unlocked,
+ * which is what the slide's CSS keys off to enable the next tier.
+ */
+function recordOwnedSkills(): void {
+  const data = charmancerData();
+  const skills = stepValues(data, Steps.Skills);
+
+  const owned: string[] = [];
+  const unlocked: string[] = [];
+
+  for (const [key, entry] of Object.entries(skillsByKey)) {
+    if (skills[key] !== "on") continue;
+    owned.push(key);
+    for (const name of entry.unlocks) {
+      const unlockedKey = name.replaceAll(" ", "_");
+      if (!unlocked.includes(unlockedKey)) unlocked.push(unlockedKey);
     }
+  }
 
-    setAttrs({
-      unlocked: unlocked.join(" "),
-      owned: owned.join(" "),
-    });
-  };
-
-  on(`page:skills`, (eventInfo) => { onLoadSkills(); });
-
-  [...trained_skills, ...expert_skills, ...master_skills].forEach((skill) => {
-    on(`clicked:toggle-${skill}`, (eventInfo) => {
-      toggleSkill(skill);
-      calcAllSkills();
-    });
+  setAttrs({
+    owned: owned.join(" "),
+    unlocked: unlocked.join(" "),
   });
 }

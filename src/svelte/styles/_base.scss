@@ -1,0 +1,105 @@
+// Element-level defaults for the sheet.
+//
+// Every control on the sheet shares one treatment, so it is set once here on the
+// elements rather than extended into each component. This is the single largest
+// saving in the compiled file: one rule instead of one per component.
+//
+// Emitted inside the tripled root selector, so these are already scoped to the
+// sheet and already outrank Roll20's defaults.
+// `all: unset` in _unset.scss resolves display to `inline` on this element,
+// since display is not inherited. Nothing else re-declares it, and an inline
+// sheet root collapses the whole layout -- so it is stated here.
+display: block;
+
+box-sizing: border-box;
+
+background: var(--ms-bg);
+
+font-size: var(--ms-text-md);
+font-family: var(--ms-font-body);
+line-height: 1.35;
+color: var(--ms-fg);
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+// Roll20's base.css sets heading metrics in px -- 36px of line-height on an
+// h2, plus its own margins -- which is what opens the gaps under every panel
+// title. `all: unset` on the sheet root never reaches these, so they state
+// their own.
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+
+  line-height: 1.1;
+  font-family: var(--ms-font-header);
+  font-weight: 800;
+  text-rendering: auto;
+}
+
+h1 { font-size: var(--ms-text-xl); }
+h2 { font-size: var(--ms-text-lg); }
+h3 { font-size: var(--ms-text-md); }
+
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  border: var(--ms-border-width) solid var(--ms-border);
+  border-radius: var(--ms-radius-sm);
+  width: 100%;
+  padding: var(--ms-space-sm) var(--ms-space-md);
+
+  background: var(--ms-surface);
+
+  // Fields read larger than the labels beside them, as the printed sheet sets
+  // them -- its inputs are 6.7pt against 4.1pt labels.
+  font-size: var(--ms-text-md);
+  font-family: var(--ms-font-body);
+  color: var(--ms-fg);
+}
+
+textarea {
+  resize: vertical;
+}
+
+// The spinners crowd a narrow numeric well, so they only show on hover -- but
+// they are faded rather than removed. Toggling `display` re-flows the field and
+// shoves the value sideways the moment the pointer arrives; opacity does not
+// affect layout, so the number stays exactly where it was.
+//
+// Firefox gives no way to hold the space without also drawing the control, so
+// there they stay hidden and the field simply never shifts.
+input[type="number"] {
+  -moz-appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    opacity: 0;
+  }
+
+  &:hover::-webkit-inner-spin-button,
+  &:hover::-webkit-outer-spin-button,
+  &:focus::-webkit-inner-spin-button,
+  &:focus::-webkit-outer-spin-button {
+    opacity: 1;
+  }
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--ms-fg-muted);
+}
+
+:focus-visible {
+  outline: var(--ms-border-width) solid var(--ms-accent);
+  outline-offset: 2px;
+}

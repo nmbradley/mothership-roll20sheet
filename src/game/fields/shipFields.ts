@@ -1,186 +1,232 @@
-import { createAttribute } from "./createAttribute";
-import { createField, createSection } from "./createSection";
+import { shipRangeBandOptions } from "#game/constants.js";
+
+import {
+  Controls,
+  attribute,
+  section,
+  type RowAttributeName,
+} from "./_factories";
 
 // Header fields
-export const ship_name = createAttribute({
+export const ship_name = attribute({
   name: "ship_name",
   label: "Ship Name",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
-export const ship_type = createAttribute({
+export const ship_type = attribute({
   name: "ship_type",
   label: "Type",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
-export const ship_class = createAttribute({
+export const ship_class = attribute({
   name: "ship_class",
   label: "Class",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
 
 // Core Stats (Mothership 1e)
-export const systems = createAttribute({
-  name: "systems",
+export const ship_systems = attribute({
+  name: "ship_systems",
   label: "Systems",
-  type: "number",
+  control: Controls.Number,
+  value: 0,
 });
-export const thrusters = createAttribute({
-  name: "thrusters",
+export const ship_thrusters = attribute({
+  name: "ship_thrusters",
   label: "Thrusters",
-  type: "number",
+  control: Controls.Number,
+  value: 0,
 });
-export const battle = createAttribute({
-  name: "battle",
+export const ship_battle = attribute({
+  name: "ship_battle",
   label: "Battle",
-  type: "number",
+  control: Controls.Number,
+  value: 0,
 });
 
 // Saves / Defenses
-export const ship_armor = createAttribute({
+export const ship_armor = attribute({
   name: "ship_armor",
   label: "Armor",
-  type: "number",
+  control: Controls.Number,
+  value: 0,
 });
-export const bankruptcy_save = createAttribute({
-  name: "bankruptcy_save",
+export const ship_bankruptcy_save = attribute({
+  name: "ship_bankruptcy_save",
   label: "Bankruptcy Save",
-  type: "number",
-  seed: 21,
+  control: Controls.Number,
+  value: 21,
 });
 
 // Hull & Wounds
-export const ship_hull = createAttribute({
+export const ship_hull = attribute({
   name: "ship_hull",
   label: "Hull",
-  type: "number",
-  max: true,
+  control: Controls.Number,
+  value: 0,
+  max: 0,
 });
-export const ship_wounds = createAttribute({
+export const ship_hull_25 = attribute({
+  name: "ship_hull_25",
+  label: "25%",
+  control: Controls.Number,
+  value: 0,
+});
+export const ship_hull_50 = attribute({
+  name: "ship_hull_50",
+  label: "50%",
+  control: Controls.Number,
+  value: 0,
+});
+export const ship_hull_75 = attribute({
+  name: "ship_hull_75",
+  label: "75%",
+  control: Controls.Number,
+  value: 0,
+});
+export const ship_wounds = attribute({
   name: "ship_wounds",
   label: "Wounds",
-  type: "number",
-  max: true,
+  control: Controls.Number,
+  value: 0,
+  max: 0,
 });
 
 // Secondary Stats
-export const crew = createAttribute({
-  name: "crew",
+export const ship_crew = attribute({
+  name: "ship_crew",
   label: "Crew",
-  type: "number",
-  max: true,
+  control: Controls.Number,
+  value: 0,
+  max: 0,
 });
-export const fuel = createAttribute({
-  name: "fuel",
+export const ship_fuel = attribute({
+  name: "ship_fuel",
   label: "Fuel",
-  type: "number",
-  max: true,
+  control: Controls.Number,
+  value: 0,
+  max: 0,
 });
-export const loadout_max = createAttribute({
-  name: "loadout_max",
+export const ship_max_cargo = attribute({
+  name: "ship_max_cargo",
   label: "Max Cargo",
-  type: "number",
+  control: Controls.Number,
+  value: 0,
 });
 
 export const shipAttributes = {
   ship_name,
   ship_type,
   ship_class,
-  systems,
-  thrusters,
-  battle,
+  ship_systems,
+  ship_thrusters,
+  ship_battle,
   ship_armor,
-  bankruptcy_save,
+  ship_bankruptcy_save,
   ship_hull,
+  ship_hull_25,
+  ship_hull_50,
+  ship_hull_75,
   ship_wounds,
-  crew,
-  fuel,
-  loadout_max,
+  ship_crew,
+  ship_fuel,
+  ship_max_cargo,
 } as const;
 
 export type ShipAttributeNames = keyof typeof shipAttributes;
 
 // Repeating section fields: Weapons
-export const shipweapon_name = createField({
-  name: "shipweapon_name",
+export const ship_weapon_name = attribute({
+  name: "ship_weapon_name",
   label: "Weapon Name",
-  section: "shipweapons",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
-export const shipweapon_damage = createField({
-  name: "shipweapon_damage",
+export const ship_weapon_damage = attribute({
+  name: "ship_weapon_damage",
   label: "Damage",
-  section: "shipweapons",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
-export const shipweapon_notes = createField({
-  name: "shipweapon_notes",
+export const ship_weapon_range = attribute({
+  name: "ship_weapon_range",
+  label: "Range",
+  control: Controls.Select,
+  options: shipRangeBandOptions,
+  value: "firing",
+});
+export const ship_weapon_notes = attribute({
+  name: "ship_weapon_notes",
   label: "Notes",
-  section: "shipweapons",
-  type: "string",
-  uiType: "textarea",
+  control: Controls.Textarea,
+  value: "",
 });
 
-export const shipWeapons = createSection({
+export const shipWeapons = section({
   name: "shipweapons",
-  fields: {
-    shipweapon_name,
-    shipweapon_damage,
-    shipweapon_notes,
+  attributes: {
+    ship_weapon_name,
+    ship_weapon_damage,
+    ship_weapon_range,
+    ship_weapon_notes,
   } as const,
 });
 
 // Repeating section fields: Crew
-export const shipcrew_name = createField({
-  name: "shipcrew_name",
+export const ship_crew_name = attribute({
+  name: "ship_crew_name",
   label: "Name",
-  section: "shipcrew",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
-export const shipcrew_rank = createField({
-  name: "shipcrew_rank",
+export const ship_crew_rank = attribute({
+  name: "ship_crew_rank",
   label: "Rank",
-  section: "shipcrew",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
 
-export const shipCrew = createSection({
+export const shipCrew = section({
   name: "shipcrew",
-  fields: {
-    shipcrew_name,
-    shipcrew_rank,
+  attributes: {
+    ship_crew_name,
+    ship_crew_rank,
   } as const,
 });
 
 // Repeating section fields: Loadout
-export const shiploadout_item = createField({
-  name: "shiploadout_item",
+export const ship_loadout_item = attribute({
+  name: "ship_loadout_item",
   label: "Item",
-  section: "shiploadout",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
-export const shiploadout_number = createField({
-  name: "shiploadout_number",
+export const ship_loadout_number = attribute({
+  name: "ship_loadout_number",
   label: "Amount",
-  section: "shiploadout",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
 
-export const shipLoadout = createSection({
+export const shipLoadout = section({
   name: "shiploadout",
-  fields: {
-    shiploadout_item,
-    shiploadout_number,
+  attributes: {
+    ship_loadout_item,
+    ship_loadout_number,
   } as const,
 });
 
-export type ShipWeaponFields = keyof typeof shipWeapons.fields;
-export type ShipWeaponAttributes = `repeating_shipweapons_${string}_${ShipWeaponFields}`;
+export type ShipWeaponFields = keyof typeof shipWeapons.attributes;
+export type ShipWeaponAttributes = RowAttributeName<typeof shipWeapons>;
 
-export type ShipCrewFields = keyof typeof shipCrew.fields;
-export type ShipCrewAttributes = `repeating_shipcrew_${string}_${ShipCrewFields}`;
+export type ShipCrewFields = keyof typeof shipCrew.attributes;
+export type ShipCrewAttributes = RowAttributeName<typeof shipCrew>;
 
-export type ShipLoadoutFields = keyof typeof shipLoadout.fields;
-export type ShipLoadoutAttributes = `repeating_shiploadout_${string}_${ShipLoadoutFields}`;
+export type ShipLoadoutFields = keyof typeof shipLoadout.attributes;
+export type ShipLoadoutAttributes = RowAttributeName<typeof shipLoadout>;
 
 export type AllShipAttributes =
   | ShipAttributeNames

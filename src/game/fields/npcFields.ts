@@ -1,177 +1,194 @@
-import { createAttribute } from "./createAttribute";
-import { createField, createSection } from "./createSection";
+import { rangeBandOptions } from "#game/constants.js";
 
-export const character_name = createAttribute({
+import {
+  Controls,
+  attribute,
+  section,
+  type RowAttributeName,
+} from "./_factories";
+
+// Every NPC attribute carries an `npc_` prefix so it never shares storage with
+// the PC sheet. `character_name` is the deliberate exception: Roll20 links that
+// name to the journal entry, so both sheets must write the same attribute.
+export const character_name = attribute({
   name: "character_name",
   label: "Name",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
-export const npc_name = createAttribute({
-  name: "npc_name",
-  label: "NPC Name",
-  type: "string",
-});
-export const combat = createAttribute({
-  name: "combat",
+export const npc_combat = attribute({
+  name: "npc_combat",
   label: "Combat",
-  type: "number",
+  control: Controls.Number,
+  value: 0,
 });
-export const instinct = createAttribute({
-  name: "instinct",
+export const npc_instinct = attribute({
+  name: "npc_instinct",
   label: "Instinct",
-  type: "number",
+  control: Controls.Number,
+  value: 0,
 });
-export const wounds = createAttribute({
-  name: "wounds",
+export const npc_wounds = attribute({
+  name: "npc_wounds",
   label: "Wounds",
-  type: "number",
-  max: true,
+  control: Controls.Number,
+  value: 0,
+  max: 0,
 });
-export const health = createAttribute({
-  name: "health",
+export const npc_health = attribute({
+  name: "npc_health",
   label: "Health",
-  type: "number",
-  max: true,
+  control: Controls.Number,
+  value: 0,
+  max: 0,
 });
-export const armor_points = createAttribute({
-  name: "armor_points",
+export const npc_armor_points = attribute({
+  name: "npc_armor_points",
   label: "Armor Points",
-  type: "number",
+  control: Controls.Number,
+  value: 0,
 });
-export const description = createAttribute({
-  name: "description",
+export const npc_description = attribute({
+  name: "npc_description",
   label: "Description",
-  uiType: "textarea",
+  control: Controls.Textarea,
+  value: "",
 });
-export const equipment = createAttribute({
-  name: "equipment",
+export const npc_equipment = attribute({
+  name: "npc_equipment",
   label: "Equipment",
-  uiType: "textarea",
+  control: Controls.Textarea,
+  value: "",
 });
 
 export const npcAttributes = {
   character_name,
-  npc_name,
-  combat,
-  instinct,
-  wounds,
-  health,
-  armor_points,
-  description,
-  equipment,
+  npc_combat,
+  npc_instinct,
+  npc_wounds,
+  npc_health,
+  npc_armor_points,
+  npc_description,
+  npc_equipment,
 } as const;
 
-export const attack_name = createField({
-  name: "attack_name",
+export const npc_attack_name = attribute({
+  name: "npc_attack_name",
   label: "Attack",
-  section: "attacks",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
-export const attack_type = createField({
-  name: "attack_type",
+export const npc_attack_type = attribute({
+  name: "npc_attack_type",
   label: "Type",
-  section: "attacks",
-  uiType: "select",
+  control: Controls.Select,
   options: ["Ranged", "Melee"],
+  value: "Ranged",
 });
-export const attack_damage = createField({
-  name: "attack_damage",
+export const npc_attack_damage = attribute({
+  name: "npc_attack_damage",
   label: "Damage",
-  section: "attacks",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
-export const attack_range_s = createField({
-  name: "attack_range_s",
-  label: "Short Range",
-  section: "attacks",
-  type: "string",
+export const npc_attack_range = attribute({
+  name: "npc_attack_range",
+  label: "Range",
+  control: Controls.Select,
+  options: rangeBandOptions,
+  value: "adjacent",
 });
-export const attack_range_m = createField({
-  name: "attack_range_m",
-  label: "Medium Range",
-  section: "attacks",
-  type: "string",
-});
-export const attack_range_l = createField({
-  name: "attack_range_l",
-  label: "Long Range",
-  section: "attacks",
-  type: "string",
-});
-export const attack_crit_damage = createField({
-  name: "attack_crit_damage",
+export const npc_attack_crit_damage = attribute({
+  name: "npc_attack_crit_damage",
   label: "Critical Damage",
-  section: "attacks",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
-export const attack_crit_effect = createField({
-  name: "attack_crit_effect",
+export const npc_attack_crit_effect = attribute({
+  name: "npc_attack_crit_effect",
   label: "Critical Effect",
-  section: "attacks",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
-export const attack_shots = createField({
-  name: "attack_shots",
+export const npc_attack_shots = attribute({
+  name: "npc_attack_shots",
   label: "Shots",
-  section: "attacks",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
-export const attack_ammunition = createField({
-  name: "attack_ammunition",
+export const npc_attack_ammunition = attribute({
+  name: "npc_attack_ammunition",
   label: "Ammunition",
-  section: "attacks",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
-export const attack_notes = createField({
-  name: "attack_notes",
+export const npc_attack_settings = attribute({
+  name: "npc_attack_settings",
+  label: "Settings",
+  control: Controls.Checkbox,
+  checkedValue: "on",
+  checked: true,
+});
+export const npc_attack_notes = attribute({
+  name: "npc_attack_notes",
   label: "Notes",
-  section: "attacks",
-  uiType: "textarea",
+  control: Controls.Textarea,
+  value: "",
 });
 
-export const npcAttacks = createSection({
-  name: "attacks",
-  fields: {
-    attack_name,
-    attack_type,
-    attack_damage,
-    attack_range_s,
-    attack_range_m,
-    attack_range_l,
-    attack_crit_damage,
-    attack_crit_effect,
-    attack_shots,
-    attack_ammunition,
-    attack_notes,
+// Repeating section names cannot contain an underscore or Roll20 silently drops
+// every row, so the segment after "repeating_" is concatenated.
+export const npcAttacks = section({
+  name: "npcattacks",
+  attributes: {
+    npc_attack_name,
+    npc_attack_type,
+    npc_attack_damage,
+    npc_attack_range,
+    npc_attack_crit_damage,
+    npc_attack_crit_effect,
+    npc_attack_shots,
+    npc_attack_ammunition,
+    npc_attack_notes,
+    npc_attack_settings,
   } as const,
 });
 
-export const trait_name = createField({
-  name: "trait_name",
+export const npc_trait_name = attribute({
+  name: "npc_trait_name",
   label: "Trait Name",
-  section: "traits",
-  type: "string",
+  control: Controls.Text,
+  value: "",
 });
-export const trait_description = createField({
-  name: "trait_description",
+export const npc_trait_description = attribute({
+  name: "npc_trait_description",
   label: "Description",
-  section: "traits",
-  uiType: "textarea",
+  control: Controls.Textarea,
+  value: "",
 });
 
-export const npcTraits = createSection({
-  name: "traits",
-  fields: {
-    trait_name,
-    trait_description,
+export const npc_trait_settings = attribute({
+  name: "npc_trait_settings",
+  label: "Settings",
+  control: Controls.Checkbox,
+  checkedValue: "on",
+  checked: true,
+});
+
+export const npcTraits = section({
+  name: "npctraits",
+  attributes: {
+    npc_trait_name,
+    npc_trait_description,
+    npc_trait_settings,
   } as const,
 });
 
 export type NPCAttributeNames = keyof typeof npcAttributes;
-export type NPCAttackFields = keyof typeof npcAttacks.fields;
-export type NPCAttackAttributes = `repeating_attacks_${string}_${NPCAttackFields}`;
-export type NPCTraitFields = keyof typeof npcTraits.fields;
-export type NPCTraitAttributes = `repeating_traits_${string}_${NPCTraitFields}`;
+export type NPCAttackFields = keyof typeof npcAttacks.attributes;
+export type NPCAttackAttributes = RowAttributeName<typeof npcAttacks>;
+export type NPCTraitFields = keyof typeof npcTraits.attributes;
+export type NPCTraitAttributes = RowAttributeName<typeof npcTraits>;
 
 export type AllNPCAttributes =
   | NPCAttributeNames

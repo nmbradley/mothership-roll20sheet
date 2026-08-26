@@ -5,6 +5,8 @@ import tseslint from "typescript-eslint";
 import sveltePlugin from "eslint-plugin-svelte";
 import svelteParser from "svelte-eslint-parser";
 
+import svelteConfig from "./svelte.config.js";
+
 const CASTS = ":matches(TSAsExpression, TSNonNullExpression, TSSatisfiesExpression)";
 // `x as unknown as T` nests two cast nodes, so each guarded position needs both depths.
 const CASTS_2 = `${CASTS} > ${CASTS}`;
@@ -98,7 +100,7 @@ const MISC_BANS = [
 ];
 
 export default tseslint.config(
-  { ignores: ["**/dist/**", "**/node_modules/**", "src/js/**"] },
+  { ignores: ["**/dist/**", "**/node_modules/**", "src/js/**", "sources/**"] },
 
   ...sveltePlugin.configs["flat/recommended"],
 
@@ -223,13 +225,37 @@ export default tseslint.config(
     files: ["**/*.svelte"],
     languageOptions: {
       parser: svelteParser,
-      parserOptions: { parser: tseslint.parser },
+      parserOptions: {
+        parser: tseslint.parser,
+        svelteConfig,
+      },
     },
     rules: {
       "import-x/no-default-export": "off",
       "import-x/no-unassigned-import": "off", // Bypassing for Svelte styling imports
       "svelte/valid-compile": "error",
-      "svelte/button-has-type": "error",
+      // Every block is typed/preprocessed: an untagged <script> silently skips
+      // the type-aware rules, which is how untyped data slips in.
+      "svelte/block-lang": ["error", {
+        script: "ts",
+        style: "scss",
+      }],
+      // Roll20 buttons are type="roll" and type="action"; the rule only knows
+      // the HTML values, so it rejects every correct sheet button.
+      "svelte/button-has-type": "off",
+      // Roll20 roll macros are single unbreakable strings in a value attribute,
+      // and this sheet keys translations on the English sentence itself, so a
+      // data-i18n key can be a full sentence. Neither can be wrapped.
+      // `ignoreStrings` does not reach them: the Svelte parser sees markup
+      // text rather than a string literal.
+      "@stylistic/max-len": ["error", {
+        code: 100,
+        ignoreUrls: true,
+        ignoreStrings: true,
+        ignoreTemplateLiterals: true,
+        ignoreRegExpLiterals: true,
+        ignorePattern: "^\\s*(value=\"&lbrace;|data-i18n=\")",
+      }],
       "svelte/require-each-key": "error",
       "svelte/no-dupe-use-directives": "error",
     },

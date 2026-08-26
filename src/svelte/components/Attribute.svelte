@@ -1,81 +1,53 @@
-<script>
-    export let field; // The field object from our TS definitions
+<script lang="ts">
+  import type { Attribute } from "#game/fields/_factories.js";
+
+  import AttributeCheckbox from "./AttributeCheckbox.svelte";
+  import AttributeHidden from "./AttributeHidden.svelte";
+  import AttributeNumberInput from "./AttributeNumberInput.svelte";
+  import AttributeNumberMax from "./AttributeNumberMax.svelte";
+  import AttributeSelect from "./AttributeSelect.svelte";
+  import AttributeTextInput from "./AttributeTextInput.svelte";
+  import AttributeTextarea from "./AttributeTextarea.svelte";
+
+  export let field: Attribute;
+  export let isLabelHidden = false;
 </script>
 
-<div class="attribute">
-    {#if field.uiType !== "hidden"}
-        <label class="attribute__label" for="attr_{field.name}">{field.label}</label>
-    {/if}
-
-    {#if field.uiType === "textarea"}
-        <textarea class="attribute__input attribute__input--textarea" name="attr_{field.name}"></textarea>
-    {:else if field.uiType === "select"}
-        <select class="attribute__input attribute__input--select" name="attr_{field.name}">
-            {#each field.options as option}
-                <option value={option}>{option}</option>
-            {/each}
-        </select>
-    {:else if field.uiType === "checkbox"}
-        <input class="attribute__input attribute__input--checkbox" type="checkbox" name="attr_{field.name}" value={field.seed} />
-    {:else if field.uiType === "number-max"}
-        <div class="attribute__minmax-wrapper">
-            <input class="attribute__input attribute__input--number" type="number" name="attr_{field.name}" />
-            <span class="attribute__separator">/</span>
-            <input class="attribute__input attribute__input--number" type="number" name="attr_{field.name}_max" />
-        </div>
-    {:else if field.uiType === "hidden"}
-        <input class="attribute__input attribute__input--hidden" type="hidden" name="attr_{field.name}" value={field.seed} />
-    {:else}
-        <input class="attribute__input attribute__input--{field.uiType === "number" ? "number" : "text"}" type={field.uiType === "number" ? "number" : "text"} name="attr_{field.name}" />
-    {/if}
-</div>
+{#if field.control === "textarea"}
+  <AttributeTextarea {field} {isLabelHidden} {...$$restProps} />
+{:else if field.control === "select"}
+  <AttributeSelect {field} {isLabelHidden} {...$$restProps} />
+{:else if field.control === "checkbox"}
+  <AttributeCheckbox {field} {isLabelHidden} {...$$restProps} />
+{:else if field.control === "hidden"}
+  <AttributeHidden {field} {...$$restProps} />
+{:else if field.control === "number"}
+  {#if field.max === undefined}
+    <AttributeNumberInput {field} {isLabelHidden} {...$$restProps} />
+  {:else}
+    <AttributeNumberMax {field} {isLabelHidden} {...$$restProps} />
+  {/if}
+{:else}
+  <AttributeTextInput {field} {isLabelHidden} {...$$restProps} />
+{/if}
 
 <style lang="scss">
-    .attribute {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 0.5rem;
-        align-items: center;
+.attribute {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--ms-space-md);
 
-        &__label {
-            color: var(--color-text, #000000);
-            font-weight: bold;
-        }
+  // Set beside a control, the two read off one baseline rather than being
+  // centred against each other's boxes.
+  align-items: baseline;
 
-        &__input {
-            background-color: var(--color-bg, #ffffff);
-            color: var(--color-text, #000000);
-            border: 1px solid var(--color-border, #000000);
-            padding: 0.25rem 0.5rem;
+  &__label {
+    font-size: var(--ms-text-sm);
+    font-weight: 700;
 
-            &--textarea {
-                resize: vertical;
-                min-height: 4rem;
-            }
-
-            &--select {
-                background-color: var(--color-bg, #ffffff);
-                color: var(--color-text, #000000);
-            }
-
-            &--checkbox {
-                accent-color: var(--color-accent, #ff3366);
-            }
-
-            &--number {
-                width: 100%;
-            }
-        }
-
-        &__minmax-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        &__separator {
-            color: var(--color-text-muted, #666666);
-            font-weight: bold;
-        }
-    }
+    // Inherited, not set: a label inside a dark frame has to invert with it,
+    // and outside one this resolves to the same colour anyway.
+    color: inherit;
+  }
+}
 </style>

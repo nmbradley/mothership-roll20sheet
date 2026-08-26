@@ -1,78 +1,44 @@
-// @ts-nocheck
-{
-  const addTopBar = () => {
-    addRepeatingSection(`sheet-t__topbar`, `topbar`, (section_id) => {
-      const data = getCharmancerData();
-      const updateHTML = {};
+import {
+  charmancerData,
+  displayTotal,
+  statTotals,
+} from "./helpers";
+import { TrackedStats } from "./types";
 
-      ["strength", "speed", "intellect", "combat", "health", "stress", "resolve", "sanity", "fear", "body", "armor"].forEach((item) => {
-        const value = (data?.equipment?.values?.[item])
-          ? data.equipment.values[item]
-          : (data?.skills?.values?.[item])
-              ? data.skills.values[item]
-              : (data?.class?.values?.[item])
-                  ? data.class.values[item]
-                  : (data?.stats?.values?.[item])
-                      ? data.stats.values[item]
-                      : false;
+const TOPBAR_CONTAINER = "sheet-t__topbar";
 
-        const mod = (data?.equipment?.values?.[`${item}_mod`])
-          ? data.equipment.values[`${item}_mod`]
-          : (data?.skills?.values?.[`${item}_mod`])
-              ? data.skills.values[`${item}_mod`]
-              : (data?.class?.values?.[`${item}_mod`])
-                  ? data.class.values[`${item}_mod`]
-                  : (data?.stats?.values?.[`${item}_mod`])
-                      ? data.stats.values[`${item}_mod`]
-                      : 0;
+/**
+ * Text updates painting every tracked stat into one topbar row.
+ *
+ * Both entry points below need exactly this, which is why the old file carried
+ * two near-identical copies of the resolution logic.
+ */
+function topbarText(rowId: string): Record<string, string> {
+  const data = charmancerData();
+  const totals = statTotals(data);
 
-        const final = (!value) ? "-" : parseInt(value) + parseInt(mod);
+  const updates: Record<string, string> = {};
+  for (const stat of TrackedStats) {
+    updates[`${rowId} .sheet-t__${stat}`] = displayTotal(totals[stat]);
+  }
+  return updates;
+}
 
-        updateHTML[`${section_id} .sheet-t__${item}`] = final;
-      });
+/** Adds the topbar row for a slide and fills it in. */
+export function addTopBar(): void {
+  addRepeatingSection(TOPBAR_CONTAINER, "topbar", (rowId: string) => {
+    const updates = topbarText(rowId);
+    setCharmancerText(updates);
+  });
+}
 
-      setCharmancerText(updateHTML);
-    });
-  };
-
-  const recalcStats = () => {
-    getRepeatingSections("sheet-t__topbar", (section_ids) => {
-      const section_id = section_ids.list[0];
-      const data = getCharmancerData();
-      const updateHTML = {};
-
-      ["strength", "speed", "intellect", "combat", "health", "stress", "resolve", "sanity", "fear", "body", "armor"].forEach((item) => {
-        const value = (data?.equipment?.values?.[item])
-          ? data.equipment.values[item]
-          : (data?.skills?.values?.[item])
-              ? data.skills.values[item]
-              : (data?.class?.values?.[item])
-                  ? data.class.values[item]
-                  : (data?.stats?.values?.[item])
-                      ? data.stats.values[item]
-                      : false;
-
-        const mod = (data?.equipment?.values?.[`${item}_mod`])
-          ? data.equipment.values[`${item}_mod`]
-          : (data?.skills?.values?.[`${item}_mod`])
-              ? data.skills.values[`${item}_mod`]
-              : (data?.class?.values?.[`${item}_mod`])
-                  ? data.class.values[`${item}_mod`]
-                  : (data?.stats?.values?.[`${item}_mod`])
-                      ? data.stats.values[`${item}_mod`]
-                      : 0;
-
-        const final = (value === false) ? "-" : parseInt(value) + parseInt(mod);
-
-        updateHTML[`${section_id} .sheet-t__${item}`] = final;
-      });
-
-      setCharmancerText(updateHTML);
-    });
-  };
-
-  ["intro", "stats", "class", "skills", "equipment"].forEach((page) => { on(`page:${page}`, (eventInfo) => { addTopBar(page); }); });
-  ["strength", "speed", "intellect", "combat", "health", "stress", "resolve", "sanity", "fear", "body", "armor", "strength", "speed", "intellect", "combat"].forEach((stat) => {
-    on(`mancerchange:${stat} mancercange:${stat}_mod`, (eventInfo) => { recalcStats(); });
+/** Repaints the existing topbar after a stat changes on any slide. */
+export function refreshTopBar(): void {
+  getRepeatingSections(TOPBAR_CONTAINER, (details) => {
+    const rows = details.list;
+    const rowId = rows[0];
+    if (rowId === undefined) return;
+    const updates = topbarText(rowId);
+    setCharmancerText(updates);
   });
 }

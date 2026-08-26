@@ -1,0 +1,58 @@
+<rolltemplate class="sheet-rolltemplate-ms">
+  <div class="ms-result">
+    {{#name}}
+    <h1 class="ms-result__title">{{name}}</h1>
+    {{/name}}
+
+    {{#character_name}}
+    <h2 class="ms-result__subtitle">{{character_name}}</h2>
+    {{/character_name}}
+
+    {{#roll}}
+    <div class="ms-roll">
+      <div class="ms-roll__roll">{{roll}}</div>
+      {{#rollGreater() edge 0}}
+      <div class="ms-roll__roll2">{{roll2}}</div>
+      {{/rollGreater() edge 0}}
+    </div>
+    {{/roll}}
+
+    {{#counted}}
+    <div class="ms-readout">
+      <div class="ms-readout__label" data-i18n="Counted">Counted</div>
+      <div class="ms-readout__value">{{counted}}</div>
+    </div>
+    {{/counted}}
+
+    {{#target}}
+    <div class="ms-readout">
+      <div class="ms-readout__label" data-i18n="Target">Target</div>
+      <div class="ms-readout__value">{{target}}</div>
+    </div>
+    {{/target}}
+
+    {{#damage}}
+    <div class="ms-readout">
+      <div class="ms-readout__label" data-i18n="Damage">Damage</div>
+      <div class="ms-readout__value">{{damage}}</div>
+    </div>
+    {{/damage}}
+
+    {{#rollTotal() rank 3}}
+    <div class="ms-verdict ms-verdict--critical-success">{{result}}</div>
+    {{/rollTotal() rank 3}}
+    {{#rollTotal() rank 2}}
+    <div class="ms-verdict ms-verdict--success">{{result}}</div>
+    {{/rollTotal() rank 2}}
+    {{#rollTotal() rank 1}}
+    <div class="ms-verdict ms-verdict--failure">{{result}}</div>
+    {{/rollTotal() rank 1}}
+    {{#rollTotal() rank 0}}
+    <div class="ms-verdict ms-verdict--critical-failure">{{result}}</div>
+    {{/rollTotal() rank 0}}
+
+    {{#notes}}
+    <div class="ms-notes">{{notes}}</div>
+    {{/notes}}
+  </div>
+</rolltemplate>

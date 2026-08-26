@@ -1,0 +1,207 @@
+// Roll template styling.
+//
+// These render in the chat pane rather than inside .charsheet, so they cannot
+// rely on _base.scss for element defaults and restate what they need. The
+// tokens they read are declared on their own roots in _tokens.scss.
+
+.sheet-rolltemplate-ms,
+.sheet-rolltemplate-ms-cm {
+  .ms-result {
+    border: var(--ms-border-width-thick) solid var(--ms-border);
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: var(--ms-radius-lg);
+    border-bottom-left-radius: var(--ms-radius-lg);
+    box-sizing: border-box;
+    padding: var(--ms-space-xl);
+
+    background: var(--ms-surface);
+
+    font-family: var(--ms-font-body);
+    color: var(--ms-fg);
+
+    // The title bleeds into the panel's top-left corner, as on the printed sheet.
+    &__title {
+      margin: calc(var(--ms-space-xl) * -1) 0 0 calc(var(--ms-space-xl) * -1);
+      border-bottom-right-radius: var(--ms-radius-lg);
+      width: 90%;
+      padding: var(--ms-space-lg);
+
+      background: var(--ms-inverse);
+
+      font-size: var(--ms-text-xl);
+      line-height: 1;
+      font-family: var(--ms-font-header);
+      text-align: center;
+      text-transform: uppercase;
+      color: var(--ms-fg-inverse);
+    }
+
+    &__subtitle {
+      margin: 0;
+      padding: var(--ms-space-lg);
+
+      font-size: var(--ms-text-lg);
+      line-height: 1;
+      font-family: var(--ms-font-header);
+      font-weight: 400;
+      text-align: center;
+      text-transform: uppercase;
+    }
+  }
+
+  // Roll20 styles inline roll results itself; strip it back to the sheet's look.
+  .inlinerollresult,
+  .importantroll,
+  .fullcrit,
+  .fullfail {
+    border: none;
+
+    background: transparent;
+
+    line-height: 1;
+    font-family: inherit;
+  }
+
+  .fullcrit { color: darkgreen; }
+  .fullfail { color: darkred; }
+
+  .ms-roll {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    align-items: center;
+
+    box-sizing: border-box;
+    width: 100%;
+
+    &__roll,
+    &__roll2,
+    &__credits {
+      grid-column: span 2;
+
+      border: var(--ms-border-width-thick) solid var(--ms-border);
+      border-radius: var(--ms-radius-lg);
+      height: 4rem;
+
+      background: var(--ms-surface);
+
+      font-size: calc(var(--ms-text-xl) * 1.5);
+      line-height: 4rem;
+      text-align: center;
+      color: var(--ms-fg);
+    }
+
+    // A single roll centres; a pair joins into one pill.
+    &__roll {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+
+      &:only-child {
+        grid-column: 2 / span 2;
+
+        border-radius: var(--ms-radius-lg);
+      }
+    }
+
+    &__roll2 {
+      border-left: none;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    &__credits {
+      grid-column: 2 / span 2;
+
+      .fullcrit,
+      .fullfail {
+        color: var(--ms-fg);
+      }
+    }
+  }
+
+  .ms-readout {
+    display: grid;
+    grid-template-columns: 1fr 6rem;
+    gap: calc(var(--ms-space-xl) * 2);
+    align-items: center;
+
+    border-radius: var(--ms-radius-lg);
+    padding: var(--ms-space-sm);
+
+    background: var(--ms-surface);
+
+    font-size: var(--ms-text-lg);
+    color: var(--ms-fg);
+
+    &__label {
+      font-family: var(--ms-font-header);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    &__value {
+      border: var(--ms-border-width) solid var(--ms-border);
+      border-radius: var(--ms-radius-md);
+      padding: var(--ms-space-sm);
+
+      font-weight: 700;
+      text-align: center;
+    }
+  }
+
+  // The rules decide the verdict before it reaches chat; rank picks the colour.
+  .ms-verdict {
+    margin-top: var(--ms-space-md);
+    border-radius: var(--ms-radius-md);
+    padding: var(--ms-space-md);
+
+    font-size: var(--ms-text-lg);
+    font-family: var(--ms-font-header);
+    text-align: center;
+    text-transform: uppercase;
+
+    &--critical-success,
+    &--critical-failure {
+      font-weight: 700;
+    }
+
+    &--success {
+      background: var(--ms-sunken);
+
+      color: var(--ms-fg);
+    }
+
+    &--critical-success {
+      background: var(--ms-inverse);
+
+      color: var(--ms-fg-inverse);
+    }
+
+    &--failure {
+      background: var(--ms-sunken);
+
+      color: var(--ms-fg-muted);
+    }
+
+    &--critical-failure {
+      background: var(--ms-accent);
+
+      color: var(--ms-fg-inverse);
+    }
+  }
+
+  .ms-notes {
+    margin-top: var(--ms-space-md);
+    border: var(--ms-border-width) solid var(--ms-border);
+    border-radius: var(--ms-radius-md);
+    box-sizing: border-box;
+    padding: var(--ms-space-lg);
+
+    background: var(--ms-surface);
+
+    font-size: var(--ms-text-md);
+    line-height: 1.4;
+    white-space: pre-line;
+    color: var(--ms-fg);
+  }
+}
