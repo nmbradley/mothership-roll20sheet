@@ -3,11 +3,14 @@
   import ShipCrewPanel from "./ship/ShipCrewPanel.svelte";
   import ShipHeader from "./ship/ShipHeader.svelte";
   import ShipOperationsPanel from "./ship/ShipOperationsPanel.svelte";
+  import ShipSettingsPanel from "./ship/ShipSettingsPanel.svelte";
   import ShipStatsPanel from "./ship/ShipStatsPanel.svelte";
   import ShipWeaponsPanel from "./ship/ShipWeaponsPanel.svelte";
 </script>
 
 <div class="ship-sheet">
+  <ShipSettingsPanel />
+
   <!-- Header Section -->
   <header class="ship-sheet__header">
     <ShipHeader />
