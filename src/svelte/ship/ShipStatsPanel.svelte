@@ -1,6 +1,5 @@
 <script lang="ts">
   import {
-    ship_bankruptcy_save,
     ship_battle,
     ship_hull,
     ship_systems,
@@ -26,15 +25,14 @@
   ];
 </script>
 
+<!-- #58 section 2, Stats & Saves. Saves & Defenses dropped: 1e ships have no
+     armor save, and Bankruptcy Save now lives with the operations grouping in
+     ShipOperationsPanel. Hull stays here until #86 moves it out. -->
 <section class="ship-stats-panel">
   <Panel title="Ship Stats (1e)">
     {#each checks as check (check.field.name)}
       <ShipStatRow field={check.field} action={check.action} />
     {/each}
-  </Panel>
-
-  <Panel title="Saves & Defenses">
-    <ShipStatRow field={ship_bankruptcy_save} action="bankruptcy_save" />
   </Panel>
 
   <Panel title="Hull">

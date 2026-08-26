@@ -854,6 +854,22 @@
                   />
                 </div>
               </div>
+              <div class="ship-header__field ship-header__field--captain">
+                <div class="attribute attribute--text">
+                  <label
+                    class="attribute__label attribute__label--text"
+                    for="attr_ship_captain"
+                    data-i18n="Captain"
+                    >Captain</label>
+                  <input
+                    class="attribute__input attribute__input--text"
+                    type="text"
+                    name="attr_ship_captain"
+                    value=""
+                    spellcheck="false"
+                  />
+                </div>
+              </div>
               <div class="ship-header__field ship-header__field--transponder">
                 <div class="attribute attribute--textarea">
                   <label
@@ -942,36 +958,6 @@
           </section>
           <section class="panel">
             <div class="frame frame--mode-light frame--corner-medium">
-              <h2
-                class="header header--section"
-                data-i18n="Saves &amp; Defenses"
-              >
-                Saves &amp; Defenses
-              </h2>
-              <div class="ship-stat-row">
-                <div class="ship-stat-row__btn">
-                  <button
-                    class="button button--action"
-                    type="action"
-                    name="act_bankruptcy_save"
-                  >
-                    <span class="button__label" data-i18n="Bankruptcy Save"
-                      >Bankruptcy Save</span>
-                  </button>
-                </div>
-                <div class="attribute attribute--number attribute--default">
-                  <input
-                    class="attribute__input attribute__input--number attribute__input--number--default"
-                    type="number"
-                    name="attr_ship_bankruptcy_save"
-                    value="21"
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
-          <section class="panel">
-            <div class="frame frame--mode-light frame--corner-medium">
               <h2 class="header header--section" data-i18n="Hull">Hull</h2>
               <div class="ship-hull">
                 <div class="attribute attribute--number attribute--default">
@@ -990,6 +976,174 @@
               </div>
             </div>
           </section>
+        </section>
+        <section class="panel">
+          <div class="frame frame--mode-light frame--corner-medium">
+            <h2 class="header header--section" data-i18n="Engines">Engines</h2>
+            <div class="attribute attribute--number-max">
+              <label
+                class="attribute__label attribute__label--number-max"
+                for="attr_ship_fuel"
+                data-i18n="Fuel"
+                >Fuel</label>
+              <div class="attribute__minmax-wrapper">
+                <input
+                  class="attribute__input attribute__input--number"
+                  type="number"
+                  name="attr_ship_fuel"
+                  value="0"
+                />
+                <span class="attribute__separator">/</span>
+                <input
+                  class="attribute__input attribute__input--number"
+                  type="number"
+                  name="attr_ship_fuel_max"
+                  value="0"
+                />
+              </div>
+            </div>
+            <div class="attribute attribute--number attribute--default">
+              <label
+                class="attribute__label attribute__label--number-input attribute__label--number-input--default"
+                for="attr_ship_fuel_bid"
+                data-i18n="Fuel Bid"
+                >Fuel Bid</label>
+              <input
+                class="attribute__input attribute__input--number attribute__input--number--default"
+                type="number"
+                name="attr_ship_fuel_bid"
+                value="0"
+              />
+            </div>
+            <div class="attribute attribute--number attribute--default">
+              <label
+                class="attribute__label attribute__label--number-input attribute__label--number-input--default"
+                for="attr_ship_warp_cores"
+                data-i18n="Warp Cores"
+                >Warp Cores</label>
+              <input
+                class="attribute__input attribute__input--number attribute__input--number--default"
+                type="number"
+                name="attr_ship_warp_cores"
+                value="0"
+              />
+            </div>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="frame frame--mode-light frame--corner-medium">
+            <h2 class="header header--section" data-i18n="Survival">
+              Survival
+            </h2>
+            <div class="attribute attribute--number attribute--default">
+              <label
+                class="attribute__label attribute__label--number-input attribute__label--number-input--default"
+                for="attr_ship_o2"
+                data-i18n="O2 Remaining"
+                >O2 Remaining</label>
+              <input
+                class="attribute__input attribute__input--number attribute__input--number--default"
+                type="number"
+                name="attr_ship_o2"
+                value="0"
+              />
+            </div>
+            <div class="attribute attribute--number attribute--default">
+              <label
+                class="attribute__label attribute__label--number-input attribute__label--number-input--default"
+                for="attr_ship_cryopods"
+                data-i18n="Cryopods"
+                >Cryopods</label>
+              <input
+                class="attribute__input attribute__input--number attribute__input--number--default"
+                type="number"
+                name="attr_ship_cryopods"
+                value="0"
+              />
+            </div>
+            <div class="attribute attribute--number attribute--default">
+              <label
+                class="attribute__label attribute__label--number-input attribute__label--number-input--default"
+                for="attr_ship_escape_pods"
+                data-i18n="Escape Pods"
+                >Escape Pods</label>
+              <input
+                class="attribute__input attribute__input--number attribute__input--number--default"
+                type="number"
+                name="attr_ship_escape_pods"
+                value="0"
+              />
+            </div>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="frame frame--mode-light frame--corner-medium">
+            <h2 class="header header--section" data-i18n="Ship Weapons">
+              Ship Weapons
+            </h2>
+            <div class="repeating">
+              <div
+                class="repeating__head"
+                style="grid-template-columns: 2fr 1fr 1fr 2fr"
+              >
+                <span class="repeating__heading" data-i18n="Weapon Name"
+                  >Weapon Name</span><span class="repeating__heading" data-i18n="Damage"
+                  >Damage</span><span class="repeating__heading" data-i18n="Range">Range</span><span class="repeating__heading" data-i18n="Notes">Notes</span>
+              </div>
+              <fieldset class="repeating_shipweapons">
+                <div
+                  class="repeating__row"
+                  style="grid-template-columns: 2fr 1fr 1fr 2fr"
+                >
+                  <div class="attribute attribute--text">
+                    <input
+                      class="attribute__input attribute__input--text"
+                      type="text"
+                      name="attr_ship_weapon_name"
+                      value=""
+                      spellcheck="false"
+                    />
+                  </div>
+                  <div class="attribute attribute--text">
+                    <input
+                      class="attribute__input attribute__input--text"
+                      type="text"
+                      name="attr_ship_weapon_damage"
+                      value=""
+                      spellcheck="false"
+                    />
+                  </div>
+                  <div class="attribute attribute--select">
+                    <select
+                      class="attribute__input attribute__input--select"
+                      name="attr_ship_weapon_range"
+                    >
+                      <option value="contact" data-i18n="Contact Range">
+                        Contact Range
+                      </option>
+                      <option
+                        value="firing"
+                        selected=""
+                        data-i18n="Firing Range"
+                      >
+                        Firing Range
+                      </option>
+                      <option value="detection" data-i18n="Detection Range">
+                        Detection Range
+                      </option>
+                    </select>
+                  </div>
+                  <div class="attribute attribute--textarea">
+                    <textarea
+                      class="attribute__input attribute__input--textarea"
+                      name="attr_ship_weapon_notes"
+                      spellcheck="false"
+                    ></textarea>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+          </div>
         </section>
         <section class="ship-operations-panel">
           <section class="panel">
@@ -1084,27 +1238,18 @@
                   />
                 </div>
               </div>
-              <div class="attribute attribute--number-max">
+              <div class="attribute attribute--number attribute--default">
                 <label
-                  class="attribute__label attribute__label--number-max"
-                  for="attr_ship_fuel"
-                  data-i18n="Fuel"
-                  >Fuel</label>
-                <div class="attribute__minmax-wrapper">
-                  <input
-                    class="attribute__input attribute__input--number"
-                    type="number"
-                    name="attr_ship_fuel"
-                    value="0"
-                  />
-                  <span class="attribute__separator">/</span>
-                  <input
-                    class="attribute__input attribute__input--number"
-                    type="number"
-                    name="attr_ship_fuel_max"
-                    value="0"
-                  />
-                </div>
+                  class="attribute__label attribute__label--number-input attribute__label--number-input--default"
+                  for="attr_ship_bankruptcy_save"
+                  data-i18n="Bankruptcy Save"
+                  >Bankruptcy Save</label>
+                <input
+                  class="attribute__input attribute__input--number attribute__input--number--default"
+                  type="number"
+                  name="attr_ship_bankruptcy_save"
+                  value="21"
+                />
               </div>
               <div class="ship-stat-row">
                 <div class="attribute attribute--number-max">
@@ -1132,75 +1277,6 @@
               </div>
             </div>
           </section>
-        </section>
-        <section class="panel">
-          <div class="frame frame--mode-light frame--corner-medium">
-            <h2 class="header header--section" data-i18n="Ship Weapons">
-              Ship Weapons
-            </h2>
-            <div class="repeating">
-              <div
-                class="repeating__head"
-                style="grid-template-columns: 2fr 1fr 1fr 2fr"
-              >
-                <span class="repeating__heading" data-i18n="Weapon Name"
-                  >Weapon Name</span><span class="repeating__heading" data-i18n="Damage"
-                  >Damage</span><span class="repeating__heading" data-i18n="Range">Range</span><span class="repeating__heading" data-i18n="Notes">Notes</span>
-              </div>
-              <fieldset class="repeating_shipweapons">
-                <div
-                  class="repeating__row"
-                  style="grid-template-columns: 2fr 1fr 1fr 2fr"
-                >
-                  <div class="attribute attribute--text">
-                    <input
-                      class="attribute__input attribute__input--text"
-                      type="text"
-                      name="attr_ship_weapon_name"
-                      value=""
-                      spellcheck="false"
-                    />
-                  </div>
-                  <div class="attribute attribute--text">
-                    <input
-                      class="attribute__input attribute__input--text"
-                      type="text"
-                      name="attr_ship_weapon_damage"
-                      value=""
-                      spellcheck="false"
-                    />
-                  </div>
-                  <div class="attribute attribute--select">
-                    <select
-                      class="attribute__input attribute__input--select"
-                      name="attr_ship_weapon_range"
-                    >
-                      <option value="contact" data-i18n="Contact Range">
-                        Contact Range
-                      </option>
-                      <option
-                        value="firing"
-                        selected=""
-                        data-i18n="Firing Range"
-                      >
-                        Firing Range
-                      </option>
-                      <option value="detection" data-i18n="Detection Range">
-                        Detection Range
-                      </option>
-                    </select>
-                  </div>
-                  <div class="attribute attribute--textarea">
-                    <textarea
-                      class="attribute__input attribute__input--textarea"
-                      name="attr_ship_weapon_notes"
-                      spellcheck="false"
-                    ></textarea>
-                  </div>
-                </div>
-              </fieldset>
-            </div>
-          </div>
         </section>
         <section class="panel">
           <div class="frame frame--mode-light frame--corner-medium">

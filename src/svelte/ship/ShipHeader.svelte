@@ -1,5 +1,6 @@
 <script lang="ts">
   import {
+    ship_captain,
     ship_name,
     ship_transponder,
   } from "#game/fields/shipFields";
@@ -18,6 +19,9 @@
     <div class="ship-header__fields">
       <div class="ship-header__field ship-header__field--name">
         <Attribute field={ship_name} />
+      </div>
+      <div class="ship-header__field ship-header__field--captain">
+        <Attribute field={ship_captain} />
       </div>
       <div class="ship-header__field ship-header__field--transponder">
         <Attribute field={ship_transponder} />
@@ -45,7 +49,9 @@
 
     &__fields {
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
+      // Name sits full-width above; Captain and the transponder line fill the
+      // row below with no leftover column.
+      grid-template-columns: 1fr 2fr;
       gap: var(--ms-space-lg);
     }
 

@@ -1,9 +1,11 @@
 <script lang="ts">
   import ShipCargoPanel from "./ship/ShipCargoPanel.svelte";
   import ShipCrewPanel from "./ship/ShipCrewPanel.svelte";
+  import ShipEnginesPanel from "./ship/ShipEnginesPanel.svelte";
   import ShipHeader from "./ship/ShipHeader.svelte";
   import ShipOperationsPanel from "./ship/ShipOperationsPanel.svelte";
   import ShipStatsPanel from "./ship/ShipStatsPanel.svelte";
+  import ShipSurvivalPanel from "./ship/ShipSurvivalPanel.svelte";
   import ShipWeaponsPanel from "./ship/ShipWeaponsPanel.svelte";
 </script>
 
@@ -13,11 +15,13 @@
     <ShipHeader />
   </header>
 
-  <!-- Main Grid Layout -->
+  <!-- Main Grid Layout, in #58 section order. -->
   <div class="ship-sheet__grid">
     <ShipStatsPanel />
-    <ShipOperationsPanel />
+    <ShipEnginesPanel />
+    <ShipSurvivalPanel />
     <ShipWeaponsPanel />
+    <ShipOperationsPanel />
     <ShipCrewPanel />
     <ShipCargoPanel />
   </div>
