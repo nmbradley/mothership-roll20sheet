@@ -8,126 +8,126 @@ import {
 } from "./_factories";
 
 // Transponder
-// `ship_name` keeps its prefix: an attribute literally named "name" would
-// collide with Roll20's built-in `@{name}` (the character/token name), the
-// same reason pcFields/npcFields use `character_name` instead of `name`.
+// Ship attributes keep the `ship_` prefix deliberately: PC and NPC share one
+// unprefixed "creature" namespace (their fields are near-identical), while a
+// ship overlaps a creature almost nowhere and gets its own namespace instead.
 export const ship_name = attribute({
   name: "ship_name",
   label: "Ship Name",
   control: Controls.Text,
   value: "",
 });
-export const captain = attribute({
-  name: "captain",
+export const ship_captain = attribute({
+  name: "ship_captain",
   label: "Captain",
   control: Controls.Text,
   value: "",
 });
 // Make, Model, Jump, Class & Type merged into one field per #58; replaces the
 // old standalone ship_type/ship_class attributes.
-export const transponder = attribute({
-  name: "transponder",
+export const ship_transponder = attribute({
+  name: "ship_transponder",
   label: "Make, Model, Jump, Class, & Type",
   control: Controls.Textarea,
   value: "",
 });
 
 // Stats & Saves
-export const systems = attribute({
-  name: "systems",
+export const ship_systems = attribute({
+  name: "ship_systems",
   label: "Systems",
   control: Controls.Number,
   value: 0,
 });
-export const thrusters = attribute({
-  name: "thrusters",
+export const ship_thrusters = attribute({
+  name: "ship_thrusters",
   label: "Thrusters",
   control: Controls.Number,
   value: 0,
 });
-export const battle = attribute({
-  name: "battle",
+export const ship_battle = attribute({
+  name: "ship_battle",
   label: "Battle",
   control: Controls.Number,
   value: 0,
 });
-export const bankruptcy_save = attribute({
-  name: "bankruptcy_save",
+export const ship_bankruptcy_save = attribute({
+  name: "ship_bankruptcy_save",
   label: "Bankruptcy Save",
   control: Controls.Number,
   value: 21,
 });
 
 // Engines
-export const fuel = attribute({
-  name: "fuel",
+export const ship_fuel = attribute({
+  name: "ship_fuel",
   label: "Fuel",
   control: Controls.Number,
   value: 0,
   max: 0,
 });
 // Movement-phase bid, named to match the #60 macro/sheetworker (act_reveal_bid
-// reads and resets attr_fuel_bid directly).
-export const fuel_bid = attribute({
-  name: "fuel_bid",
+// reads and resets attr_ship_fuel_bid directly).
+export const ship_fuel_bid = attribute({
+  name: "ship_fuel_bid",
   label: "Fuel Bid",
   control: Controls.Number,
   value: 0,
 });
-export const warp_cores = attribute({
-  name: "warp_cores",
+export const ship_warp_cores = attribute({
+  name: "ship_warp_cores",
   label: "Warp Cores",
   control: Controls.Number,
   value: 0,
 });
 
 // Survival
-export const o2 = attribute({
-  name: "o2",
+export const ship_o2 = attribute({
+  name: "ship_o2",
   label: "O2 Remaining",
   control: Controls.Number,
   value: 0,
 });
-export const cryopods = attribute({
-  name: "cryopods",
+export const ship_cryopods = attribute({
+  name: "ship_cryopods",
   label: "Cryopods",
   control: Controls.Number,
   value: 0,
 });
-export const escape_pods = attribute({
-  name: "escape_pods",
+export const ship_escape_pods = attribute({
+  name: "ship_escape_pods",
   label: "Escape Pods",
   control: Controls.Number,
   value: 0,
 });
 
 // Weapons
-export const weapons_base = attribute({
-  name: "weapons_base",
+export const ship_weapons_base = attribute({
+  name: "ship_weapons_base",
   label: "Weapons Base",
   control: Controls.Number,
   value: 0,
 });
-export const weapons_total = attribute({
-  name: "weapons_total",
+export const ship_weapons_total = attribute({
+  name: "ship_weapons_total",
   label: "Weapons Total",
   control: Controls.Number,
   value: 0,
 });
-export const mdmg_base = attribute({
-  name: "mdmg_base",
+export const ship_mdmg_base = attribute({
+  name: "ship_mdmg_base",
   label: "MDMG Base",
   control: Controls.Number,
   value: 0,
 });
-export const mdmg_total = attribute({
-  name: "mdmg_total",
+export const ship_mdmg_total = attribute({
+  name: "ship_mdmg_total",
   label: "MDMG Total",
   control: Controls.Number,
   value: 0,
 });
-export const hardpoints = attribute({
-  name: "hardpoints",
+export const ship_hardpoints = attribute({
+  name: "ship_hardpoints",
   label: "Hardpoints",
   control: Controls.Number,
   value: 0,
@@ -140,22 +140,22 @@ export const hardpoints = attribute({
 // bubble track in CSS/Svelte without a new control; adding a real `radio`
 // control plus AttributeRadio.svelte is only worth it if that later turns out
 // not to be enough.
-export const mdmg = attribute({
-  name: "mdmg",
+export const ship_mdmg = attribute({
+  name: "ship_mdmg",
   label: "MDMG",
   control: Controls.Number,
   value: 0,
 });
-export const hull = attribute({
-  name: "hull",
+export const ship_hull = attribute({
+  name: "ship_hull",
   label: "Hull",
   control: Controls.Number,
   value: 0,
 });
 
 // Crew
-export const crew = attribute({
-  name: "crew",
+export const ship_crew = attribute({
+  name: "ship_crew",
   label: "Crew",
   control: Controls.Number,
   value: 0,
@@ -163,29 +163,29 @@ export const crew = attribute({
 });
 
 // Status / Manifest
-export const upgrades = attribute({
-  name: "upgrades",
+export const ship_upgrades = attribute({
+  name: "ship_upgrades",
   label: "Upgrades",
   control: Controls.Number,
   value: 0,
   max: 0,
 });
-export const cargo = attribute({
-  name: "cargo",
+export const ship_cargo = attribute({
+  name: "ship_cargo",
   label: "Cargo",
   control: Controls.Number,
   value: 0,
   max: 0,
 });
-export const minor_repairs = attribute({
-  name: "minor_repairs",
+export const ship_minor_repairs = attribute({
+  name: "ship_minor_repairs",
   label: "Minor Repairs",
   control: Controls.Number,
   value: 0,
   max: 0,
 });
-export const major_repairs = attribute({
-  name: "major_repairs",
+export const ship_major_repairs = attribute({
+  name: "ship_major_repairs",
   label: "Major Repairs",
   control: Controls.Number,
   value: 0,
@@ -193,8 +193,10 @@ export const major_repairs = attribute({
 });
 
 // Settings
-export const npc_ship = attribute({
-  name: "npc_ship",
+// Named ship_npc, not npc_ship: every other ship attribute is ship_-prefixed,
+// and this keeps it out of the NPC sheet's own (unprefixed) namespace too.
+export const ship_npc = attribute({
+  name: "ship_npc",
   label: "NPC Ship",
   control: Controls.Checkbox,
   checkedValue: "on",
@@ -202,31 +204,31 @@ export const npc_ship = attribute({
 
 export const shipAttributes = {
   ship_name,
-  captain,
-  transponder,
-  systems,
-  thrusters,
-  battle,
-  bankruptcy_save,
-  fuel,
-  fuel_bid,
-  warp_cores,
-  o2,
-  cryopods,
-  escape_pods,
-  weapons_base,
-  weapons_total,
-  mdmg_base,
-  mdmg_total,
-  hardpoints,
-  mdmg,
-  hull,
-  crew,
-  upgrades,
-  cargo,
-  minor_repairs,
-  major_repairs,
-  npc_ship,
+  ship_captain,
+  ship_transponder,
+  ship_systems,
+  ship_thrusters,
+  ship_battle,
+  ship_bankruptcy_save,
+  ship_fuel,
+  ship_fuel_bid,
+  ship_warp_cores,
+  ship_o2,
+  ship_cryopods,
+  ship_escape_pods,
+  ship_weapons_base,
+  ship_weapons_total,
+  ship_mdmg_base,
+  ship_mdmg_total,
+  ship_hardpoints,
+  ship_mdmg,
+  ship_hull,
+  ship_crew,
+  ship_upgrades,
+  ship_cargo,
+  ship_minor_repairs,
+  ship_major_repairs,
+  ship_npc,
 } as const;
 
 export type ShipAttributeNames = keyof typeof shipAttributes;
@@ -313,8 +315,8 @@ export const shipLoadout = section({
 });
 
 // Repeating section fields: Upgrades
-export const upgrade_name = attribute({
-  name: "upgrade_name",
+export const ship_upgrade_name = attribute({
+  name: "ship_upgrade_name",
   label: "Upgrade",
   control: Controls.Text,
   value: "",
@@ -323,7 +325,7 @@ export const upgrade_name = attribute({
 export const shipUpgrades = section({
   name: "shipupgrades",
   attributes: {
-    upgrade_name,
+    ship_upgrade_name,
   } as const,
 });
 

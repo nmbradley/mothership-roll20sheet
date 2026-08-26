@@ -858,12 +858,12 @@
                 <div class="attribute attribute--textarea">
                   <label
                     class="attribute__label attribute__label--textarea"
-                    for="attr_transponder"
+                    for="attr_ship_transponder"
                     data-i18n="Make, Model, Jump, Class, &amp; Type"
                     >Make, Model, Jump, Class, &amp; Type</label>
                   <textarea
                     class="attribute__input attribute__input--textarea"
-                    name="attr_transponder"
+                    name="attr_ship_transponder"
                     spellcheck="false"
                   ></textarea>
                 </div>
@@ -894,7 +894,7 @@
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
-                    name="attr_systems"
+                    name="attr_ship_systems"
                     value="0"
                   />
                 </div>
@@ -914,7 +914,7 @@
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
-                    name="attr_thrusters"
+                    name="attr_ship_thrusters"
                     value="0"
                   />
                 </div>
@@ -933,7 +933,7 @@
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
-                    name="attr_battle"
+                    name="attr_ship_battle"
                     value="0"
                   />
                 </div>
@@ -963,7 +963,7 @@
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
-                    name="attr_bankruptcy_save"
+                    name="attr_ship_bankruptcy_save"
                     value="21"
                   />
                 </div>
@@ -977,13 +977,13 @@
                 <div class="attribute attribute--number attribute--default">
                   <label
                     class="attribute__label attribute__label--number-input attribute__label--number-input--default"
-                    for="attr_hull"
+                    for="attr_ship_hull"
                     data-i18n="Hull"
                     >Hull</label>
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
-                    name="attr_hull"
+                    name="attr_ship_hull"
                     value="0"
                   />
                 </div>
@@ -1065,21 +1065,21 @@
               <div class="attribute attribute--number-max">
                 <label
                   class="attribute__label attribute__label--number-max"
-                  for="attr_crew"
+                  for="attr_ship_crew"
                   data-i18n="Crew"
                   >Crew</label>
                 <div class="attribute__minmax-wrapper">
                   <input
                     class="attribute__input attribute__input--number"
                     type="number"
-                    name="attr_crew"
+                    name="attr_ship_crew"
                     value="0"
                   />
                   <span class="attribute__separator">/</span>
                   <input
                     class="attribute__input attribute__input--number"
                     type="number"
-                    name="attr_crew_max"
+                    name="attr_ship_crew_max"
                     value="0"
                   />
                 </div>
@@ -1087,21 +1087,21 @@
               <div class="attribute attribute--number-max">
                 <label
                   class="attribute__label attribute__label--number-max"
-                  for="attr_fuel"
+                  for="attr_ship_fuel"
                   data-i18n="Fuel"
                   >Fuel</label>
                 <div class="attribute__minmax-wrapper">
                   <input
                     class="attribute__input attribute__input--number"
                     type="number"
-                    name="attr_fuel"
+                    name="attr_ship_fuel"
                     value="0"
                   />
                   <span class="attribute__separator">/</span>
                   <input
                     class="attribute__input attribute__input--number"
                     type="number"
-                    name="attr_fuel_max"
+                    name="attr_ship_fuel_max"
                     value="0"
                   />
                 </div>
@@ -1110,21 +1110,21 @@
                 <div class="attribute attribute--number-max">
                   <label
                     class="attribute__label attribute__label--number-max"
-                    for="attr_cargo"
+                    for="attr_ship_cargo"
                     data-i18n="Cargo"
                     >Cargo</label>
                   <div class="attribute__minmax-wrapper">
                     <input
                       class="attribute__input attribute__input--number"
                       type="number"
-                      name="attr_cargo"
+                      name="attr_ship_cargo"
                       value="0"
                     />
                     <span class="attribute__separator">/</span>
                     <input
                       class="attribute__input attribute__input--number"
                       type="number"
-                      name="attr_cargo_max"
+                      name="attr_ship_cargo_max"
                       value="0"
                     />
                   </div>
@@ -5693,6 +5693,7 @@
   };
   var ALWAYS_CRITICAL_SUCCESS = 0;
   var ALWAYS_CRITICAL_FAILURE = 99;
+  var AUTO_FAIL_THRESHOLD = 90;
   function isDoubles(roll) {
     const tens = Math.floor(roll / 10);
     const ones = roll % 10;
@@ -5717,6 +5718,7 @@
     if (roll === ALWAYS_CRITICAL_SUCCESS) return Outcomes.CriticalSuccess;
     if (roll === ALWAYS_CRITICAL_FAILURE) return Outcomes.CriticalFailure;
     const isUnder = comparison === Comparisons.RollUnder;
+    if (isUnder && roll >= AUTO_FAIL_THRESHOLD) return Outcomes.Failure;
     const isSuccess2 = isUnder ? roll <= target : roll > target;
     const isCritical = isDoubles(roll);
     if (isCritical) return isSuccess2 ? Outcomes.CriticalSuccess : Outcomes.CriticalFailure;
@@ -6084,6 +6086,7 @@
     const check = makeCheck(request);
     const computed = checkComputed(check);
     finishRoll(roll.rollId, computed);
+    return check;
   }
   async function rollPanicCheck() {
     const template = `${panicTemplate()} {{edge=[[${EDGE_QUERY}]]}}`;
@@ -6683,8 +6686,9 @@ Maintenance Issue 2 [${issue2.roll} - ${issue2.issue_type}]: ${issue2.descriptio
       message: `${result}: ${consequence}`
     };
   }
+  var MAINTENANCE_EDGE_QUERY = "?{Advantage/Disadvantage|Normal,1d100-1|Advantage,2d100kl1-1|Disadvantage,2d100kh1-1}";
   async function handleAnnualMaintenanceCheck() {
-    const rollFormula = "&{template:ms} {{name=Annual Maintenance Check}} {{character_name=@{character_name}}} {{roll=[[?{Advantage/Disadvantage|Normal,1d100|Advantage [+],2d100kl1|Disadvantage [-],2d100kh1}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}}";
+    const rollFormula = `&{template:ms} {{name=Annual Maintenance Check}} {{character_name=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}}`;
     const rollData = await startRoll(rollFormula);
     const rollEntry = rollData.results.roll;
     const targetEntry = rollData.results.target;
