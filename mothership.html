@@ -921,18 +921,27 @@
                   class="repeating__row"
                   style="grid-template-columns: 2fr 1fr 1fr auto"
                 >
-                  <button
-                    class="button button--action"
-                    type="action"
-                    name="act_attack"
-                  >
-                    <div class="attribute attribute--display">
-                      <span
-                        class="attribute__value attribute__value--display"
+                  <div class="pc-attack-name">
+                    <div
+                      class="attribute attribute--text attribute--attack_name"
+                    >
+                      <input
+                        class="attribute__input attribute__input--text"
+                        type="text"
                         name="attr_attack_name"
-                      ></span>
+                        value=""
+                        spellcheck="false"
+                      />
                     </div>
-                  </button>
+                    <button
+                      class="button button--action"
+                      type="action"
+                      name="act_attack"
+                    >
+                      <span class="button__label" data-i18n="Attack"
+                        >Attack</span>
+                    </button>
+                  </div>
                   <div
                     class="attribute attribute--select attribute--attack_type"
                   >
@@ -965,21 +974,6 @@
                     />
                     <span class="settings__icon">y</span></label>
                   <div class="settings__drawer">
-                    <div class="settings__row">
-                      <span class="settings__label" data-i18n="Weapon"
-                        >Weapon</span>
-                      <div
-                        class="attribute attribute--text attribute--attack_name"
-                      >
-                        <input
-                          class="attribute__input attribute__input--text"
-                          type="text"
-                          name="attr_attack_name"
-                          value=""
-                          spellcheck="false"
-                        />
-                      </div>
-                    </div>
                     <div class="settings__row">
                       <span class="settings__label" data-i18n="Range"
                         >Range</span>
