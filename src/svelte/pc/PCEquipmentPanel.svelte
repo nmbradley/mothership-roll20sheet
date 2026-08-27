@@ -128,37 +128,51 @@
 .pc-equipment-armor {
   display: none;
   gap: var(--ms-space-lg);
-  align-items: flex-end;
+  align-items: center;
 
-  // Scaled down from the stats-block round well, and with the label read
-  // above the circle instead of below it -- a tight drawer row, not a stat
-  // block.
+  // The label reads above the circle rather than below it, and the circle
+  // centres under it. align-items has to be reset: the base .attribute grid
+  // is built for a label beside a control and sets `baseline`, which sizes
+  // the track off the text baseline instead of the box and drops the circle
+  // out of its row (see Attribute.svelte).
   .attribute--round {
+    align-items: stretch;
+    justify-items: center;
+
     label {
       order: 0;
 
       font-size: var(--ms-text-sm);
+      text-align: center;
     }
 
     .attribute__input[type="number"] {
       order: 1;
 
-      width: 40px;
-      height: 40px;
+      width: 60px;
+      height: 60px;
 
-      font-size: var(--ms-text-md);
+      font-size: var(--ms-text-lg);
+      text-align: center;
     }
   }
 
-  // A destructive action, so it borrows the same accent-fill treatment as
+  // A destructive action, so it borrows the same accent fill as
   // RepeatingSection's own row-delete control rather than reading as plain
   // text.
   .button--action {
+    align-self: center;
+
     border-color: var(--ms-accent);
     border-radius: var(--ms-radius-pill);
+    padding: var(--ms-space-sm) var(--ms-space-lg);
 
     background: var(--ms-accent);
 
+    font-size: var(--ms-text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     color: var(--ms-fg-inverse);
   }
 }

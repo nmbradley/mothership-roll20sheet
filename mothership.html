@@ -945,10 +945,7 @@
                       class="button button--action"
                       type="action"
                       name="act_attack"
-                    >
-                      <span class="button__label" data-i18n="Attack"
-                        >Attack</span>
-                    </button>
+                    ></button>
                   </div>
                   <div
                     class="attribute attribute--select attribute--attack_type"
@@ -1011,7 +1008,20 @@
                         </select>
                       </div>
                     </div>
-                    <div class="pc-attack-pair">
+                    <div class="settings__row settings__row--full">
+                      <span class="settings__label" data-i18n="Crit Effect"
+                        >Crit Effect</span>
+                      <div
+                        class="attribute attribute--textarea attribute--attack_crit_effect"
+                      >
+                        <textarea
+                          class="attribute__input attribute__input--textarea"
+                          name="attr_attack_crit_effect"
+                          spellcheck="false"
+                        ></textarea>
+                      </div>
+                    </div>
+                    <div class="pc-attack-stats">
                       <div class="settings__row">
                         <span class="settings__label" data-i18n="Crit Damage"
                           >Crit Damage</span>
@@ -1027,21 +1037,6 @@
                           />
                         </div>
                       </div>
-                      <div class="settings__row">
-                        <span class="settings__label" data-i18n="Crit Effect"
-                          >Crit Effect</span>
-                        <div
-                          class="attribute attribute--textarea attribute--attack_crit_effect"
-                        >
-                          <textarea
-                            class="attribute__input attribute__input--textarea"
-                            name="attr_attack_crit_effect"
-                            spellcheck="false"
-                          ></textarea>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="pc-attack-pair">
                       <div class="settings__row">
                         <span class="settings__label" data-i18n="Shots"
                           >Shots</span>
