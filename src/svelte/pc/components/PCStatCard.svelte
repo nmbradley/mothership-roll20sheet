@@ -35,6 +35,7 @@
     background: none;
 
     font-size: var(--ms-text-sm);
+    color: var(--ms-fg);
     font-stretch: var(--ms-stretch-stat);
 
     &:hover {

@@ -30,13 +30,13 @@
   border-radius: var(--ms-radius-sm);
   padding: var(--ms-space-sm) var(--ms-space-md);
 
-  background: var(--ms-surface);
+  background: var(--ms-inverse);
   cursor: pointer;
 
-  color: var(--ms-fg);
+  color: var(--ms-fg-inverse);
 
   &:hover {
-    background: var(--ms-sunken);
+    opacity: 0.85;
   }
 
   &__label {
