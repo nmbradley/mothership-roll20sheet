@@ -2056,13 +2056,30 @@
             <input name="comp_combat" type="hidden" />
           </div>
         </div>
+        <div class="ms-cm-savegroup choice showstats">
+          <div class="ms-cm-mainsave ms-cm-mainsave--sanity">
+            <div class="ms-cm-mainsave__title" data-i18n="Sanity">Sanity</div>
+            <div class="ms-cm-mainsave__value t__sanity"></div>
+            <input name="comp_sanity" type="hidden" />
+          </div>
+          <div class="ms-cm-mainsave ms-cm-mainsave--fear">
+            <div class="ms-cm-mainsave__title" data-i18n="Fear">Fear</div>
+            <div class="ms-cm-mainsave__value t__fear"></div>
+            <input name="comp_fear" type="hidden" />
+          </div>
+          <div class="ms-cm-mainsave ms-cm-mainsave--body">
+            <div class="ms-cm-mainsave__title" data-i18n="Body">Body</div>
+            <div class="ms-cm-mainsave__value t__body"></div>
+            <input name="comp_body" type="hidden" />
+          </div>
+        </div>
         <div class="ms-cm-center">
           <button
             class="ms-cm-button--roll"
             data-i18n="Roll Stats"
             name="roll_stats"
             type="roll"
-            value="{{template:ms-cm}} {{title=stats roll}} {{strength=[[6d10]]}} {{speed=[[6d10]]}} {{intellect=[[6d10]]}} {{combat=[[6d10]]}}"
+            value="{{template:ms-cm}} {{title=stats roll}} {{strength=[[2d10+25]]}} {{speed=[[2d10+25]]}} {{intellect=[[2d10+25]]}} {{combat=[[2d10+25]]}} {{sanity=[[2d10+10]]}} {{fear=[[2d10+10]]}} {{body=[[2d10+10]]}}"
           >
             Roll Stats
           </button>
@@ -2153,6 +2170,10 @@
             type="hidden"
           />
           <input name="comp_health" type="hidden" />
+          <div class="ms-cm-row">
+            <div class="ms-cm-row__title" data-i18n="Stat Adjustment"></div>
+            <div class="t__floating_choice"></div>
+          </div>
           <div class="ms-cm-row">
             <div class="ms-cm-row__title" data-i18n="Stress Effect"></div>
             <div class="t__stress_effect"></div>
@@ -2252,6 +2273,13 @@
       <option data-i18n="Choose">Choose</option>
     </select>
     <input name="comp_skill_type" type="hidden" /></div></charmancer>
+<charmancer class="sheet-repeating-floatingchoice"
+  ><div class="ms-cm-row--skillselect">
+    <div class="ms-cm-row__title t__floatlabel"></div>
+    <select class="ms-cm-row__select" name="comp_floatstat">
+      <option data-i18n="Choose">Choose</option>
+    </select>
+  </div></charmancer>
 <charmancer class="sheet-charmancer-skills"
   ><div class="ms-cm-wrapper">
     <div class="t__topbar"></div>
@@ -4024,32 +4052,40 @@
   var STARTING_STRESS = 2;
   var STARTING_WOUNDS = 2;
   var STARTING_ARMOR = 0;
+  var ROLLED_FIELDS = [...allStats, ...allSaves];
   function onLoadStats() {
     const data = charmancerData();
     const values = stepValues(data, Steps.Stats);
     if (values["strength"] === void 0) return;
     showChoices(["showstats"]);
     const updates = {};
-    for (const stat of allStats) {
-      updates[`t__${stat}`] = values[stat] ?? "";
+    for (const field of ROLLED_FIELDS) {
+      updates[`t__${field}`] = values[field] ?? "";
     }
     setCharmancerText(updates);
   }
-  function onRollStats(rolls) {
-    showChoices(["showstats"]);
-    const updates = {};
+  function rolledAttrs(rolls) {
     const attrs = {};
-    allStats.forEach((stat, index) => {
+    for (const [index, field] of ROLLED_FIELDS.entries()) {
       const roll = rolls[index];
-      if (roll === void 0) return;
-      updates[`t__${stat}`] = String(roll.result);
-      attrs[stat] = roll.result;
-    });
+      if (roll === void 0) continue;
+      attrs[field] = roll.result;
+    }
     const strength = rolls[0]?.result ?? 0;
     attrs["health"] = strength * 2;
     attrs["stress"] = STARTING_STRESS;
     attrs["wounds"] = STARTING_WOUNDS;
     attrs["armor_points"] = STARTING_ARMOR;
+    return attrs;
+  }
+  function onRollStats(rolls) {
+    showChoices(["showstats"]);
+    const attrs = rolledAttrs(rolls);
+    const updates = {};
+    for (const field of ROLLED_FIELDS) {
+      const value = attrs[field];
+      if (value !== void 0) updates[`t__${field}`] = String(value);
+    }
     setCharmancerText(updates);
     setAttrs(attrs);
   }
@@ -4146,12 +4182,13 @@
   // src/ts/charactermancer/3-class.ts
   var CLASS_LIST = "sheet-t__classes";
   var SKILL_CHOICE_LIST = "sheet-t__skill_choice";
+  var FLOATING_CHOICE_LIST = "sheet-t__floating_choice";
   var CUSTOM_CLASS = "custom";
   var CLASS_ATTRIBUTES = [
     "class",
-    "sanity",
-    "fear",
-    "body",
+    "sanity_mod",
+    "fear_mod",
+    "body_mod",
     "strength_mod",
     "speed_mod",
     "intellect_mod",
@@ -4271,6 +4308,7 @@
       hideChoices(["presetclass"]);
       showChoices(["customclass"]);
       clearRepeatingSections(SKILL_CHOICE_LIST);
+      clearRepeatingSections(FLOATING_CHOICE_LIST);
       return;
     }
     const definition = findClass(className);
@@ -4290,13 +4328,15 @@
     }
     attrs["class"] = definition.name;
     text["t__cname"] = definition.name;
-    for (const [save, bonus] of Object.entries(definition.saveBonus)) {
-      attrs[save] = bonus;
-      text[`t__${save}`] = String(bonus);
+    const data = charmancerData();
+    for (const save of allSaves) {
+      const bonus = definition.saveBonus[save] ?? 0;
+      attrs[`${save}_mod`] = bonus;
+      text[`t__${save}`] = String(resolveNumber(data, save) + bonus);
     }
+    const mods = statModifiers(definition);
     for (const stat of allStats) {
-      const bonus = definition.statBonus[stat] ?? 0;
-      attrs[`${stat}_mod`] = bonus;
+      attrs[`${stat}_mod`] = mods[stat];
     }
     attrs["health"] = classHealth();
     attrs["stress_effect"] = definition.traumaResponse;
@@ -4309,6 +4349,16 @@
     setAttrs(attrs);
     setCharmancerText(text);
     offerSkillChoices(definition);
+    offerFloatingChoice(definition);
+  }
+  function statModifiers(definition, chosenStat) {
+    const mods = {};
+    for (const stat of allStats) {
+      const base = definition.statBonus[stat] ?? 0;
+      const floating = stat === chosenStat ? definition.floating?.amount ?? 0 : 0;
+      mods[stat] = base + floating;
+    }
+    return mods;
   }
   function classHealth() {
     const data = charmancerData();
@@ -4327,6 +4377,23 @@
     addRepeatingSection(SKILL_CHOICE_LIST, "skillselection", (rowId) => {
       setCharmancerOptions(`${rowId}_skill`, options);
     });
+  }
+  function offerFloatingChoice(definition) {
+    clearRepeatingSections(FLOATING_CHOICE_LIST);
+    const floating = definition.floating;
+    if (floating === void 0) return;
+    const options = allStats.map((stat) => titleCase(stat));
+    const label = floatingLabel(floating);
+    for (let index = 0; index < floating.count; index += 1) {
+      addRepeatingSection(FLOATING_CHOICE_LIST, "floatingchoice", (rowId) => {
+        setCharmancerText({ [`${rowId} .t__floatlabel`]: label });
+        setCharmancerOptions(`${rowId}_floatstat`, options);
+      });
+    }
+  }
+  function floatingLabel(floating) {
+    const verb = floating.amount > 0 ? "Increase" : "Decrease";
+    return `${verb} a Stat by ${Math.abs(floating.amount)}`;
   }
   function reselectClass() {
     getRepeatingSections(CLASS_LIST, (details) => {
@@ -4347,6 +4414,19 @@
     for (const rowId of rows) {
       disableCharmancerOptions(`${rowId}_skill`, [key]);
     }
+  }
+  function applyFloatingBonus(chosen) {
+    const data = charmancerData();
+    const selected = stepValues(data, Steps.Class)["selected"];
+    const definition = selected === void 0 ? void 0 : findClass(selected);
+    if (definition?.floating === void 0) return;
+    const stat = attributeKey(chosen);
+    const mods = statModifiers(definition, stat);
+    const attrs = {};
+    for (const s of allStats) {
+      attrs[`${s}_mod`] = mods[s];
+    }
+    setAttrs(attrs);
   }
 
   // src/ts/charactermancer/4-skills.ts
@@ -6946,6 +7026,10 @@ Maintenance Issue 2 [${issue2.roll} - ${issue2.issue_type}]: ${issue2.descriptio
     reselectClass();
   });
   on("mancerchange:repeating_choicerow", (eventInfo) => {
+    if (eventInfo.sourceAttribute === "floatstat") {
+      applyFloatingBonus(eventInfo.newValue);
+      return;
+    }
     disableChosenSkill(eventInfo.newValue);
   });
   on("page:skills", () => {

@@ -104,6 +104,12 @@
         {/each}
         <input name="comp_health" type="hidden" />
 
+        <!-- Only Android and Scientist have a floating bonus; empty otherwise. -->
+        <div class="ms-cm-row">
+          <div class="ms-cm-row__title" data-i18n="Stat Adjustment"></div>
+          <div class="t__floating_choice"></div>
+        </div>
+
         <div class="ms-cm-row">
           <div class="ms-cm-row__title" data-i18n="Stress Effect"></div>
           <div class="t__stress_effect"></div>

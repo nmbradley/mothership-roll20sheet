@@ -4,6 +4,7 @@ import { allSaves, allStats } from "#game/enums.js";
 import { addTopBar, refreshTopBar } from "./charactermancer/1-intro";
 import { onLoadStats, onRollStats } from "./charactermancer/2-stats";
 import {
+  applyFloatingBonus,
   disableChosenSkill,
   onLoadClass,
   onSelectClass,
@@ -138,6 +139,12 @@ on("clicked:reselectc", () => {
   reselectClass();
 });
 on("mancerchange:repeating_choicerow", (eventInfo) => {
+  // Both skill and floating-bonus pickers are charactermancer "choice rows"
+  // and share this one event; the field that changed tells them apart.
+  if (eventInfo.sourceAttribute === "floatstat") {
+    applyFloatingBonus(eventInfo.newValue);
+    return;
+  }
   disableChosenSkill(eventInfo.newValue);
 });
 
