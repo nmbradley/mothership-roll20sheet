@@ -48,7 +48,7 @@
         />
       </div>
       <div class="pc-sheet__state">
-        <div class="attribute attribute--checkbox">
+        <div class="attribute attribute--checkbox attribute--speed_initiative">
           <input
             class="attribute__input attribute__input--checkbox"
             type="checkbox"
@@ -75,7 +75,9 @@
             </h2>
             <div class="pc-details">
               <div class="pc-details__fields">
-                <div class="attribute attribute--text">
+                <div
+                  class="attribute attribute--text attribute--character_name"
+                >
                   <label
                     class="attribute__label attribute__label--text"
                     for="attr_character_name"
@@ -89,7 +91,7 @@
                     spellcheck="false"
                   />
                 </div>
-                <div class="attribute attribute--text">
+                <div class="attribute attribute--text attribute--pronouns">
                   <label
                     class="attribute__label attribute__label--text"
                     for="attr_pronouns"
@@ -103,7 +105,7 @@
                     spellcheck="false"
                   />
                 </div>
-                <div class="attribute attribute--text">
+                <div class="attribute attribute--text attribute--class">
                   <label
                     class="attribute__label attribute__label--text"
                     for="attr_class"
@@ -117,37 +119,7 @@
                     spellcheck="false"
                   />
                 </div>
-                <div class="attribute attribute--text">
-                  <label
-                    class="attribute__label attribute__label--text"
-                    for="attr_patch"
-                    data-i18n="Patch"
-                    >Patch</label>
-                  <input
-                    class="attribute__input attribute__input--text"
-                    type="text"
-                    name="attr_patch"
-                    value=""
-                    spellcheck="false"
-                  />
-                </div>
-                <div class="attribute attribute--text">
-                  <label
-                    class="attribute__label attribute__label--text"
-                    for="attr_trinket"
-                    data-i18n="Trinket"
-                    >Trinket</label>
-                  <input
-                    class="attribute__input attribute__input--text"
-                    type="text"
-                    name="attr_trinket"
-                    value=""
-                    spellcheck="false"
-                  />
-                </div>
-              </div>
-              <div class="pc-details__score">
-                <div class="attribute attribute--text">
+                <div class="attribute attribute--text attribute--high_score">
                   <label
                     class="attribute__label attribute__label--text"
                     for="attr_high_score"
@@ -168,6 +140,34 @@
                 >
                   <span class="button__label" data-i18n="+1">+1</span>
                 </button>
+                <div class="attribute attribute--text attribute--trinket">
+                  <label
+                    class="attribute__label attribute__label--text"
+                    for="attr_trinket"
+                    data-i18n="Trinket"
+                    >Trinket</label>
+                  <input
+                    class="attribute__input attribute__input--text"
+                    type="text"
+                    name="attr_trinket"
+                    value=""
+                    spellcheck="false"
+                  />
+                </div>
+                <div class="attribute attribute--text attribute--patch">
+                  <label
+                    class="attribute__label attribute__label--text"
+                    for="attr_patch"
+                    data-i18n="Patch"
+                    >Patch</label>
+                  <input
+                    class="attribute__input attribute__input--text"
+                    type="text"
+                    name="attr_patch"
+                    value=""
+                    spellcheck="false"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -178,7 +178,9 @@
               <h2 class="header header--section" data-i18n="Stats">Stats</h2>
               <div class="pc-stats-grid">
                 <div class="pc-stat-card">
-                  <div class="attribute attribute--number attribute--round">
+                  <div
+                    class="attribute attribute--number attribute--round attribute--strength"
+                  >
                     <input
                       class="attribute__input attribute__input--number attribute__input--number--round"
                       type="number"
@@ -196,7 +198,9 @@
                   </button>
                 </div>
                 <div class="pc-stat-card">
-                  <div class="attribute attribute--number attribute--round">
+                  <div
+                    class="attribute attribute--number attribute--round attribute--speed"
+                  >
                     <input
                       class="attribute__input attribute__input--number attribute__input--number--round"
                       type="number"
@@ -213,7 +217,9 @@
                   </button>
                 </div>
                 <div class="pc-stat-card">
-                  <div class="attribute attribute--number attribute--round">
+                  <div
+                    class="attribute attribute--number attribute--round attribute--intellect"
+                  >
                     <input
                       class="attribute__input attribute__input--number attribute__input--number--round"
                       type="number"
@@ -231,7 +237,9 @@
                   </button>
                 </div>
                 <div class="pc-stat-card">
-                  <div class="attribute attribute--number attribute--round">
+                  <div
+                    class="attribute attribute--number attribute--round attribute--combat"
+                  >
                     <input
                       class="attribute__input attribute__input--number attribute__input--number--round"
                       type="number"
@@ -265,7 +273,9 @@
               <h2 class="header header--section" data-i18n="Saves">Saves</h2>
               <div class="pc-stats-grid pc-stats-grid--saves">
                 <div class="pc-stat-card">
-                  <div class="attribute attribute--number attribute--round">
+                  <div
+                    class="attribute attribute--number attribute--round attribute--sanity"
+                  >
                     <input
                       class="attribute__input attribute__input--number attribute__input--number--round"
                       type="number"
@@ -282,7 +292,9 @@
                   </button>
                 </div>
                 <div class="pc-stat-card">
-                  <div class="attribute attribute--number attribute--round">
+                  <div
+                    class="attribute attribute--number attribute--round attribute--fear"
+                  >
                     <input
                       class="attribute__input attribute__input--number attribute__input--number--round"
                       type="number"
@@ -299,7 +311,9 @@
                   </button>
                 </div>
                 <div class="pc-stat-card">
-                  <div class="attribute attribute--number attribute--round">
+                  <div
+                    class="attribute attribute--number attribute--round attribute--body"
+                  >
                     <input
                       class="attribute__input attribute__input--number attribute__input--number--round"
                       type="number"
@@ -329,7 +343,7 @@
                 <div class="pc-status-card__label" data-i18n="Health">
                   Health
                 </div>
-                <div class="attribute attribute--number-max">
+                <div class="attribute attribute--number-max attribute--health">
                   <div class="attribute__minmax-wrapper">
                     <input
                       class="attribute__input attribute__input--number"
@@ -355,7 +369,7 @@
                 <div class="pc-status-card__label" data-i18n="Wounds">
                   Wounds
                 </div>
-                <div class="attribute attribute--number-max">
+                <div class="attribute attribute--number-max attribute--wounds">
                   <div class="attribute__minmax-wrapper">
                     <input
                       class="attribute__input attribute__input--number"
@@ -389,7 +403,9 @@
                   >
                     <span class="button__label" data-i18n="−">−</span>
                   </button>
-                  <div class="attribute attribute--number attribute--default">
+                  <div
+                    class="attribute attribute--number attribute--default attribute--stress"
+                  >
                     <input
                       class="attribute__input attribute__input--number attribute__input--number--default"
                       type="number"
@@ -470,7 +486,7 @@
               </div>
             </div>
             <div class="pc-status-notes">
-              <div class="attribute attribute--text">
+              <div class="attribute attribute--text attribute--stress_panic">
                 <label
                   class="attribute__label attribute__label--text"
                   for="attr_stress_panic"
@@ -514,7 +530,9 @@
                         name="attr_affliction_name"
                       ></span>
                     </div>
-                    <div class="attribute attribute--checkbox">
+                    <div
+                      class="attribute attribute--checkbox attribute--affliction_treated"
+                    >
                       <input
                         class="attribute__input attribute__input--checkbox"
                         type="checkbox"
@@ -533,7 +551,9 @@
                       <div class="settings__row">
                         <span class="settings__label" data-i18n="Name"
                           >Name</span>
-                        <div class="attribute attribute--text">
+                        <div
+                          class="attribute attribute--text attribute--affliction_name"
+                        >
                           <input
                             class="attribute__input attribute__input--text"
                             type="text"
@@ -546,7 +566,9 @@
                       <div class="settings__row settings__row--full">
                         <span class="settings__label" data-i18n="Effect"
                           >Effect</span>
-                        <div class="attribute attribute--textarea">
+                        <div
+                          class="attribute attribute--textarea attribute--affliction_effect"
+                        >
                           <textarea
                             class="attribute__input attribute__input--textarea"
                             name="attr_affliction_effect"
@@ -576,7 +598,9 @@
                     class="repeating__row"
                     style="grid-template-columns: 1fr"
                   >
-                    <div class="attribute attribute--text">
+                    <div
+                      class="attribute attribute--text attribute--skill_name"
+                    >
                       <input
                         class="attribute__input attribute__input--text"
                         type="text"
@@ -599,7 +623,9 @@
                     class="repeating__row"
                     style="grid-template-columns: 1fr"
                   >
-                    <div class="attribute attribute--text">
+                    <div
+                      class="attribute attribute--text attribute--skill_name"
+                    >
                       <input
                         class="attribute__input attribute__input--text"
                         type="text"
@@ -622,7 +648,9 @@
                     class="repeating__row"
                     style="grid-template-columns: 1fr"
                   >
-                    <div class="attribute attribute--text">
+                    <div
+                      class="attribute attribute--text attribute--skill_name"
+                    >
                       <input
                         class="attribute__input attribute__input--text"
                         type="text"
@@ -641,7 +669,9 @@
               </div>
               <div class="pc-training__fields">
                 <div class="pc-training__field">
-                  <div class="attribute attribute--text">
+                  <div
+                    class="attribute attribute--text attribute--skill_training"
+                  >
                     <input
                       class="attribute__input attribute__input--text"
                       type="text"
@@ -655,7 +685,9 @@
                   </div>
                 </div>
                 <div class="pc-training__field">
-                  <div class="attribute attribute--text">
+                  <div
+                    class="attribute attribute--text attribute--skill_training_time"
+                  >
                     <input
                       class="attribute__input attribute__input--text"
                       type="text"
@@ -698,7 +730,9 @@
                       name="attr_equipment_name"
                     ></span>
                   </div>
-                  <div class="attribute attribute--select">
+                  <div
+                    class="attribute attribute--select attribute--equipment_type"
+                  >
                     <select
                       class="attribute__input attribute__input--select"
                       name="attr_equipment_type"
@@ -723,7 +757,9 @@
                   <div class="settings__drawer">
                     <div class="settings__row">
                       <span class="settings__label" data-i18n="Name">Name</span>
-                      <div class="attribute attribute--text">
+                      <div
+                        class="attribute attribute--text attribute--equipment_name"
+                      >
                         <input
                           class="attribute__input attribute__input--text"
                           type="text"
@@ -736,7 +772,9 @@
                     <div class="settings__row settings__row--full">
                       <span class="settings__label" data-i18n="Notes"
                         >Notes</span>
-                      <div class="attribute attribute--textarea">
+                      <div
+                        class="attribute attribute--textarea attribute--equipment_notes"
+                      >
                         <textarea
                           class="attribute__input attribute__input--textarea"
                           name="attr_equipment_notes"
@@ -759,7 +797,9 @@
                 <div
                   class="pc-equipment-totals__well pc-equipment-totals__well--armor"
                 >
-                  <div class="attribute attribute--number attribute--default">
+                  <div
+                    class="attribute attribute--number attribute--default attribute--armor_points"
+                  >
                     <input
                       class="attribute__input attribute__input--number attribute__input--number--default"
                       type="number"
@@ -785,7 +825,9 @@
                   Damage Reduction
                 </div>
                 <div class="pc-equipment-totals__well">
-                  <div class="attribute attribute--number attribute--default">
+                  <div
+                    class="attribute attribute--number attribute--default attribute--damage_reduction"
+                  >
                     <input
                       class="attribute__input attribute__input--number attribute__input--number--default"
                       type="number"
@@ -800,7 +842,7 @@
                   Credits
                 </div>
                 <div class="pc-equipment-totals__well">
-                  <div class="attribute attribute--text">
+                  <div class="attribute attribute--text attribute--credits">
                     <input
                       class="attribute__input attribute__input--text"
                       type="text"
@@ -845,7 +887,9 @@
                       ></span>
                     </div>
                   </button>
-                  <div class="attribute attribute--select">
+                  <div
+                    class="attribute attribute--select attribute--attack_type"
+                  >
                     <select
                       class="attribute__input attribute__input--select"
                       name="attr_attack_type"
@@ -856,7 +900,9 @@
                       <option value="Skill" data-i18n="Skill">Skill</option>
                     </select>
                   </div>
-                  <div class="attribute attribute--text">
+                  <div
+                    class="attribute attribute--text attribute--attack_damage"
+                  >
                     <input
                       class="attribute__input attribute__input--text"
                       type="text"
@@ -876,7 +922,9 @@
                     <div class="settings__row">
                       <span class="settings__label" data-i18n="Weapon"
                         >Weapon</span>
-                      <div class="attribute attribute--text">
+                      <div
+                        class="attribute attribute--text attribute--attack_name"
+                      >
                         <input
                           class="attribute__input attribute__input--text"
                           type="text"
@@ -889,7 +937,9 @@
                     <div class="settings__row">
                       <span class="settings__label" data-i18n="Range"
                         >Range</span>
-                      <div class="attribute attribute--select">
+                      <div
+                        class="attribute attribute--select attribute--attack_range"
+                      >
                         <select
                           class="attribute__input attribute__input--select"
                           name="attr_attack_range"
@@ -917,7 +967,9 @@
                       <div class="settings__row">
                         <span class="settings__label" data-i18n="Crit Damage"
                           >Crit Damage</span>
-                        <div class="attribute attribute--text">
+                        <div
+                          class="attribute attribute--text attribute--attack_crit_damage"
+                        >
                           <input
                             class="attribute__input attribute__input--text"
                             type="text"
@@ -930,7 +982,9 @@
                       <div class="settings__row">
                         <span class="settings__label" data-i18n="Crit Effect"
                           >Crit Effect</span>
-                        <div class="attribute attribute--textarea">
+                        <div
+                          class="attribute attribute--textarea attribute--attack_crit_effect"
+                        >
                           <textarea
                             class="attribute__input attribute__input--textarea"
                             name="attr_attack_crit_effect"
@@ -943,7 +997,9 @@
                       <div class="settings__row">
                         <span class="settings__label" data-i18n="Shots"
                           >Shots</span>
-                        <div class="attribute attribute--text">
+                        <div
+                          class="attribute attribute--text attribute--attack_shots"
+                        >
                           <input
                             class="attribute__input attribute__input--text"
                             type="text"
@@ -956,7 +1012,9 @@
                       <div class="settings__row">
                         <span class="settings__label" data-i18n="Ammo"
                           >Ammo</span>
-                        <div class="attribute attribute--text">
+                        <div
+                          class="attribute attribute--text attribute--attack_ammunition"
+                        >
                           <input
                             class="attribute__input attribute__input--text"
                             type="text"
@@ -970,7 +1028,9 @@
                     <div class="settings__row settings__row--full">
                       <span class="settings__label" data-i18n="Notes"
                         >Notes</span>
-                      <div class="attribute attribute--textarea">
+                      <div
+                        class="attribute attribute--textarea attribute--attack_notes"
+                      >
                         <textarea
                           class="attribute__input attribute__input--textarea"
                           name="attr_attack_notes"
@@ -990,7 +1050,7 @@
   <div class="sheet-view sheet-view--ship">
     <div class="ship-sheet">
       <div class="ship-sheet__state">
-        <div class="attribute attribute--checkbox">
+        <div class="attribute attribute--checkbox attribute--ship_npc">
           <input
             class="attribute__input attribute__input--checkbox"
             type="checkbox"
@@ -1012,7 +1072,7 @@
             </div>
             <div class="ship-header__fields">
               <div class="ship-header__field ship-header__field--name">
-                <div class="attribute attribute--text">
+                <div class="attribute attribute--text attribute--ship_name">
                   <label
                     class="attribute__label attribute__label--text"
                     for="attr_ship_name"
@@ -1028,7 +1088,7 @@
                 </div>
               </div>
               <div class="ship-header__field ship-header__field--captain">
-                <div class="attribute attribute--text">
+                <div class="attribute attribute--text attribute--ship_captain">
                   <label
                     class="attribute__label attribute__label--text"
                     for="attr_ship_captain"
@@ -1044,7 +1104,9 @@
                 </div>
               </div>
               <div class="ship-header__field ship-header__field--transponder">
-                <div class="attribute attribute--textarea">
+                <div
+                  class="attribute attribute--textarea attribute--ship_transponder"
+                >
                   <label
                     class="attribute__label attribute__label--textarea"
                     for="attr_ship_transponder"
@@ -1079,7 +1141,9 @@
                       >Systems</span>
                   </button>
                 </div>
-                <div class="attribute attribute--number attribute--default">
+                <div
+                  class="attribute attribute--number attribute--default attribute--ship_systems"
+                >
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
@@ -1099,7 +1163,9 @@
                       >Thrusters</span>
                   </button>
                 </div>
-                <div class="attribute attribute--number attribute--default">
+                <div
+                  class="attribute attribute--number attribute--default attribute--ship_thrusters"
+                >
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
@@ -1118,7 +1184,9 @@
                     <span class="button__label" data-i18n="Battle">Battle</span>
                   </button>
                 </div>
-                <div class="attribute attribute--number attribute--default">
+                <div
+                  class="attribute attribute--number attribute--default attribute--ship_battle"
+                >
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
@@ -1133,7 +1201,7 @@
         <section class="panel">
           <div class="frame frame--mode-light frame--corner-medium">
             <h2 class="header header--section" data-i18n="Engines">Engines</h2>
-            <div class="attribute attribute--number-max">
+            <div class="attribute attribute--number-max attribute--ship_fuel">
               <label
                 class="attribute__label attribute__label--number-max"
                 for="attr_ship_fuel"
@@ -1156,7 +1224,9 @@
               </div>
             </div>
             <div class="ship-engines__bid">
-              <div class="attribute attribute--number attribute--default">
+              <div
+                class="attribute attribute--number attribute--default attribute--ship_fuel_bid"
+              >
                 <label
                   class="attribute__label attribute__label--number-input attribute__label--number-input--default"
                   for="attr_ship_fuel_bid"
@@ -1177,7 +1247,9 @@
                 <span class="button__label" data-i18n="Reveal">Reveal</span>
               </button>
             </div>
-            <div class="attribute attribute--number attribute--default">
+            <div
+              class="attribute attribute--number attribute--default attribute--ship_warp_cores"
+            >
               <label
                 class="attribute__label attribute__label--number-input attribute__label--number-input--default"
                 for="attr_ship_warp_cores"
@@ -1197,7 +1269,9 @@
             <h2 class="header header--section" data-i18n="Survival">
               Survival
             </h2>
-            <div class="attribute attribute--number attribute--default">
+            <div
+              class="attribute attribute--number attribute--default attribute--ship_o2"
+            >
               <label
                 class="attribute__label attribute__label--number-input attribute__label--number-input--default"
                 for="attr_ship_o2"
@@ -1210,7 +1284,9 @@
                 value="0"
               />
             </div>
-            <div class="attribute attribute--number attribute--default">
+            <div
+              class="attribute attribute--number attribute--default attribute--ship_cryopods"
+            >
               <label
                 class="attribute__label attribute__label--number-input attribute__label--number-input--default"
                 for="attr_ship_cryopods"
@@ -1223,7 +1299,9 @@
                 value="0"
               />
             </div>
-            <div class="attribute attribute--number attribute--default">
+            <div
+              class="attribute attribute--number attribute--default attribute--ship_escape_pods"
+            >
               <label
                 class="attribute__label attribute__label--number-input attribute__label--number-input--default"
                 for="attr_ship_escape_pods"
@@ -1245,7 +1323,9 @@
             </h2>
             <div class="ship-weapons-totals">
               <div class="ship-weapons-pair">
-                <div class="attribute attribute--number attribute--default">
+                <div
+                  class="attribute attribute--number attribute--default attribute--ship_weapons_base"
+                >
                   <label
                     class="attribute__label attribute__label--number-input attribute__label--number-input--default"
                     for="attr_ship_weapons_base"
@@ -1258,7 +1338,9 @@
                     value="0"
                   />
                 </div>
-                <div class="attribute attribute--number attribute--default">
+                <div
+                  class="attribute attribute--number attribute--default attribute--ship_weapons_total"
+                >
                   <label
                     class="attribute__label attribute__label--number-input attribute__label--number-input--default"
                     for="attr_ship_weapons_total"
@@ -1273,7 +1355,9 @@
                 </div>
               </div>
               <div class="ship-weapons-pair">
-                <div class="attribute attribute--number attribute--default">
+                <div
+                  class="attribute attribute--number attribute--default attribute--ship_mdmg_base"
+                >
                   <label
                     class="attribute__label attribute__label--number-input attribute__label--number-input--default"
                     for="attr_ship_mdmg_base"
@@ -1286,7 +1370,9 @@
                     value="0"
                   />
                 </div>
-                <div class="attribute attribute--number attribute--default">
+                <div
+                  class="attribute attribute--number attribute--default attribute--ship_mdmg_total"
+                >
                   <label
                     class="attribute__label attribute__label--number-input attribute__label--number-input--default"
                     for="attr_ship_mdmg_total"
@@ -1300,7 +1386,9 @@
                   />
                 </div>
               </div>
-              <div class="attribute attribute--number-max">
+              <div
+                class="attribute attribute--number-max attribute--ship_hardpoints"
+              >
                 <label
                   class="attribute__label attribute__label--number-max"
                   for="attr_ship_hardpoints"
@@ -1337,7 +1425,9 @@
                   class="repeating__row"
                   style="grid-template-columns: 2fr 1fr 1fr 2fr"
                 >
-                  <div class="attribute attribute--text">
+                  <div
+                    class="attribute attribute--text attribute--ship_weapon_name"
+                  >
                     <input
                       class="attribute__input attribute__input--text"
                       type="text"
@@ -1346,7 +1436,9 @@
                       spellcheck="false"
                     />
                   </div>
-                  <div class="attribute attribute--text">
+                  <div
+                    class="attribute attribute--text attribute--ship_weapon_damage"
+                  >
                     <input
                       class="attribute__input attribute__input--text"
                       type="text"
@@ -1355,7 +1447,9 @@
                       spellcheck="false"
                     />
                   </div>
-                  <div class="attribute attribute--select">
+                  <div
+                    class="attribute attribute--select attribute--ship_weapon_range"
+                  >
                     <select
                       class="attribute__input attribute__input--select"
                       name="attr_ship_weapon_range"
@@ -1375,7 +1469,9 @@
                       </option>
                     </select>
                   </div>
-                  <div class="attribute attribute--textarea">
+                  <div
+                    class="attribute attribute--textarea attribute--ship_weapon_notes"
+                  >
                     <textarea
                       class="attribute__input attribute__input--textarea"
                       name="attr_ship_weapon_notes"
@@ -1395,7 +1491,9 @@
             >
               MegaDamage &amp; Hull
             </h2>
-            <div class="attribute attribute--number attribute--default">
+            <div
+              class="attribute attribute--number attribute--default attribute--ship_mdmg"
+            >
               <label
                 class="attribute__label attribute__label--number-input attribute__label--number-input--default"
                 for="attr_ship_mdmg"
@@ -1408,7 +1506,9 @@
                 value="0"
               />
             </div>
-            <div class="attribute attribute--number attribute--default">
+            <div
+              class="attribute attribute--number attribute--default attribute--ship_hull"
+            >
               <label
                 class="attribute__label attribute__label--number-input attribute__label--number-input--default"
                 for="attr_ship_hull"
@@ -1532,7 +1632,9 @@
               <h2 class="header header--section" data-i18n="Bankruptcy Save">
                 Bankruptcy Save
               </h2>
-              <div class="attribute attribute--number attribute--default">
+              <div
+                class="attribute attribute--number attribute--default attribute--ship_bankruptcy_save"
+              >
                 <label
                   class="attribute__label attribute__label--number-input attribute__label--number-input--default"
                   for="attr_ship_bankruptcy_save"
@@ -1553,7 +1655,7 @@
             <h2 class="header header--section" data-i18n="Officers &amp; Crew">
               Officers &amp; Crew
             </h2>
-            <div class="attribute attribute--number-max">
+            <div class="attribute attribute--number-max attribute--ship_crew">
               <label
                 class="attribute__label attribute__label--number-max"
                 for="attr_ship_crew"
@@ -1587,7 +1689,9 @@
                   class="repeating__row"
                   style="grid-template-columns: 1fr 1fr"
                 >
-                  <div class="attribute attribute--text">
+                  <div
+                    class="attribute attribute--text attribute--ship_crew_name"
+                  >
                     <input
                       class="attribute__input attribute__input--text"
                       type="text"
@@ -1596,7 +1700,9 @@
                       spellcheck="false"
                     />
                   </div>
-                  <div class="attribute attribute--text">
+                  <div
+                    class="attribute attribute--text attribute--ship_crew_rank"
+                  >
                     <input
                       class="attribute__input attribute__input--text"
                       type="text"
@@ -1616,7 +1722,9 @@
               <h2 class="header header--section" data-i18n="Upgrades">
                 Upgrades
               </h2>
-              <div class="attribute attribute--number-max">
+              <div
+                class="attribute attribute--number-max attribute--ship_upgrades"
+              >
                 <label
                   class="attribute__label attribute__label--number-max"
                   for="attr_ship_upgrades"
@@ -1648,7 +1756,9 @@
                     class="repeating__row"
                     style="grid-template-columns: 1fr"
                   >
-                    <div class="attribute attribute--text">
+                    <div
+                      class="attribute attribute--text attribute--ship_upgrade_name"
+                    >
                       <input
                         class="attribute__input attribute__input--text"
                         type="text"
@@ -1667,7 +1777,9 @@
               <h2 class="header header--section" data-i18n="Ship Manifest">
                 Ship Manifest
               </h2>
-              <div class="attribute attribute--number-max">
+              <div
+                class="attribute attribute--number-max attribute--ship_cargo"
+              >
                 <label
                   class="attribute__label attribute__label--number-max"
                   for="attr_ship_cargo"
@@ -1689,7 +1801,9 @@
                   />
                 </div>
               </div>
-              <div class="attribute attribute--number-max">
+              <div
+                class="attribute attribute--number-max attribute--ship_minor_repairs"
+              >
                 <label
                   class="attribute__label attribute__label--number-max"
                   for="attr_ship_minor_repairs"
@@ -1711,7 +1825,9 @@
                   />
                 </div>
               </div>
-              <div class="attribute attribute--number-max">
+              <div
+                class="attribute attribute--number-max attribute--ship_major_repairs"
+              >
                 <label
                   class="attribute__label attribute__label--number-max"
                   for="attr_ship_major_repairs"
@@ -1742,7 +1858,7 @@
   <div class="sheet-view sheet-view--npc">
     <div class="npc-sheet">
       <div class="npc-sheet__state">
-        <div class="attribute attribute--checkbox">
+        <div class="attribute attribute--checkbox attribute--speed_initiative">
           <input
             class="attribute__input attribute__input--checkbox"
             type="checkbox"
@@ -1764,7 +1880,7 @@
               <span class="npc-header__badge" data-i18n="NPC / CONTRACTOR"
                 >NPC / CONTRACTOR</span>
             </div>
-            <div class="attribute attribute--text">
+            <div class="attribute attribute--text attribute--character_name">
               <input
                 class="attribute__input attribute__input--text"
                 type="text"
@@ -1797,7 +1913,9 @@
                     >This works exactly like the Combat Stat, showing how good
                     they are in a fight.</span>
                 </div>
-                <div class="attribute attribute--number attribute--default">
+                <div
+                  class="attribute attribute--number attribute--default attribute--combat"
+                >
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
@@ -1820,7 +1938,9 @@
                     >This is a catchall Stat for Fear, Sanity, Body, Speed,
                     Intellect, and everything else.</span>
                 </div>
-                <div class="attribute attribute--number attribute--default">
+                <div
+                  class="attribute attribute--number attribute--default attribute--instinct"
+                >
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
@@ -1853,7 +1973,7 @@
                 <div class="npc-vital-card__label" data-i18n="Wounds (W)">
                   Wounds (W)
                 </div>
-                <div class="attribute attribute--number-max">
+                <div class="attribute attribute--number-max attribute--wounds">
                   <div class="attribute__minmax-wrapper">
                     <input
                       class="attribute__input attribute__input--number"
@@ -1879,7 +1999,7 @@
                 <div class="npc-vital-card__label" data-i18n="Health (HP)">
                   Health (HP)
                 </div>
-                <div class="attribute attribute--number-max">
+                <div class="attribute attribute--number-max attribute--health">
                   <div class="attribute__minmax-wrapper">
                     <input
                       class="attribute__input attribute__input--number"
@@ -1908,7 +2028,9 @@
                 >
                   Armor Points (AP)
                 </div>
-                <div class="attribute attribute--number attribute--default">
+                <div
+                  class="attribute attribute--number attribute--default attribute--armor_points"
+                >
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
@@ -1953,7 +2075,9 @@
                       ></span>
                     </div>
                   </button>
-                  <div class="attribute attribute--select">
+                  <div
+                    class="attribute attribute--select attribute--attack_type"
+                  >
                     <select
                       class="attribute__input attribute__input--select"
                       name="attr_attack_type"
@@ -1964,7 +2088,9 @@
                       <option value="Skill" data-i18n="Skill">Skill</option>
                     </select>
                   </div>
-                  <div class="attribute attribute--text">
+                  <div
+                    class="attribute attribute--text attribute--attack_damage"
+                  >
                     <input
                       class="attribute__input attribute__input--text"
                       type="text"
@@ -1984,7 +2110,9 @@
                     <div class="settings__row">
                       <span class="settings__label" data-i18n="Weapon"
                         >Weapon</span>
-                      <div class="attribute attribute--text">
+                      <div
+                        class="attribute attribute--text attribute--attack_name"
+                      >
                         <input
                           class="attribute__input attribute__input--text"
                           type="text"
@@ -1997,7 +2125,9 @@
                     <div class="settings__row">
                       <span class="settings__label" data-i18n="Range"
                         >Range</span>
-                      <div class="attribute attribute--select">
+                      <div
+                        class="attribute attribute--select attribute--attack_range"
+                      >
                         <select
                           class="attribute__input attribute__input--select"
                           name="attr_attack_range"
@@ -2025,7 +2155,9 @@
                       <div class="settings__row">
                         <span class="settings__label" data-i18n="Crit Damage"
                           >Crit Damage</span>
-                        <div class="attribute attribute--text">
+                        <div
+                          class="attribute attribute--text attribute--attack_crit_damage"
+                        >
                           <input
                             class="attribute__input attribute__input--text"
                             type="text"
@@ -2038,7 +2170,9 @@
                       <div class="settings__row">
                         <span class="settings__label" data-i18n="Crit Effect"
                           >Crit Effect</span>
-                        <div class="attribute attribute--textarea">
+                        <div
+                          class="attribute attribute--textarea attribute--attack_crit_effect"
+                        >
                           <textarea
                             class="attribute__input attribute__input--textarea"
                             name="attr_attack_crit_effect"
@@ -2051,7 +2185,9 @@
                       <div class="settings__row">
                         <span class="settings__label" data-i18n="Shots"
                           >Shots</span>
-                        <div class="attribute attribute--text">
+                        <div
+                          class="attribute attribute--text attribute--attack_shots"
+                        >
                           <input
                             class="attribute__input attribute__input--text"
                             type="text"
@@ -2064,7 +2200,9 @@
                       <div class="settings__row">
                         <span class="settings__label" data-i18n="Ammo"
                           >Ammo</span>
-                        <div class="attribute attribute--text">
+                        <div
+                          class="attribute attribute--text attribute--attack_ammunition"
+                        >
                           <input
                             class="attribute__input attribute__input--text"
                             type="text"
@@ -2078,7 +2216,9 @@
                     <div class="settings__row settings__row--full">
                       <span class="settings__label" data-i18n="Notes"
                         >Notes</span>
-                      <div class="attribute attribute--textarea">
+                      <div
+                        class="attribute attribute--textarea attribute--attack_notes"
+                      >
                         <textarea
                           class="attribute__input attribute__input--textarea"
                           name="attr_attack_notes"
@@ -2136,7 +2276,9 @@
                     <div class="settings__row">
                       <span class="settings__label" data-i18n="Trait Name"
                         >Trait Name</span>
-                      <div class="attribute attribute--text">
+                      <div
+                        class="attribute attribute--text attribute--trait_name"
+                      >
                         <input
                           class="attribute__input attribute__input--text"
                           type="text"
@@ -2149,7 +2291,9 @@
                     <div class="settings__row settings__row--full">
                       <span class="settings__label" data-i18n="Description"
                         >Description</span>
-                      <div class="attribute attribute--textarea">
+                      <div
+                        class="attribute attribute--textarea attribute--trait_description"
+                      >
                         <textarea
                           class="attribute__input attribute__input--textarea"
                           name="attr_trait_description"
@@ -2172,7 +2316,9 @@
                 Description
               </h2>
               <div class="npc-narrative-field">
-                <div class="attribute attribute--textarea">
+                <div
+                  class="attribute attribute--textarea attribute--description"
+                >
                   <textarea
                     class="attribute__input attribute__input--textarea"
                     name="attr_description"
@@ -2193,7 +2339,9 @@
                 Equipment &amp; Notes
               </h2>
               <div class="npc-narrative-field">
-                <div class="attribute attribute--textarea">
+                <div
+                  class="attribute attribute--textarea attribute--gear_notes"
+                >
                   <textarea
                     class="attribute__input attribute__input--textarea"
                     name="attr_gear_notes"
@@ -2221,7 +2369,7 @@
             <div class="settings__row">
               <span class="settings__label" data-i18n="Sheet Type"
                 >Sheet Type</span>
-              <div class="attribute attribute--select">
+              <div class="attribute attribute--select attribute--sheet_toggle">
                 <select
                   class="attribute__input attribute__input--select"
                   name="attr_sheet_toggle"
@@ -2235,7 +2383,9 @@
             <div class="settings__row">
               <span class="settings__label" data-i18n="Speed Check Initiative"
                 >Speed Check Initiative</span>
-              <div class="attribute attribute--checkbox">
+              <div
+                class="attribute attribute--checkbox attribute--speed_initiative"
+              >
                 <input
                   class="attribute__input attribute__input--checkbox"
                   type="checkbox"
@@ -2247,7 +2397,9 @@
             <div class="settings__row">
               <span class="settings__label" data-i18n="Skill Select for Saves"
                 >Skill Select for Saves</span>
-              <div class="attribute attribute--checkbox">
+              <div
+                class="attribute attribute--checkbox attribute--save_skill_select"
+              >
                 <input
                   class="attribute__input attribute__input--checkbox"
                   type="checkbox"
@@ -2261,7 +2413,7 @@
               <div class="settings__row">
                 <span class="settings__label" data-i18n="NPC Ship"
                   >NPC Ship</span>
-                <div class="attribute attribute--checkbox">
+                <div class="attribute attribute--checkbox attribute--ship_npc">
                   <input
                     class="attribute__input attribute__input--checkbox"
                     type="checkbox"

@@ -15,6 +15,7 @@
   const wrapperClass = {
     "attribute": true,
     "attribute--number-max": true,
+    [`attribute--${name}`]: true,
   };
 
   const labelClass = {

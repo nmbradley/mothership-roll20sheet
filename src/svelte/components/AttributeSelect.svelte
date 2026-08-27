@@ -24,6 +24,7 @@
   const wrapperClass = {
     "attribute": true,
     "attribute--select": true,
+    [`attribute--${name}`]: true,
   };
 
   const labelClass = {

@@ -15,6 +15,7 @@
   const wrapperClass = {
     "attribute": true,
     "attribute--textarea": true,
+    [`attribute--${name}`]: true,
   };
 
   const labelClass = {
