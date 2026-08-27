@@ -7,17 +7,19 @@ import {
 } from "vitest";
 
 import {
-  Comparisons, Outcomes, SKILL_BONUS, makeCheck,
+  Comparisons, Edges, Outcomes, SKILL_BONUS, makeCheck,
 } from "../src/ts/rules/rolls";
 import {
   applyStressDelta,
   isSaveSkillSelectEnabled,
+  makePanicCheck,
   recomputeWorstSave,
   restSaveStressDelta,
   rollCheck,
   rollDeathSave,
   rollNPCInitiative,
   rollPCInitiative,
+  rollPanicCheck,
   rollRestSave,
   rollSaveCheck,
   skillQuery,
@@ -467,5 +469,75 @@ describe("rollDeathSave", () => {
     expect(mockFinishRoll).toHaveBeenCalledWith("id", {
       notes: "You have died. Roll up a new character.",
     });
+  });
+});
+
+describe("makePanicCheck", () => {
+  it("should pass when the die beats current Stress", () => {
+    const check = makePanicCheck(5, [12]);
+    expect(check.outcome).toBe(Outcomes.Success);
+  });
+
+  it("should fail when the die does not beat current Stress", () => {
+    const check = makePanicCheck(10, [3]);
+    expect(check.outcome).toBe(Outcomes.Failure);
+  });
+
+  it("should fail on a tie, since the die must beat Stress outright", () => {
+    const check = makePanicCheck(7, [7]);
+    expect(check.outcome).toBe(Outcomes.Failure);
+  });
+
+  it("should take the higher die with advantage", () => {
+    const check = makePanicCheck(10, [4, 15], Edges.Advantage);
+    expect(check.roll).toBe(15);
+    expect(check.outcome).toBe(Outcomes.Success);
+  });
+});
+
+describe("rollPanicCheck", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("should point a failure at the character's Trauma Response, not a table", async () => {
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        roll: { result: 3 },
+        roll2: { result: 3 },
+        edge: { result: 0 },
+        target: { result: 10 },
+      },
+    });
+    const mockFinishRoll = vi.fn();
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", mockFinishRoll);
+
+    await rollPanicCheck();
+
+    expect(mockFinishRoll).toHaveBeenCalledWith("id", expect.objectContaining({
+      notes: "@{stress_effect}",
+    }));
+  });
+
+  it("should not reference getAttrs at all -- the check reads off the roll itself", async () => {
+    const mockGetAttrs = vi.fn();
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        roll: { result: 15 },
+        roll2: { result: 15 },
+        edge: { result: 0 },
+        target: { result: 10 },
+      },
+    });
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+
+    await rollPanicCheck();
+
+    expect(mockGetAttrs).not.toHaveBeenCalled();
   });
 });

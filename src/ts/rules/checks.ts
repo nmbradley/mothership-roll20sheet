@@ -11,6 +11,8 @@ import {
   TEMPLATE_PHRASES,
 } from "./rollTemplate";
 import {
+  Comparisons,
+  Edges,
   isFailure,
   makeCheck,
   resolveEdge,
@@ -19,7 +21,7 @@ import {
   type CheckResult,
   type Edge,
 } from "./rolls";
-import { deathSaveEffect, makePanicCheck } from "./tables";
+import { deathSaveEffect } from "./tables";
 
 /**
  * Sheetworker entry points for rolling.
@@ -281,10 +283,33 @@ export function applyStressDelta(current: number, delta: number, min: number, ma
 }
 
 /**
+ * Grades a Panic Check: a d20 rolled *over* current Stress.
+ *
+ * 1e has no generic panic effects table -- a failure triggers the character's
+ * own Trauma Response (their class ability), so grading this is nothing more
+ * than a check against a different comparison.
+ */
+export function makePanicCheck(
+  stress: number,
+  rolls: readonly number[],
+  edge: Edge = Edges.None,
+): CheckResult {
+  const check = makeCheck({
+    name: "Panic Check",
+    target: stress,
+    rolls,
+    edge,
+    comparison: Comparisons.RollOver,
+  });
+  return check;
+}
+
+/**
  * Rolls a Panic Check.
  *
- * The Panic Die goes over current Stress, and failing reads the Panic Table off
- * the same die.
+ * A failure points at the character's Trauma Response rather than a table:
+ * panicComputed reads it straight off the sheet via `@{stress_effect}` inside
+ * the template text, so no getAttrs round trip is needed here at all.
  */
 export async function rollPanicCheck(): Promise<void> {
   const template = `${panicTemplate()} {{edge=[[${EDGE_QUERY}]]}}`;
@@ -292,8 +317,8 @@ export async function rollPanicCheck(): Promise<void> {
   const dice = readDice(roll.results);
 
   const stress = readTarget(roll.results);
-  const panic = makePanicCheck(stress, dice.rolls, dice.edge);
-  const computed = panicComputed(panic);
+  const check = makePanicCheck(stress, dice.rolls, dice.edge);
+  const computed = panicComputed(check);
   finishRoll(roll.rollId, computed);
 }
 

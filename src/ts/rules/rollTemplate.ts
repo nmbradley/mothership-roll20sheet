@@ -7,7 +7,6 @@ import {
   type CheckResult,
   type Outcome,
 } from "./rolls";
-import type { PanicCheck } from "./tables";
 
 /**
  * Builds the two halves of a custom-parsed roll.
@@ -148,6 +147,7 @@ export const TEMPLATE_PHRASES = {
   TakeAWound: "Take a Wound",
   ArmorAbsorbed: "Absorbed by Armor",
   MilitaryTraining: "Military Training",
+  TraumaResponse: "Trauma Response",
 } as const;
 
 /** A Critical Failure on a check forces a Panic Check; say so in chat. */
@@ -173,18 +173,24 @@ export function panicTemplate(): string {
   return template;
 }
 
-/** The values finishRoll substitutes into a Panic Check. */
-export function panicComputed(panic: PanicCheck): Record<string, string | number> {
-  const { check, effect } = panic;
+/**
+ * The values finishRoll substitutes into a Panic Check.
+ *
+ * 1e has no generic effects table: a failure names Trauma Response and points
+ * at it with `@{stress_effect}`, left in the template text for Roll20 itself
+ * to resolve against the character rather than read here via getAttrs.
+ */
+export function panicComputed(check: CheckResult): Record<string, string | number> {
   const hasPanicked = isFailure(check.outcome);
 
   const survived = translated(TEMPLATE_PHRASES.KeptItTogether);
+  const panicked = translated(TEMPLATE_PHRASES.TraumaResponse);
 
   const computed: Record<string, string | number> = {
     [COMPUTED.Counted]: describeCounted(check),
-    [COMPUTED.Result]: effect === undefined ? survived : effect.name,
+    [COMPUTED.Result]: hasPanicked ? panicked : survived,
     [COMPUTED.Rank]: RANKS[check.outcome],
-    [COMPUTED.Notes]: hasPanicked && effect !== undefined ? effect.effect : "",
+    [COMPUTED.Notes]: hasPanicked ? "@{stress_effect}" : "",
   };
   return computed;
 }

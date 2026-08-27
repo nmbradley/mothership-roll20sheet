@@ -65,7 +65,6 @@ function compileCharacter(data: CharmancerData): void {
   const health = review["health_final"] ?? "";
   attrs["health"] = health;
   attrs["health_max"] = health;
-  attrs["stress_panic"] = review["stressresponse_final"] ?? "";
   attrs["skill_points"] = review["skillpoints_final"] ?? "";
 
   // Already attribute keys, so they go straight on the sheet.

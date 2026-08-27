@@ -59,6 +59,16 @@ describe("pcFields", () => {
     expect(pcAttributes.conditions.control).toBe("textarea");
   });
 
+  it("keeps the superseded stress_panic attribute declared for old data", () => {
+    expect(pcAttributes.stress_panic.name).toBe("stress_panic");
+    expect(pcAttributes.stress_panic.control).toBe("text");
+  });
+
+  it("exports the class's Trauma Response", () => {
+    expect(pcAttributes.stress_effect.name).toBe("stress_effect");
+    expect(pcAttributes.stress_effect.control).toBe("textarea");
+  });
+
   it("no longer exports the 0e equipment armor bonus", () => {
     expect("equipment_armor_bonus" in pcEquipment.attributes).toBe(false);
   });
