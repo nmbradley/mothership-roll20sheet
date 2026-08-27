@@ -4920,6 +4920,13 @@
     return joined;
   }
 
+  // src/ts/rules/translation.ts
+  function translateOr(key) {
+    const translated2 = getTranslationByKey(key);
+    if (typeof translated2 === "string") return translated2;
+    return key;
+  }
+
   // src/ts/charactermancer/3-class.ts
   var CLASS_LIST = "sheet-t__classes";
   var SKILL_CHOICE_LIST = "sheet-t__skill_choice";
@@ -4959,8 +4966,8 @@
   function addClassCard(definition) {
     const name = definition?.name ?? CUSTOM_CLASS;
     addRepeatingSection(CLASS_LIST, "class", (rowId) => {
-      const title = definition === void 0 ? getTranslationByKey(CUSTOM_CLASS) : name;
-      const description = definition?.desc ?? getTranslationByKey("choose this option to enter your own information");
+      const title = definition === void 0 ? translateOr(CUSTOM_CLASS) : name;
+      const description = definition?.desc ?? translateOr("choose this option to enter your own information");
       setAttrs({ [`${rowId}_name`]: name });
       setCharmancerText({
         [`${rowId} .sheet-t__title`]: title,
@@ -5188,7 +5195,7 @@
     const classPoints = stepValues(data, Steps.Class)["skill_points"];
     if (classPoints === void 0) {
       setCharmancerText({
-        t__skillpointserror: getTranslationByKey("Ensure you have selected a class")
+        t__skillpointserror: translateOr("Ensure you have selected a class")
       });
       return;
     }
@@ -7057,8 +7064,8 @@
   var EDGE_QUERY = "?{Advantage/Disadvantage|Normal,0|Advantage,1|Disadvantage,2}";
   var MODIFIER_QUERY = "?{Modifier?|0}";
   function queryText(key) {
-    const translated2 = getTranslationByKey(key);
-    const cleaned = translated2.replace(QUERY_SYNTAX, "").trim();
+    const source = translateOr(key);
+    const cleaned = source.replace(QUERY_SYNTAX, "").trim();
     if (cleaned !== "") return cleaned;
     const fallback = key.replace(QUERY_SYNTAX, "").trim();
     return fallback;

@@ -86,7 +86,13 @@ declare function finishRoll(
 ): void;
 
 // --- TRANSLATION FUNCTIONS ---
-declare function getTranslationByKey(key: string | string[]): string;
+/**
+ * Roll20 returns `false` -- not a string, and not undefined -- when the key is
+ * missing from the loaded translation, which happens whenever translation.json
+ * on the campaign is older than the sheet asking for a key. Callers must
+ * narrow before touching string methods.
+ */
+declare function getTranslationByKey(key: string | string[]): string | false;
 
 declare function getTranslationLanguage(): string;
 

@@ -24,6 +24,7 @@ import {
   type Outcome,
 } from "./rolls";
 import { deathSaveEffect } from "./tables";
+import { translateOr } from "./translation";
 
 /**
  * Sheetworker entry points for rolling.
@@ -86,8 +87,13 @@ const MODIFIER_QUERY = "?{Modifier?|0}";
  * `?` is left alone: only `?{` opens a query, and dropping the brace is enough.
  */
 function queryText(key: string): string {
-  const translated = getTranslationByKey(key);
-  const cleaned = translated.replace(QUERY_SYNTAX, "").trim();
+  // getTranslationByKey returns `false` for a key the campaign's translation
+  // does not carry -- which is every new key until translation.json is
+  // re-uploaded. Calling .replace on that throws inside the sheetworker and
+  // takes the whole handler down with it, so the write it was building never
+  // happens. Fall through to the English rather than trusting the type.
+  const source = translateOr(key);
+  const cleaned = source.replace(QUERY_SYNTAX, "").trim();
   if (cleaned !== "") return cleaned;
 
   // A translation of nothing but syntax leaves the English standing.

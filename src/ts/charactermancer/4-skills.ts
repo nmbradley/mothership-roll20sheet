@@ -1,5 +1,6 @@
 import { skillsByKey, skillsByLevel } from "#game/constants.js";
 import { SkillLevels, type SkillLevel } from "#game/enums.js";
+import { translateOr } from "#rules/translation.js";
 
 import {
   charmancerData, parseStringList, stepRows, stepValues,
@@ -30,7 +31,7 @@ export function onLoadSkills(): void {
   const classPoints = stepValues(data, Steps.Class)["skill_points"];
   if (classPoints === undefined) {
     setCharmancerText({
-      t__skillpointserror: getTranslationByKey("Ensure you have selected a class"),
+      t__skillpointserror: translateOr("Ensure you have selected a class"),
     });
     return;
   }
