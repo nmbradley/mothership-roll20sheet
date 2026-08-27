@@ -29,7 +29,7 @@
           class="attribute__input attribute__input--hidden"
           type="hidden"
           name="attr_skill_query"
-          value=""
+          value="?{Apply Skill?|(none),0|Trained,10|Expert,15|Master,20}"
         /><input
           class="attribute__input attribute__input--hidden"
           type="hidden"
@@ -7096,9 +7096,19 @@
       if (safeName === "") continue;
       options.push(`${safeName},${String(entry.bonus)}[${safeName}]`);
     }
+    options.push(...tierOptions());
     const choices = options.join("|");
     const prompt = queryText(SKILL_PROMPT);
     return `?{${prompt}|${choices}}`;
+  }
+  function tierOptions() {
+    const options = [];
+    for (const [level, bonus] of Object.entries(SKILL_BONUS)) {
+      const name = titleCase(level);
+      const label = queryText(name);
+      options.push(`${label},${String(bonus)}`);
+    }
+    return options;
   }
   function skillQuery() {
     return "@{skill_query}";

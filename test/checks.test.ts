@@ -6,6 +6,7 @@ import {
   vi,
 } from "vitest";
 
+import { skill_query } from "../src/game/fields/pcFields";
 import {
   Comparisons, Edges, Outcomes, SKILL_BONUS, makeCheck,
 } from "../src/ts/rules/rolls";
@@ -83,9 +84,19 @@ describe("buildSkillQuery", () => {
     vi.unstubAllGlobals();
   });
 
-  it("should offer (none) alone for a character with no Skills at all", () => {
+  it("should fall back to the plain tiers for a character with no Skills", () => {
+    // An NPC has no Skill rows at all. Without the tiers its checks would
+    // offer nothing but (none), losing the ad hoc bonus every check had
+    // before #5.
     translateWith({});
-    expect(buildSkillQuery([])).toBe("?{Apply Skill?|(none),0}");
+    expect(buildSkillQuery([])).toBe(
+      "?{Apply Skill?|(none),0|Trained,10|Expert,15|Master,20}",
+    );
+  });
+
+  it("should match skill_query's seeded default, so a fresh sheet still rolls", () => {
+    translateWith({});
+    expect(skill_query.value).toBe(buildSkillQuery([]));
   });
 
   it("should carry each Skill's own name as an annotation on its tier bonus", () => {
@@ -101,7 +112,8 @@ describe("buildSkillQuery", () => {
       },
     ]);
     expect(query).toBe(
-      "?{Apply Skill?|(none),0|Genetics,10[Genetics]|Hydroponics,15[Hydroponics]}",
+      "?{Apply Skill?|(none),0|Genetics,10[Genetics]|Hydroponics,15[Hydroponics]"
+      + "|Trained,10|Expert,15|Master,20}",
     );
   });
 
@@ -114,7 +126,10 @@ describe("buildSkillQuery", () => {
       name: "Genetics",
       bonus: SKILL_BONUS.trained,
     }]);
-    expect(query).toBe("?{Compétence ?|(aucune),0|Genetics,10[Genetics]}");
+    expect(query).toBe(
+      "?{Compétence ?|(aucune),0|Genetics,10[Genetics]"
+      + "|Trained,10|Expert,15|Master,20}",
+    );
   });
 
   it("should strip query and annotation syntax out of a player-typed Skill name", () => {
@@ -126,7 +141,7 @@ describe("buildSkillQuery", () => {
       name: "Gen|et,ics{}[]",
       bonus: SKILL_BONUS.trained,
     }]);
-    expect(query).toBe("?{Apply Skill?|(none),0|Genetics,10[Genetics]}");
+    expect(query).toBe("?{Apply Skill?|(none),0|Genetics,10[Genetics]|Trained,10|Expert,15|Master,20}");
   });
 });
 
@@ -164,7 +179,7 @@ describe("recomputeSkillQuery", () => {
     await recomputeSkillQuery();
 
     expect(mockSetAttrs).toHaveBeenCalledWith({
-      skill_query: "?{Apply Skill?|(none),0|Genetics,10[Genetics]}",
+      skill_query: "?{Apply Skill?|(none),0|Genetics,10[Genetics]|Trained,10|Expert,15|Master,20}",
     });
   });
 
@@ -179,7 +194,7 @@ describe("recomputeSkillQuery", () => {
     await recomputeSkillQuery();
 
     expect(mockSetAttrs).toHaveBeenCalledWith({
-      skill_query: "?{Apply Skill?|(none),0}",
+      skill_query: "?{Apply Skill?|(none),0|Trained,10|Expert,15|Master,20}",
     });
   });
 });

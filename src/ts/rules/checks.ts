@@ -168,9 +168,33 @@ export function buildSkillQuery(catalog: readonly SkillCatalogEntry[]): string {
     options.push(`${safeName},${String(entry.bonus)}[${safeName}]`);
   }
 
+  options.push(...tierOptions());
+
   const choices = options.join("|");
   const prompt = queryText(SKILL_PROMPT);
   return `?{${prompt}|${choices}}`;
+}
+
+/**
+ * The plain tier bonuses, appended below a character's own named Skills.
+ *
+ * Kept for two reasons. An NPC has no Trained/Expert/Master rows at all, so
+ * without these its checks would offer nothing but `(none)` -- the Warden
+ * could no longer apply an ad hoc bonus, which is a regression on what every
+ * check did before #5. And a PC can legitimately claim a bonus for something
+ * not written on their sheet, which the named list alone cannot express.
+ *
+ * These carry no `[Name]` annotation: there is no Skill to name, so a check
+ * taken on one reads in chat exactly as it did before.
+ */
+function tierOptions(): string[] {
+  const options: string[] = [];
+  for (const [level, bonus] of Object.entries(SKILL_BONUS)) {
+    const name = titleCase(level);
+    const label = queryText(name);
+    options.push(`${label},${String(bonus)}`);
+  }
+  return options;
 }
 
 /**
