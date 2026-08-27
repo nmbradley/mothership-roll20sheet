@@ -5,7 +5,6 @@
     drop_data,
     drop_name,
     init,
-    settings_toggle,
     sheet_skill_toggles,
   } from "#game/fields/pcFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
@@ -14,6 +13,7 @@
   import PCDetailsPanel from "./pc/PCDetailsPanel.svelte";
   import PCEquipmentPanel from "./pc/PCEquipmentPanel.svelte";
   import PCHeader from "./pc/PCHeader.svelte";
+  import PCSettingsPanel from "./pc/PCSettingsPanel.svelte";
   import PCSkillsPanel from "./pc/PCSkillsPanel.svelte";
   import PCStatsPanel from "./pc/PCStatsPanel.svelte";
   import PCStatusPanel from "./pc/PCStatusPanel.svelte";
@@ -21,7 +21,6 @@
   /** Hidden attributes the sheetworkers read; none of them render. */
   const state = [
     init,
-    settings_toggle,
     sheet_skill_toggles,
     drop_category,
     drop_name,
@@ -49,6 +48,7 @@
   </div>
 
   <div class="pc-sheet__column pc-sheet__column--left">
+    <PCSettingsPanel />
     <PCHeader />
     <PCDetailsPanel />
     <PCStatsPanel />

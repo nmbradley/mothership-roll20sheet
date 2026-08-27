@@ -35,20 +35,12 @@ import { makePanicCheck } from "./tables";
 export const CHECK_ATTRIBUTES = [
   ...allStats,
   ...allSaves,
-  "npc_combat",
-  "npc_instinct",
+  "instinct",
 ] as const;
 
-/**
- * The translation key a check button uses.
- *
- * Keys read as English phrases, so the sheet-only `npc_` prefix is dropped: an
- * NPC's Combat Check is the same phrase as a character's, and translators
- * should see it once.
- */
+/** The translation key a check button uses. */
 export function checkKey(attribute: string): string {
-  const phrase = attribute.replace(/^npc_/, "");
-  return `${titleCase(phrase)} Check`;
+  return `${titleCase(attribute)} Check`;
 }
 
 /** Fixed vocabulary the roll templates translate through `^{...}`. */

@@ -9,6 +9,7 @@ import {
   pcTrainedSkills,
   pcExpertSkills,
   pcMasterSkills,
+  speed_initiative,
 } from "#game/fields/pcFields";
 
 describe("pcFields", () => {
@@ -37,5 +38,11 @@ describe("pcFields", () => {
     expect(pcMasterSkills.name).toBe("repeating_master");
 
     expect(pcTrainedSkills.attributes.skill_name.name).toBe("skill_name");
+  });
+
+  it("exports the Speed Check Initiative settings toggle", () => {
+    expect(pcAttributes.speed_initiative.name).toBe("speed_initiative");
+    expect(speed_initiative.control).toBe("checkbox");
+    expect(speed_initiative.checkedValue).toBe("on");
   });
 });

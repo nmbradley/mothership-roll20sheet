@@ -4,6 +4,7 @@ import { allSaves, allStats } from "#game/enums.js";
 import { addTopBar, refreshTopBar } from "./charactermancer/1-intro";
 import { onLoadStats, onRollStats } from "./charactermancer/2-stats";
 import {
+  applyFloatingBonus,
   disableChosenSkill,
   onLoadClass,
   onSelectClass,
@@ -59,8 +60,11 @@ on("clicked:battle_check", () => {
 
 // --- CHECKS ---
 
-// Training raises a character's own Stat and Save checks. An NPC's Combat and
-// Instinct are not skills it trained for, so those keep the plain modifier.
+// Training raises a character's own Stat and Save checks. Instinct has no PC
+// equivalent, so it keeps the plain modifier. Combat is trainable for a PC but
+// not an NPC; the merged handler (#90) now asks an NPC the same Skill query
+// too, but answering Untrained costs nothing, so this is left shared rather
+// than branched on sheet_toggle.
 const SKILLED_CHECKS: readonly string[] = [...allStats, ...allSaves];
 
 for (const attribute of CHECK_ATTRIBUTES) {
@@ -79,7 +83,8 @@ on("clicked:panic", () => {
   void rollPanicCheck();
 });
 
-// Rolls made from a repeating row read that row's own attributes.
+// Rolls made from a repeating row read that row's own attributes. The PC and
+// NPC attack rows share repeating_attacks (#90), so one handler covers both.
 on("clicked:repeating_attacks:attack", () => {
   void rollCheck({
     name: "@{attack_name}",
@@ -87,17 +92,10 @@ on("clicked:repeating_attacks:attack", () => {
   });
 });
 
-on("clicked:repeating_npcattacks:npc-attack", () => {
-  void rollCheck({
-    name: "@{npc_attack_name}",
-    target: "@{npc_combat}",
-  });
-});
-
 on("clicked:repeating_npctraits:npc-trait", () => {
   void rollCheck({
-    name: "@{npc_trait_name}",
-    target: "@{npc_instinct}",
+    name: "@{trait_name}",
+    target: "@{instinct}",
   });
 });
 
@@ -138,6 +136,12 @@ on("clicked:reselectc", () => {
   reselectClass();
 });
 on("mancerchange:repeating_choicerow", (eventInfo) => {
+  // Both skill and floating-bonus pickers are charactermancer "choice rows"
+  // and share this one event; the field that changed tells them apart.
+  if (eventInfo.sourceAttribute === "floatstat") {
+    applyFloatingBonus(eventInfo.newValue);
+    return;
+  }
   disableChosenSkill(eventInfo.newValue);
 });
 

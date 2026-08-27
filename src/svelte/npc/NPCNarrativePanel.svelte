@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { npc_description, npc_equipment } from "#game/fields/npcFields";
+  import { description, gear_notes } from "#game/fields/npcFields";
   import Attribute from "#svelte/components/Attribute.svelte";
   import Panel from "#svelte/components/Panel.svelte";
 </script>
@@ -8,7 +8,7 @@
   <div class="npc-narrative-card">
     <Panel title="Description">
       <div class="npc-narrative-field">
-        <Attribute field={npc_description} isLabelHidden />
+        <Attribute field={description} isLabelHidden />
       </div>
     </Panel>
   </div>
@@ -16,7 +16,7 @@
   <div class="npc-narrative-card">
     <Panel title="Equipment & Notes">
       <div class="npc-narrative-field">
-        <Attribute field={npc_equipment} isLabelHidden />
+        <Attribute field={gear_notes} isLabelHidden />
       </div>
     </Panel>
   </div>
