@@ -40,10 +40,16 @@
       </div>
     {/each}
 
-    <!-- Stress has no maximum, so the Panic roll takes the cell beside it. -->
+    <!-- Stress has no maximum, so the Panic roll takes the cell beside it.
+         #18: +/- tick it by 1 without opening the field, through the same
+         applyStressDelta the rolls that change Stress already write through. -->
     <div class="pc-status-card">
       <div class="pc-status-card__label" data-i18n={stress.i18nLabel}>{stress.label}</div>
-      <Attribute field={stress} isLabelHidden />
+      <div class="pc-status-card__stress">
+        <ButtonAction action="stress_down" label="−" />
+        <Attribute field={stress} isLabelHidden />
+        <ButtonAction action="stress_up" label="+" />
+      </div>
     </div>
 
     <div class="pc-status-card pc-status-card--action">
@@ -150,6 +156,29 @@
 
     font-size: var(--ms-text-sm);
     color: var(--ms-fg-muted);
+  }
+
+  // The +/- buttons flank the Stress capsule rather than sitting in their own
+  // card, so a tick stays one tap from the number it changes.
+  &__stress {
+    display: flex;
+    gap: var(--ms-space-sm);
+    align-items: center;
+
+    .attribute {
+      flex: 1;
+    }
+
+    .button--action {
+      flex: none;
+
+      border-radius: var(--ms-radius-pill);
+      width: 2.5rem;
+      height: 2.5rem;
+      padding: 0;
+
+      font-weight: 700;
+    }
   }
 }
 

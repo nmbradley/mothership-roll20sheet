@@ -352,13 +352,29 @@
                 <div class="pc-status-card__label" data-i18n="Stress">
                   Stress
                 </div>
-                <div class="attribute attribute--number attribute--default">
-                  <input
-                    class="attribute__input attribute__input--number attribute__input--number--default"
-                    type="number"
-                    name="attr_stress"
-                    value="2"
-                  />
+                <div class="pc-status-card__stress">
+                  <button
+                    class="button button--action"
+                    type="action"
+                    name="act_stress_down"
+                  >
+                    <span class="button__label" data-i18n="−">−</span>
+                  </button>
+                  <div class="attribute attribute--number attribute--default">
+                    <input
+                      class="attribute__input attribute__input--number attribute__input--number--default"
+                      type="number"
+                      name="attr_stress"
+                      value="2"
+                    />
+                  </div>
+                  <button
+                    class="button button--action"
+                    type="action"
+                    name="act_stress_up"
+                  >
+                    <span class="button__label" data-i18n="+">+</span>
+                  </button>
                 </div>
               </div>
               <div class="pc-status-card pc-status-card--action">
@@ -6632,6 +6648,12 @@
   }
   var STRESS_MIN = 2;
   var STRESS_MAX = 20;
+  function adjustStress(delta) {
+    getAttrs(["stress"], (attrs) => {
+      const stress = Number(attrs.stress);
+      applyStressDelta(stress, delta, STRESS_MIN, STRESS_MAX);
+    });
+  }
   function worstSave(sanity, fear, body) {
     const lowest = Math.min(sanity, fear, body);
     return lowest;
@@ -7553,6 +7575,12 @@ ${SHIP_PANIC_MESSAGE}`;
   });
   on("clicked:death_save", () => {
     void rollDeathSave();
+  });
+  on("clicked:stress_up", () => {
+    adjustStress(1);
+  });
+  on("clicked:stress_down", () => {
+    adjustStress(-1);
   });
   on("clicked:repeating_attacks:attack", () => {
     void rollCheck({
