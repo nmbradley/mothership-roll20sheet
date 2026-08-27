@@ -1,6 +1,7 @@
 {
   "+": "+",
   "+1": "+1",
+  "Absorbed by Armor": "Absorbed by Armor",
   "Add a custom patch.": "Add a custom patch.",
   "Add a custom trinket.": "Add a custom trinket.",
   "Adjacent": "Adjacent",
@@ -226,6 +227,8 @@
   "Survival": "Survival",
   "Systems": "Systems",
   "Systems Check": "Systems Check",
+  "Take Damage": "Take Damage",
+  "Take a Wound": "Take a Wound",
   "Target": "Target",
   "The design, building, and use of engines, machines, and structures.": "The design, building, and use of engines, machines, and structures.",
   "The expression or application of a species’ creative ability and imagination.": "The expression or application of a species’ creative ability and imagination.",

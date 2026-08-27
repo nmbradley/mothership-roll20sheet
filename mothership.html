@@ -430,6 +430,26 @@
                 <button
                   class="button button--action"
                   type="action"
+                  name="act_take_damage"
+                >
+                  <span class="button__label" data-i18n="Take Damage"
+                    >Take Damage</span>
+                </button>
+              </div>
+              <div class="pc-status-card pc-status-card--action">
+                <button
+                  class="button button--action"
+                  type="action"
+                  name="act_take_wound"
+                >
+                  <span class="button__label" data-i18n="Take a Wound"
+                    >Take a Wound</span>
+                </button>
+              </div>
+              <div class="pc-status-card pc-status-card--action">
+                <button
+                  class="button button--action"
+                  type="action"
                   name="act_death_save"
                 >
                   <span class="button__label" data-i18n="Death Save"
@@ -3921,6 +3941,14 @@
     Body: "body"
   };
   var allSaves = Object.values(Saves);
+  var DamageTypes = {
+    Blunt: "blunt",
+    Bleeding: "bleeding",
+    Gunshot: "gunshot",
+    Fire: "fire",
+    Gore: "gore"
+  };
+  var allDamageTypes = Object.values(DamageTypes);
   var RangeBands = {
     Adjacent: "adjacent",
     Close: "close",
@@ -6408,7 +6436,10 @@
     RestSave: "Rest Save",
     DeathSave: "Death Save",
     ArmorDestroyed: "Armor Destroyed",
-    Initiative: "Initiative"
+    Initiative: "Initiative",
+    TakeDamage: "Take Damage",
+    TakeAWound: "Take a Wound",
+    ArmorAbsorbed: "Absorbed by Armor"
   };
   function panicWarning(check) {
     if (!check.triggersPanic) return "";
@@ -6571,6 +6602,98 @@
   ];
 
   // src/game/data/wounds.ts
+  var woundsTable = [
+    {
+      roll: 0,
+      severity: "Flesh Wound",
+      blunt: "Knocked down. Winded. [-] until you catch your breath.",
+      bleeding: "Drop held item. Lots of blood. Those Close gain 1 Stress.",
+      gunshot: "Grazed. Knocked down.",
+      fire: "Hair burnt. Gain 1d5 Stress.",
+      gore: "Vomit. [-] on next action."
+    },
+    {
+      roll: 1,
+      severity: "Flesh Wound",
+      blunt: "Sprained Ankle. [-] on Speed Checks.",
+      bleeding: "Blood in eyes. [-] until wiped clean.",
+      gunshot: "Bleeding +1.",
+      fire: "Awesome scar. +1 Minimum Stress.",
+      gore: "Awesome scar. +1 Minimum Stress."
+    },
+    {
+      roll: 2,
+      severity: "Minor Injury",
+      blunt: "Concussion. [-] on mental tasks.",
+      bleeding: "Laceration. Bleeding +1.",
+      gunshot: "Broken rib.",
+      fire: "Singed. [-] on next action.",
+      gore: "Digit mangled."
+    },
+    {
+      roll: 3,
+      severity: "Minor Injury",
+      blunt: "Leg or foot broken. [-] on Speed Checks.",
+      bleeding: "Major cut. Bleeding +2.",
+      gunshot: "Fractured extremity.",
+      fire: "Shrapnel/large burn.",
+      gore: "Eyes gouged out."
+    },
+    {
+      roll: 4,
+      severity: "Major Injury",
+      blunt: "Arm or hand broken. [-] manual tasks.",
+      bleeding: "Fingers/toes severed. Bleeding +3.",
+      gunshot: "Internal bleeding. Bleeding +2.",
+      fire: "Extensive burns. -1d10 Strength.",
+      gore: "Ripped off flesh. -1d10 Strength."
+    },
+    {
+      roll: 5,
+      severity: "Major Injury",
+      blunt: "Snapped collarbone. [-] on Strength Checks.",
+      bleeding: "Hand/foot severed. Bleeding +4.",
+      gunshot: "Lodged bullet. Surgery required.",
+      fire: "Major Burn. -2d10 Body Save.",
+      gore: "Paralyzed waist down."
+    },
+    {
+      roll: 6,
+      severity: "Lethal Injury (Death Save in 1d10 rounds)",
+      blunt: "Back broken. [-] on all rolls.",
+      bleeding: "Limb severed. Bleeding +5.",
+      gunshot: "Gunshot wound to the neck.",
+      fire: "Skin grafts required. -2d10 Body Save.",
+      gore: "Limb severed. Bleeding +5."
+    },
+    {
+      roll: 7,
+      severity: "Lethal Injury (Death Save in 1d10 rounds)",
+      blunt: "Skull fracture. [-] on all rolls.",
+      bleeding: "Major artery cut. Bleeding +6.",
+      gunshot: "Major blood loss. Bleeding +4.",
+      fire: "Limb on fire. 2d10 Damage per round.",
+      gore: "Impaled. Bleeding +6."
+    },
+    {
+      roll: 8,
+      severity: "Fatal Injury (Death Save)",
+      blunt: "Spine or neck broken. Death Save.",
+      bleeding: "Throat slit or heart pierced. Death Save.",
+      gunshot: "Sucking chest wound. Bleeding +5.",
+      fire: "Body on fire. 3d10 Damage per round.",
+      gore: "Guts spooled on floor. Bleeding +7."
+    },
+    {
+      roll: 9,
+      severity: "Fatal Injury (Death Save)",
+      blunt: "Spine or neck broken. Death Save.",
+      bleeding: "Throat slit or heart pierced. Death Save.",
+      gunshot: "Headshot. Death Save.",
+      fire: "Engulfed in fiery explosion. Death Save.",
+      gore: "Head explodes. No Death Save. You have died."
+    }
+  ];
   var deathTable = [
     {
       roll: "0",
@@ -6632,6 +6755,15 @@
   function deathSaveEffect(roll) {
     const result = rollOnTable(DEATH_TABLE, roll);
     return result?.entry.effect;
+  }
+  var WOUNDS_TABLE = {
+    name: "Wounds",
+    entries: woundsTable,
+    rollOf: (entry) => entry.roll
+  };
+  function woundEffect(roll) {
+    const result = rollOnTable(WOUNDS_TABLE, roll);
+    return result?.entry;
   }
   function makePanicCheck(stress, rolls, edge = Edges.None) {
     const check = makeCheck({
@@ -6823,6 +6955,194 @@
     const effect = deathSaveEffect(value);
     const computed = deathSaveComputed(effect);
     finishRoll(roll.rollId, computed);
+  }
+
+  // src/ts/rules/damage.ts
+  function applyArmor(hit, armorPoints, damageReduction) {
+    const reduced = Math.max(0, hit - damageReduction);
+    if (reduced < armorPoints) {
+      return {
+        damage: 0,
+        armorPoints,
+        armorDestroyed: false,
+        absorbed: true
+      };
+    }
+    return {
+      damage: reduced,
+      armorPoints: 0,
+      // Already-bare skin (armorPoints 0) has nothing to destroy.
+      armorDestroyed: armorPoints > 0,
+      absorbed: false
+    };
+  }
+  function applyDamage(hit, state, damageType, woundDice) {
+    const armor2 = applyArmor(hit, state.armorPoints, state.damageReduction);
+    let health = state.health - armor2.damage;
+    let wounds = state.wounds;
+    const woundRolls = [];
+    let diceIndex = 0;
+    while (health <= 0 && wounds < state.woundsMax) {
+      const carryover = -health;
+      wounds += 1;
+      const roll = woundDice[diceIndex] ?? 0;
+      diceIndex += 1;
+      const effect = woundEffect(roll);
+      if (effect !== void 0) woundRolls.push({
+        damageType,
+        roll,
+        effect
+      });
+      health = state.healthMax - carryover;
+    }
+    return {
+      health,
+      armorPoints: armor2.armorPoints,
+      wounds,
+      armorDestroyed: armor2.armorDestroyed,
+      absorbed: armor2.absorbed,
+      woundRolls,
+      requiresDeathSave: wounds >= state.woundsMax
+    };
+  }
+  function applyWound(damageType, roll, state) {
+    const wounds = Math.min(state.woundsMax, state.wounds + 1);
+    const effect = woundEffect(roll);
+    return {
+      wounds,
+      requiresDeathSave: wounds >= state.woundsMax,
+      ...effect === void 0 ? {} : {
+        woundRoll: {
+          damageType,
+          roll,
+          effect
+        }
+      }
+    };
+  }
+  function woundLine(entry) {
+    return `${entry.effect.severity}: ${entry.effect[entry.damageType]}`;
+  }
+  var MAX_WOUNDS_ALERT = "MAXIMUM WOUNDS REACHED. MAKE A DEATH SAVE.";
+  function damageNotes(outcome) {
+    const lines = [];
+    if (outcome.absorbed) {
+      const absorbedLine = translated(TEMPLATE_PHRASES.ArmorAbsorbed);
+      lines.push(absorbedLine);
+    }
+    if (outcome.armorDestroyed) {
+      const destroyedLine = translated(TEMPLATE_PHRASES.ArmorDestroyed);
+      lines.push(destroyedLine);
+    }
+    for (const wound of outcome.woundRolls) {
+      const line = woundLine(wound);
+      lines.push(line);
+    }
+    const notes = lines.join("\n");
+    return notes;
+  }
+  function damageTypeQuery() {
+    const options = allDamageTypes.map((type, index) => `${titleCase(type)},${index}`).join("|");
+    return `?{Damage Type|${options}}`;
+  }
+  function readDamageType(index) {
+    return allDamageTypes[index] ?? DamageTypes.Blunt;
+  }
+  function readDamageState() {
+    return new Promise((resolve) => {
+      getAttrs(
+        ["health", "health_max", "wounds", "wounds_max", "armor_points", "damage_reduction"],
+        (attrs) => {
+          resolve({
+            health: Number(attrs.health) || 0,
+            healthMax: Number(attrs.health_max) || 0,
+            wounds: Number(attrs.wounds) || 0,
+            woundsMax: Number(attrs.wounds_max) || 0,
+            armorPoints: Number(attrs.armor_points) || 0,
+            damageReduction: Number(attrs.damage_reduction) || 0
+          });
+        }
+      );
+    });
+  }
+  function readWoundState() {
+    return new Promise((resolve) => {
+      getAttrs(["wounds", "wounds_max"], (attrs) => {
+        resolve({
+          wounds: Number(attrs.wounds) || 0,
+          woundsMax: Number(attrs.wounds_max) || 0
+        });
+      });
+    });
+  }
+  function woundAfflictionRows(rolls) {
+    const attrs = {};
+    for (const wound of rolls) {
+      const rowId = generateRowID();
+      const row = `repeating_afflictions_${rowId}_affliction`;
+      attrs[`${row}_name`] = `${wound.effect.severity} (${titleCase(wound.damageType)})`;
+      attrs[`${row}_effect`] = wound.effect[wound.damageType];
+      attrs[`${row}_settings`] = "0";
+    }
+    return attrs;
+  }
+  async function handleTakeDamage() {
+    const state = await readDamageState();
+    const capacity = Math.max(0, state.woundsMax - state.wounds);
+    const diceFields = Array.from({ length: capacity }, (_, index) => `wound_roll_${index}`);
+    const formula = [
+      "&{template:ms}",
+      `{{name=^{${TEMPLATE_PHRASES.TakeDamage}}}}`,
+      "{{character_name=@{character_name}}}",
+      "{{damage=[[?{Damage?|0}]]}}",
+      `{{damage_type=[[${damageTypeQuery()}]]}}`,
+      ...diceFields.map((field) => `{{${field}=[[1d10-1]]}}`),
+      "{{notes=[[0]]}}",
+      "{{alert=[[0]]}}"
+    ].join(" ");
+    const rollData = await startRoll(formula);
+    const damageEntry = rollData.results.damage;
+    const typeEntry = rollData.results.damage_type;
+    if (damageEntry === void 0 || typeEntry === void 0) return;
+    const damageType = readDamageType(typeEntry.result);
+    const woundDice = diceFields.map((field) => rollData.results[field]?.result ?? 0);
+    const outcome = applyDamage(damageEntry.result, state, damageType, woundDice);
+    setAttrs({
+      health: outcome.health,
+      wounds: outcome.wounds,
+      ...outcome.armorDestroyed ? { armor_points: outcome.armorPoints } : {},
+      ...woundAfflictionRows(outcome.woundRolls)
+    });
+    finishRoll(rollData.rollId, {
+      notes: damageNotes(outcome),
+      alert: outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : ""
+    });
+  }
+  async function handleTakeWound() {
+    const state = await readWoundState();
+    const formula = [
+      "&{template:ms}",
+      `{{name=^{${TEMPLATE_PHRASES.TakeAWound}}}}`,
+      "{{character_name=@{character_name}}}",
+      `{{damage_type=[[${damageTypeQuery()}]]}}`,
+      "{{roll=[[1d10-1]]}}",
+      "{{notes=[[0]]}}",
+      "{{alert=[[0]]}}"
+    ].join(" ");
+    const rollData = await startRoll(formula);
+    const typeEntry = rollData.results.damage_type;
+    const rollEntry = rollData.results.roll;
+    if (typeEntry === void 0 || rollEntry === void 0) return;
+    const damageType = readDamageType(typeEntry.result);
+    const outcome = applyWound(damageType, rollEntry.result, state);
+    setAttrs({
+      wounds: outcome.wounds,
+      ...outcome.woundRoll === void 0 ? {} : woundAfflictionRows([outcome.woundRoll])
+    });
+    finishRoll(rollData.rollId, {
+      notes: outcome.woundRoll === void 0 ? "" : woundLine(outcome.woundRoll),
+      alert: outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : ""
+    });
   }
 
   // src/game/data/bankruptcy.ts
@@ -7792,6 +8112,12 @@ ${SHIP_PANIC_MESSAGE}`;
   });
   on("clicked:death_save", () => {
     void rollDeathSave();
+  });
+  on("clicked:take_damage", () => {
+    void handleTakeDamage();
+  });
+  on("clicked:take_wound", () => {
+    void handleTakeWound();
   });
   on("clicked:stress_up", () => {
     adjustStress(1);
