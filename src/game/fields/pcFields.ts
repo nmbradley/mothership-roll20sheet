@@ -185,9 +185,38 @@ export const sheet_toggle = attribute({
   control: Controls.Hidden,
   value: "pc",
 });
-export const settings_toggle = attribute({
-  name: "settings_toggle",
-  label: "Settings Toggle",
+// A visible <select name="attr_sheet_toggle"> cannot drive Sheet.svelte's CSS
+// on its own: a select's selection lives on the chosen <option>, not as a
+// `value` attribute on the select itself, so `[value="pc"]` never matches it.
+// This shares sheet_toggle's attribute name so Roll20 keeps the two in step,
+// letting the settings page offer a real picker while the hidden input above
+// keeps switching the sheet views.
+export const sheet_toggle_select = attribute({
+  name: "sheet_toggle",
+  label: "Sheet Type",
+  control: Controls.Select,
+  options: [
+    {
+      value: "pc",
+      label: "PC",
+    },
+    {
+      value: "npc",
+      label: "NPC",
+    },
+    {
+      value: "ship",
+      label: "Ship",
+    },
+  ],
+  value: "pc",
+});
+// Layered on top of sheet_toggle rather than a fourth value of it: sheet_toggle
+// records which sheet the character is, and overwriting it to open Settings
+// would destroy the state the back button needs to restore.
+export const settings_open = attribute({
+  name: "settings_open",
+  label: "Settings Open",
   control: Controls.Checkbox,
   checkedValue: "on",
 });
@@ -260,7 +289,8 @@ export const pcAttributes = {
   skill_training_time,
   init,
   sheet_toggle,
-  settings_toggle,
+  sheet_toggle_select,
+  settings_open,
   speed_initiative,
   sheet_skill_toggles,
   drop_category,

@@ -7,7 +7,10 @@
 
 <Frame mode="light" corner="large">
   <div class="pc-masthead">
-    <img src={logoUrl} alt="Mothership" class="pc-masthead__logo" />
+    <!-- Opens Settings; see settings_open in pcFields.ts and Sheet.svelte. -->
+    <label for="attr_settings_open" class="pc-masthead__logo-link">
+      <img src={logoUrl} alt="Mothership" class="pc-masthead__logo" />
+    </label>
   </div>
 </Frame>
 
@@ -18,6 +21,12 @@
   justify-content: center;
 
   padding: var(--ms-space-md) 0;
+
+  &__logo-link {
+    display: inline-flex;
+
+    cursor: pointer;
+  }
 
   &__logo {
     width: auto;

@@ -164,9 +164,11 @@
       }
     }
 
-    // Hidden until Speed Check Initiative (#50) is switched on in the
-    // settings panel -- a sheet cannot run JS outside its sheetworkers, so
-    // this rereads NPCSettingsPanel's checkbox via :has() rather than script.
+    // Hidden until Speed Check Initiative (#50) is switched on in Settings --
+    // a sheet cannot run JS outside its sheetworkers, so this rereads the
+    // checkbox via :has() rather than script. The checkbox itself lives on
+    // the settings page now; NPCSheet mirrors it into a hidden state block
+    // so :has() still finds a copy inside .npc-sheet.
     &--initiative {
       display: none;
 

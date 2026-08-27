@@ -13,7 +13,6 @@
   import PCDetailsPanel from "./pc/PCDetailsPanel.svelte";
   import PCEquipmentPanel from "./pc/PCEquipmentPanel.svelte";
   import PCHeader from "./pc/PCHeader.svelte";
-  import PCSettingsPanel from "./pc/PCSettingsPanel.svelte";
   import PCSkillsPanel from "./pc/PCSkillsPanel.svelte";
   import PCStatsPanel from "./pc/PCStatsPanel.svelte";
   import PCStatusPanel from "./pc/PCStatusPanel.svelte";
@@ -48,7 +47,6 @@
   </div>
 
   <div class="pc-sheet__column pc-sheet__column--left">
-    <PCSettingsPanel />
     <PCHeader />
     <PCDetailsPanel />
     <PCStatsPanel />

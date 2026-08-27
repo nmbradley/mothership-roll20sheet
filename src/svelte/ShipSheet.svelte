@@ -5,15 +5,12 @@
   import ShipManifestPanel from "./ship/ShipManifestPanel.svelte";
   import ShipMegadamagePanel from "./ship/ShipMegadamagePanel.svelte";
   import ShipOperationsPanel from "./ship/ShipOperationsPanel.svelte";
-  import ShipSettingsPanel from "./ship/ShipSettingsPanel.svelte";
   import ShipStatsPanel from "./ship/ShipStatsPanel.svelte";
   import ShipSurvivalPanel from "./ship/ShipSurvivalPanel.svelte";
   import ShipWeaponsPanel from "./ship/ShipWeaponsPanel.svelte";
 </script>
 
 <div class="ship-sheet">
-  <ShipSettingsPanel />
-
   <!-- Header Section -->
   <header class="ship-sheet__header">
     <ShipHeader />

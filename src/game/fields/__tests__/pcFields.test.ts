@@ -9,6 +9,8 @@ import {
   pcTrainedSkills,
   pcExpertSkills,
   pcMasterSkills,
+  settings_open,
+  sheet_toggle_select,
   speed_initiative,
 } from "#game/fields/pcFields";
 
@@ -44,5 +46,30 @@ describe("pcFields", () => {
     expect(pcAttributes.speed_initiative.name).toBe("speed_initiative");
     expect(speed_initiative.control).toBe("checkbox");
     expect(speed_initiative.checkedValue).toBe("on");
+  });
+
+  it("exports settings_open, layered over sheet_toggle rather than a value of it", () => {
+    expect(pcAttributes.settings_open.name).toBe("settings_open");
+    expect(settings_open.control).toBe("checkbox");
+    expect(settings_open.checkedValue).toBe("on");
+  });
+
+  it("exports a visible select sharing sheet_toggle's attribute name", () => {
+    expect(sheet_toggle_select.name).toBe(pcAttributes.sheet_toggle.name);
+    expect(sheet_toggle_select.control).toBe("select");
+    expect(sheet_toggle_select.options).toEqual([
+      {
+        value: "pc",
+        label: "PC",
+      },
+      {
+        value: "npc",
+        label: "NPC",
+      },
+      {
+        value: "ship",
+        label: "Ship",
+      },
+    ]);
   });
 });

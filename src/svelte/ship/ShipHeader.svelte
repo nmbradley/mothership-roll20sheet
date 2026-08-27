@@ -14,7 +14,10 @@
 <Frame mode="dark" corner="large">
   <div class="ship-header">
     <div class="ship-header__logo">
-      <img src={shipLogoUrl} alt="Mothership Logo" class="ship-header__img" />
+      <!-- Opens Settings; see settings_open in pcFields.ts and Sheet.svelte. -->
+      <label for="attr_settings_open" class="ship-header__logo-link">
+        <img src={shipLogoUrl} alt="Mothership Logo" class="ship-header__img" />
+      </label>
     </div>
     <div class="ship-header__fields">
       <div class="ship-header__field ship-header__field--name">
@@ -40,6 +43,12 @@
     &__logo {
       display: flex;
       align-items: center;
+    }
+
+    &__logo-link {
+      display: inline-flex;
+
+      cursor: pointer;
     }
 
     &__img {
