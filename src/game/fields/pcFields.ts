@@ -64,8 +64,8 @@ export const stress = attribute({
 });
 // 1e's Stress bounds (#42): fixed rule constants rather than a per-character
 // current/max pair, so these are hidden rather than rendered like Health and
-// Wounds -- checks.ts (adjustStress, rollRestSave) reads them via getAttrs
-// instead of hardcoding STRESS_MIN/STRESS_MAX.
+// Wounds -- checks.ts (rollRestSave) reads them via getAttrs instead of
+// hardcoding STRESS_MIN/STRESS_MAX.
 export const stress_min = attribute({
   name: "stress_min",
   label: "Stress Minimum",

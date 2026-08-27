@@ -10,7 +10,6 @@ import {
   Comparisons, Outcomes, SKILL_BONUS, makeCheck,
 } from "../src/ts/rules/rolls";
 import {
-  adjustStress,
   applyStressDelta,
   isSaveSkillSelectEnabled,
   recomputeWorstSave,
@@ -258,70 +257,6 @@ describe("applyStressDelta", () => {
     applyStressDelta(9, 5, 0, 10);
 
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 10 });
-  });
-});
-
-describe("adjustStress", () => {
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
-  it("should tick Stress up by 1, reading the current value and bounds fresh", () => {
-    type GetAttrsCallback = (response: Record<string, string>) => void;
-    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
-      callback({
-        stress: "5",
-        stress_min: "2",
-        stress_max: "20",
-      });
-    });
-    const mockSetAttrs = vi.fn();
-    vi.stubGlobal("getAttrs", mockGetAttrs);
-    vi.stubGlobal("setAttrs", mockSetAttrs);
-
-    adjustStress(1);
-
-    expect(mockGetAttrs).toHaveBeenCalledWith(
-      ["stress", "stress_min", "stress_max"],
-      expect.any(Function),
-    );
-    expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 6 });
-  });
-
-  it("should tick Stress down by 1", () => {
-    type GetAttrsCallback = (response: Record<string, string>) => void;
-    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
-      callback({
-        stress: "5",
-        stress_min: "2",
-        stress_max: "20",
-      });
-    });
-    const mockSetAttrs = vi.fn();
-    vi.stubGlobal("getAttrs", mockGetAttrs);
-    vi.stubGlobal("setAttrs", mockSetAttrs);
-
-    adjustStress(-1);
-
-    expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 4 });
-  });
-
-  it("should clamp at the bounds read off the sheet, not a hardcoded value", () => {
-    type GetAttrsCallback = (response: Record<string, string>) => void;
-    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
-      callback({
-        stress: "2",
-        stress_min: "2",
-        stress_max: "20",
-      });
-    });
-    const mockSetAttrs = vi.fn();
-    vi.stubGlobal("getAttrs", mockGetAttrs);
-    vi.stubGlobal("setAttrs", mockSetAttrs);
-
-    adjustStress(-1);
-
-    expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 2 });
   });
 });
 
