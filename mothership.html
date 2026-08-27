@@ -1944,7 +1944,7 @@
             <h2 class="header header--section" data-i18n="Stats &amp; Vitals">
               Stats &amp; Vitals
             </h2>
-            <div class="npc-stats-grid">
+            <div class="npc-checks-grid">
               <div class="npc-stat-card">
                 <div class="npc-stat-card__header">
                   <button
@@ -1952,7 +1952,7 @@
                     type="action"
                     name="act_check-combat"
                   >
-                    <span class="npc-stat-card__title" data-i18n="Combat (C)"
+                    <span class="npc-stat-card__label" data-i18n="Combat (C)"
                       >Combat (C)</span>
                   </button>
                   <span class="npc-stat-card__tooltip"
@@ -1977,7 +1977,7 @@
                     type="action"
                     name="act_check-instinct"
                   >
-                    <span class="npc-stat-card__title" data-i18n="Instinct (I)"
+                    <span class="npc-stat-card__label" data-i18n="Instinct (I)"
                       >Instinct (I)</span>
                   </button>
                   <span class="npc-stat-card__tooltip"
@@ -1995,28 +1995,10 @@
                   />
                 </div>
               </div>
-              <div class="npc-stat-card npc-stat-card--initiative">
-                <div class="npc-stat-card__header">
-                  <button
-                    class="button button--action"
-                    type="action"
-                    name="act_npc-initiative"
-                  >
-                    <span class="npc-stat-card__title" data-i18n="Initiative"
-                      >Initiative</span>
-                  </button>
-                  <span
-                    class="npc-stat-card__tooltip"
-                    data-i18n="Rolls Instinct and adds to Turn Tracker (&amp;{tracker})"
-                    >Rolls Instinct and adds to Turn Tracker
-                    (&amp;{tracker})</span>
-                </div>
-                <div class="npc-stat-card__initiative-subtext">
-                  Instinct + Tracker
-                </div>
-              </div>
-              <div class="npc-vital-card npc-vital-card--wounds">
-                <div class="npc-vital-card__label" data-i18n="Wounds (W)">
+            </div>
+            <div class="npc-vitals-grid">
+              <div class="npc-stat-card">
+                <div class="npc-stat-card__label" data-i18n="Wounds (W)">
                   Wounds (W)
                 </div>
                 <div class="attribute attribute--number-max attribute--wounds">
@@ -2036,13 +2018,13 @@
                     />
                   </div>
                 </div>
-                <div class="npc-vital-card__sublabels">
+                <div class="npc-stat-card__sublabels">
                   <span data-i18n="Current">Current</span>
                   <span data-i18n="Max">Max</span>
                 </div>
               </div>
-              <div class="npc-vital-card npc-vital-card--health">
-                <div class="npc-vital-card__label" data-i18n="Health (HP)">
+              <div class="npc-stat-card">
+                <div class="npc-stat-card__label" data-i18n="Health (HP)">
                   Health (HP)
                 </div>
                 <div class="attribute attribute--number-max attribute--health">
@@ -2062,16 +2044,13 @@
                     />
                   </div>
                 </div>
-                <div class="npc-vital-card__sublabels">
+                <div class="npc-stat-card__sublabels">
                   <span data-i18n="Current">Current</span>
                   <span data-i18n="Per Wound">Per Wound</span>
                 </div>
               </div>
-              <div class="npc-vital-card npc-vital-card--ap">
-                <div
-                  class="npc-vital-card__label"
-                  data-i18n="Armor Points (AP)"
-                >
+              <div class="npc-stat-card">
+                <div class="npc-stat-card__label" data-i18n="Armor Points (AP)">
                   Armor Points (AP)
                 </div>
                 <div
@@ -2085,6 +2064,16 @@
                   />
                 </div>
               </div>
+            </div>
+            <div class="npc-stats-actions">
+              <button
+                class="button button--action"
+                type="action"
+                name="act_npc-initiative"
+              >
+                <span class="button__label" data-i18n="Initiative"
+                  >Initiative</span>
+              </button>
             </div>
           </div>
         </section>
