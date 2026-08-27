@@ -371,6 +371,26 @@
                     >Panic Check</span>
                 </button>
               </div>
+              <div class="pc-status-card pc-status-card--action">
+                <button
+                  class="button button--action"
+                  type="action"
+                  name="act_rest_save"
+                >
+                  <span class="button__label" data-i18n="Rest Save"
+                    >Rest Save</span>
+                </button>
+              </div>
+              <div class="pc-status-card pc-status-card--action">
+                <button
+                  class="button button--action"
+                  type="action"
+                  name="act_death_save"
+                >
+                  <span class="button__label" data-i18n="Death Save"
+                    >Death Save</span>
+                </button>
+              </div>
             </div>
             <div class="pc-status-notes">
               <div class="attribute attribute--text">
@@ -6208,7 +6228,9 @@
   var TEMPLATE_PHRASES = {
     PanicCheck: "Panic Check",
     KeptItTogether: "Kept It Together",
-    PanicWarning: "Critical Failure: Make a Panic Check"
+    PanicWarning: "Critical Failure: Make a Panic Check",
+    RestSave: "Rest Save",
+    DeathSave: "Death Save"
   };
   function panicWarning(check) {
     if (!check.triggersPanic) return "";
@@ -6238,6 +6260,21 @@
       [COMPUTED.Result]: effect === void 0 ? survived : effect.name,
       [COMPUTED.Rank]: RANKS[check.outcome],
       [COMPUTED.Notes]: hasPanicked && effect !== void 0 ? effect.effect : ""
+    };
+    return computed;
+  }
+  function deathSaveTemplate() {
+    const template = render([
+      ["name", translated(TEMPLATE_PHRASES.DeathSave)],
+      ["character_name", "@{character_name}"],
+      ["roll", "[[1d10-1]]"],
+      [COMPUTED.Notes, "[[0]]"]
+    ]);
+    return template;
+  }
+  function deathSaveComputed(effect) {
+    const computed = {
+      [COMPUTED.Notes]: effect?.result ?? ""
     };
     return computed;
   }
@@ -6346,6 +6383,26 @@
     }
   ];
 
+  // src/game/data/wounds.ts
+  var deathTable = [
+    {
+      roll: "0",
+      result: "You are unconscious. You wake up in 2d10 minutes. Reduce your Maximum Health by 1d5."
+    },
+    {
+      roll: "1-2",
+      result: "You are unconscious and dying. You die in 1d5 rounds without intervention."
+    },
+    {
+      roll: "3-4",
+      result: "You are comatose. Only extraordinary measures can return you to the waking world."
+    },
+    {
+      roll: "5-9",
+      result: "You have died. Roll up a new character."
+    }
+  ];
+
   // src/ts/rules/tables.ts
   function rollOnTable(table, roll) {
     for (const entry of table.entries) {
@@ -6365,6 +6422,30 @@
     entries: panicTable,
     rollOf: (entry) => entry.roll
   };
+  function expandDeathRows(rows) {
+    const expanded = [];
+    for (const effect of rows) {
+      const [low, high] = effect.roll.split("-").map(Number);
+      const start = low ?? 0;
+      const end = high ?? start;
+      for (let roll = start; roll <= end; roll++) {
+        expanded.push({
+          roll,
+          effect
+        });
+      }
+    }
+    return expanded;
+  }
+  var DEATH_TABLE = {
+    name: "Death",
+    entries: expandDeathRows(deathTable),
+    rollOf: (row) => row.roll
+  };
+  function deathSaveEffect(roll) {
+    const result = rollOnTable(DEATH_TABLE, roll);
+    return result?.entry.effect;
+  }
   function makePanicCheck(stress, rolls, edge = Edges.None) {
     const check = makeCheck({
       name: "Panic Check",
@@ -6469,6 +6550,11 @@
     finishRoll(roll.rollId, computed);
     return check;
   }
+  function applyStressDelta(current, delta, min, max) {
+    const floored = Math.max(min, current + delta);
+    const next = Math.min(max, floored);
+    setAttrs({ stress: next });
+  }
   async function rollPanicCheck() {
     const template = `${panicTemplate()} {{edge=[[${EDGE_QUERY}]]}}`;
     const roll = await startRoll(template);
@@ -6476,6 +6562,42 @@
     const stress = readTarget(roll.results);
     const panic = makePanicCheck(stress, dice.rolls, dice.edge);
     const computed = panicComputed(panic);
+    finishRoll(roll.rollId, computed);
+  }
+  var STRESS_MIN = 2;
+  var STRESS_MAX = 20;
+  function worstSave(sanity, fear, body) {
+    const lowest = Math.min(sanity, fear, body);
+    return lowest;
+  }
+  function restSaveStressDelta(check) {
+    const hasFailed = isFailure(check.outcome);
+    if (hasFailed) return 1;
+    const onesDigit = check.roll % 10;
+    return -onesDigit;
+  }
+  async function rollRestSave() {
+    const attrs = await new Promise((resolve) => {
+      getAttrs(["sanity", "fear", "body", "stress"], resolve);
+    });
+    const sanity = Number(attrs.sanity);
+    const fear = Number(attrs.fear);
+    const body = Number(attrs.body);
+    const target = worstSave(sanity, fear, body);
+    const check = await rollCheck({
+      i18nKey: TEMPLATE_PHRASES.RestSave,
+      target: String(target)
+    });
+    const delta = restSaveStressDelta(check);
+    const stress = Number(attrs.stress);
+    applyStressDelta(stress, delta, STRESS_MIN, STRESS_MAX);
+  }
+  async function rollDeathSave() {
+    const template = deathSaveTemplate();
+    const roll = await startRoll(template);
+    const value = roll.results["roll"]?.result ?? 0;
+    const effect = deathSaveEffect(value);
+    const computed = deathSaveComputed(effect);
     finishRoll(roll.rollId, computed);
   }
 
@@ -7211,6 +7333,12 @@ Maintenance Issue 2 [${issue2.roll} - ${issue2.issue_type}]: ${issue2.descriptio
   }
   on("clicked:panic", () => {
     void rollPanicCheck();
+  });
+  on("clicked:rest_save", () => {
+    void rollRestSave();
+  });
+  on("clicked:death_save", () => {
+    void rollDeathSave();
   });
   on("clicked:repeating_attacks:attack", () => {
     void rollCheck({

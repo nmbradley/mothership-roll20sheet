@@ -24,7 +24,7 @@ import { onLoadReview } from "./charactermancer/6-review";
 import { onFinish } from "./charactermancer/7-final";
 import { TrackedStats, type CharmancerData } from "./charactermancer/types";
 import {
-  CHECK_ATTRIBUTES, checkKey, rollCheck, rollPanicCheck, skillQuery,
+  CHECK_ATTRIBUTES, checkKey, rollCheck, rollDeathSave, rollPanicCheck, rollRestSave, skillQuery,
 } from "./rules/checks";
 import {
   handleAnnualMaintenanceCheck,
@@ -81,6 +81,14 @@ for (const attribute of CHECK_ATTRIBUTES) {
 
 on("clicked:panic", () => {
   void rollPanicCheck();
+});
+
+on("clicked:rest_save", () => {
+  void rollRestSave();
+});
+
+on("clicked:death_save", () => {
+  void rollDeathSave();
 });
 
 // Rolls made from a repeating row read that row's own attributes. The PC and

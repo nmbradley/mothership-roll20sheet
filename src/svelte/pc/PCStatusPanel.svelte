@@ -37,6 +37,14 @@
     <div class="pc-status-card pc-status-card--action">
       <ButtonAction action="panic" label="Panic Check" />
     </div>
+
+    <div class="pc-status-card pc-status-card--action">
+      <ButtonAction action="rest_save" label="Rest Save" />
+    </div>
+
+    <div class="pc-status-card pc-status-card--action">
+      <ButtonAction action="death_save" label="Death Save" />
+    </div>
   </div>
 
   <div class="pc-status-notes">

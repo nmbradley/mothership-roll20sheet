@@ -4,11 +4,14 @@ import { titleCase } from "#game/text.js";
 import {
   checkComputed,
   checkTemplate,
+  deathSaveComputed,
+  deathSaveTemplate,
   panicComputed,
   panicTemplate,
   TEMPLATE_PHRASES,
 } from "./rollTemplate";
 import {
+  isFailure,
   makeCheck,
   resolveEdge,
   SKILL_BONUS,
@@ -16,7 +19,7 @@ import {
   type CheckResult,
   type Edge,
 } from "./rolls";
-import { makePanicCheck } from "./tables";
+import { deathSaveEffect, makePanicCheck } from "./tables";
 
 /**
  * Sheetworker entry points for rolling.
@@ -235,5 +238,71 @@ export async function rollPanicCheck(): Promise<void> {
   const stress = readTarget(roll.results);
   const panic = makePanicCheck(stress, dice.rolls, dice.edge);
   const computed = panicComputed(panic);
+  finishRoll(roll.rollId, computed);
+}
+
+/**
+ * 1e's Stress bounds. stress_min and stress_max are not declared attributes
+ * yet (#42 owns that); these stand in until it does.
+ */
+const STRESS_MIN = 2;
+const STRESS_MAX = 20;
+
+/** A Rest Save targets whichever Save reads lowest -- the player has no say in it. */
+export function worstSave(sanity: number, fear: number, body: number): number {
+  const lowest = Math.min(sanity, fear, body);
+  return lowest;
+}
+
+/**
+ * How a Rest Save changes Stress: success heals by the ones digit of the roll
+ * (24 heals 4), failure costs a flat 1. Reads straight off CheckResult so the
+ * digit trick is testable without Roll20.
+ */
+export function restSaveStressDelta(check: CheckResult): number {
+  const hasFailed = isFailure(check.outcome);
+  if (hasFailed) return 1;
+
+  const onesDigit = check.roll % 10;
+  return -onesDigit;
+}
+
+/**
+ * Rolls a Rest Save.
+ *
+ * The target is not player-chosen: it is whichever of Sanity, Fear or Body
+ * currently reads lowest, read fresh via getAttrs rather than assumed.
+ */
+export async function rollRestSave(): Promise<void> {
+  const attrs = await new Promise<Record<string, string>>((resolve) => {
+    getAttrs(["sanity", "fear", "body", "stress"], resolve);
+  });
+
+  const sanity = Number(attrs.sanity);
+  const fear = Number(attrs.fear);
+  const body = Number(attrs.body);
+  const target = worstSave(sanity, fear, body);
+
+  const check = await rollCheck({
+    i18nKey: TEMPLATE_PHRASES.RestSave,
+    target: String(target),
+  });
+
+  const delta = restSaveStressDelta(check);
+  const stress = Number(attrs.stress);
+  applyStressDelta(stress, delta, STRESS_MIN, STRESS_MAX);
+}
+
+/**
+ * Rolls a Death Save.
+ *
+ * A table read, not a check: the d10 just picks a row off the Death Table.
+ */
+export async function rollDeathSave(): Promise<void> {
+  const template = deathSaveTemplate();
+  const roll = await startRoll(template);
+  const value = roll.results["roll"]?.result ?? 0;
+  const effect = deathSaveEffect(value);
+  const computed = deathSaveComputed(effect);
   finishRoll(roll.rollId, computed);
 }
