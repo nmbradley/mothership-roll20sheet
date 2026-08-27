@@ -1,10 +1,22 @@
 <script lang="ts">
   import {
-    conditions, health, stress, stress_panic, wounds,
+    affliction_effect,
+    affliction_name,
+    affliction_settings,
+    affliction_treated,
+    health,
+    pcAfflictions,
+    stress,
+    stress_panic,
+    wounds,
   } from "#game/fields/pcFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
   import ButtonAction from "#svelte/components/ButtonAction.svelte";
+  import DisplayValue from "#svelte/components/DisplayValue.svelte";
   import Panel from "#svelte/components/Panel.svelte";
+  import RepeatingSection from "#svelte/components/RepeatingSection.svelte";
+  import SettingsDrawer from "#svelte/components/SettingsDrawer.svelte";
+  import SettingsRow from "#svelte/components/SettingsRow.svelte";
 
   /** Health and Wounds are tracked as a current/maximum pair. */
   const ranged = [health, wounds];
@@ -51,9 +63,30 @@
     <Attribute field={stress_panic} />
   </div>
 
+  <!-- #55: lasting Conditions from a failed Panic Check and lingering
+       Injuries from Wounds, replacing the old flat conditions textarea. -->
   <div class="pc-conditions">
-    <div class="pc-conditions__label" data-i18n={conditions.i18nLabel}>{conditions.label}</div>
-    <Attribute field={conditions} isLabelHidden />
+    <div class="pc-conditions__label" data-i18n="Conditions &amp; Afflictions">
+      Conditions &amp; Afflictions
+    </div>
+    <RepeatingSection
+      section={pcAfflictions}
+      fields={[affliction_name, affliction_treated]}
+      columns="1fr auto auto"
+      trailing={1}
+    >
+      <DisplayValue field={affliction_name} isLabelHidden />
+      <Attribute field={affliction_treated} isLabelHidden />
+
+      <SettingsDrawer field={affliction_settings}>
+        <SettingsRow field={affliction_name}>
+          <Attribute field={affliction_name} isLabelHidden />
+        </SettingsRow>
+        <SettingsRow field={affliction_effect} isFullWidth>
+          <Attribute field={affliction_effect} isLabelHidden />
+        </SettingsRow>
+      </SettingsDrawer>
+    </RepeatingSection>
   </div>
 </Panel>
 

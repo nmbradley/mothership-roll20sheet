@@ -4,6 +4,7 @@ import {
 
 import {
   pcAttributes,
+  pcAfflictions,
   pcAttacks,
   pcEquipment,
   pcTrainedSkills,
@@ -32,6 +33,18 @@ describe("pcFields", () => {
   it("exports repeating equipment", () => {
     expect(pcEquipment.name).toBe("repeating_equipment");
     expect(pcEquipment.attributes.equipment_name.name).toBe("equipment_name");
+  });
+
+  it("exports repeating afflictions", () => {
+    expect(pcAfflictions.name).toBe("repeating_afflictions");
+    expect(pcAfflictions.attributes.affliction_name.name).toBe("affliction_name");
+    expect(pcAfflictions.attributes.affliction_effect.control).toBe("textarea");
+    expect(pcAfflictions.attributes.affliction_treated.control).toBe("checkbox");
+  });
+
+  it("keeps the superseded conditions attribute declared for old data", () => {
+    expect(pcAttributes.conditions.name).toBe("conditions");
+    expect(pcAttributes.conditions.control).toBe("textarea");
   });
 
   it("exports repeating skills", () => {
