@@ -20,7 +20,7 @@
 <div class="pc-skills-section">
   <h3 class="pc-skills-section__title" data-i18n={title}>{title}</h3>
 
-  <RepeatingSection {section} fields={[skill_name]} columns="1fr">
+  <RepeatingSection {section} fields={[skill_name]} columns="1fr" hasHeadings={false}>
     <Attribute field={skill_name} isLabelHidden />
   </RepeatingSection>
 </div>
@@ -31,6 +31,8 @@
 
   &__title {
     margin-bottom: var(--ms-space-md);
+    border-bottom: var(--ms-border-width) solid var(--ms-border);
+    padding-bottom: var(--ms-space-sm);
 
     font-size: var(--ms-text-md);
     font-family: var(--ms-font-header);
@@ -42,6 +44,19 @@
   .repeating__row {
     border-bottom: none;
     padding-bottom: 0;
+  }
+
+  // The printed sheet writes skills onto a line rather than boxing them, so the
+  // input's default chrome is stripped to a single faint rule -- the same
+  // --ms-rule token .repeating__row separators use, at 1px rather than the 3px
+  // --ms-border-width so it reads as a line, not a bar.
+  .attribute__input {
+    border: none;
+    border-bottom: 1px solid var(--ms-rule);
+    border-radius: 0;
+    padding-left: 0;
+
+    background: none;
   }
 }
 </style>
