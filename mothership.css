@@ -723,6 +723,7 @@ body.sheet-darkmode
 }
 .charsheet.charsheet.charsheet .attribute--textarea {
   grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
 }
 .charsheet.charsheet.charsheet .attribute__input--textarea {
   min-height: 5rem;
@@ -1181,6 +1182,7 @@ body.sheet-darkmode
 .charsheet.charsheet.charsheet .pc-details__fields .attribute {
   grid-template-columns: minmax(0, 1fr);
   gap: var(--ms-space-sm);
+  align-items: stretch;
 }
 .charsheet.charsheet.charsheet .pc-details__fields .attribute__label {
   font-size: var(--ms-text-sm);
@@ -1229,6 +1231,7 @@ body.sheet-darkmode
 }
 .charsheet.charsheet.charsheet .pc-equipment-totals__well .attribute {
   grid-template-columns: 1fr;
+  align-items: stretch;
 }
 .charsheet.charsheet.charsheet
   .pc-equipment-totals__well
@@ -1419,6 +1422,7 @@ body.sheet-darkmode
 .charsheet.charsheet.charsheet .pc-status-notes .attribute {
   grid-template-columns: minmax(0, 1fr);
   gap: var(--ms-space-sm);
+  align-items: stretch;
 }
 .charsheet.charsheet.charsheet .pc-conditions {
   display: flex;

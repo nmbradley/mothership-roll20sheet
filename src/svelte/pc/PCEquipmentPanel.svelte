@@ -93,6 +93,7 @@
 
     .attribute {
       grid-template-columns: 1fr;
+      align-items: stretch;
     }
 
     // Two classes deep so Roll20's own `.charsheet input[type=...]` sizing does

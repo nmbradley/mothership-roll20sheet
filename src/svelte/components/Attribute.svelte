@@ -38,7 +38,11 @@
   gap: var(--ms-space-md);
 
   // Set beside a control, the two read off one baseline rather than being
-  // centred against each other's boxes.
+  // centred against each other's boxes. Only meaningful while the label sits
+  // beside the input: anywhere this grid is re-templated to a single stacked
+  // column, baseline sizes the track off the text baseline instead of the
+  // box, and the control's descent then hangs below the row. Every stacked
+  // override therefore resets align-items.
   align-items: baseline;
 
   &__label {
