@@ -9,6 +9,7 @@ import {
   panicComputed,
   panicTemplate,
   TEMPLATE_PHRASES,
+  translated,
 } from "./rollTemplate";
 import {
   Comparisons,
@@ -20,6 +21,7 @@ import {
   type CheckRequest,
   type CheckResult,
   type Edge,
+  type Outcome,
 } from "./rolls";
 import { deathSaveEffect } from "./tables";
 
@@ -237,6 +239,79 @@ export async function rollCheck(options: CheckOptions): Promise<CheckResult> {
   const check = makeCheck(request);
   const computed = checkComputed(check);
   finishRoll(roll.rollId, computed);
+  return check;
+}
+
+/**
+ * What an attack's outcome means beyond the Combat Check card itself (#51):
+ * a hit rolls the weapon's own Damage, a miss shows none and instead costs 1
+ * Stress automatically. Unlike a plain Stat/Save Check, a miss in combat is
+ * not free -- and unlike ships.ts's shipFailureAlert (which can only announce
+ * Stress loudly, since a ship has no Stress attribute of its own), the
+ * attacking character has one, so this is applied rather than only spoken.
+ * A Critical Failure's Panic warning needs nothing extra here: checkComputed
+ * already renders it for every rollCheck alike, attacks included.
+ */
+export type AttackGrade = {
+  showDamage: boolean;
+  stressDelta: number;
+};
+
+/** Grades an attack's outcome into what its follow-up card owes the table. */
+export function gradeAttack(outcome: Outcome): AttackGrade {
+  const hasFailed = isFailure(outcome);
+  return {
+    showDamage: !hasFailed,
+    stressDelta: hasFailed ? 1 : 0,
+  };
+}
+
+/**
+ * Posts the second half of an attack: the row's own Damage on a hit, or a
+ * loud note that the attack failed on a miss. A second card rather than
+ * extra fields on the Check's own template, the same way ships.ts's
+ * postShipAlert follows up its own Checks -- checkTemplate()'s fields are
+ * fixed and shared with every other check.
+ */
+async function postAttackResult(showDamage: boolean): Promise<void> {
+  const fields = [
+    "&{template:ms}",
+    "{{character_name=@{character_name}}}",
+    showDamage ? "{{damage=[[@{attack_damage}]]}}" : "",
+    "{{alert=[[0]]}}",
+  ].filter((field) => field !== "");
+
+  const template = fields.join(" ");
+  const rollData = await startRoll(template);
+  finishRoll(rollData.rollId, {
+    alert: showDamage ? "" : translated(TEMPLATE_PHRASES.AttackFailed),
+  });
+}
+
+/**
+ * Rolls a weapon attack (#51, #13): a Combat Check like any other skilled
+ * check -- the bonus query is baked in by the caller at index.ts
+ * registration, same as every other skilled check -- plus the two things a
+ * plain Stat/Save Check doesn't do: Damage on a hit, and 1 automatic Stress
+ * on a miss. Stress is read and applied only after the Check resolves,
+ * exactly as rollRestSave does, since the Check's own startRoll already
+ * fired synchronously off the click.
+ */
+export async function rollAttack(options: CheckOptions): Promise<CheckResult> {
+  const check = await rollCheck(options);
+  const grade = gradeAttack(check.outcome);
+
+  await postAttackResult(grade.showDamage);
+
+  if (grade.stressDelta !== 0) {
+    getAttrs(["stress", "stress_min", "stress_max"], (attrs) => {
+      const stress = Number(attrs.stress);
+      const min = Number(attrs.stress_min);
+      const max = Number(attrs.stress_max);
+      applyStressDelta(stress, grade.stressDelta, min, max);
+    });
+  }
+
   return check;
 }
 

@@ -6737,7 +6737,8 @@
     TakeAWound: "Take a Wound",
     ArmorAbsorbed: "Absorbed by Armor",
     MilitaryTraining: "Military Training",
-    TraumaResponse: "Trauma Response"
+    TraumaResponse: "Trauma Response",
+    AttackFailed: "Attack Failed: Gain 1 Stress"
   };
   function panicWarning(check) {
     if (!check.triggersPanic) return "";
@@ -7057,6 +7058,40 @@
     const check = makeCheck(request);
     const computed = checkComputed(check);
     finishRoll(roll.rollId, computed);
+    return check;
+  }
+  function gradeAttack(outcome) {
+    const hasFailed = isFailure(outcome);
+    return {
+      showDamage: !hasFailed,
+      stressDelta: hasFailed ? 1 : 0
+    };
+  }
+  async function postAttackResult(showDamage) {
+    const fields = [
+      "&{template:ms}",
+      "{{character_name=@{character_name}}}",
+      showDamage ? "{{damage=[[@{attack_damage}]]}}" : "",
+      "{{alert=[[0]]}}"
+    ].filter((field) => field !== "");
+    const template = fields.join(" ");
+    const rollData = await startRoll(template);
+    finishRoll(rollData.rollId, {
+      alert: showDamage ? "" : translated(TEMPLATE_PHRASES.AttackFailed)
+    });
+  }
+  async function rollAttack(options) {
+    const check = await rollCheck(options);
+    const grade = gradeAttack(check.outcome);
+    await postAttackResult(grade.showDamage);
+    if (grade.stressDelta !== 0) {
+      getAttrs(["stress", "stress_min", "stress_max"], (attrs) => {
+        const stress = Number(attrs.stress);
+        const min = Number(attrs.stress_min);
+        const max = Number(attrs.stress_max);
+        applyStressDelta(stress, grade.stressDelta, min, max);
+      });
+    }
     return check;
   }
   async function rollPCInitiative() {
@@ -8474,9 +8509,10 @@ ${SHIP_PANIC_MESSAGE}`;
     void handleTakeWound();
   });
   on("clicked:repeating_attacks:attack", () => {
-    void rollCheck({
+    void rollAttack({
       name: "@{attack_name}",
-      target: "@{combat}"
+      target: "@{combat}",
+      bonus: skillQuery()
     });
   });
   on("clicked:repeating_npctraits:npc-trait", () => {
