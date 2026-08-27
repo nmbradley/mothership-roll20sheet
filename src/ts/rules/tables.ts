@@ -1,5 +1,7 @@
 import { panicTable, type PanicEffect } from "#game/data/panic.js";
-import { deathTable, type DeathEffect } from "#game/data/wounds.js";
+import {
+  deathTable, woundsTable, type DeathEffect, type WoundEffect,
+} from "#game/data/wounds.js";
 
 import {
   Comparisons,
@@ -105,6 +107,29 @@ export const DEATH_TABLE: RollTable<DeathRow> = {
 export function deathSaveEffect(roll: number): DeathEffect | undefined {
   const result = rollOnTable(DEATH_TABLE, roll);
   return result?.entry.effect;
+}
+
+/**
+ * The Wounds Table, indexed by a single d10 result (0-9).
+ *
+ * Unlike the Death Table, every row answers to exactly one roll already, so
+ * this needs no expanding the way DEATH_TABLE does.
+ */
+export const WOUNDS_TABLE: RollTable<WoundEffect> = {
+  name: "Wounds",
+  entries: woundsTable,
+  rollOf: (entry) => entry.roll,
+};
+
+/**
+ * Looks a d10 result up on the Wounds Table.
+ *
+ * A plain table read, like a Death Save: the die picks a row, the caller's
+ * chosen damage type then picks which of that row's columns applies.
+ */
+export function woundEffect(roll: number): WoundEffect | undefined {
+  const result = rollOnTable(WOUNDS_TABLE, roll);
+  return result?.entry;
 }
 
 export type PanicCheck = {

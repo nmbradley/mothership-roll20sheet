@@ -46,7 +46,7 @@ const RANKS: Record<Outcome, number> = {
  * Roll20 resolves `^{key}` inside a roll macro against translation.json, which
  * is the only way to translate text that reaches chat.
  */
-function translated(key: string): string {
+export function translated(key: string): string {
   return `^{${key}}`;
 }
 
@@ -144,6 +144,9 @@ export const TEMPLATE_PHRASES = {
   DeathSave: "Death Save",
   ArmorDestroyed: "Armor Destroyed",
   Initiative: "Initiative",
+  TakeDamage: "Take Damage",
+  TakeAWound: "Take a Wound",
+  ArmorAbsorbed: "Absorbed by Armor",
 } as const;
 
 /** A Critical Failure on a check forces a Panic Check; say so in chat. */
