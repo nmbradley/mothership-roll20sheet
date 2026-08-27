@@ -1,7 +1,9 @@
 import { skillsByLevel } from "#game/constants.js";
-import { classes, type ClassDef } from "#game/data/classes.js";
 import {
-  SkillLevels, allSaves, allStats,
+  classes, type ClassDef, type FloatingBonus,
+} from "#game/data/classes.js";
+import {
+  SkillLevels, allSaves, allStats, type Stat,
 } from "#game/enums.js";
 import { titleCase } from "#game/text.js";
 
@@ -12,6 +14,7 @@ import { Steps } from "./types";
 
 const CLASS_LIST = "sheet-t__classes";
 const SKILL_CHOICE_LIST = "sheet-t__skill_choice";
+const FLOATING_CHOICE_LIST = "sheet-t__floating_choice";
 const CUSTOM_CLASS = "custom";
 
 /** Attributes the class step owns, cleared before a new class writes its own. */
@@ -185,6 +188,7 @@ export function instanceClass(className: string): void {
     hideChoices(["presetclass"]);
     showChoices(["customclass"]);
     clearRepeatingSections(SKILL_CHOICE_LIST);
+    clearRepeatingSections(FLOATING_CHOICE_LIST);
     return;
   }
 
@@ -219,9 +223,9 @@ function applyClass(definition: ClassDef): void {
     text[`t__${save}`] = String(resolveNumber(data, save) + bonus);
   }
 
+  const mods = statModifiers(definition);
   for (const stat of allStats) {
-    const bonus = definition.statBonus[stat] ?? 0;
-    attrs[`${stat}_mod`] = bonus;
+    attrs[`${stat}_mod`] = mods[stat];
   }
 
   attrs["health"] = classHealth();
@@ -238,6 +242,21 @@ function applyClass(definition: ClassDef): void {
   setAttrs(attrs);
   setCharmancerText(text);
   offerSkillChoices(definition);
+  offerFloatingChoice(definition);
+}
+
+/**
+ * Every stat's flat modifier: the class's fixed bonus, plus its floating bonus
+ * on the stat the player chose for it (Android's -10, Scientist's +5).
+ */
+export function statModifiers(definition: ClassDef, chosenStat?: Stat): Record<Stat, number> {
+  const mods = {} as Record<Stat, number>;
+  for (const stat of allStats) {
+    const base = definition.statBonus[stat] ?? 0;
+    const floating = stat === chosenStat ? (definition.floating?.amount ?? 0) : 0;
+    mods[stat] = base + floating;
+  }
+  return mods;
 }
 
 /**
@@ -272,6 +291,32 @@ function offerSkillChoices(definition: ClassDef): void {
   });
 }
 
+/**
+ * Adds a picker row for a class with a floating bonus (Android's -10,
+ * Scientist's +5): the amount is fixed but which stat it lands on is not.
+ */
+function offerFloatingChoice(definition: ClassDef): void {
+  clearRepeatingSections(FLOATING_CHOICE_LIST);
+  const floating = definition.floating;
+  if (floating === undefined) return;
+
+  const options = allStats.map((stat) => titleCase(stat));
+  const label = floatingLabel(floating);
+
+  for (let index = 0; index < floating.count; index += 1) {
+    addRepeatingSection(FLOATING_CHOICE_LIST, "floatingchoice", (rowId: string) => {
+      setCharmancerText({ [`${rowId} .t__floatlabel`]: label });
+      setCharmancerOptions(`${rowId}_floatstat`, options);
+    });
+  }
+}
+
+/** Describes a floating bonus as an instruction, e.g. "Increase a Stat by 5". */
+function floatingLabel(floating: FloatingBonus): string {
+  const verb = floating.amount > 0 ? "Increase" : "Decrease";
+  return `${verb} a Stat by ${Math.abs(floating.amount)}`;
+}
+
 /** Clears the pick and returns to the class list. */
 export function reselectClass(): void {
   getRepeatingSections(CLASS_LIST, (details) => {
@@ -294,4 +339,26 @@ export function disableChosenSkill(chosen: string): void {
   for (const rowId of rows) {
     disableCharmancerOptions(`${rowId}_skill`, [key]);
   }
+}
+
+/**
+ * Applies the class's floating bonus to the stat the player picked.
+ *
+ * Recomputes every stat's modifier from scratch rather than adjusting the
+ * previous pick in place, so changing the pick cannot leave the bonus applied
+ * to two stats at once.
+ */
+export function applyFloatingBonus(chosen: string): void {
+  const data = charmancerData();
+  const selected = stepValues(data, Steps.Class)["selected"];
+  const definition = selected === undefined ? undefined : findClass(selected);
+  if (definition?.floating === undefined) return;
+
+  const stat = attributeKey(chosen) as Stat;
+  const mods = statModifiers(definition, stat);
+  const attrs: Record<string, number> = {};
+  for (const s of allStats) {
+    attrs[`${s}_mod`] = mods[s];
+  }
+  setAttrs(attrs);
 }

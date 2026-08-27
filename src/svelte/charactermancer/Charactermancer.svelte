@@ -1,5 +1,6 @@
 <script lang="ts">
   import RepeatingClass from "#svelte/charactermancer/components/RepeatingClass.svelte";
+  import RepeatingFloatingChoice from "#svelte/charactermancer/components/RepeatingFloatingChoice.svelte";
   import RepeatingSkillSelection from "#svelte/charactermancer/components/RepeatingSkillSelection.svelte";
   import ClassSlide from "#svelte/charactermancer/slides/ClassSlide.svelte";
   import EquipmentSlide from "#svelte/charactermancer/slides/EquipmentSlide.svelte";
@@ -22,6 +23,7 @@
 <ClassSlide />
 <RepeatingClass />
 <RepeatingSkillSelection />
+<RepeatingFloatingChoice />
 <SkillsSlide />
 <EquipmentSlide />
 <ReviewSlide />
