@@ -479,19 +479,19 @@
               </div>
             </div>
             <div class="pc-status-notes">
-              <div class="attribute attribute--text attribute--stress_panic">
+              <div
+                class="attribute attribute--textarea attribute--stress_effect"
+              >
                 <label
-                  class="attribute__label attribute__label--text"
-                  for="attr_stress_panic"
-                  data-i18n="Stress &amp; Panic"
-                  >Stress &amp; Panic</label>
-                <input
-                  class="attribute__input attribute__input--text"
-                  type="text"
-                  name="attr_stress_panic"
-                  value=""
+                  class="attribute__label attribute__label--textarea"
+                  for="attr_stress_effect"
+                  data-i18n="Trauma Response"
+                  >Trauma Response</label>
+                <textarea
+                  class="attribute__input attribute__input--textarea"
+                  name="attr_stress_effect"
                   spellcheck="false"
-                />
+                ></textarea>
               </div>
             </div>
             <div class="pc-conditions">
@@ -6459,7 +6459,6 @@
     const health = review["health_final"] ?? "";
     attrs["health"] = health;
     attrs["health_max"] = health;
-    attrs["stress_panic"] = review["stressresponse_final"] ?? "";
     attrs["skill_points"] = review["skillpoints_final"] ?? "";
     const skills2 = parseStringList(review["skills_final"]);
     for (const key of skills2) {
@@ -6711,7 +6710,8 @@
     TakeDamage: "Take Damage",
     TakeAWound: "Take a Wound",
     ArmorAbsorbed: "Absorbed by Armor",
-    MilitaryTraining: "Military Training"
+    MilitaryTraining: "Military Training",
+    TraumaResponse: "Trauma Response"
   };
   function panicWarning(check) {
     if (!check.triggersPanic) return "";
@@ -6732,15 +6732,15 @@
     ]);
     return template;
   }
-  function panicComputed(panic) {
-    const { check, effect } = panic;
+  function panicComputed(check) {
     const hasPanicked = isFailure(check.outcome);
     const survived = translated(TEMPLATE_PHRASES.KeptItTogether);
+    const panicked = translated(TEMPLATE_PHRASES.TraumaResponse);
     const computed = {
       [COMPUTED.Counted]: describeCounted(check),
-      [COMPUTED.Result]: effect === void 0 ? survived : effect.name,
+      [COMPUTED.Result]: hasPanicked ? panicked : survived,
       [COMPUTED.Rank]: RANKS[check.outcome],
-      [COMPUTED.Notes]: hasPanicked && effect !== void 0 ? effect.effect : ""
+      [COMPUTED.Notes]: hasPanicked ? "@{stress_effect}" : ""
     };
     return computed;
   }
@@ -6772,110 +6772,6 @@
     const rollData = await startRoll(rollFormula);
     finishRoll(rollData.rollId, { notes: "" });
   }
-
-  // src/game/data/panic.ts
-  var panicTable = [
-    {
-      roll: 1,
-      name: "ADRENALINE RUSH",
-      effect: "[+] on all rolls for the next 2d10 minutes. Reduce Stress by 1d5."
-    },
-    {
-      roll: 2,
-      name: "NERVOUS",
-      effect: "Gain 1 Stress."
-    },
-    {
-      roll: 3,
-      name: "JUMPY",
-      effect: "Gain 1 Stress. All Close crewmembers gain 2 Stress."
-    },
-    {
-      roll: 4,
-      name: "OVERWHELMED",
-      effect: "[-] on all rolls for the next 1d10 minutes. Increase Minimum Stress by 1."
-    },
-    {
-      roll: 5,
-      name: "COWARD",
-      effect: "Gain a new Condition: You must make a Fear Save to engage in violence, otherwise you flee."
-    },
-    {
-      roll: 6,
-      name: "FRIGHTENED",
-      effect: "Gain a new Condition: When encountering what frightened you, make a Fear Save [-] or gain 1d5 Stress."
-    },
-    {
-      roll: 7,
-      name: "NIGHTMARES",
-      effect: "Gain a new Condition: Sleep is difficult, gain [-] on Rest Saves."
-    },
-    {
-      roll: 8,
-      name: "LOSS OF CONFIDENCE",
-      effect: "Gain a new Condition: Choose one Skill and lose that Skill\u2019s bonus."
-    },
-    {
-      roll: 9,
-      name: "DEFLATED",
-      effect: "Gain a new Condition: Whenever a Close crewmember fails a Save, gain 1 Stress."
-    },
-    {
-      roll: 10,
-      name: "DOOMED",
-      effect: "Gain a new Condition: You feel cursed and unlucky. All Critical Successes are instead Critical Failures."
-    },
-    {
-      roll: 11,
-      name: "SUSPICIOUS",
-      effect: "For the next week, whenever someone joins the crew (even if they only left for a short period of time), make a Fear Save or gain 1 Stress."
-    },
-    {
-      roll: 12,
-      name: "HAUNTED",
-      effect: "Gain a new Condition: Something starts visiting the character at night. In their dreams. Out of the corner of their eye. And soon it will start making demands."
-    },
-    {
-      roll: 13,
-      name: "DEATH WISH",
-      effect: "For the next 24 hours, whenever encountering a stranger or known enemy, make a Sanity Save or immediately attack them."
-    },
-    {
-      roll: 14,
-      name: "PROPHETIC VISION",
-      effect: "Character immediately experiences an intense hallucination or vision of an impending terror or horrific event. Increase Minimum Stress by 2."
-    },
-    {
-      roll: 15,
-      name: "CATATONIC",
-      effect: "Become unresponsive and unmoving for 2d10 minutes. Reduce Stress by 1d10."
-    },
-    {
-      roll: 16,
-      name: "RAGE",
-      effect: "[+] on all Damage rolls for the next 1d10 hours. All crewmembers gain 1 Stress."
-    },
-    {
-      roll: 17,
-      name: "SPIRALING",
-      effect: "Gain a new Condition: Panic Checks are at [-]."
-    },
-    {
-      roll: 18,
-      name: "COMPOUNDING PROBLEMS",
-      effect: "Roll twice on this table. Increase your Minimum Stress by 1."
-    },
-    {
-      roll: 19,
-      name: "HEART ATTACK / SHORT CIRCUIT (ANDROIDS)",
-      effect: "Reduce Maximum Wounds by 1. Gain [-] on all rolls for 1d10 hours. Increase Minimum Stress by 1."
-    },
-    {
-      roll: 20,
-      name: "RETIRE",
-      effect: "Roll up a new character to play."
-    }
-  ];
 
   // src/game/data/wounds.ts
   var woundsTable = [
@@ -7003,11 +6899,6 @@
     }
     return void 0;
   }
-  var PANIC_TABLE = {
-    name: "Panic",
-    entries: panicTable,
-    rollOf: (entry) => entry.roll
-  };
   function expandDeathRows(rows) {
     const expanded = [];
     for (const effect of rows) {
@@ -7040,23 +6931,6 @@
   function woundEffect(roll) {
     const result = rollOnTable(WOUNDS_TABLE, roll);
     return result?.entry;
-  }
-  function makePanicCheck(stress, rolls, edge = Edges.None) {
-    const check = makeCheck({
-      name: "Panic Check",
-      target: stress,
-      rolls,
-      edge,
-      comparison: Comparisons.RollOver
-    });
-    const hasPanicked = isFailure(check.outcome);
-    if (!hasPanicked) return { check };
-    const result = rollOnTable(PANIC_TABLE, check.roll);
-    if (result === void 0) return { check };
-    return {
-      check,
-      effect: result.entry
-    };
   }
 
   // src/ts/rules/checks.ts
@@ -7181,13 +7055,23 @@
     const next = Math.min(max, floored);
     setAttrs({ stress: next });
   }
+  function makePanicCheck(stress, rolls, edge = Edges.None) {
+    const check = makeCheck({
+      name: "Panic Check",
+      target: stress,
+      rolls,
+      edge,
+      comparison: Comparisons.RollOver
+    });
+    return check;
+  }
   async function rollPanicCheck() {
     const template = `${panicTemplate()} {{edge=[[${EDGE_QUERY}]]}}`;
     const roll = await startRoll(template);
     const dice = readDice(roll.results);
     const stress = readTarget(roll.results);
-    const panic = makePanicCheck(stress, dice.rolls, dice.edge);
-    const computed = panicComputed(panic);
+    const check = makePanicCheck(stress, dice.rolls, dice.edge);
+    const computed = panicComputed(check);
     finishRoll(roll.rollId, computed);
   }
   function worstSave(sanity, fear, body) {

@@ -78,10 +78,25 @@ export const stress_max = attribute({
   control: Controls.Hidden,
   value: "20",
 });
+// #132: superseded by stress_effect below -- 1e has no generic Panic effect
+// to jot down, a failure instead triggers the class's Trauma Response -- kept
+// declared rather than removed so a character saved before the change still
+// legally stores this value, as conditions was kept above.
 export const stress_panic = attribute({
   name: "stress_panic",
   label: "Stress & Panic",
   control: Controls.Text,
+  value: "",
+});
+// The class's Trauma Response (#132): written by the charactermancer's Class
+// step (3-class.ts) from the chosen class's traumaResponse, and read by a
+// failed Panic Check via `@{stress_effect}` in the roll template itself
+// rather than a getAttrs call. Left editable rather than a read-only display,
+// like class_ below, since a custom class types its own.
+export const stress_effect = attribute({
+  name: "stress_effect",
+  label: "Trauma Response",
+  control: Controls.Textarea,
   value: "",
 });
 // health, wounds and armor_points model an NPC exactly the same way -- a
@@ -285,6 +300,7 @@ export const pcAttributes = {
   stress_min,
   stress_max,
   stress_panic,
+  stress_effect,
   health,
   wounds,
   armor_points,

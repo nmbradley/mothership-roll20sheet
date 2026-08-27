@@ -7,9 +7,9 @@
     health,
     pcAfflictions,
     stress,
+    stress_effect,
     stress_max,
     stress_min,
-    stress_panic,
     wounds,
   } from "#game/fields/pcFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
@@ -94,8 +94,10 @@
     </div>
   </div>
 
+  <!-- #132: the class's Trauma Response, what a failed Panic Check now points
+       to instead of a rolled table entry. -->
   <div class="pc-status-notes">
-    <Attribute field={stress_panic} />
+    <Attribute field={stress_effect} />
   </div>
 
   <!-- #55: lasting Conditions from a failed Panic Check and lingering

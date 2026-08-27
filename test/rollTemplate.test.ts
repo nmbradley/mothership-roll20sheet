@@ -11,7 +11,7 @@ import {
   panicTemplate,
 } from "../src/ts/rules/rollTemplate";
 import { Edges, makeCheck } from "../src/ts/rules/rolls";
-import { makePanicCheck } from "../src/ts/rules/tables";
+import { makePanicCheck } from "../src/ts/rules/checks";
 
 describe("Roll Templates", () => {
   describe("checkTemplate", () => {
@@ -121,17 +121,17 @@ describe("Roll Templates", () => {
     });
 
     it("should report keeping it together when the check passes", () => {
-      const panic = makePanicCheck(5, [12]);
-      const computed = panicComputed(panic);
+      const check = makePanicCheck(5, [12]);
+      const computed = panicComputed(check);
       expect(computed.result).toBe("^{Kept It Together}");
       expect(computed.notes).toBe("");
     });
 
-    it("should report the table entry when the check fails", () => {
-      const panic = makePanicCheck(10, [3]);
-      const computed = panicComputed(panic);
-      expect(computed.result).toBe("JUMPY");
-      expect(computed.notes).toContain("All Close crewmembers");
+    it("should point a failure at Trauma Response, not a rolled table entry", () => {
+      const check = makePanicCheck(10, [3]);
+      const computed = panicComputed(check);
+      expect(computed.result).toBe("^{Trauma Response}");
+      expect(computed.notes).toBe("@{stress_effect}");
     });
   });
 });
