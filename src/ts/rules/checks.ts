@@ -109,6 +109,8 @@ export const NONE_LABEL = "None";
 export type SkillCatalogEntry = {
   name: string;
   bonus: number;
+  /** The tier the Skill sits in, e.g. "trained". Titled and translated for display. */
+  level: string;
 };
 
 /**
@@ -120,24 +122,39 @@ export function buildSkillCatalog(
   expert: readonly string[],
   master: readonly string[],
 ): SkillCatalogEntry[] {
-  const tiers: readonly [readonly string[], number][] = [
-    [trained, SKILL_BONUS.trained],
-    [expert, SKILL_BONUS.expert],
-    [master, SKILL_BONUS.master],
+  const tiers: readonly [readonly string[], number, string][] = [
+    [trained, SKILL_BONUS.trained, "trained"],
+    [expert, SKILL_BONUS.expert, "expert"],
+    [master, SKILL_BONUS.master, "master"],
   ];
 
   const catalog: SkillCatalogEntry[] = [];
-  for (const [names, bonus] of tiers) {
+  for (const [names, bonus, level] of tiers) {
     for (const name of names) {
       const trimmed = name.trim();
       if (trimmed === "") continue;
       catalog.push({
         name: trimmed,
         bonus,
+        level,
       });
     }
   }
   return catalog;
+}
+
+/**
+ * How one option reads in the dropdown: "Expert: Hyperdrives (+15)".
+ *
+ * The tier and the bonus both sit in the label because a Skill's name alone
+ * says nothing about what picking it is worth, and the same name can be
+ * written on more than one tier's rows.
+ */
+function skillOptionLabel(level: string, name: string, bonus: number): string {
+  const titled = titleCase(level);
+  const tier = queryText(titled);
+  const label = `${tier}: ${name} (+${String(bonus)})`;
+  return label;
 }
 
 /**
@@ -171,7 +188,8 @@ export function buildSkillQuery(catalog: readonly SkillCatalogEntry[]): string {
   for (const entry of catalog) {
     const safeName = sanitizeSkillName(entry.name);
     if (safeName === "") continue;
-    options.push(`${safeName},${String(entry.bonus)}[${safeName}]`);
+    const label = skillOptionLabel(entry.level, safeName, entry.bonus);
+    options.push(`${label},${String(entry.bonus)}[${safeName}]`);
   }
 
   options.push(...tierOptions());
@@ -203,9 +221,10 @@ function tierOptions(): string[] {
   for (const [level, bonus] of Object.entries(SKILL_BONUS)) {
     const name = titleCase(level);
     const translated = queryText(name);
-    const label = sanitizeSkillName(translated);
-    if (label === "") continue;
-    options.push(`${label},${String(bonus)}[${label}]`);
+    const tier = sanitizeSkillName(translated);
+    if (tier === "") continue;
+    const label = `${tier} (+${String(bonus)})`;
+    options.push(`${label},${String(bonus)}[${tier}]`);
   }
   return options;
 }

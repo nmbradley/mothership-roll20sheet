@@ -275,10 +275,10 @@ on("mancerchange:repeating_choicerow", (eventInfo) => {
   // Both skill and floating-bonus pickers are charactermancer "choice rows"
   // and share this one event; the field that changed tells them apart.
   if (eventInfo.sourceAttribute === "floatstat") {
-    applyFloatingBonus(eventInfo.newValue);
+    applyFloatingBonus(eventInfo.newValue ?? "");
     return;
   }
-  disableChosenSkill(eventInfo.newValue);
+  disableChosenSkill(eventInfo.newValue ?? "");
 });
 
 on("page:skills", () => {
@@ -295,7 +295,7 @@ on("page:equipment", () => {
   onLoadEquipment();
 });
 on("mancerchange:package", (eventInfo) => {
-  chooseEquipmentPackage(eventInfo.newValue);
+  chooseEquipmentPackage(eventInfo.newValue ?? "");
 });
 on("mancerroll:credits", (eventInfo) => {
   rollCredits(eventInfo.roll ?? []);

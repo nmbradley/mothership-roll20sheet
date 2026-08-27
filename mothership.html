@@ -29,7 +29,7 @@
           class="attribute__input attribute__input--hidden"
           type="hidden"
           name="attr_skill_query"
-          value="?{Apply Skill?|None,0|Trained,10[Trained]|Expert,15[Expert]|Master,20[Master]}"
+          value="?{Apply Skill?|None,0|Trained (+10),10[Trained]|Expert (+15),15[Expert]|Master (+20),20[Master]}"
         /><input
           class="attribute__input attribute__input--hidden"
           type="hidden"
@@ -7074,22 +7074,29 @@
   var NONE_LABEL = "None";
   function buildSkillCatalog(trained, expert, master) {
     const tiers = [
-      [trained, SKILL_BONUS.trained],
-      [expert, SKILL_BONUS.expert],
-      [master, SKILL_BONUS.master]
+      [trained, SKILL_BONUS.trained, "trained"],
+      [expert, SKILL_BONUS.expert, "expert"],
+      [master, SKILL_BONUS.master, "master"]
     ];
     const catalog = [];
-    for (const [names, bonus] of tiers) {
+    for (const [names, bonus, level] of tiers) {
       for (const name of names) {
         const trimmed = name.trim();
         if (trimmed === "") continue;
         catalog.push({
           name: trimmed,
-          bonus
+          bonus,
+          level
         });
       }
     }
     return catalog;
+  }
+  function skillOptionLabel(level, name, bonus) {
+    const titled = titleCase(level);
+    const tier = queryText(titled);
+    const label = `${tier}: ${name} (+${String(bonus)})`;
+    return label;
   }
   function sanitizeSkillName(name) {
     const stripped = name.replace(/[|,{}[\]]/g, "").trim();
@@ -7101,7 +7108,8 @@
     for (const entry of catalog) {
       const safeName = sanitizeSkillName(entry.name);
       if (safeName === "") continue;
-      options.push(`${safeName},${String(entry.bonus)}[${safeName}]`);
+      const label = skillOptionLabel(entry.level, safeName, entry.bonus);
+      options.push(`${label},${String(entry.bonus)}[${safeName}]`);
     }
     options.push(...tierOptions());
     const choices = options.join("|");
@@ -7113,9 +7121,10 @@
     for (const [level, bonus] of Object.entries(SKILL_BONUS)) {
       const name = titleCase(level);
       const translated2 = queryText(name);
-      const label = sanitizeSkillName(translated2);
-      if (label === "") continue;
-      options.push(`${label},${String(bonus)}[${label}]`);
+      const tier = sanitizeSkillName(translated2);
+      if (tier === "") continue;
+      const label = `${tier} (+${String(bonus)})`;
+      options.push(`${label},${String(bonus)}[${tier}]`);
     }
     return options;
   }
@@ -8384,8 +8393,8 @@ ${SHIP_PANIC_MESSAGE}`;
     return getMegadamageEffect(next).effect;
   }
   function handleMdmgChange(eventInfo) {
-    const previous = Number.parseInt(eventInfo.previousValue, 10);
-    const next = Number.parseInt(eventInfo.newValue, 10);
+    const previous = Number.parseInt(eventInfo.previousValue ?? "", 10);
+    const next = Number.parseInt(eventInfo.newValue ?? "", 10);
     const message = mdmgChangeMessage(
       Number.isNaN(previous) ? 0 : previous,
       Number.isNaN(next) ? 0 : next
@@ -8764,10 +8773,10 @@ ${SHIP_PANIC_MESSAGE}`;
   });
   on("mancerchange:repeating_choicerow", (eventInfo) => {
     if (eventInfo.sourceAttribute === "floatstat") {
-      applyFloatingBonus(eventInfo.newValue);
+      applyFloatingBonus(eventInfo.newValue ?? "");
       return;
     }
-    disableChosenSkill(eventInfo.newValue);
+    disableChosenSkill(eventInfo.newValue ?? "");
   });
   on("page:skills", () => {
     onLoadSkills();
@@ -8782,7 +8791,7 @@ ${SHIP_PANIC_MESSAGE}`;
     onLoadEquipment();
   });
   on("mancerchange:package", (eventInfo) => {
-    chooseEquipmentPackage(eventInfo.newValue);
+    chooseEquipmentPackage(eventInfo.newValue ?? "");
   });
   on("mancerroll:credits", (eventInfo) => {
     rollCredits(eventInfo.roll ?? []);

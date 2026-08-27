@@ -504,8 +504,8 @@ export function mdmgChangeMessage(previous: number, next: number): string | unde
  * fail Battle Checks."
  */
 export function handleMdmgChange(eventInfo: EventInfo): void {
-  const previous = Number.parseInt(eventInfo.previousValue, 10);
-  const next = Number.parseInt(eventInfo.newValue, 10);
+  const previous = Number.parseInt(eventInfo.previousValue ?? "", 10);
+  const next = Number.parseInt(eventInfo.newValue ?? "", 10);
   const message = mdmgChangeMessage(
     Number.isNaN(previous) ? 0 : previous,
     Number.isNaN(next) ? 0 : next,
