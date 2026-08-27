@@ -28,6 +28,19 @@
         Rolls 1d100 under your <strong>Bankruptcy Save</strong> (defaults to 2d10+10)
         and resolves consequences from the <em>Bankruptcy Table</em>.
       </ShipOperationCard>
+
+      <!--
+        #62: only meaningful for an NPC ship. ship_npc lives on the settings
+        page, not here -- ShipSheet mirrors it into a hidden block so :has()
+        still finds a copy inside .ship-sheet. Lives here rather than in
+        ShipMegadamagePanel: morale is not a hull property.
+      -->
+      <div class="morale-check-gate">
+        <ShipOperationCard action="morale_check" label="Morale Check">
+          Rolls <strong>1d10</strong>. A result under the ship's current MDMG
+          breaks the enemy's morale -- they signal for a ceasefire.
+        </ShipOperationCard>
+      </div>
     </div>
   </Panel>
 
@@ -47,6 +60,16 @@
 .ship-operations {
   display: flex;
   flex-direction: column;
-  gap: var(--ms-space-xl);
+  gap: var(--ms-space-lg);
+}
+
+.morale-check-gate {
+  display: none;
+}
+
+// A sheet cannot run JS outside its sheetworkers, so visibility is driven off
+// the mirrored ship_npc checkbox in CSS -- see ShipSheet.svelte.
+.ship-sheet:has(input[name="attr_ship_npc"]:checked) .morale-check-gate {
+  display: block;
 }
 </style>

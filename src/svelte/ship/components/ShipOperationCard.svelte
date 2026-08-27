@@ -5,10 +5,11 @@
   export let label: string;
 </script>
 
+<!-- The rules text is useful reference but shouldn't outweigh the button that
+     actually drives the roll, so it renders as smaller supporting text below
+     a full-width button rather than a paragraph inside its own bordered box. -->
 <div class="ship-operation-card">
-  <div class="ship-operation-card__header">
-    <Button {action} {label} />
-  </div>
+  <Button {action} {label} />
   <p class="ship-operation-card__desc">
     <slot />
   </p>
@@ -18,25 +19,18 @@
 .ship-operation-card {
   display: flex;
   flex-direction: column;
-  gap: var(--ms-space-md);
+  gap: var(--ms-space-sm);
 
-  border: var(--ms-border-width) solid var(--ms-border);
-  border-radius: var(--ms-radius-md);
-  padding: var(--ms-space-lg);
-
-  background: var(--ms-surface);
-
-  &__header {
-    display: flex;
-    align-items: center;
+  .button {
+    width: 100%;
   }
 
   &__desc {
     margin: 0;
 
-    font-size: var(--ms-text-sm);
+    font-size: var(--ms-text-xs);
     line-height: 1.4;
-    color: var(--ms-fg);
+    color: var(--ms-fg-muted);
   }
 }
 </style>
