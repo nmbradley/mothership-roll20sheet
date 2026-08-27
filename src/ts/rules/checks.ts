@@ -4,6 +4,8 @@ import { titleCase } from "#game/text.js";
 import {
   checkComputed,
   checkTemplate,
+  deathSaveComputed,
+  deathSaveTemplate,
   panicComputed,
   panicTemplate,
   TEMPLATE_PHRASES,
@@ -17,7 +19,7 @@ import {
   type CheckResult,
   type Edge,
 } from "./rolls";
-import { makePanicCheck } from "./tables";
+import { deathSaveEffect, makePanicCheck } from "./tables";
 
 /**
  * Sheetworker entry points for rolling.
@@ -289,4 +291,18 @@ export async function rollRestSave(): Promise<void> {
   const delta = restSaveStressDelta(check);
   const stress = Number(attrs.stress);
   applyStressDelta(stress, delta, STRESS_MIN, STRESS_MAX);
+}
+
+/**
+ * Rolls a Death Save.
+ *
+ * A table read, not a check: the d10 just picks a row off the Death Table.
+ */
+export async function rollDeathSave(): Promise<void> {
+  const template = deathSaveTemplate();
+  const roll = await startRoll(template);
+  const value = roll.results["roll"]?.result ?? 0;
+  const effect = deathSaveEffect(value);
+  const computed = deathSaveComputed(effect);
+  finishRoll(roll.rollId, computed);
 }

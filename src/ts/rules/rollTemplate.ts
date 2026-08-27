@@ -1,3 +1,5 @@
+import type { DeathEffect } from "#game/data/wounds.js";
+
 import {
   Edges,
   Outcomes,
@@ -127,6 +129,7 @@ export const TEMPLATE_PHRASES = {
   KeptItTogether: "Kept It Together",
   PanicWarning: "Critical Failure: Make a Panic Check",
   RestSave: "Rest Save",
+  DeathSave: "Death Save",
 } as const;
 
 /** A Critical Failure on a check forces a Panic Check; say so in chat. */
@@ -164,6 +167,32 @@ export function panicComputed(panic: PanicCheck): Record<string, string | number
     [COMPUTED.Result]: effect === undefined ? survived : effect.name,
     [COMPUTED.Rank]: RANKS[check.outcome],
     [COMPUTED.Notes]: hasPanicked && effect !== undefined ? effect.effect : "",
+  };
+  return computed;
+}
+
+/**
+ * The template sent to startRoll for a Death Save.
+ *
+ * Zero-indexed for the same reason D100 is (see rolls.ts): the Death Table's
+ * rows read 0-9, so a physical 1-10 d10 is read back down by one.
+ */
+export function deathSaveTemplate(): string {
+  const template = render([
+    ["name", translated(TEMPLATE_PHRASES.DeathSave)],
+    ["character_name", "@{character_name}"],
+    ["roll", "[[1d10-1]]"],
+    [COMPUTED.Notes, "[[0]]"],
+  ]);
+  return template;
+}
+
+/** The values finishRoll substitutes into a Death Save. */
+export function deathSaveComputed(
+  effect: DeathEffect | undefined,
+): Record<string, string | number> {
+  const computed: Record<string, string | number> = {
+    [COMPUTED.Notes]: effect?.result ?? "",
   };
   return computed;
 }

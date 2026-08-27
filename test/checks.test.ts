@@ -13,6 +13,7 @@ import {
   applyStressDelta,
   restSaveStressDelta,
   rollCheck,
+  rollDeathSave,
   rollRestSave,
   skillQuery,
   worstSave,
@@ -228,5 +229,29 @@ describe("rollRestSave", () => {
     const formula = mockStartRoll.mock.calls[0][0] as string;
     expect(formula).toContain("target=[[35+");
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 6 });
+  });
+});
+
+describe("rollDeathSave", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("should look the d10 result up on the Death Table and post it to chat", async () => {
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        roll: { result: 9 },
+      },
+    });
+    const mockFinishRoll = vi.fn();
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", mockFinishRoll);
+
+    await rollDeathSave();
+
+    expect(mockFinishRoll).toHaveBeenCalledWith("id", {
+      notes: "You have died. Roll up a new character.",
+    });
   });
 });
