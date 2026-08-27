@@ -628,10 +628,9 @@
             <div class="repeating">
               <div
                 class="repeating__head"
-                style="grid-template-columns: 1fr 100px 70px auto"
+                style="grid-template-columns: 1fr 100px auto"
               >
-                <span class="repeating__heading" data-i18n="Name">Name</span><span class="repeating__heading" data-i18n="Type">Type</span><span class="repeating__heading" data-i18n="Armor Bonus"
-                  >Armor Bonus</span>
+                <span class="repeating__heading" data-i18n="Name">Name</span><span class="repeating__heading" data-i18n="Type">Type</span>
                 <span
                   class="repeating__heading repeating__heading--spacer"
                 ></span>
@@ -639,7 +638,7 @@
               <fieldset class="repeating_equipment">
                 <div
                   class="repeating__row"
-                  style="grid-template-columns: 1fr 100px 70px auto"
+                  style="grid-template-columns: 1fr 100px auto"
                 >
                   <div class="attribute attribute--display">
                     <span
@@ -661,15 +660,6 @@
                       </option>
                       <option value="Armor" data-i18n="Armor">Armor</option>
                     </select>
-                  </div>
-                  <div class="attribute attribute--text">
-                    <input
-                      class="attribute__input attribute__input--text"
-                      type="text"
-                      name="attr_equipment_armor_bonus"
-                      value=""
-                      spellcheck="false"
-                    />
                   </div>
                   <label class="settings__cog"
                     ><input
@@ -714,12 +704,40 @@
                 >
                   Armor Points
                 </div>
-                <div class="pc-equipment-totals__well">
+                <div
+                  class="pc-equipment-totals__well pc-equipment-totals__well--armor"
+                >
                   <div class="attribute attribute--number attribute--default">
                     <input
                       class="attribute__input attribute__input--number attribute__input--number--default"
                       type="number"
                       name="attr_armor_points"
+                      value="0"
+                    />
+                  </div>
+                  <button
+                    class="button button--action"
+                    type="action"
+                    name="act_destroy_armor"
+                  >
+                    <span class="button__label" data-i18n="Destroy"
+                      >Destroy</span>
+                  </button>
+                </div>
+              </div>
+              <div class="pc-equipment-totals__cell">
+                <div
+                  class="pc-equipment-totals__label"
+                  data-i18n="Damage Reduction"
+                >
+                  Damage Reduction
+                </div>
+                <div class="pc-equipment-totals__well">
+                  <div class="attribute attribute--number attribute--default">
+                    <input
+                      class="attribute__input attribute__input--number attribute__input--number--default"
+                      type="number"
+                      name="attr_damage_reduction"
                       value="0"
                     />
                   </div>
@@ -6110,7 +6128,7 @@
       [`${row}_type`]: itemType(item)
     };
     if (item?.kind === "armor") {
-      attrs[`${row}_armor_bonus`] = item.entry.points;
+      attrs["armor_points"] = item.entry.points;
       return attrs;
     }
     if (item?.kind === "weapon") {
@@ -6319,7 +6337,8 @@
     KeptItTogether: "Kept It Together",
     PanicWarning: "Critical Failure: Make a Panic Check",
     RestSave: "Rest Save",
-    DeathSave: "Death Save"
+    DeathSave: "Death Save",
+    ArmorDestroyed: "Armor Destroyed"
   };
   function panicWarning(check) {
     if (!check.triggersPanic) return "";
@@ -6366,6 +6385,15 @@
       [COMPUTED.Notes]: effect?.result ?? ""
     };
     return computed;
+  }
+
+  // src/ts/rules/armor.ts
+  var DESTROYED_AP = 0;
+  async function handleDestroyArmor() {
+    setAttrs({ armor_points: DESTROYED_AP });
+    const rollFormula = `&{template:ms} {{name=^{${TEMPLATE_PHRASES.ArmorDestroyed}}}} {{character_name=@{character_name}}} {{notes=[[0]]}}`;
+    const rollData = await startRoll(rollFormula);
+    finishRoll(rollData.rollId, { notes: "" });
   }
 
   // src/game/data/panic.ts
@@ -7563,6 +7591,9 @@ ${SHIP_PANIC_MESSAGE}`;
     void handleBattleCheck();
   });
   on("change:ship_mdmg", handleMdmgChange);
+  on("clicked:destroy_armor", () => {
+    void handleDestroyArmor();
+  });
   var SKILLED_CHECKS = [...allStats, ...allSaves];
   for (const attribute of CHECK_ATTRIBUTES) {
     const isSkilled = SKILLED_CHECKS.includes(attribute);
