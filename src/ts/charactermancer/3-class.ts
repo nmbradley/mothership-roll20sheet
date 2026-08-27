@@ -228,7 +228,11 @@ function applyClass(definition: ClassDef): void {
     attrs[`${stat}_mod`] = mods[stat];
   }
 
-  attrs["health"] = classHealth();
+  // 1e Max Wounds: the printed base plus the class's own bonus (#42); Health
+  // is not class-dependent in 1e, so nothing here touches it.
+  const wounds = maxWounds(definition);
+  attrs["wounds"] = wounds;
+  attrs["wounds_max"] = wounds;
   attrs["stress_effect"] = definition.traumaResponse;
   text["t__stress_effect"] = definition.traumaResponse;
 
@@ -259,15 +263,12 @@ export function statModifiers(definition: ClassDef, chosenStat?: Stat): Record<S
   return mods;
 }
 
-/**
- * Health is twice Strength, taken after the class modifier so a class that
- * boosts Strength raises health with it.
- */
-function classHealth(): number {
-  const data = charmancerData();
-  const strength = resolveNumber(data, "strength");
-  const modifier = resolveNumber(data, "strength_mod");
-  return (strength + modifier) * 2;
+/** The printed base of Max Wounds, before any class bonus. */
+const BASE_MAX_WOUNDS = 2;
+
+/** Max Wounds: the base plus the class's own bonus, e.g. the Marine's +1. */
+export function maxWounds(definition: ClassDef): number {
+  return BASE_MAX_WOUNDS + definition.maxWoundsBonus;
 }
 
 /**

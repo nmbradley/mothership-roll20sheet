@@ -3,7 +3,7 @@ import {
 } from "vitest";
 
 import { classes } from "../src/game/data/classes";
-import { statModifiers } from "../src/ts/charactermancer/3-class";
+import { maxWounds, statModifiers } from "../src/ts/charactermancer/3-class";
 
 describe("Charactermancer Class Step (Mothership 1e)", () => {
   describe("statModifiers", () => {
@@ -57,6 +57,21 @@ describe("Charactermancer Class Step (Mothership 1e)", () => {
         intellect: 5,
         combat: 5,
       });
+    });
+  });
+
+  describe("maxWounds", () => {
+    it("should be the printed base of 2 for a class with no wound bonus", () => {
+      expect(maxWounds(classes.teamster)).toBe(2);
+      expect(maxWounds(classes.scientist)).toBe(2);
+    });
+
+    it("should add the Marine's +1 wound bonus", () => {
+      expect(maxWounds(classes.marine)).toBe(3);
+    });
+
+    it("should add the Android's +1 wound bonus", () => {
+      expect(maxWounds(classes.android)).toBe(3);
     });
   });
 });

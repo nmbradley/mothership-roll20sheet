@@ -14,9 +14,9 @@ function roll(result: number): RollResult {
   };
 }
 
-// Strength, Speed, Intellect, Combat, then Sanity, Fear, Body: the order the
-// Stats step's roll template rolls them in.
-const FULL_ROLL = [30, 31, 32, 33, 20, 21, 22].map(roll);
+// Strength, Speed, Intellect, Combat, then Sanity, Fear, Body, then Health:
+// the order the Stats step's roll template rolls them in.
+const FULL_ROLL = [30, 31, 32, 33, 20, 21, 22, 15].map(roll);
 
 describe("Charactermancer Stats Step (Mothership 1e)", () => {
   describe("rolledAttrs", () => {
@@ -41,9 +41,14 @@ describe("Charactermancer Stats Step (Mothership 1e)", () => {
       expect(attrs["sanity"]).toBeUndefined();
     });
 
-    it("should seed health at twice the rolled Strength", () => {
+    it("should seed health from its own 1d10+10 roll, after the stats and saves", () => {
       const attrs = rolledAttrs(FULL_ROLL);
-      expect(attrs["health"]).toBe(60);
+      expect(attrs["health"]).toBe(15);
+    });
+
+    it("should leave health unset when its roll is missing", () => {
+      const attrs = rolledAttrs(FULL_ROLL.slice(0, 7));
+      expect(attrs["health"]).toBeUndefined();
     });
 
     it("should seed starting stress, wounds and armor regardless of the roll", () => {

@@ -268,11 +268,11 @@ export async function rollNPCInitiative(): Promise<CheckResult> {
 /**
  * Applies a Stress change and writes it back, clamped to the given bounds.
  *
- * stress_min and stress_max are not declared attributes yet (#42 owns that),
- * so the bounds travel with the call rather than being read here; once they
- * exist, a caller passes them straight through from getAttrs. This is the one
- * place that writes Stress so the several checks that grant or reduce it
- * (#47, #48, #51) agree on how the clamp works.
+ * stress_min and stress_max are declared attributes (#42); the bounds still
+ * travel with the call rather than being read here, since a caller already
+ * has them fresh from its own getAttrs and this is the one place that writes
+ * Stress, so the several checks that grant or reduce it (#47, #48, #51) agree
+ * on how the clamp works.
  */
 export function applyStressDelta(current: number, delta: number, min: number, max: number): void {
   const floored = Math.max(min, current + delta);
@@ -298,22 +298,17 @@ export async function rollPanicCheck(): Promise<void> {
 }
 
 /**
- * 1e's Stress bounds. stress_min and stress_max are not declared attributes
- * yet (#42 owns that); these stand in until it does.
- */
-const STRESS_MIN = 2;
-const STRESS_MAX = 20;
-
-/**
  * Ticks Stress up or down by 1 from the Status Report's +/- buttons (#18),
- * without a roll behind it. Reads the current value fresh via getAttrs and
- * writes through applyStressDelta, so a plain tick is clamped the same way as
- * every roll that changes Stress.
+ * without a roll behind it. Reads the current value and bounds fresh via
+ * getAttrs and writes through applyStressDelta, so a plain tick is clamped
+ * the same way as every roll that changes Stress.
  */
 export function adjustStress(delta: number): void {
-  getAttrs(["stress"], (attrs) => {
+  getAttrs(["stress", "stress_min", "stress_max"], (attrs) => {
     const stress = Number(attrs.stress);
-    applyStressDelta(stress, delta, STRESS_MIN, STRESS_MAX);
+    const min = Number(attrs.stress_min);
+    const max = Number(attrs.stress_max);
+    applyStressDelta(stress, delta, min, max);
   });
 }
 
@@ -344,7 +339,7 @@ export function restSaveStressDelta(check: CheckResult): number {
  */
 export async function rollRestSave(): Promise<void> {
   const attrs = await new Promise<Record<string, string>>((resolve) => {
-    getAttrs(["sanity", "fear", "body", "stress"], resolve);
+    getAttrs(["sanity", "fear", "body", "stress", "stress_min", "stress_max"], resolve);
   });
 
   const sanity = Number(attrs.sanity);
@@ -359,7 +354,9 @@ export async function rollRestSave(): Promise<void> {
 
   const delta = restSaveStressDelta(check);
   const stress = Number(attrs.stress);
-  applyStressDelta(stress, delta, STRESS_MIN, STRESS_MAX);
+  const min = Number(attrs.stress_min);
+  const max = Number(attrs.stress_max);
+  applyStressDelta(stress, delta, min, max);
 }
 
 /**

@@ -7,6 +7,8 @@
     health,
     pcAfflictions,
     stress,
+    stress_max,
+    stress_min,
     stress_panic,
     wounds,
   } from "#game/fields/pcFields.js";
@@ -40,8 +42,10 @@
       </div>
     {/each}
 
-    <!-- Stress has no maximum, so the Panic roll takes the cell beside it.
-         #18: +/- tick it by 1 without opening the field, through the same
+    <!-- Stress's Minimum/Maximum are fixed rule constants (#42), not a
+         per-character range shown as current/max like Health and Wounds, so
+         they are rendered hidden and the Panic roll takes the cell beside it.
+         #18: +/- tick Stress by 1 without opening the field, through the same
          applyStressDelta the rolls that change Stress already write through. -->
     <div class="pc-status-card">
       <div class="pc-status-card__label" data-i18n={stress.i18nLabel}>{stress.label}</div>
@@ -50,6 +54,8 @@
         <Attribute field={stress} isLabelHidden />
         <ButtonAction action="stress_up" label="+" />
       </div>
+      <Attribute field={stress_min} />
+      <Attribute field={stress_max} />
     </div>
 
     <div class="pc-status-card pc-status-card--action">

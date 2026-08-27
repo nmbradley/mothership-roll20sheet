@@ -62,6 +62,22 @@ export const stress = attribute({
   control: Controls.Number,
   value: 2,
 });
+// 1e's Stress bounds (#42): fixed rule constants rather than a per-character
+// current/max pair, so these are hidden rather than rendered like Health and
+// Wounds -- checks.ts (adjustStress, rollRestSave) reads them via getAttrs
+// instead of hardcoding STRESS_MIN/STRESS_MAX.
+export const stress_min = attribute({
+  name: "stress_min",
+  label: "Stress Minimum",
+  control: Controls.Hidden,
+  value: "2",
+});
+export const stress_max = attribute({
+  name: "stress_max",
+  label: "Stress Maximum",
+  control: Controls.Hidden,
+  value: "20",
+});
 export const stress_panic = attribute({
   name: "stress_panic",
   label: "Stress & Panic",
@@ -265,6 +281,8 @@ export const pcAttributes = {
   character_name,
   class: class_,
   stress,
+  stress_min,
+  stress_max,
   stress_panic,
   health,
   wounds,
