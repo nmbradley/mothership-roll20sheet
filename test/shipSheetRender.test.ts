@@ -100,12 +100,19 @@ function withMaxCompanion(field: {
 // declared here but not required to be rendered yet -- this set only bounds
 // what's *allowed*, drift-checking is done against the fields these two
 // issues actually own, in `ownedAttributeNames` below.
+// Controls the ship sheet renders but does not own. The settings drawer is
+// shared across all three sheets and declares its toggle in pcFields, so it is
+// legitimately not a ship attribute -- without this the drift check reads a
+// shared control as ship-sheet drift.
+const sharedControlNames = ["settings_toggle"];
+
 const validAttributeNames = new Set([
   ...Object.values(shipAttributes).flatMap(withMaxCompanion),
   ...Object.keys(shipWeapons.attributes),
   ...Object.keys(shipCrew.attributes),
   ...Object.keys(shipLoadout.attributes),
   ...Object.keys(shipUpgrades.attributes),
+  ...sharedControlNames,
 ]);
 
 // The fields #85 and #86 put on the sheet: #58 sections 1-6 (Transponder,
