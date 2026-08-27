@@ -18,6 +18,12 @@
         Critical Failure rolls twice on the table (everyone makes a Panic Check).
       </ShipOperationCard>
 
+      <ShipOperationCard action="after_battle_report" label="After Battle Report">
+        Rolls a <strong>Systems Check</strong> after the ship takes MDMG in a
+        confrontation. Failure rolls once on the <em>Maintenance Issues Table</em>.
+        Critical Failure rolls twice on the table.
+      </ShipOperationCard>
+
       <ShipOperationCard action="bankruptcy_save" label="Bankruptcy Save">
         Rolls 1d100 under your <strong>Bankruptcy Save</strong> (defaults to 2d10+10)
         and resolves consequences from the <em>Bankruptcy Table</em>.

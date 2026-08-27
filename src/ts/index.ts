@@ -35,6 +35,7 @@ import {
   skillQuery,
 } from "./rules/checks";
 import {
+  handleAfterBattleReport,
   handleAnnualMaintenanceCheck,
   handleBankruptcySave,
   handleBattleCheck,
@@ -54,6 +55,9 @@ on("clicked:starting_condition", () => {
 });
 on("clicked:annual_maintenance", () => {
   void handleAnnualMaintenanceCheck();
+});
+on("clicked:after_battle_report", () => {
+  void handleAfterBattleReport();
 });
 on("clicked:bankruptcy_save", () => {
   void handleBankruptcySave();

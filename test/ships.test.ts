@@ -7,9 +7,11 @@ import { EDGE_QUERY } from "../src/ts/rules/checks";
 import { maintenanceTable } from "../src/game/data/maintenance";
 import { megadamageTable } from "../src/game/data/megadamage";
 import {
+  evaluateAfterBattleReport,
   evaluateAnnualMaintenance,
   evaluateBankruptcySave,
   evaluateMoraleCheck,
+  handleAfterBattleReport,
   handleAnnualMaintenanceCheck,
   handleBankruptcySave,
   handleMoraleCheck,
@@ -73,6 +75,41 @@ describe("Ship Rules & Mechanics", () => {
       const result = evaluateAnnualMaintenance(95, 99, 5, 10);
       expect(result.result).toBe(Outcomes.Failure);
       expect(result.stressGain).toBe(1);
+    });
+  });
+
+  describe("evaluateAfterBattleReport", () => {
+    it("should draw no issues on a Success", () => {
+      const result = evaluateAfterBattleReport(20, 40, 0, 0);
+      expect(result.result).toBe(Outcomes.Success);
+      expect(result.issues).toHaveLength(0);
+    });
+
+    it("should draw no issues on a Critical Success", () => {
+      const result = evaluateAfterBattleReport(11, 40, 0, 0);
+      expect(result.result).toBe(Outcomes.CriticalSuccess);
+      expect(result.issues).toHaveLength(0);
+    });
+
+    it("should draw one issue on a Failure", () => {
+      const result = evaluateAfterBattleReport(50, 40, 5, 10);
+      expect(result.result).toBe(Outcomes.Failure);
+      expect(result.issues).toHaveLength(1);
+      expect(result.issues[0]).toEqual(getMaintenanceIssue(5));
+    });
+
+    it("should draw two issues on a Critical Failure", () => {
+      const result = evaluateAfterBattleReport(99, 40, 5, 10);
+      expect(result.result).toBe(Outcomes.CriticalFailure);
+      expect(result.issues).toHaveLength(2);
+      expect(result.issues[0]).toEqual(getMaintenanceIssue(5));
+      expect(result.issues[1]).toEqual(getMaintenanceIssue(10));
+    });
+
+    it("should carry no Stress/Panic fields, unlike Annual Maintenance", () => {
+      const result = evaluateAfterBattleReport(50, 40, 5, 10);
+      expect(result).not.toHaveProperty("stressGain");
+      expect(result).not.toHaveProperty("panicCheck");
     });
   });
 
@@ -177,6 +214,24 @@ describe("Ship Rules & Mechanics", () => {
       vi.unstubAllGlobals();
     });
 
+    it("should execute handleAfterBattleReport", async () => {
+      const mockStartRoll = vi.fn().mockResolvedValue({
+        rollId: "id",
+        results: {
+          roll: { result: 45 },
+          target: { result: 30 },
+          maint_roll1: { result: 5 },
+          maint_roll2: { result: 10 },
+        },
+      });
+      const mockFinishRoll = vi.fn();
+      vi.stubGlobal("startRoll", mockStartRoll);
+      vi.stubGlobal("finishRoll", mockFinishRoll);
+      await handleAfterBattleReport();
+      expect(mockFinishRoll).toHaveBeenCalled();
+      vi.unstubAllGlobals();
+    });
+
     it("should execute handleMoraleCheck", async () => {
       const mockStartRoll = vi.fn().mockResolvedValue({
         rollId: "id",
@@ -213,6 +268,7 @@ describe("Ship Rules & Mechanics", () => {
       vi.stubGlobal("setAttrs", vi.fn());
 
       await handleAnnualMaintenanceCheck();
+      await handleAfterBattleReport();
       await handleBankruptcySave();
       await handleSystemsCheck();
       await handleThrustersCheck();
