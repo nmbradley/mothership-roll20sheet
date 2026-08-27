@@ -110,15 +110,14 @@ const ARMOR_ROW_EVENTS = [
   "remove:repeating_equipment",
 ].join(" ");
 on(ARMOR_ROW_EVENTS, () => {
-  void recalculateArmorTotals();
+  recalculateArmorTotals();
 });
 
 // #127: armor_points and damage_reduction are never written until an Armor
 // row changes, so a sheet opened before that leaves both attributes
 // unwritten -- this seeds them from whatever equipment is already worn.
 on("sheet:opened", () => {
-  console.log("[ms] sheet:opened -> recalculateArmorTotals");
-  void recalculateArmorTotals();
+  recalculateArmorTotals();
 });
 
 // --- CHECKS ---
@@ -169,10 +168,7 @@ on("clicked:panic", () => {
 // fire synchronously off the click. sheet:opened seeds it for a character
 // saved before this attribute existed.
 on("change:sanity change:fear change:body", recomputeWorstSave);
-on("sheet:opened", () => {
-  console.log("[ms] sheet:opened -> recomputeWorstSave");
-  recomputeWorstSave();
-});
+on("sheet:opened", recomputeWorstSave);
 
 on("clicked:rest_save", () => {
   void rollRestSave();
@@ -192,11 +188,10 @@ const SKILL_ROW_EVENTS = [
   "remove:repeating_master",
 ].join(" ");
 on(SKILL_ROW_EVENTS, () => {
-  void recomputeSkillQuery();
+  recomputeSkillQuery();
 });
 on("sheet:opened", () => {
-  console.log("[ms] sheet:opened -> recomputeSkillQuery");
-  void recomputeSkillQuery();
+  recomputeSkillQuery();
 });
 
 on("clicked:death_save", () => {
@@ -204,11 +199,11 @@ on("clicked:death_save", () => {
 });
 
 on("clicked:take_damage", () => {
-  void handleTakeDamage();
+  handleTakeDamage();
 });
 
 on("clicked:take_wound", () => {
-  void handleTakeWound();
+  handleTakeWound();
 });
 
 // Rolls made from a repeating row read that row's own attributes. The PC and

@@ -234,32 +234,40 @@ export function readSkillName(expression: string | undefined): string {
 }
 
 /** One repeating section's own Skill names, row order. */
-function readSkillNames(section: string): Promise<string[]> {
-  return new Promise((resolve) => {
-    getSectionIDs(section, (ids) => {
-      if (ids.length === 0) {
-        resolve([]);
-        return;
-      }
+function readSkillNames(section: string, done: (names: string[]) => void): void {
+  getSectionIDs(section, (ids) => {
+    if (ids.length === 0) {
+      done([]);
+      return;
+    }
 
-      const keys = ids.map((id) => `${section}_${id}_skill_name`);
-      getAttrs(keys, (attrs) => {
-        const names = keys.map((key) => attrs[key] ?? "");
-        resolve(names);
-      });
+    const keys = ids.map((id) => `${section}_${id}_skill_name`);
+    getAttrs(keys, (attrs) => {
+      const names = keys.map((key) => attrs[key] ?? "");
+      done(names);
     });
   });
 }
 
-/** Every Skill the character currently has, read fresh off the three rows. */
-async function readSkillCatalog(): Promise<SkillCatalogEntry[]> {
-  const [trained, expert, master] = await Promise.all([
-    readSkillNames("repeating_trained"),
-    readSkillNames("repeating_expert"),
-    readSkillNames("repeating_master"),
-  ]);
-  const catalog = buildSkillCatalog(trained, expert, master);
-  return catalog;
+/**
+ * Every Skill the character currently has, read fresh off the three rows.
+ *
+ * Read one tier at a time through Roll20's own callbacks rather than a
+ * Promise.all. Roll20 binds the active character only for the synchronous
+ * duration of an event handler, so a promise continuation resumes after that
+ * binding is gone and the setAttrs at the end of this chain fails with
+ * "Trying to do setAttrs when no character is active in sandbox" -- silently,
+ * and invisibly to a test suite that resolves the mocked APIs synchronously.
+ */
+function readSkillCatalog(done: (catalog: SkillCatalogEntry[]) => void): void {
+  readSkillNames("repeating_trained", (trained) => {
+    readSkillNames("repeating_expert", (expert) => {
+      readSkillNames("repeating_master", (master) => {
+        const catalog = buildSkillCatalog(trained, expert, master);
+        done(catalog);
+      });
+    });
+  });
 }
 
 /**
@@ -270,11 +278,11 @@ async function readSkillCatalog(): Promise<SkillCatalogEntry[]> {
  * same shape as recomputeWorstSave (#110), seeding a character saved before
  * this attribute existed.
  */
-export async function recomputeSkillQuery(): Promise<void> {
-  const catalog = await readSkillCatalog();
-  const query = buildSkillQuery(catalog);
-  console.log("[ms] recomputeSkillQuery catalog", catalog.length, catalog, query);
-  setAttrs({ skill_query: query });
+export function recomputeSkillQuery(): void {
+  readSkillCatalog((catalog) => {
+    const query = buildSkillQuery(catalog);
+    setAttrs({ skill_query: query });
+  });
 }
 
 /** Roll20 stores "0" for an unchecked box; anything else reads as on. */
@@ -511,23 +519,26 @@ export async function rollAttack(options: CheckOptions, rowId?: string): Promise
       "stress", "stress_min", "stress_max", "sheet_toggle",
       ...(shotsKey === undefined ? [] : [shotsKey]),
     ];
-    const attrs = await new Promise<Record<string, string>>((resolve) => {
-      getAttrs(keys, resolve);
-    });
 
-    if (grade.stressDelta !== 0 && !isNpcSheet(attrs.sheet_toggle)) {
-      const stress = Number(attrs.stress);
-      const min = Number(attrs.stress_min);
-      const max = Number(attrs.stress_max);
-      applyStressDelta(stress, grade.stressDelta, min, max);
-    }
+    // Roll20's own callback, not an awaited Promise wrapper: a promise
+    // continuation resumes after the handler has returned, once the sandbox
+    // has unbound the character, and the setAttrs below then fails with
+    // "Trying to do setAttrs when no character is active in sandbox".
+    getAttrs(keys, (attrs) => {
+      if (grade.stressDelta !== 0 && !isNpcSheet(attrs.sheet_toggle)) {
+        const stress = Number(attrs.stress);
+        const min = Number(attrs.stress_min);
+        const max = Number(attrs.stress_max);
+        applyStressDelta(stress, grade.stressDelta, min, max);
+      }
 
-    if (shotsKey !== undefined) {
+      if (shotsKey === undefined) return;
+
       const spent = spendAmmo(attrs[shotsKey] ?? "");
       setAttrs({ [shotsKey]: spent });
       const isEmpty = isOutOfAmmo(spent);
-      if (isEmpty) await postOutOfAmmoAlert(options.name ?? "");
-    }
+      if (isEmpty) void postOutOfAmmoAlert(options.name ?? "");
+    });
   }
 
   return check;

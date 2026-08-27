@@ -417,18 +417,16 @@ export function applyHullDamage(hit: number, hull: number, mdmg: number): HullDa
  * Reads the ship's own Hull, MDMG and MDMG output -- the only attributes a
  * Battle Check's own sheetworker is allowed to touch.
  */
-function readShipCombat(): Promise<{
+function readShipCombat(done: (combat: {
   hull: number;
   mdmg: number;
   mdmgOutput: number;
-}> {
-  return new Promise((resolve) => {
-    getAttrs(["ship_hull", "ship_mdmg", "ship_mdmg_total"], (response) => {
-      resolve({
-        hull: Number(response.ship_hull) || 0,
-        mdmg: Number(response.ship_mdmg) || 0,
-        mdmgOutput: Number(response.ship_mdmg_total) || 0,
-      });
+}) => void): void {
+  getAttrs(["ship_hull", "ship_mdmg", "ship_mdmg_total"], (response) => {
+    done({
+      hull: Number(response.ship_hull) || 0,
+      mdmg: Number(response.ship_mdmg) || 0,
+      mdmgOutput: Number(response.ship_mdmg_total) || 0,
     });
   });
 }
@@ -452,27 +450,26 @@ export async function handleBattleCheck(): Promise<void> {
     bonus: skillQuery(),
   });
 
-  const {
-    hull, mdmg, mdmgOutput,
-  } = await readShipCombat();
-  const notes: string[] = [];
+  readShipCombat((combat) => {
+    const notes: string[] = [];
 
-  const dealt = battleCheckDamageDealt(result.outcome, mdmgOutput);
-  if (dealt > 0) notes.push(`Deals ${dealt} MDMG.`);
+    const dealt = battleCheckDamageDealt(result.outcome, combat.mdmgOutput);
+    if (dealt > 0) notes.push(`Deals ${dealt} MDMG.`);
 
-  const selfHit = battleCheckSelfDamage(result.outcome);
-  if (selfHit > 0) {
-    const next = applyHullDamage(selfHit, hull, mdmg);
-    setAttrs({
-      ship_hull: next.hull,
-      ship_mdmg: next.mdmg,
+    const selfHit = battleCheckSelfDamage(result.outcome);
+    if (selfHit > 0) {
+      const next = applyHullDamage(selfHit, combat.hull, combat.mdmg);
+      setAttrs({
+        ship_hull: next.hull,
+        ship_mdmg: next.mdmg,
+      });
+      notes.push(`Ship takes ${selfHit} MDMG.`);
+    }
+
+    void postShipAlert({
+      alert: shipFailureAlert(result.outcome),
+      notes: notes.join("\n"),
     });
-    notes.push(`Ship takes ${selfHit} MDMG.`);
-  }
-
-  await postShipAlert({
-    alert: shipFailureAlert(result.outcome),
-    notes: notes.join("\n"),
   });
 }
 

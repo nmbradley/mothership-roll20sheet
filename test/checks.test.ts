@@ -1040,6 +1040,9 @@ describe("rollAttack", () => {
       name: "@{attack_name}",
       target: "@{combat}",
     }, "-row1");
+    // The Out of Ammo card is posted from inside the getAttrs callback, so it
+    // is still in flight when rollAttack itself resolves.
+    for (let i = 0; i < 5; i += 1) await Promise.resolve();
 
     expect(mockStartRoll).toHaveBeenCalledTimes(3);
     expect(mockFinishRoll).toHaveBeenLastCalledWith("empty", {

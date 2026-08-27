@@ -177,7 +177,10 @@ describe("Sheetworkers getSectionIDs / getAttrs integration", () => {
       });
     });
 
-    const updates = await destroyWornArmor();
+    let updates: Record<string, number> = {};
+    destroyWornArmor((result) => {
+      updates = result;
+    });
 
     expect(updates).toEqual({
       repeating_equipment_row1_equipment_armor_points: 0,

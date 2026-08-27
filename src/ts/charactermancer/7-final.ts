@@ -84,7 +84,7 @@ function compileCharacter(data: CharmancerData): void {
   // change:repeating_equipment:... listener never fires for it (#112) --
   // this runs the same summing routine directly once the armour rows above
   // have landed, rather than seeding armor_points itself.
-  void recalculateArmorTotals();
+  recalculateArmorTotals();
 }
 
 /** The bare item names from a package, dropping any quantities. */

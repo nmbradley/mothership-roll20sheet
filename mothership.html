@@ -6472,42 +6472,42 @@
     }
     return updates;
   }
-  function readEquipmentRows() {
-    return new Promise((resolve) => {
-      getSectionIDs("repeating_equipment", (ids) => {
-        if (ids.length === 0) {
-          resolve([]);
-          return;
-        }
-        const keys = ids.flatMap((id) => [
-          `repeating_equipment_${id}_equipment_type`,
-          `repeating_equipment_${id}_equipment_armor_points`,
-          `repeating_equipment_${id}_equipment_damage_reduction`
-        ]);
-        getAttrs(keys, (attrs) => {
-          const rows = ids.map((id) => ({
-            id,
-            type: attrs[`repeating_equipment_${id}_equipment_type`] ?? "",
-            armorPoints: Number(attrs[`repeating_equipment_${id}_equipment_armor_points`]) || 0,
-            damageReduction: Number(attrs[`repeating_equipment_${id}_equipment_damage_reduction`]) || 0
-          }));
-          resolve(rows);
-        });
+  function readEquipmentRows(done) {
+    getSectionIDs("repeating_equipment", (ids) => {
+      if (ids.length === 0) {
+        done([]);
+        return;
+      }
+      const keys = ids.flatMap((id) => [
+        `repeating_equipment_${id}_equipment_type`,
+        `repeating_equipment_${id}_equipment_armor_points`,
+        `repeating_equipment_${id}_equipment_damage_reduction`
+      ]);
+      getAttrs(keys, (attrs) => {
+        const rows = ids.map((id) => ({
+          id,
+          type: attrs[`repeating_equipment_${id}_equipment_type`] ?? "",
+          armorPoints: Number(attrs[`repeating_equipment_${id}_equipment_armor_points`]) || 0,
+          damageReduction: Number(attrs[`repeating_equipment_${id}_equipment_damage_reduction`]) || 0
+        }));
+        done(rows);
       });
     });
   }
-  async function recalculateArmorTotals() {
-    const rows = await readEquipmentRows();
-    const totals = sumArmor(rows);
-    setAttrs({
-      armor_points: totals.armorPoints,
-      damage_reduction: totals.damageReduction
+  function recalculateArmorTotals() {
+    readEquipmentRows((rows) => {
+      const totals = sumArmor(rows);
+      setAttrs({
+        armor_points: totals.armorPoints,
+        damage_reduction: totals.damageReduction
+      });
     });
   }
-  async function destroyWornArmor() {
-    const rows = await readEquipmentRows();
-    const updates = destroyedArmorUpdates(rows);
-    return updates;
+  function destroyWornArmor(done) {
+    readEquipmentRows((rows) => {
+      const updates = destroyedArmorUpdates(rows);
+      done(updates);
+    });
   }
 
   // src/ts/charactermancer/7-final.ts
@@ -6562,7 +6562,7 @@
       Object.assign(attrs, rows);
     }
     writeCharacter(attrs);
-    void recalculateArmorTotals();
+    recalculateArmorTotals();
   }
   function equipmentNames(packed) {
     const parsed = parseJSON(packed);
@@ -7120,35 +7120,34 @@
     const match = /\[([^[\]]+)\]/.exec(expression);
     return match?.[1] ?? "";
   }
-  function readSkillNames(section) {
-    return new Promise((resolve) => {
-      getSectionIDs(section, (ids) => {
-        if (ids.length === 0) {
-          resolve([]);
-          return;
-        }
-        const keys = ids.map((id) => `${section}_${id}_skill_name`);
-        getAttrs(keys, (attrs) => {
-          const names = keys.map((key) => attrs[key] ?? "");
-          resolve(names);
+  function readSkillNames(section, done) {
+    getSectionIDs(section, (ids) => {
+      if (ids.length === 0) {
+        done([]);
+        return;
+      }
+      const keys = ids.map((id) => `${section}_${id}_skill_name`);
+      getAttrs(keys, (attrs) => {
+        const names = keys.map((key) => attrs[key] ?? "");
+        done(names);
+      });
+    });
+  }
+  function readSkillCatalog(done) {
+    readSkillNames("repeating_trained", (trained) => {
+      readSkillNames("repeating_expert", (expert) => {
+        readSkillNames("repeating_master", (master) => {
+          const catalog = buildSkillCatalog(trained, expert, master);
+          done(catalog);
         });
       });
     });
   }
-  async function readSkillCatalog() {
-    const [trained, expert, master] = await Promise.all([
-      readSkillNames("repeating_trained"),
-      readSkillNames("repeating_expert"),
-      readSkillNames("repeating_master")
-    ]);
-    const catalog = buildSkillCatalog(trained, expert, master);
-    return catalog;
-  }
-  async function recomputeSkillQuery() {
-    const catalog = await readSkillCatalog();
-    const query = buildSkillQuery(catalog);
-    console.log("[ms] recomputeSkillQuery catalog", catalog.length, catalog, query);
-    setAttrs({ skill_query: query });
+  function recomputeSkillQuery() {
+    readSkillCatalog((catalog) => {
+      const query = buildSkillQuery(catalog);
+      setAttrs({ skill_query: query });
+    });
   }
   function isSaveSkillSelectEnabled(raw) {
     return raw !== "0";
@@ -7263,21 +7262,19 @@
         "sheet_toggle",
         ...shotsKey === void 0 ? [] : [shotsKey]
       ];
-      const attrs = await new Promise((resolve) => {
-        getAttrs(keys, resolve);
-      });
-      if (grade.stressDelta !== 0 && !isNpcSheet(attrs.sheet_toggle)) {
-        const stress = Number(attrs.stress);
-        const min = Number(attrs.stress_min);
-        const max = Number(attrs.stress_max);
-        applyStressDelta(stress, grade.stressDelta, min, max);
-      }
-      if (shotsKey !== void 0) {
+      getAttrs(keys, (attrs) => {
+        if (grade.stressDelta !== 0 && !isNpcSheet(attrs.sheet_toggle)) {
+          const stress = Number(attrs.stress);
+          const min = Number(attrs.stress_min);
+          const max = Number(attrs.stress_max);
+          applyStressDelta(stress, grade.stressDelta, min, max);
+        }
+        if (shotsKey === void 0) return;
         const spent = spendAmmo(attrs[shotsKey] ?? "");
         setAttrs({ [shotsKey]: spent });
         const isEmpty = isOutOfAmmo(spent);
-        if (isEmpty) await postOutOfAmmoAlert(options.name ?? "");
-      }
+        if (isEmpty) void postOutOfAmmoAlert(options.name ?? "");
+      });
     }
     return check;
   }
@@ -7453,30 +7450,26 @@
   function readDamageType(index) {
     return allDamageTypes[index] ?? DamageTypes.Blunt;
   }
-  function readDamageState() {
-    return new Promise((resolve) => {
-      getAttrs(
-        ["health", "health_max", "wounds", "wounds_max", "armor_points", "damage_reduction"],
-        (attrs) => {
-          resolve({
-            health: Number(attrs.health) || 0,
-            healthMax: Number(attrs.health_max) || 0,
-            wounds: Number(attrs.wounds) || 0,
-            woundsMax: Number(attrs.wounds_max) || 0,
-            armorPoints: Number(attrs.armor_points) || 0,
-            damageReduction: Number(attrs.damage_reduction) || 0
-          });
-        }
-      );
-    });
-  }
-  function readWoundState() {
-    return new Promise((resolve) => {
-      getAttrs(["wounds", "wounds_max"], (attrs) => {
-        resolve({
+  function readDamageState(done) {
+    getAttrs(
+      ["health", "health_max", "wounds", "wounds_max", "armor_points", "damage_reduction"],
+      (attrs) => {
+        done({
+          health: Number(attrs.health) || 0,
+          healthMax: Number(attrs.health_max) || 0,
           wounds: Number(attrs.wounds) || 0,
-          woundsMax: Number(attrs.wounds_max) || 0
+          woundsMax: Number(attrs.wounds_max) || 0,
+          armorPoints: Number(attrs.armor_points) || 0,
+          damageReduction: Number(attrs.damage_reduction) || 0
         });
+      }
+    );
+  }
+  function readWoundState(done) {
+    getAttrs(["wounds", "wounds_max"], (attrs) => {
+      done({
+        wounds: Number(attrs.wounds) || 0,
+        woundsMax: Number(attrs.wounds_max) || 0
       });
     });
   }
@@ -7491,8 +7484,12 @@
     }
     return attrs;
   }
-  async function handleTakeDamage() {
-    const state = await readDamageState();
+  function handleTakeDamage() {
+    readDamageState((state) => {
+      void rollTakeDamage(state);
+    });
+  }
+  async function rollTakeDamage(state) {
     const capacity = Math.max(0, state.woundsMax - state.wounds);
     const diceFields = Array.from({ length: capacity }, (_, index) => `wound_roll_${index}`);
     const formula = [
@@ -7512,20 +7509,30 @@
     const damageType = readDamageType(typeEntry.result);
     const woundDice = diceFields.map((field) => rollData.results[field]?.result ?? 0);
     const outcome = applyDamage(damageEntry.result, state, damageType, woundDice);
-    const armorUpdates = outcome.armorDestroyed ? await destroyWornArmor() : {};
-    setAttrs({
-      health: outcome.health,
-      wounds: outcome.wounds,
-      ...armorUpdates,
-      ...woundAfflictionRows(outcome.woundRolls)
-    });
-    finishRoll(rollData.rollId, {
-      notes: damageNotes(outcome),
-      alert: outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : ""
+    const writeOutcome = (armorUpdates) => {
+      setAttrs({
+        health: outcome.health,
+        wounds: outcome.wounds,
+        ...armorUpdates,
+        ...woundAfflictionRows(outcome.woundRolls)
+      });
+      finishRoll(rollData.rollId, {
+        notes: damageNotes(outcome),
+        alert: outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : ""
+      });
+    };
+    if (outcome.armorDestroyed) {
+      destroyWornArmor(writeOutcome);
+      return;
+    }
+    writeOutcome({});
+  }
+  function handleTakeWound() {
+    readWoundState((state) => {
+      void rollTakeWound(state);
     });
   }
-  async function handleTakeWound() {
-    const state = await readWoundState();
+  async function rollTakeWound(state) {
     const formula = [
       "&{template:ms}",
       `{{name=^{${TEMPLATE_PHRASES.TakeAWound}}}}`,
@@ -8321,14 +8328,12 @@ ${SHIP_PANIC_MESSAGE}`;
       mdmg: Math.min(MDMG_TRACK_MAX, mdmg + overflow)
     };
   }
-  function readShipCombat() {
-    return new Promise((resolve) => {
-      getAttrs(["ship_hull", "ship_mdmg", "ship_mdmg_total"], (response) => {
-        resolve({
-          hull: Number(response.ship_hull) || 0,
-          mdmg: Number(response.ship_mdmg) || 0,
-          mdmgOutput: Number(response.ship_mdmg_total) || 0
-        });
+  function readShipCombat(done) {
+    getAttrs(["ship_hull", "ship_mdmg", "ship_mdmg_total"], (response) => {
+      done({
+        hull: Number(response.ship_hull) || 0,
+        mdmg: Number(response.ship_mdmg) || 0,
+        mdmgOutput: Number(response.ship_mdmg_total) || 0
       });
     });
   }
@@ -8338,26 +8343,23 @@ ${SHIP_PANIC_MESSAGE}`;
       target: "@{ship_battle}",
       bonus: skillQuery()
     });
-    const {
-      hull,
-      mdmg,
-      mdmgOutput
-    } = await readShipCombat();
-    const notes = [];
-    const dealt = battleCheckDamageDealt(result.outcome, mdmgOutput);
-    if (dealt > 0) notes.push(`Deals ${dealt} MDMG.`);
-    const selfHit = battleCheckSelfDamage(result.outcome);
-    if (selfHit > 0) {
-      const next = applyHullDamage(selfHit, hull, mdmg);
-      setAttrs({
-        ship_hull: next.hull,
-        ship_mdmg: next.mdmg
+    readShipCombat((combat) => {
+      const notes = [];
+      const dealt = battleCheckDamageDealt(result.outcome, combat.mdmgOutput);
+      if (dealt > 0) notes.push(`Deals ${dealt} MDMG.`);
+      const selfHit = battleCheckSelfDamage(result.outcome);
+      if (selfHit > 0) {
+        const next = applyHullDamage(selfHit, combat.hull, combat.mdmg);
+        setAttrs({
+          ship_hull: next.hull,
+          ship_mdmg: next.mdmg
+        });
+        notes.push(`Ship takes ${selfHit} MDMG.`);
+      }
+      void postShipAlert({
+        alert: shipFailureAlert(result.outcome),
+        notes: notes.join("\n")
       });
-      notes.push(`Ship takes ${selfHit} MDMG.`);
-    }
-    await postShipAlert({
-      alert: shipFailureAlert(result.outcome),
-      notes: notes.join("\n")
     });
   }
   function getMegadamageEffect(level) {
@@ -8651,11 +8653,10 @@ ${SHIP_PANIC_MESSAGE}`;
     "remove:repeating_equipment"
   ].join(" ");
   on(ARMOR_ROW_EVENTS, () => {
-    void recalculateArmorTotals();
+    recalculateArmorTotals();
   });
   on("sheet:opened", () => {
-    console.log("[ms] sheet:opened -> recalculateArmorTotals");
-    void recalculateArmorTotals();
+    recalculateArmorTotals();
   });
   var SKILLED_CHECKS = [...allStats, ...allSaves];
   for (const attribute of CHECK_ATTRIBUTES) {
@@ -8683,10 +8684,7 @@ ${SHIP_PANIC_MESSAGE}`;
     void rollPanicCheck();
   });
   on("change:sanity change:fear change:body", recomputeWorstSave);
-  on("sheet:opened", () => {
-    console.log("[ms] sheet:opened -> recomputeWorstSave");
-    recomputeWorstSave();
-  });
+  on("sheet:opened", recomputeWorstSave);
   on("clicked:rest_save", () => {
     void rollRestSave();
   });
@@ -8699,20 +8697,19 @@ ${SHIP_PANIC_MESSAGE}`;
     "remove:repeating_master"
   ].join(" ");
   on(SKILL_ROW_EVENTS, () => {
-    void recomputeSkillQuery();
+    recomputeSkillQuery();
   });
   on("sheet:opened", () => {
-    console.log("[ms] sheet:opened -> recomputeSkillQuery");
-    void recomputeSkillQuery();
+    recomputeSkillQuery();
   });
   on("clicked:death_save", () => {
     void rollDeathSave();
   });
   on("clicked:take_damage", () => {
-    void handleTakeDamage();
+    handleTakeDamage();
   });
   on("clicked:take_wound", () => {
-    void handleTakeWound();
+    handleTakeWound();
   });
   on("clicked:repeating_attacks:attack", (eventInfo) => {
     void rollAttack({
