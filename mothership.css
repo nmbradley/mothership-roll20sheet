@@ -1176,7 +1176,7 @@ body.sheet-darkmode
 }
 .charsheet.charsheet.charsheet .pc-details__fields {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(6, 1fr);
   gap: var(--ms-space-md);
 }
 .charsheet.charsheet.charsheet .pc-details__fields .attribute {
@@ -1193,15 +1193,24 @@ body.sheet-darkmode
   border-radius: var(--ms-radius-md);
   color: var(--ms-inverse);
 }
-.charsheet.charsheet.charsheet .pc-details__score {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: var(--ms-space-sm);
-  align-items: stretch;
+.charsheet.charsheet.charsheet .pc-details__fields .attribute--character_name {
+  grid-column: span 4;
 }
-.charsheet.charsheet.charsheet .pc-details__score input,
-.charsheet.charsheet.charsheet .pc-details__score button {
-  display: inline-block;
+.charsheet.charsheet.charsheet .pc-details__fields .attribute--pronouns {
+  grid-column: span 2;
+}
+.charsheet.charsheet.charsheet .pc-details__fields .attribute--class {
+  grid-column: span 3;
+}
+.charsheet.charsheet.charsheet .pc-details__fields .attribute--high_score {
+  grid-column: span 2;
+}
+.charsheet.charsheet.charsheet .pc-details__fields .attribute--trinket,
+.charsheet.charsheet.charsheet .pc-details__fields .attribute--patch {
+  grid-column: span 6;
+}
+.charsheet.charsheet.charsheet .pc-details__fields .button--action {
+  grid-column: span 1;
   align-self: end;
   border-radius: var(--ms-radius-md);
 }

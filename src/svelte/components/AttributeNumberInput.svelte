@@ -23,6 +23,7 @@
     "attribute": true,
     "attribute--number": true,
     [`attribute--${variant}`]: true,
+    [`attribute--${name}`]: true,
   };
 
   const labelClass = {

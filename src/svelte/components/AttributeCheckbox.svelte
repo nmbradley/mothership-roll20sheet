@@ -14,6 +14,7 @@
   const wrapperClass = {
     "attribute": true,
     "attribute--checkbox": true,
+    [`attribute--${name}`]: true,
   };
 
   const labelClass = {

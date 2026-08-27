@@ -15,6 +15,7 @@
   const wrapperClass = {
     "attribute": true,
     "attribute--text": true,
+    [`attribute--${name}`]: true,
   };
 
   const labelClass = {

@@ -7,7 +7,7 @@
   import Panel from "#svelte/components/Panel.svelte";
 
   /** Stacked beside the portrait, in the order the printed sheet uses. */
-  const details = [character_name, pronouns, class_, patch, trinket];
+  const details = [character_name, pronouns, class_, high_score, trinket, patch];
 </script>
 
 <Panel title="Personal Details" mode="dark" corner="large">
@@ -15,11 +15,10 @@
     <div class="pc-details__fields">
       {#each details as detail (detail.name)}
         <Attribute field={detail} />
+        {#if detail.name === "high_score"}
+          <ButtonAction action="increment_score" label="+1" />
+        {/if}
       {/each}
-    </div>
-    <div class="pc-details__score">
-      <Attribute field={high_score} />
-      <ButtonAction action="increment_score" label="+1" />
     </div>
   </div>
 </Panel>
@@ -30,7 +29,7 @@
 
   &__fields {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(6, 1fr);
     gap: var(--ms-space-md);
 
     .attribute {
@@ -50,17 +49,32 @@
 
       color: var(--ms-inverse);
     }
-  }
 
-  &__score {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: var(--ms-space-sm);
-    align-items: stretch;
+    .attribute--character_name {
+      grid-column: span 4;
+    }
 
-    input,
-    button {
-      display: inline-block;
+    .attribute--pronouns {
+      grid-column: span 2;
+    }
+
+    .attribute--class {
+      grid-column: span 3;
+    }
+
+    .attribute--high_score {
+      grid-column: span 2;
+    }
+
+    .attribute--trinket,
+    .attribute--patch {
+      grid-column: span 6;
+    }
+
+    // Lines up with the High Score input beside it rather than the label
+    // above it.
+    .button--action {
+      grid-column: span 1;
       align-self: end;
 
       border-radius: var(--ms-radius-md);
