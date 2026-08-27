@@ -6,7 +6,6 @@ import { Steps } from "./types";
 /** Stress and wounds every character starts with, before class modifiers. */
 const STARTING_STRESS = 2;
 const STARTING_WOUNDS = 2;
-const STARTING_ARMOR = 0;
 
 /** Every field the Stats step rolls in one pass, in the roll's template order. */
 const ROLLED_FIELDS = [...allStats, ...allSaves];
@@ -46,7 +45,6 @@ export function rolledAttrs(rolls: readonly RollResult[]): Record<string, string
   if (healthRoll !== undefined) attrs["health"] = healthRoll.result;
   attrs["stress"] = STARTING_STRESS;
   attrs["wounds"] = STARTING_WOUNDS;
-  attrs["armor_points"] = STARTING_ARMOR;
   return attrs;
 }
 

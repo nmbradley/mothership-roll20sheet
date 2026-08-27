@@ -111,6 +111,13 @@ on(ARMOR_ROW_EVENTS, () => {
   void recalculateArmorTotals();
 });
 
+// #127: armor_points and damage_reduction are never written until an Armor
+// row changes, so a sheet opened before that leaves both attributes
+// unwritten -- this seeds them from whatever equipment is already worn.
+on("sheet:opened", () => {
+  void recalculateArmorTotals();
+});
+
 // --- CHECKS ---
 
 // Training raises a character's own Stat and Save checks. Instinct has no PC

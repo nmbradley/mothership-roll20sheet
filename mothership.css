@@ -1227,6 +1227,7 @@ body.sheet-darkmode
 .charsheet.charsheet.charsheet .pc-equipment-totals__well {
   border: var(--ms-border-width-thick) solid var(--ms-border);
   border-radius: var(--ms-radius-lg);
+  min-height: calc(var(--ms-text-xl) + var(--ms-space-md) * 2);
   padding: var(--ms-space-md) var(--ms-space-lg);
 }
 .charsheet.charsheet.charsheet .pc-equipment-totals__well .attribute {
