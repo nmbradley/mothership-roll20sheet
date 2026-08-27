@@ -976,9 +976,9 @@ body.sheet-darkmode
   letter-spacing: 0.12em;
   color: var(--ms-accent);
 }
-.charsheet.charsheet.charsheet .npc-header :global(.attribute__input--text) {
+.charsheet.charsheet.charsheet .npc-header .attribute__input--text {
   border: none;
-  border-bottom: 2px solid transparent;
+  border-bottom: var(--ms-border-width) solid transparent;
   outline: none;
   width: 100%;
   background: transparent;
@@ -988,9 +988,7 @@ body.sheet-darkmode
   text-transform: uppercase;
   color: var(--ms-fg-inverse);
 }
-.charsheet.charsheet.charsheet
-  .npc-header
-  :global(.attribute__input--text):focus {
+.charsheet.charsheet.charsheet .npc-header .attribute__input--text:focus {
   border-bottom-color: var(--ms-accent);
 }
 .charsheet.charsheet.charsheet .npc-narrative-grid {
@@ -1010,15 +1008,10 @@ body.sheet-darkmode
 .charsheet.charsheet.charsheet .npc-narrative-field {
   margin-top: var(--ms-space-md);
 }
-.charsheet.charsheet.charsheet .npc-narrative-field :global(.attribute) {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-}
 .charsheet.charsheet.charsheet
   .npc-narrative-field
-  :global(.attribute__input--textarea) {
-  border: 1px solid var(--ms-border);
+  .attribute__input--textarea {
+  border: var(--ms-border-width) solid var(--ms-border);
   border-radius: var(--ms-radius-sm);
   min-height: 6rem;
   padding: var(--ms-space-md);
@@ -1480,9 +1473,6 @@ body.sheet-darkmode
   grid-template-columns: 1fr auto;
   gap: var(--ms-space-sm);
   align-items: end;
-}
-.charsheet.charsheet.charsheet .ship-engines__bid :global(.button) {
-  align-self: end;
 }
 .charsheet.charsheet.charsheet .ship-header {
   display: grid;

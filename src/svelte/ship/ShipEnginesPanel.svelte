@@ -27,9 +27,5 @@
   grid-template-columns: 1fr auto;
   gap: var(--ms-space-sm);
   align-items: end;
-
-  :global(.button) {
-    align-self: end;
-  }
 }
 </style>

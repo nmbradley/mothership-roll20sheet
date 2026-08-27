@@ -60,9 +60,9 @@
       color: var(--ms-accent);
     }
 
-    :global(.attribute__input--text) {
+    .attribute__input--text {
       border: none;
-      border-bottom: 2px solid transparent;
+      border-bottom: var(--ms-border-width) solid transparent;
       outline: none;
       width: 100%;
 

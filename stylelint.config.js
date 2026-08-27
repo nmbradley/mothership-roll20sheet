@@ -165,6 +165,13 @@ export default {
 
   plugins: ["stylelint-order"],
   rules: {
+    // Class names are already global here (see scripts/collect-styles.js):
+    // Svelte never scopes or compiles these components' styles, so
+    // `:global(...)` survives verbatim into mothership.css, where it is not
+    // valid CSS and the browser drops the whole rule. Nest the plain
+    // selector instead.
+    "selector-pseudo-class-disallowed-list": ["global"],
+
     // Sass inheritance first, then custom properties, declarations, nested rules.
     "order/order": [
       {
