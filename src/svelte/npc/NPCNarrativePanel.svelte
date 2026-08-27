@@ -41,14 +41,8 @@
   .npc-narrative-field {
     margin-top: var(--ms-space-md);
 
-    :global(.attribute) {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    :global(.attribute__input--textarea) {
-      border: 1px solid var(--ms-border);
+    .attribute__input--textarea {
+      border: var(--ms-border-width) solid var(--ms-border);
       border-radius: var(--ms-radius-sm);
       min-height: 6rem;
       padding: var(--ms-space-md);
