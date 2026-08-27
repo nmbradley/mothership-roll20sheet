@@ -37,6 +37,7 @@ import {
   rollSaveCheck,
   skillQuery,
 } from "./rules/checks";
+import { handleTakeDamage, handleTakeWound } from "./rules/damage";
 import {
   handleAfterBattleReport,
   handleAnnualMaintenanceCheck,
@@ -134,6 +135,14 @@ on("clicked:rest_save", () => {
 
 on("clicked:death_save", () => {
   void rollDeathSave();
+});
+
+on("clicked:take_damage", () => {
+  void handleTakeDamage();
+});
+
+on("clicked:take_wound", () => {
+  void handleTakeWound();
 });
 
 on("clicked:stress_up", () => {
