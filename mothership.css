@@ -318,6 +318,21 @@ body.sheet-darkmode
   white-space: pre-line;
   color: var(--ms-fg);
 }
+.sheet-rolltemplate-ms .ms-alert,
+.sheet-rolltemplate-ms-cm .ms-alert {
+  margin-top: var(--ms-space-md);
+  border-radius: var(--ms-radius-md);
+  padding: var(--ms-space-lg);
+  background: var(--ms-accent);
+  font-size: var(--ms-text-xl);
+  line-height: 1.3;
+  font-family: var(--ms-font-header);
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: pre-line;
+  color: var(--ms-fg-inverse);
+}
 
 .charsheet.charsheet.charsheet {
   display: block;

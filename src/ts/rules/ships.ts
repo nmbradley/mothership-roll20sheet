@@ -3,8 +3,11 @@ import {
   maintenanceTable,
   type MaintenanceIssue,
 } from "#game/data/maintenance";
+import { megadamageTable, type MegaDamageEffect } from "#game/data/megadamage";
 
-import { checkKey, rollCheck } from "./checks";
+import {
+  checkKey, rollCheck, skillQuery,
+} from "./checks";
 import {
   Outcomes, evaluateRoll, type Outcome,
 } from "./rolls";
@@ -195,33 +198,214 @@ export async function handleBankruptcySave(): Promise<void> {
 }
 
 /**
+ * Loud chat text a failed ship stat check owes the table (#59).
+ *
+ * Roll20 sheetworkers cannot write another character's Stress, and a ship has
+ * no player of its own to grant it to -- everyone aboard has to apply this by
+ * hand once they see it, hence "loud" rather than automated.
+ */
+export const SHIP_STRESS_MESSAGE = "EVERYONE ON BOARD GAINS 1 STRESS";
+export const SHIP_PANIC_MESSAGE = "CRITICAL FAILURE: EVERYONE ABOARD MUST MAKE A PANIC CHECK";
+
+/**
+ * The Stress/Panic warning for a graded ship stat check, or "" on a success.
+ * A Critical Failure carries both lines: it is still a failure (Stress)
+ * on top of forcing the Panic Check.
+ */
+export function shipFailureAlert(outcome: Outcome): string {
+  if (outcome === Outcomes.CriticalFailure) return `${SHIP_STRESS_MESSAGE}\n${SHIP_PANIC_MESSAGE}`;
+  if (outcome === Outcomes.Failure) return SHIP_STRESS_MESSAGE;
+  return "";
+}
+
+/**
+ * Posts a follow-up chat card for what a graded rollCheck() result can't say
+ * itself: the Stress/Panic warning, and for Battle Checks, the MDMG dealt or
+ * taken. A second roll rather than extra fields on the first, since
+ * checkTemplate()'s fields are fixed and shared with PC checks (#48/#54).
+ */
+async function postShipAlert(fields: {
+  alert?: string;
+  notes?: string;
+}): Promise<void> {
+  const alert = fields.alert ?? "";
+  const notes = fields.notes ?? "";
+  if (alert === "" && notes === "") return;
+
+  const rollData = await startRoll(
+    "&{template:ms} {{character_name=@{character_name}}} {{alert=[[0]]}} {{notes=[[0]]}}",
+  );
+  finishRoll(rollData.rollId, {
+    alert,
+    notes,
+  });
+}
+
+/**
  * Roll20 Sheetworker: Systems Check
  */
 export async function handleSystemsCheck(): Promise<void> {
-  await rollCheck({
+  const result = await rollCheck({
     i18nKey: checkKey("systems"),
     target: "@{ship_systems}",
+    bonus: skillQuery(),
   });
+  await postShipAlert({ alert: shipFailureAlert(result.outcome) });
 }
 
 /**
  * Roll20 Sheetworker: Thrusters Check
  */
 export async function handleThrustersCheck(): Promise<void> {
-  await rollCheck({
+  const result = await rollCheck({
     i18nKey: checkKey("thrusters"),
     target: "@{ship_thrusters}",
+    bonus: skillQuery(),
+  });
+  await postShipAlert({ alert: shipFailureAlert(result.outcome) });
+}
+
+/** MDMG a Battle Check deals to the target: the ship's own MDMG, doubled on a Critical Success. */
+export function battleCheckDamageDealt(outcome: Outcome, mdmgOutput: number): number {
+  if (outcome === Outcomes.CriticalSuccess) return mdmgOutput * 2;
+  if (outcome === Outcomes.Success) return mdmgOutput;
+  return 0;
+}
+
+/** MDMG a failed Battle Check deals to the ship itself, on top of whatever the enemy deals. */
+export function battleCheckSelfDamage(outcome: Outcome): number {
+  if (outcome === Outcomes.CriticalFailure) return 2;
+  if (outcome === Outcomes.Failure) return 1;
+  return 0;
+}
+
+/** The 0-9 MDMG track has no level past 9. */
+const MDMG_TRACK_MAX = 9;
+
+export type HullDamageResult = {
+  hull: number;
+  mdmg: number;
+};
+
+/**
+ * Applies an incoming hit to Hull before MegaDamage: Hull absorbs up to its
+ * own value, and only a hit that meets or exceeds it zeroes Hull and carries
+ * the remainder onto the MDMG track (#61's Hull rule).
+ */
+export function applyHullDamage(hit: number, hull: number, mdmg: number): HullDamageResult {
+  if (hit < hull) return {
+    hull: hull - hit,
+    mdmg,
+  };
+  const overflow = hit - hull;
+  return {
+    hull: 0,
+    mdmg: Math.min(MDMG_TRACK_MAX, mdmg + overflow),
+  };
+}
+
+/**
+ * Reads the ship's own Hull, MDMG and MDMG output -- the only attributes a
+ * Battle Check's own sheetworker is allowed to touch.
+ */
+function readShipCombat(): Promise<{
+  hull: number;
+  mdmg: number;
+  mdmgOutput: number;
+}> {
+  return new Promise((resolve) => {
+    getAttrs(["ship_hull", "ship_mdmg", "ship_mdmg_total"], (response) => {
+      resolve({
+        hull: Number(response.ship_hull) || 0,
+        mdmg: Number(response.ship_mdmg) || 0,
+        mdmgOutput: Number(response.ship_mdmg_total) || 0,
+      });
+    });
   });
 }
 
 /**
  * Roll20 Sheetworker: Battle Check
+ *
+ * A success deals the ship's own MDMG to the target; a failure deals the ship
+ * itself 1 MDMG (2 on a Critical Failure) through the Hull rule above. #61
+ * notes that at 2 MDMG "WEAPONS OFFLINE" makes every further Battle Check an
+ * automatic failure -- that text reaches chat from handleMdmgChange below,
+ * but this handler still rolls the dice rather than silently failing the
+ * check itself. Every other check on this sheet always rolls and shows a
+ * verdict; a hidden no-roll here would be the one check that doesn't, and the
+ * effect text already told the table to treat the roll as failed by eye.
  */
 export async function handleBattleCheck(): Promise<void> {
-  await rollCheck({
+  const result = await rollCheck({
     i18nKey: checkKey("battle"),
     target: "@{ship_battle}",
+    bonus: skillQuery(),
   });
+
+  const {
+    hull, mdmg, mdmgOutput,
+  } = await readShipCombat();
+  const notes: string[] = [];
+
+  const dealt = battleCheckDamageDealt(result.outcome, mdmgOutput);
+  if (dealt > 0) notes.push(`Deals ${dealt} MDMG.`);
+
+  const selfHit = battleCheckSelfDamage(result.outcome);
+  if (selfHit > 0) {
+    const next = applyHullDamage(selfHit, hull, mdmg);
+    setAttrs({
+      ship_hull: next.hull,
+      ship_mdmg: next.mdmg,
+    });
+    notes.push(`Ship takes ${selfHit} MDMG.`);
+  }
+
+  await postShipAlert({
+    alert: shipFailureAlert(result.outcome),
+    notes: notes.join("\n"),
+  });
+}
+
+/**
+ * Looks up the MegaDamage Table's effect at a given track level (0-9),
+ * clamping out-of-range input the same way getMaintenanceIssue does.
+ */
+export function getMegadamageEffect(level: number): MegaDamageEffect {
+  const rounded = Math.floor(level);
+  const clampedMax = Math.min(MDMG_TRACK_MAX, rounded);
+  const clamped = Math.max(0, clampedMax);
+  const effect = megadamageTable[clamped];
+  if (effect === undefined) {
+    throw new Error(`No MegaDamage effect at level ${clamped}`);
+  }
+  return effect;
+}
+
+/**
+ * The MegaDamage Table's effect text for a tracker increase, or undefined for
+ * a decrease/no-op -- there is no "less broken" flavour text for a repair,
+ * and the crew already knows the ship got fixed.
+ */
+export function mdmgChangeMessage(previous: number, next: number): string | undefined {
+  if (next <= previous) return undefined;
+  return getMegadamageEffect(next).effect;
+}
+
+/**
+ * Roll20 Sheetworker: broadcasts the MegaDamage Table's effect when
+ * ship_mdmg increases, e.g. reaching 2 posts "WEAPONS OFFLINE. Automatically
+ * fail Battle Checks."
+ */
+export function handleMdmgChange(eventInfo: EventInfo): void {
+  const previous = Number.parseInt(eventInfo.previousValue, 10);
+  const next = Number.parseInt(eventInfo.newValue, 10);
+  const message = mdmgChangeMessage(
+    Number.isNaN(previous) ? 0 : previous,
+    Number.isNaN(next) ? 0 : next,
+  );
+  if (message === undefined) return;
+  void postShipAlert({ notes: message });
 }
 
 export type StartingConditionResult = {

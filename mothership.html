@@ -2168,6 +2168,10 @@
     {{#notes}}
     <div class="ms-notes">{{notes}}</div>
     {{/notes}}
+
+    {{#alert}}
+    <div class="ms-alert">{{alert}}</div>
+    {{/alert}}
   </div>
 </rolltemplate>
 
@@ -7125,6 +7129,50 @@
     }
   ];
 
+  // src/game/data/megadamage.ts
+  var megadamageTable = [
+    {
+      level: 0,
+      effect: "ALL SYSTEMS NORMAL. 5x5. Ready to ride."
+    },
+    {
+      level: 1,
+      effect: "EMERGENCY FUEL LEAK. Every time you spend fuel, you spend 1 more."
+    },
+    {
+      level: 2,
+      effect: "WEAPONS OFFLINE. Automatically fail Battle Checks."
+    },
+    {
+      level: 3,
+      effect: "NAVIGATION OFFLINE. Cannot make Thruster Checks. 10% chance all navigation data wiped."
+    },
+    {
+      level: 4,
+      effect: "FIRE ON DECK. Fire spreads throughout the ship, creating a toxic atmosphere (due to smoke inhalation) and a highly corrosive atmosphere (10 DMG/round) for locations on fire (see Toxic & Corrosive Atmospheres, Player\u2019s Survival Guide pg. 32.1 for details)."
+    },
+    {
+      level: 5,
+      effect: "HULL BREACH. All aboard make a Body Save or take 1 Wound (Explosion). On a Critical Failure, get violently sucked into space."
+    },
+    {
+      level: 6,
+      effect: "LIFE SUPPORT SYSTEMS OFFLINE. Oxygen limited to 1d10 multiplied by the maximum crew capacity (see Oxygen, Player\u2019s Survival Guide pg. 33.1 for details)."
+    },
+    {
+      level: 7,
+      effect: "RADIATION LEAK. Radiation Level increases every 2d10 minutes."
+    },
+    {
+      level: 8,
+      effect: "DEAD IN THE WATER. All systems offline, emergency power only."
+    },
+    {
+      level: 9,
+      effect: "ABANDON SHIP! Ship is destroyed in 1d10 minutes."
+    }
+  ];
+
   // src/ts/rules/ships.ts
   function getMaintenanceIssue(roll) {
     const roundedRoll = Math.floor(roll);
@@ -7227,23 +7275,126 @@ Maintenance Issue 2 [${issue2.roll} - ${issue2.issue_type}]: ${issue2.descriptio
       notes: evaluation.message
     });
   }
-  async function handleSystemsCheck() {
-    await rollCheck({
-      i18nKey: checkKey("systems"),
-      target: "@{ship_systems}"
+  var SHIP_STRESS_MESSAGE = "EVERYONE ON BOARD GAINS 1 STRESS";
+  var SHIP_PANIC_MESSAGE = "CRITICAL FAILURE: EVERYONE ABOARD MUST MAKE A PANIC CHECK";
+  function shipFailureAlert(outcome) {
+    if (outcome === Outcomes.CriticalFailure) return `${SHIP_STRESS_MESSAGE}
+${SHIP_PANIC_MESSAGE}`;
+    if (outcome === Outcomes.Failure) return SHIP_STRESS_MESSAGE;
+    return "";
+  }
+  async function postShipAlert(fields) {
+    const alert = fields.alert ?? "";
+    const notes = fields.notes ?? "";
+    if (alert === "" && notes === "") return;
+    const rollData = await startRoll(
+      "&{template:ms} {{character_name=@{character_name}}} {{alert=[[0]]}} {{notes=[[0]]}}"
+    );
+    finishRoll(rollData.rollId, {
+      alert,
+      notes
     });
   }
+  async function handleSystemsCheck() {
+    const result = await rollCheck({
+      i18nKey: checkKey("systems"),
+      target: "@{ship_systems}",
+      bonus: skillQuery()
+    });
+    await postShipAlert({ alert: shipFailureAlert(result.outcome) });
+  }
   async function handleThrustersCheck() {
-    await rollCheck({
+    const result = await rollCheck({
       i18nKey: checkKey("thrusters"),
-      target: "@{ship_thrusters}"
+      target: "@{ship_thrusters}",
+      bonus: skillQuery()
+    });
+    await postShipAlert({ alert: shipFailureAlert(result.outcome) });
+  }
+  function battleCheckDamageDealt(outcome, mdmgOutput) {
+    if (outcome === Outcomes.CriticalSuccess) return mdmgOutput * 2;
+    if (outcome === Outcomes.Success) return mdmgOutput;
+    return 0;
+  }
+  function battleCheckSelfDamage(outcome) {
+    if (outcome === Outcomes.CriticalFailure) return 2;
+    if (outcome === Outcomes.Failure) return 1;
+    return 0;
+  }
+  var MDMG_TRACK_MAX = 9;
+  function applyHullDamage(hit, hull, mdmg) {
+    if (hit < hull) return {
+      hull: hull - hit,
+      mdmg
+    };
+    const overflow = hit - hull;
+    return {
+      hull: 0,
+      mdmg: Math.min(MDMG_TRACK_MAX, mdmg + overflow)
+    };
+  }
+  function readShipCombat() {
+    return new Promise((resolve) => {
+      getAttrs(["ship_hull", "ship_mdmg", "ship_mdmg_total"], (response) => {
+        resolve({
+          hull: Number(response.ship_hull) || 0,
+          mdmg: Number(response.ship_mdmg) || 0,
+          mdmgOutput: Number(response.ship_mdmg_total) || 0
+        });
+      });
     });
   }
   async function handleBattleCheck() {
-    await rollCheck({
+    const result = await rollCheck({
       i18nKey: checkKey("battle"),
-      target: "@{ship_battle}"
+      target: "@{ship_battle}",
+      bonus: skillQuery()
     });
+    const {
+      hull,
+      mdmg,
+      mdmgOutput
+    } = await readShipCombat();
+    const notes = [];
+    const dealt = battleCheckDamageDealt(result.outcome, mdmgOutput);
+    if (dealt > 0) notes.push(`Deals ${dealt} MDMG.`);
+    const selfHit = battleCheckSelfDamage(result.outcome);
+    if (selfHit > 0) {
+      const next = applyHullDamage(selfHit, hull, mdmg);
+      setAttrs({
+        ship_hull: next.hull,
+        ship_mdmg: next.mdmg
+      });
+      notes.push(`Ship takes ${selfHit} MDMG.`);
+    }
+    await postShipAlert({
+      alert: shipFailureAlert(result.outcome),
+      notes: notes.join("\n")
+    });
+  }
+  function getMegadamageEffect(level) {
+    const rounded = Math.floor(level);
+    const clampedMax = Math.min(MDMG_TRACK_MAX, rounded);
+    const clamped = Math.max(0, clampedMax);
+    const effect = megadamageTable[clamped];
+    if (effect === void 0) {
+      throw new Error(`No MegaDamage effect at level ${clamped}`);
+    }
+    return effect;
+  }
+  function mdmgChangeMessage(previous, next) {
+    if (next <= previous) return void 0;
+    return getMegadamageEffect(next).effect;
+  }
+  function handleMdmgChange(eventInfo) {
+    const previous = Number.parseInt(eventInfo.previousValue, 10);
+    const next = Number.parseInt(eventInfo.newValue, 10);
+    const message = mdmgChangeMessage(
+      Number.isNaN(previous) ? 0 : previous,
+      Number.isNaN(next) ? 0 : next
+    );
+    if (message === void 0) return;
+    void postShipAlert({ notes: message });
   }
   function getRandomUniqueIssues(count, table = maintenanceTable, randomFn = Math.random) {
     if (count <= 0) return [];
@@ -7320,6 +7471,7 @@ Maintenance Issue 2 [${issue2.roll} - ${issue2.issue_type}]: ${issue2.descriptio
   on("clicked:battle_check", () => {
     void handleBattleCheck();
   });
+  on("change:ship_mdmg", handleMdmgChange);
   var SKILLED_CHECKS = [...allStats, ...allSaves];
   for (const attribute of CHECK_ATTRIBUTES) {
     const isSkilled = SKILLED_CHECKS.includes(attribute);
