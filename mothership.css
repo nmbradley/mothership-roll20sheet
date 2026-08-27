@@ -1244,7 +1244,26 @@ body.sheet-darkmode
 .charsheet.charsheet.charsheet .pc-equipment-armor {
   display: none;
   gap: var(--ms-space-lg);
-  align-items: center;
+  align-items: flex-end;
+}
+.charsheet.charsheet.charsheet .pc-equipment-armor .attribute--round label {
+  order: 0;
+  font-size: var(--ms-text-sm);
+}
+.charsheet.charsheet.charsheet
+  .pc-equipment-armor
+  .attribute--round
+  .attribute__input[type="number"] {
+  order: 1;
+  width: 40px;
+  height: 40px;
+  font-size: var(--ms-text-md);
+}
+.charsheet.charsheet.charsheet .pc-equipment-armor .button--action {
+  border-color: var(--ms-accent);
+  border-radius: var(--ms-radius-pill);
+  background: var(--ms-accent);
+  color: var(--ms-fg-inverse);
 }
 .charsheet.charsheet.charsheet
   .settings__drawer:has(input[name="attr_equipment_type"][value="Armor"])
