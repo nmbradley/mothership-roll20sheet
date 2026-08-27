@@ -227,6 +227,7 @@
   .attribute {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--ms-space-sm);
+    align-items: stretch;
   }
 }
 

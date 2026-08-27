@@ -51,6 +51,7 @@
 // full width of whatever holds it.
 .attribute--textarea {
   grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
 }
 
 .attribute__input--textarea {
