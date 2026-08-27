@@ -45,6 +45,11 @@
           type="hidden"
           name="attr_drop_content"
           value=""
+        /><input
+          class="attribute__input attribute__input--hidden"
+          type="hidden"
+          name="attr_worst_save"
+          value="0"
         />
       </div>
       <div class="pc-sheet__state">
@@ -6948,6 +6953,14 @@
     const lowest = Math.min(sanity, fear, body);
     return lowest;
   }
+  function recomputeWorstSave() {
+    getAttrs(["sanity", "fear", "body"], (attrs) => {
+      const sanity = Number(attrs.sanity);
+      const fear = Number(attrs.fear);
+      const body = Number(attrs.body);
+      setAttrs({ worst_save: worstSave(sanity, fear, body) });
+    });
+  }
   function restSaveStressDelta(check) {
     const hasFailed = isFailure(check.outcome);
     if (hasFailed) return 1;
@@ -6955,22 +6968,17 @@
     return -onesDigit;
   }
   async function rollRestSave() {
-    const attrs = await new Promise((resolve) => {
-      getAttrs(["sanity", "fear", "body", "stress", "stress_min", "stress_max"], resolve);
-    });
-    const sanity = Number(attrs.sanity);
-    const fear = Number(attrs.fear);
-    const body = Number(attrs.body);
-    const target = worstSave(sanity, fear, body);
     const check = await rollCheck({
       i18nKey: TEMPLATE_PHRASES.RestSave,
-      target: String(target)
+      target: "@{worst_save}"
     });
     const delta = restSaveStressDelta(check);
-    const stress = Number(attrs.stress);
-    const min = Number(attrs.stress_min);
-    const max = Number(attrs.stress_max);
-    applyStressDelta(stress, delta, min, max);
+    getAttrs(["stress", "stress_min", "stress_max"], (attrs) => {
+      const stress = Number(attrs.stress);
+      const min = Number(attrs.stress_min);
+      const max = Number(attrs.stress_max);
+      applyStressDelta(stress, delta, min, max);
+    });
   }
   async function rollDeathSave() {
     const template = deathSaveTemplate();
@@ -8165,6 +8173,8 @@ ${SHIP_PANIC_MESSAGE}`;
   on("clicked:panic", () => {
     void rollPanicCheck();
   });
+  on("change:sanity change:fear change:body", recomputeWorstSave);
+  on("sheet:opened", recomputeWorstSave);
   on("clicked:rest_save", () => {
     void rollRestSave();
   });

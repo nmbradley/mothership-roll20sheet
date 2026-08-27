@@ -158,6 +158,16 @@ export const body = attribute({
   control: Controls.Number,
   value: 0,
 });
+// #110: the lowest (worst) of the three Saves, maintained by
+// recomputeWorstSave in checks.ts rather than computed inline, so
+// rollRestSave can target it with a plain @{...} reference and reach
+// startRoll synchronously.
+export const worst_save = attribute({
+  name: "worst_save",
+  label: "Worst Save",
+  control: Controls.Hidden,
+  value: "0",
+});
 export const credits = attribute({
   name: "credits",
   label: "Credits",
@@ -295,6 +305,7 @@ export const pcAttributes = {
   sanity,
   fear,
   body,
+  worst_save,
   credits,
   patch,
   trinket,

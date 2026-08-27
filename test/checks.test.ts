@@ -13,6 +13,7 @@ import {
   adjustStress,
   applyStressDelta,
   isSaveSkillSelectEnabled,
+  recomputeWorstSave,
   restSaveStressDelta,
   rollCheck,
   rollDeathSave,
@@ -377,18 +378,39 @@ describe("restSaveStressDelta", () => {
   });
 });
 
-describe("rollRestSave", () => {
+describe("recomputeWorstSave", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it("should target the worst Save, read fresh via getAttrs, and adjust Stress on the outcome", async () => {
+  it("should write worst_save from the three current Saves", () => {
     type GetAttrsCallback = (response: Record<string, string>) => void;
     const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
       callback({
         sanity: "60",
         fear: "35",
         body: "50",
+      });
+    });
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    recomputeWorstSave();
+
+    expect(mockSetAttrs).toHaveBeenCalledWith({ worst_save: 35 });
+  });
+});
+
+describe("rollRestSave", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("should target worst_save directly and adjust Stress on the outcome", async () => {
+    type GetAttrsCallback = (response: Record<string, string>) => void;
+    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
+      callback({
         stress: "10",
         stress_min: "2",
         stress_max: "20",
@@ -413,7 +435,7 @@ describe("rollRestSave", () => {
     await rollRestSave();
 
     const formula = mockStartRoll.mock.calls[0][0] as string;
-    expect(formula).toContain("target=[[35+");
+    expect(formula).toContain("target=[[@{worst_save}+");
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 6 });
   });
 
@@ -423,9 +445,6 @@ describe("rollRestSave", () => {
     // stress_min rather than a value baked into checks.ts.
     const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
       callback({
-        sanity: "60",
-        fear: "35",
-        body: "50",
         stress: "5",
         stress_min: "4",
         stress_max: "20",
@@ -452,6 +471,43 @@ describe("rollRestSave", () => {
     await rollRestSave();
 
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 4 });
+  });
+
+  // #110 regression: rollRestSave used to await a getAttrs round trip before
+  // its startRoll, which silently broke the roll -- Roll20 requires
+  // startRoll to be reached synchronously from the click handler. This pins
+  // the call order so that ordering cannot drift back.
+  it("should reach startRoll before making any getAttrs call", async () => {
+    const calls: string[] = [];
+    type GetAttrsCallback = (response: Record<string, string>) => void;
+    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
+      calls.push("getAttrs");
+      callback({
+        stress: "10",
+        stress_min: "2",
+        stress_max: "20",
+      });
+    });
+    const mockStartRoll = vi.fn(() => {
+      calls.push("startRoll");
+      return Promise.resolve({
+        rollId: "id",
+        results: {
+          roll: { result: 24 },
+          roll2: { result: 80 },
+          edge: { result: 0 },
+          target: { result: 35 },
+        },
+      });
+    });
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+    vi.stubGlobal("setAttrs", vi.fn());
+
+    await rollRestSave();
+
+    expect(calls).toEqual(["startRoll", "getAttrs"]);
   });
 });
 

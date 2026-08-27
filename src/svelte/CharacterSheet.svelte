@@ -7,6 +7,7 @@
     init,
     sheet_skill_toggles,
     speed_initiative,
+    worst_save,
   } from "#game/fields/pcFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
 
@@ -26,6 +27,7 @@
     drop_name,
     drop_data,
     drop_content,
+    worst_save,
   ];
 </script>
 

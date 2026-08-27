@@ -28,6 +28,7 @@ import {
   adjustStress,
   CHECK_ATTRIBUTES,
   checkKey,
+  recomputeWorstSave,
   rollCheck,
   rollDeathSave,
   rollNPCInitiative,
@@ -132,6 +133,13 @@ on("clicked:npc-initiative", () => {
 on("clicked:panic", () => {
   void rollPanicCheck();
 });
+
+// #110: worst_save is a hidden mirror of whichever Save reads lowest, kept in
+// step here rather than read inline by rollRestSave, so its startRoll can
+// fire synchronously off the click. sheet:opened seeds it for a character
+// saved before this attribute existed.
+on("change:sanity change:fear change:body", recomputeWorstSave);
+on("sheet:opened", recomputeWorstSave);
 
 on("clicked:rest_save", () => {
   void rollRestSave();
