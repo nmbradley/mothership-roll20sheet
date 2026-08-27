@@ -39,6 +39,7 @@ import {
   handleBankruptcySave,
   handleBattleCheck,
   handleMdmgChange,
+  handleMoraleCheck,
   handleStartingCondition,
   handleSystemsCheck,
   handleThrustersCheck,
@@ -67,6 +68,9 @@ on("clicked:battle_check", () => {
   void handleBattleCheck();
 });
 on("change:ship_mdmg", handleMdmgChange);
+on("clicked:morale_check", () => {
+  void handleMoraleCheck();
+});
 
 // --- ARMOR ---
 

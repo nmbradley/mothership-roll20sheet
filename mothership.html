@@ -135,8 +135,6 @@
                     spellcheck="false"
                   />
                 </div>
-              </div>
-              <div class="pc-details__score">
                 <div class="attribute attribute--text">
                   <label
                     class="attribute__label attribute__label--text"
@@ -151,13 +149,6 @@
                     spellcheck="false"
                   />
                 </div>
-                <button
-                  class="button button--action"
-                  type="action"
-                  name="act_increment_score"
-                >
-                  <span class="button__label" data-i18n="+1">+1</span>
-                </button>
               </div>
             </div>
           </div>
@@ -361,29 +352,13 @@
                 <div class="pc-status-card__label" data-i18n="Stress">
                   Stress
                 </div>
-                <div class="pc-status-card__stress">
-                  <button
-                    class="button button--action"
-                    type="action"
-                    name="act_stress_down"
-                  >
-                    <span class="button__label" data-i18n="−">−</span>
-                  </button>
-                  <div class="attribute attribute--number attribute--default">
-                    <input
-                      class="attribute__input attribute__input--number attribute__input--number--default"
-                      type="number"
-                      name="attr_stress"
-                      value="2"
-                    />
-                  </div>
-                  <button
-                    class="button button--action"
-                    type="action"
-                    name="act_stress_up"
-                  >
-                    <span class="button__label" data-i18n="+">+</span>
-                  </button>
+                <div class="attribute attribute--number attribute--default">
+                  <input
+                    class="attribute__input attribute__input--number attribute__input--number--default"
+                    type="number"
+                    name="attr_stress"
+                    value="2"
+                  />
                 </div>
               </div>
               <div class="pc-status-card pc-status-card--action">
@@ -434,77 +409,15 @@
               </div>
             </div>
             <div class="pc-conditions">
-              <div
-                class="pc-conditions__label"
-                data-i18n="Conditions &amp; Afflictions"
-              >
-                Conditions &amp; Afflictions
+              <div class="pc-conditions__label" data-i18n="Conditions">
+                Conditions
               </div>
-              <div class="repeating">
-                <div
-                  class="repeating__head"
-                  style="grid-template-columns: 1fr auto auto"
-                >
-                  <span class="repeating__heading" data-i18n="Name">Name</span><span class="repeating__heading" data-i18n="Treated"
-                    >Treated</span>
-                  <span
-                    class="repeating__heading repeating__heading--spacer"
-                  ></span>
-                </div>
-                <fieldset class="repeating_afflictions">
-                  <div
-                    class="repeating__row"
-                    style="grid-template-columns: 1fr auto auto"
-                  >
-                    <div class="attribute attribute--display">
-                      <span
-                        class="attribute__value attribute__value--display"
-                        name="attr_affliction_name"
-                      ></span>
-                    </div>
-                    <div class="attribute attribute--checkbox">
-                      <input
-                        class="attribute__input attribute__input--checkbox"
-                        type="checkbox"
-                        name="attr_affliction_treated"
-                        value="on"
-                      />
-                    </div>
-                    <label class="settings__cog"
-                      ><input
-                        class="settings__toggle"
-                        type="checkbox"
-                        name="attr_affliction_settings"
-                      />
-                      <span class="settings__icon">y</span></label>
-                    <div class="settings__drawer">
-                      <div class="settings__row">
-                        <span class="settings__label" data-i18n="Name"
-                          >Name</span>
-                        <div class="attribute attribute--text">
-                          <input
-                            class="attribute__input attribute__input--text"
-                            type="text"
-                            name="attr_affliction_name"
-                            value=""
-                            spellcheck="false"
-                          />
-                        </div>
-                      </div>
-                      <div class="settings__row settings__row--full">
-                        <span class="settings__label" data-i18n="Effect"
-                          >Effect</span>
-                        <div class="attribute attribute--textarea">
-                          <textarea
-                            class="attribute__input attribute__input--textarea"
-                            name="attr_affliction_effect"
-                            spellcheck="false"
-                          ></textarea>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </fieldset>
+              <div class="attribute attribute--textarea">
+                <textarea
+                  class="attribute__input attribute__input--textarea"
+                  name="attr_conditions"
+                  spellcheck="false"
+                ></textarea>
               </div>
             </div>
           </div>
@@ -628,9 +541,10 @@
             <div class="repeating">
               <div
                 class="repeating__head"
-                style="grid-template-columns: 1fr 100px auto"
+                style="grid-template-columns: 1fr 100px 70px auto"
               >
-                <span class="repeating__heading" data-i18n="Name">Name</span><span class="repeating__heading" data-i18n="Type">Type</span>
+                <span class="repeating__heading" data-i18n="Name">Name</span><span class="repeating__heading" data-i18n="Type">Type</span><span class="repeating__heading" data-i18n="Armor Bonus"
+                  >Armor Bonus</span>
                 <span
                   class="repeating__heading repeating__heading--spacer"
                 ></span>
@@ -638,7 +552,7 @@
               <fieldset class="repeating_equipment">
                 <div
                   class="repeating__row"
-                  style="grid-template-columns: 1fr 100px auto"
+                  style="grid-template-columns: 1fr 100px 70px auto"
                 >
                   <div class="attribute attribute--display">
                     <span
@@ -660,6 +574,15 @@
                       </option>
                       <option value="Armor" data-i18n="Armor">Armor</option>
                     </select>
+                  </div>
+                  <div class="attribute attribute--text">
+                    <input
+                      class="attribute__input attribute__input--text"
+                      type="text"
+                      name="attr_equipment_armor_bonus"
+                      value=""
+                      spellcheck="false"
+                    />
                   </div>
                   <label class="settings__cog"
                     ><input
@@ -704,40 +627,12 @@
                 >
                   Armor Points
                 </div>
-                <div
-                  class="pc-equipment-totals__well pc-equipment-totals__well--armor"
-                >
-                  <div class="attribute attribute--number attribute--default">
-                    <input
-                      class="attribute__input attribute__input--number attribute__input--number--default"
-                      type="number"
-                      name="attr_armor_points"
-                      value="0"
-                    />
-                  </div>
-                  <button
-                    class="button button--action"
-                    type="action"
-                    name="act_destroy_armor"
-                  >
-                    <span class="button__label" data-i18n="Destroy"
-                      >Destroy</span>
-                  </button>
-                </div>
-              </div>
-              <div class="pc-equipment-totals__cell">
-                <div
-                  class="pc-equipment-totals__label"
-                  data-i18n="Damage Reduction"
-                >
-                  Damage Reduction
-                </div>
                 <div class="pc-equipment-totals__well">
                   <div class="attribute attribute--number attribute--default">
                     <input
                       class="attribute__input attribute__input--number attribute__input--number--default"
                       type="number"
-                      name="attr_damage_reduction"
+                      name="attr_armor_points"
                       value="0"
                     />
                   </div>
@@ -937,6 +832,16 @@
   </div>
   <div class="sheet-view sheet-view--ship">
     <div class="ship-sheet">
+      <div class="ship-sheet__state">
+        <div class="attribute attribute--checkbox">
+          <input
+            class="attribute__input attribute__input--checkbox"
+            type="checkbox"
+            name="attr_ship_npc"
+            value="on"
+          />
+        </div>
+      </div>
       <header class="ship-sheet__header">
         <div class="frame frame--mode-dark frame--corner-large">
           <div class="ship-header">
@@ -1349,6 +1254,24 @@
                 name="attr_ship_hull"
                 value="0"
               />
+            </div>
+            <div class="morale-check-gate">
+              <div class="ship-operation-card">
+                <div class="ship-operation-card__header">
+                  <button
+                    class="button button--action"
+                    type="action"
+                    name="act_morale_check"
+                  >
+                    <span class="button__label" data-i18n="Morale Check"
+                      >Morale Check</span>
+                  </button>
+                </div>
+                <p class="ship-operation-card__desc">
+                  Rolls <strong>1d10</strong>. A result under the ship's current
+                  MDMG breaks the enemy's morale -- they signal for a ceasefire.
+                </p>
+              </div>
             </div>
           </div>
         </section>
@@ -6095,6 +6018,8 @@
     attrs["health_max"] = health;
     attrs["stress_panic"] = review["stressresponse_final"] ?? "";
     attrs["skill_points"] = review["skillpoints_final"] ?? "";
+    attrs["level"] = "0";
+    attrs["xp"] = "0";
     const skills2 = parseStringList(review["skills_final"]);
     for (const key of skills2) {
       attrs[key] = "on";
@@ -6128,7 +6053,7 @@
       [`${row}_type`]: itemType(item)
     };
     if (item?.kind === "armor") {
-      attrs["armor_points"] = item.entry.points;
+      attrs[`${row}_armor_bonus`] = item.entry.points;
       return attrs;
     }
     if (item?.kind === "weapon") {
@@ -6337,8 +6262,7 @@
     KeptItTogether: "Kept It Together",
     PanicWarning: "Critical Failure: Make a Panic Check",
     RestSave: "Rest Save",
-    DeathSave: "Death Save",
-    ArmorDestroyed: "Armor Destroyed"
+    DeathSave: "Death Save"
   };
   function panicWarning(check) {
     if (!check.triggersPanic) return "";
@@ -6385,15 +6309,6 @@
       [COMPUTED.Notes]: effect?.result ?? ""
     };
     return computed;
-  }
-
-  // src/ts/rules/armor.ts
-  var DESTROYED_AP = 0;
-  async function handleDestroyArmor() {
-    setAttrs({ armor_points: DESTROYED_AP });
-    const rollFormula = `&{template:ms} {{name=^{${TEMPLATE_PHRASES.ArmorDestroyed}}}} {{character_name=@{character_name}}} {{notes=[[0]]}}`;
-    const rollData = await startRoll(rollFormula);
-    finishRoll(rollData.rollId, { notes: "" });
   }
 
   // src/game/data/panic.ts
@@ -6683,12 +6598,6 @@
   }
   var STRESS_MIN = 2;
   var STRESS_MAX = 20;
-  function adjustStress(delta) {
-    getAttrs(["stress"], (attrs) => {
-      const stress = Number(attrs.stress);
-      applyStressDelta(stress, delta, STRESS_MIN, STRESS_MAX);
-    });
-  }
   function worstSave(sanity, fear, body) {
     const lowest = Math.min(sanity, fear, body);
     return lowest;
@@ -7515,6 +7424,25 @@ ${SHIP_PANIC_MESSAGE}`;
     if (message === void 0) return;
     void postShipAlert({ notes: message });
   }
+  var MORALE_BROKEN_MESSAGE = "MORALE BROKEN: The enemy ship signals for a ceasefire and opens negotiations.";
+  function evaluateMoraleCheck(roll, mdmg) {
+    const isBroken = roll < mdmg;
+    return {
+      broken: isBroken,
+      message: isBroken ? MORALE_BROKEN_MESSAGE : "Morale holds."
+    };
+  }
+  async function handleMoraleCheck() {
+    const rollFormula = "&{template:ms} {{name=Morale Check}} {{character_name=@{character_name}}} {{roll=[[1d10]]}} {{target=[[@{ship_mdmg}]]}} {{notes=[[0]]}}";
+    const rollData = await startRoll(rollFormula);
+    const rollEntry = rollData.results.roll;
+    const targetEntry = rollData.results.target;
+    if (rollEntry === void 0 || targetEntry === void 0) return;
+    const evaluation = evaluateMoraleCheck(rollEntry.result, targetEntry.result);
+    finishRoll(rollData.rollId, {
+      notes: evaluation.message
+    });
+  }
   function getRandomUniqueIssues(count, table = maintenanceTable, randomFn = Math.random) {
     if (count <= 0) return [];
     const pool = [...table];
@@ -7591,8 +7519,8 @@ ${SHIP_PANIC_MESSAGE}`;
     void handleBattleCheck();
   });
   on("change:ship_mdmg", handleMdmgChange);
-  on("clicked:destroy_armor", () => {
-    void handleDestroyArmor();
+  on("clicked:morale_check", () => {
+    void handleMoraleCheck();
   });
   var SKILLED_CHECKS = [...allStats, ...allSaves];
   for (const attribute of CHECK_ATTRIBUTES) {
@@ -7613,12 +7541,6 @@ ${SHIP_PANIC_MESSAGE}`;
   });
   on("clicked:death_save", () => {
     void rollDeathSave();
-  });
-  on("clicked:stress_up", () => {
-    adjustStress(1);
-  });
-  on("clicked:stress_down", () => {
-    adjustStress(-1);
   });
   on("clicked:repeating_attacks:attack", () => {
     void rollCheck({

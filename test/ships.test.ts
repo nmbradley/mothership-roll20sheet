@@ -9,8 +9,10 @@ import { megadamageTable } from "../src/game/data/megadamage";
 import {
   evaluateAnnualMaintenance,
   evaluateBankruptcySave,
+  evaluateMoraleCheck,
   handleAnnualMaintenanceCheck,
   handleBankruptcySave,
+  handleMoraleCheck,
   handleSystemsCheck,
   handleThrustersCheck,
   handleBattleCheck,
@@ -21,6 +23,7 @@ import {
   evaluateStartingCondition,
   handleStartingCondition,
   MAINTENANCE_EDGE_QUERY,
+  MORALE_BROKEN_MESSAGE,
   shipFailureAlert,
   SHIP_STRESS_MESSAGE,
   SHIP_PANIC_MESSAGE,
@@ -70,6 +73,29 @@ describe("Ship Rules & Mechanics", () => {
       const result = evaluateAnnualMaintenance(95, 99, 5, 10);
       expect(result.result).toBe(Outcomes.Failure);
       expect(result.stressGain).toBe(1);
+    });
+  });
+
+  describe("evaluateMoraleCheck", () => {
+    it("should break morale when the roll is under the ship's current MDMG", () => {
+      const result = evaluateMoraleCheck(3, 5);
+      expect(result.broken).toBe(true);
+      expect(result.message).toBe(MORALE_BROKEN_MESSAGE);
+    });
+
+    it("should not break morale when the roll equals MDMG -- under is strict", () => {
+      const result = evaluateMoraleCheck(5, 5);
+      expect(result.broken).toBe(false);
+    });
+
+    it("should not break morale when the roll is over MDMG", () => {
+      const result = evaluateMoraleCheck(7, 5);
+      expect(result.broken).toBe(false);
+    });
+
+    it("should never break morale against an undamaged ship", () => {
+      const result = evaluateMoraleCheck(1, 0);
+      expect(result.broken).toBe(false);
     });
   });
 
@@ -148,6 +174,24 @@ describe("Ship Rules & Mechanics", () => {
       vi.stubGlobal("finishRoll", mockFinishRoll);
       await handleAnnualMaintenanceCheck();
       expect(mockFinishRoll).toHaveBeenCalled();
+      vi.unstubAllGlobals();
+    });
+
+    it("should execute handleMoraleCheck", async () => {
+      const mockStartRoll = vi.fn().mockResolvedValue({
+        rollId: "id",
+        results: {
+          roll: { result: 3 },
+          target: { result: 5 },
+        },
+      });
+      const mockFinishRoll = vi.fn();
+      vi.stubGlobal("startRoll", mockStartRoll);
+      vi.stubGlobal("finishRoll", mockFinishRoll);
+      await handleMoraleCheck();
+      expect(mockFinishRoll).toHaveBeenCalledWith("id", expect.objectContaining({
+        notes: MORALE_BROKEN_MESSAGE,
+      }));
       vi.unstubAllGlobals();
     });
 

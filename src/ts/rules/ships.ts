@@ -408,6 +408,51 @@ export function handleMdmgChange(eventInfo: EventInfo): void {
   void postShipAlert({ notes: message });
 }
 
+export type MoraleCheckResult = {
+  broken: boolean;
+  message: string;
+};
+
+/** The chat line announcing an NPC ship's crew wants out. */
+export const MORALE_BROKEN_MESSAGE =
+  "MORALE BROKEN: The enemy ship signals for a ceasefire and opens negotiations.";
+
+/**
+ * Evaluates a Morale Check (#62): a 1d10 roll under the ship's current MDMG
+ * breaks morale. A roll equal to MDMG does not count -- "under" is strict,
+ * as with every other roll-under check in these rules.
+ */
+export function evaluateMoraleCheck(roll: number, mdmg: number): MoraleCheckResult {
+  const isBroken = roll < mdmg;
+  return {
+    broken: isBroken,
+    message: isBroken ? MORALE_BROKEN_MESSAGE : "Morale holds.",
+  };
+}
+
+/**
+ * Roll20 Sheetworker: Morale Check (#62)
+ *
+ * Only meaningful for an NPC ship -- the button itself is gated off ship_npc
+ * in CSS (ShipMegadamagePanel.svelte), since a sheet cannot run JS outside
+ * its sheetworkers to hide it any other way.
+ */
+export async function handleMoraleCheck(): Promise<void> {
+  const rollFormula =
+    "&{template:ms} {{name=Morale Check}} {{character_name=@{character_name}}} {{roll=[[1d10]]}} {{target=[[@{ship_mdmg}]]}} {{notes=[[0]]}}";
+  const rollData = await startRoll(rollFormula);
+
+  const rollEntry = rollData.results.roll;
+  const targetEntry = rollData.results.target;
+  if (rollEntry === undefined || targetEntry === undefined) return;
+
+  const evaluation = evaluateMoraleCheck(rollEntry.result, targetEntry.result);
+
+  finishRoll(rollData.rollId, {
+    notes: evaluation.message,
+  });
+}
+
 export type StartingConditionResult = {
   count: number;
   issues: MaintenanceIssue[];
