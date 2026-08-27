@@ -29,7 +29,7 @@
           class="attribute__input attribute__input--hidden"
           type="hidden"
           name="attr_skill_query"
-          value="?{Apply Skill?|(none),0|Trained,10|Expert,15|Master,20}"
+          value="?{Apply Skill?|None,0|Trained,10[Trained]|Expert,15[Expert]|Master,20[Master]}"
         /><input
           class="attribute__input attribute__input--hidden"
           type="hidden"
@@ -7064,7 +7064,7 @@
     return fallback;
   }
   var SKILL_PROMPT = "Apply Skill?";
-  var NONE_LABEL = "(none)";
+  var NONE_LABEL = "None";
   function buildSkillCatalog(trained, expert, master) {
     const tiers = [
       [trained, SKILL_BONUS.trained],
@@ -7105,8 +7105,10 @@
     const options = [];
     for (const [level, bonus] of Object.entries(SKILL_BONUS)) {
       const name = titleCase(level);
-      const label = queryText(name);
-      options.push(`${label},${String(bonus)}`);
+      const translated2 = queryText(name);
+      const label = sanitizeSkillName(translated2);
+      if (label === "") continue;
+      options.push(`${label},${String(bonus)}[${label}]`);
     }
     return options;
   }

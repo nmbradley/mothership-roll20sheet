@@ -1,5 +1,4 @@
 {
-  "(none)": "(none)",
   "+1": "+1",
   "Absorbed by Armor": "Absorbed by Armor",
   "Add a custom patch.": "Add a custom patch.",
@@ -149,6 +148,7 @@
   "NPC Ship": "NPC Ship",
   "Name": "Name",
   "Next": "Next",
+  "None": "None",
   "Notes": "Notes",
   "O2 Remaining": "O2 Remaining",
   "Obscure beliefs, mysticism, and religion regarding non-human entities.": "Obscure beliefs, mysticism, and religion regarding non-human entities.",

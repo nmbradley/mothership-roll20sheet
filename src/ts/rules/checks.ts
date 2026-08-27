@@ -97,7 +97,7 @@ function queryText(key: string): string {
 
 /** Prompt and option labels the skill query asks through. */
 export const SKILL_PROMPT = "Apply Skill?";
-export const NONE_LABEL = "(none)";
+export const NONE_LABEL = "None";
 
 /** One Skill the character currently has, at whichever tier grants its bonus. */
 export type SkillCatalogEntry = {
@@ -184,15 +184,22 @@ export function buildSkillQuery(catalog: readonly SkillCatalogEntry[]): string {
  * check did before #5. And a PC can legitimately claim a bonus for something
  * not written on their sheet, which the named list alone cannot express.
  *
- * These carry no `[Name]` annotation: there is no Skill to name, so a check
- * taken on one reads in chat exactly as it did before.
+ * These carry the tier's own name as their annotation -- `10[Trained]` --
+ * exactly as a named Skill carries its own, so a check taken on one still
+ * names what was claimed in the roll template rather than reading blank.
+ *
+ * The label is sanitized as well as cleaned: queryText() strips the four
+ * characters a query reserves, but an annotation also reserves `[` and `]`,
+ * and these labels are translatable.
  */
 function tierOptions(): string[] {
   const options: string[] = [];
   for (const [level, bonus] of Object.entries(SKILL_BONUS)) {
     const name = titleCase(level);
-    const label = queryText(name);
-    options.push(`${label},${String(bonus)}`);
+    const translated = queryText(name);
+    const label = sanitizeSkillName(translated);
+    if (label === "") continue;
+    options.push(`${label},${String(bonus)}[${label}]`);
   }
   return options;
 }
