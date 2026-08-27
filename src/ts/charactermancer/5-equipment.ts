@@ -7,11 +7,13 @@ import { charmancerData, stepValues } from "./helpers";
 import { Steps } from "./types";
 
 const CUSTOM_PACKAGE = "custom";
+const NO_LOADOUT = "no loadout";
 const UNCHOSEN = "choose";
 
-/** Loads the loadout list and the trinket and patch roll buttons. */
+/** Loads the loadout list, the starting-credits roll, and the trinket/patch rolls. */
 export function onLoadEquipment(): void {
   offerLoadouts();
+  buildCreditsRoll(10);
   buildTableRoll("trinket", trinkets, "t__trinketroll");
   buildTableRoll("patch", patches, "t__patchroll");
   restoreChosenEquipment();
@@ -21,10 +23,10 @@ export function onLoadEquipment(): void {
  * Offers the loadouts for the chosen class.
  *
  * Loadouts are per class in the rules, so an unchosen class leaves only the
- * custom option rather than every class's kit at once.
+ * custom and no-loadout options rather than every class's kit at once.
  */
 function offerLoadouts(): void {
-  const options = [...loadoutNames(), CUSTOM_PACKAGE];
+  const options = [...loadoutNames(), CUSTOM_PACKAGE, NO_LOADOUT];
   setCharmancerOptions("package", options);
 }
 
@@ -55,10 +57,30 @@ function chosenLoadouts(): readonly LoadoutOption[] {
   return loadouts[key as Class];
 }
 
-/** Records the chosen loadout, or opens the free-text option. */
+/**
+ * The starting-credits multiplier for a package choice.
+ *
+ * Forgoing a loadout trades it for 2d10x100 credits instead of the usual
+ * 2d10x10.
+ */
+export function creditsMultiplier(choice: string): number {
+  return choice === NO_LOADOUT ? 100 : 10;
+}
+
+/** Records the chosen loadout, or opens the free-text/no-loadout option. */
 export function chooseEquipmentPackage(choice: string): void {
   hideChoices([]);
   if (choice === UNCHOSEN) return;
+
+  const multiplier = creditsMultiplier(choice);
+  buildCreditsRoll(multiplier);
+
+  if (choice === NO_LOADOUT) {
+    showChoices(["noloadout"]);
+    setCharmancerText({ t__package: "" });
+    setAttrs({ equipment: "" });
+    return;
+  }
 
   if (choice === CUSTOM_PACKAGE) {
     showChoices(["custompackage"]);
@@ -78,6 +100,15 @@ export function chooseEquipmentPackage(choice: string): void {
     setAttrs({ equipment: encoded });
     return;
   }
+}
+
+/** Builds the starting-credits roll button for the given credits multiplier. */
+function buildCreditsRoll(multiplier: number): void {
+  const value = `&{template:ms-cm} {{title=credit roll}} {{credits=[[2d10*${multiplier}]]}}`;
+  setCharmancerText({
+    t__creditsroll: `<button class="ms-cm-creditsroll" name="roll_credits" `
+      + `type="roll" value="${value}"></button>`,
+  });
 }
 
 /**

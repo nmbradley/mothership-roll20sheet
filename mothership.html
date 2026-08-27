@@ -3925,19 +3925,16 @@
               data-i18n="You can add custom equipment to the character sheet after completing the charactermancer."
             ></span>
           </div>
+          <div class="choice noloadout">
+            <span
+              data-i18n="You forgo a loadout and receive 2d10x100 credits instead."
+            ></span>
+          </div>
         </div>
         <div class="ms-cm-credits">
           <div class="ms-cm-credits__title" data-i18n="Starting Credits"></div>
-          <div class="ms-cm-credits__roll">
-            <button
-              data-i18n-title="Roll starting credits"
-              title="Roll starting credits"
-              name="roll_credits"
-              type="roll"
-              value="{{template:ms-cm}} {{title=credit roll}} {{credits=[[5d10*10]]}}"
-            ></button>
-            <input name="comp_credits" type="hidden" />
-          </div>
+          <div class="ms-cm-credits__roll t__creditsroll"></div>
+          <input name="comp_credits" type="hidden" />
           <div class="ms-cm-credits__display t__credits"></div>
         </div>
         <div class="ms-cm-trinket">
@@ -5806,15 +5803,17 @@
 
   // src/ts/charactermancer/5-equipment.ts
   var CUSTOM_PACKAGE = "custom";
+  var NO_LOADOUT = "no loadout";
   var UNCHOSEN = "choose";
   function onLoadEquipment() {
     offerLoadouts();
+    buildCreditsRoll(10);
     buildTableRoll("trinket", trinkets, "t__trinketroll");
     buildTableRoll("patch", patches, "t__patchroll");
     restoreChosenEquipment();
   }
   function offerLoadouts() {
-    const options = [...loadoutNames(), CUSTOM_PACKAGE];
+    const options = [...loadoutNames(), CUSTOM_PACKAGE, NO_LOADOUT];
     setCharmancerOptions("package", options);
   }
   function loadoutNames() {
@@ -5839,9 +5838,20 @@
     if (!isKnown) return [];
     return loadouts[key];
   }
+  function creditsMultiplier(choice) {
+    return choice === NO_LOADOUT ? 100 : 10;
+  }
   function chooseEquipmentPackage(choice) {
     hideChoices([]);
     if (choice === UNCHOSEN) return;
+    const multiplier = creditsMultiplier(choice);
+    buildCreditsRoll(multiplier);
+    if (choice === NO_LOADOUT) {
+      showChoices(["noloadout"]);
+      setCharmancerText({ t__package: "" });
+      setAttrs({ equipment: "" });
+      return;
+    }
     if (choice === CUSTOM_PACKAGE) {
       showChoices(["custompackage"]);
       setCharmancerText({ t__package: "" });
@@ -5858,6 +5868,12 @@
       setAttrs({ equipment: encoded });
       return;
     }
+  }
+  function buildCreditsRoll(multiplier) {
+    const value = `&{template:ms-cm} {{title=credit roll}} {{credits=[[2d10*${multiplier}]]}}`;
+    setCharmancerText({
+      t__creditsroll: `<button class="ms-cm-creditsroll" name="roll_credits" type="roll" value="${value}"></button>`
+    });
   }
   function buildTableRoll(name, entries, target) {
     const options = [];
