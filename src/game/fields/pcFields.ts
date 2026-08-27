@@ -431,6 +431,35 @@ export const equipment_type = attribute({
   options: ["Gear", "Weapon", "Ammunition", "Armor"],
   value: "Gear",
 });
+// A select's selection lives on the chosen <option>, not as a `value`
+// attribute on the select itself, so `[value="Armor"]` can never match
+// equipment_type directly -- the same constraint Sheet.svelte's
+// sheet_toggle/sheet_toggle_select pair works around. This hidden field
+// shares equipment_type's attribute name so Roll20 keeps the two in step,
+// letting PCEquipmentPanel's CSS key off this copy instead.
+export const equipment_type_mirror = attribute({
+  name: "equipment_type",
+  label: "Type",
+  control: Controls.Hidden,
+  value: "Gear",
+});
+// Per-item Armor Points and Damage Reduction (#112): AP and DR are a
+// function of the armor worn, not a value the character owns independently,
+// so these live on the row and a sheetworker sums Armor-type rows into the
+// panel's totals. Reintroduces #53's equipment_armor_bonus properly typed
+// and split into AP/DR, rather than reverting to it.
+export const equipment_armor_points = attribute({
+  name: "equipment_armor_points",
+  label: "Armor Points",
+  control: Controls.Number,
+  value: 0,
+});
+export const equipment_damage_reduction = attribute({
+  name: "equipment_damage_reduction",
+  label: "Damage Reduction",
+  control: Controls.Number,
+  value: 0,
+});
 export const equipment_notes = attribute({
   name: "equipment_notes",
   label: "Notes",
@@ -455,6 +484,9 @@ export const pcEquipment = section({
   attributes: {
     equipment_name,
     equipment_type,
+    equipment_type_mirror,
+    equipment_armor_points,
+    equipment_damage_reduction,
     equipment_notes,
     equipment_settings,
     equipment_linkedid,

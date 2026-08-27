@@ -38,6 +38,7 @@ import {
   skillQuery,
 } from "./rules/checks";
 import { handleTakeDamage, handleTakeWound } from "./rules/damage";
+import { recalculateArmorTotals } from "./rules/equipment";
 import {
   handleAfterBattleReport,
   handleAnnualMaintenanceCheck,
@@ -88,6 +89,20 @@ on("clicked:reveal_bid", () => {
 
 on("clicked:destroy_armor", () => {
   void handleDestroyArmor();
+});
+
+// AP and DR are summed from the equipment rows rather than owned by the
+// character (#112); this recalculates the totals on every edit, add and
+// remove -- add and edit share the row's own change events, since a newly
+// added row's fields fire the same change: events as an edited one.
+const ARMOR_ROW_EVENTS = [
+  "change:repeating_equipment:equipment_type",
+  "change:repeating_equipment:equipment_armor_points",
+  "change:repeating_equipment:equipment_damage_reduction",
+  "remove:repeating_equipment",
+].join(" ");
+on(ARMOR_ROW_EVENTS, () => {
+  void recalculateArmorTotals();
 });
 
 // --- CHECKS ---

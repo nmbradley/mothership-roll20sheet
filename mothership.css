@@ -1233,23 +1233,27 @@ body.sheet-darkmode
 .charsheet.charsheet.charsheet
   .pc-equipment-totals__well
   .attribute
-  .attribute__input {
+  .attribute__input,
+.charsheet.charsheet.charsheet
+  .pc-equipment-totals__well
+  .attribute__value--display {
+  display: block;
   border: none;
   width: 100%;
   background: none;
+  font-size: var(--ms-text-xl);
+  font-weight: 700;
   text-align: center;
 }
-.charsheet.charsheet.charsheet .pc-equipment-totals__well--armor {
-  display: flex;
-  gap: var(--ms-space-sm);
+.charsheet.charsheet.charsheet .pc-equipment-armor {
+  display: none;
+  gap: var(--ms-space-lg);
   align-items: center;
 }
-.charsheet.charsheet.charsheet .pc-equipment-totals__well--armor .attribute {
-  flex: 1;
-}
-.charsheet.charsheet.charsheet .pc-equipment-totals__well--armor .button {
-  flex-shrink: 0;
-  white-space: nowrap;
+.charsheet.charsheet.charsheet
+  .settings__drawer:has(input[name="attr_equipment_type"][value="Armor"])
+  .pc-equipment-armor {
+  display: flex;
 }
 .charsheet.charsheet.charsheet .pc-masthead {
   display: flex;

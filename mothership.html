@@ -717,11 +717,16 @@
                   class="repeating__row"
                   style="grid-template-columns: 1fr 100px auto"
                 >
-                  <div class="attribute attribute--display">
-                    <span
-                      class="attribute__value attribute__value--display"
+                  <div
+                    class="attribute attribute--text attribute--equipment_name"
+                  >
+                    <input
+                      class="attribute__input attribute__input--text"
+                      type="text"
                       name="attr_equipment_name"
-                    ></span>
+                      value=""
+                      spellcheck="false"
+                    />
                   </div>
                   <div
                     class="attribute attribute--select attribute--equipment_type"
@@ -748,20 +753,6 @@
                     />
                     <span class="settings__icon">y</span></label>
                   <div class="settings__drawer">
-                    <div class="settings__row">
-                      <span class="settings__label" data-i18n="Name">Name</span>
-                      <div
-                        class="attribute attribute--text attribute--equipment_name"
-                      >
-                        <input
-                          class="attribute__input attribute__input--text"
-                          type="text"
-                          name="attr_equipment_name"
-                          value=""
-                          spellcheck="false"
-                        />
-                      </div>
-                    </div>
                     <div class="settings__row settings__row--full">
                       <span class="settings__label" data-i18n="Notes"
                         >Notes</span>
@@ -775,6 +766,52 @@
                         ></textarea>
                       </div>
                     </div>
+                    <input
+                      class="attribute__input attribute__input--hidden"
+                      type="hidden"
+                      name="attr_equipment_type"
+                      value="Gear"
+                    />
+                    <div class="pc-equipment-armor">
+                      <div
+                        class="attribute attribute--number attribute--round attribute--equipment_armor_points"
+                      >
+                        <label
+                          class="attribute__label attribute__label--number-input attribute__label--number-input--round"
+                          for="attr_equipment_armor_points"
+                          data-i18n="Armor Points"
+                          >Armor Points</label>
+                        <input
+                          class="attribute__input attribute__input--number attribute__input--number--round"
+                          type="number"
+                          name="attr_equipment_armor_points"
+                          value="0"
+                        />
+                      </div>
+                      <div
+                        class="attribute attribute--number attribute--round attribute--equipment_damage_reduction"
+                      >
+                        <label
+                          class="attribute__label attribute__label--number-input attribute__label--number-input--round"
+                          for="attr_equipment_damage_reduction"
+                          data-i18n="Damage Reduction"
+                          >Damage Reduction</label>
+                        <input
+                          class="attribute__input attribute__input--number attribute__input--number--round"
+                          type="number"
+                          name="attr_equipment_damage_reduction"
+                          value="0"
+                        />
+                      </div>
+                      <button
+                        class="button button--action"
+                        type="action"
+                        name="act_destroy_armor"
+                      >
+                        <span class="button__label" data-i18n="Destroy"
+                          >Destroy</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </fieldset>
@@ -787,27 +824,13 @@
                 >
                   Armor Points
                 </div>
-                <div
-                  class="pc-equipment-totals__well pc-equipment-totals__well--armor"
-                >
-                  <div
-                    class="attribute attribute--number attribute--default attribute--armor_points"
-                  >
-                    <input
-                      class="attribute__input attribute__input--number attribute__input--number--default"
-                      type="number"
+                <div class="pc-equipment-totals__well">
+                  <div class="attribute attribute--display">
+                    <span
+                      class="attribute__value attribute__value--display"
                       name="attr_armor_points"
-                      value="0"
-                    />
+                    ></span>
                   </div>
-                  <button
-                    class="button button--action"
-                    type="action"
-                    name="act_destroy_armor"
-                  >
-                    <span class="button__label" data-i18n="Destroy"
-                      >Destroy</span>
-                  </button>
                 </div>
               </div>
               <div class="pc-equipment-totals__cell">
@@ -818,15 +841,11 @@
                   Damage Reduction
                 </div>
                 <div class="pc-equipment-totals__well">
-                  <div
-                    class="attribute attribute--number attribute--default attribute--damage_reduction"
-                  >
-                    <input
-                      class="attribute__input attribute__input--number attribute__input--number--default"
-                      type="number"
+                  <div class="attribute attribute--display">
+                    <span
+                      class="attribute__value attribute__value--display"
                       name="attr_damage_reduction"
-                      value="0"
-                    />
+                    ></span>
                   </div>
                 </div>
               </div>
@@ -7309,6 +7328,54 @@
     });
   }
 
+  // src/ts/rules/equipment.ts
+  var ARMOR_TYPE = "Armor";
+  function sumArmor(rows) {
+    let armorPoints = 0;
+    let damageReduction = 0;
+    for (const row of rows) {
+      if (row.type !== ARMOR_TYPE) continue;
+      armorPoints += row.armorPoints;
+      damageReduction += row.damageReduction;
+    }
+    return {
+      armorPoints,
+      damageReduction
+    };
+  }
+  function readEquipmentRows() {
+    return new Promise((resolve) => {
+      getSectionIDs("repeating_equipment", (ids) => {
+        if (ids.length === 0) {
+          resolve([]);
+          return;
+        }
+        const keys = ids.flatMap((id) => [
+          `repeating_equipment_${id}_equipment_type`,
+          `repeating_equipment_${id}_equipment_armor_points`,
+          `repeating_equipment_${id}_equipment_damage_reduction`
+        ]);
+        getAttrs(keys, (attrs) => {
+          const rows = ids.map((id) => ({
+            id,
+            type: attrs[`repeating_equipment_${id}_equipment_type`] ?? "",
+            armorPoints: Number(attrs[`repeating_equipment_${id}_equipment_armor_points`]) || 0,
+            damageReduction: Number(attrs[`repeating_equipment_${id}_equipment_damage_reduction`]) || 0
+          }));
+          resolve(rows);
+        });
+      });
+    });
+  }
+  async function recalculateArmorTotals() {
+    const rows = await readEquipmentRows();
+    const totals = sumArmor(rows);
+    setAttrs({
+      armor_points: totals.armorPoints,
+      damage_reduction: totals.damageReduction
+    });
+  }
+
   // src/game/data/bankruptcy.ts
   var bankruptcyTable = [
     {
@@ -8279,6 +8346,15 @@ ${SHIP_PANIC_MESSAGE}`;
   });
   on("clicked:destroy_armor", () => {
     void handleDestroyArmor();
+  });
+  var ARMOR_ROW_EVENTS = [
+    "change:repeating_equipment:equipment_type",
+    "change:repeating_equipment:equipment_armor_points",
+    "change:repeating_equipment:equipment_damage_reduction",
+    "remove:repeating_equipment"
+  ].join(" ");
+  on(ARMOR_ROW_EVENTS, () => {
+    void recalculateArmorTotals();
   });
   var SKILLED_CHECKS = [...allStats, ...allSaves];
   for (const attribute of CHECK_ATTRIBUTES) {
