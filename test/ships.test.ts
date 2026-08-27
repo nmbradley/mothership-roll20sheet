@@ -5,6 +5,7 @@ import {
 import { Outcomes } from "../src/ts/rules/rolls";
 import { EDGE_QUERY } from "../src/ts/rules/checks";
 import { maintenanceTable } from "../src/game/data/maintenance";
+import { megadamageTable } from "../src/game/data/megadamage";
 import {
   evaluateAnnualMaintenance,
   evaluateBankruptcySave,
@@ -13,6 +14,7 @@ import {
   handleSystemsCheck,
   handleThrustersCheck,
   handleBattleCheck,
+  handleMdmgChange,
   getMaintenanceIssue,
   getRandomUniqueIssues,
   formatStartingConditionMessage,
@@ -22,6 +24,11 @@ import {
   shipFailureAlert,
   SHIP_STRESS_MESSAGE,
   SHIP_PANIC_MESSAGE,
+  battleCheckDamageDealt,
+  battleCheckSelfDamage,
+  applyHullDamage,
+  getMegadamageEffect,
+  mdmgChangeMessage,
 } from "../src/ts/rules/ships";
 
 /** Stands in for Roll20's translator, echoing every key untranslated. */
@@ -152,6 +159,14 @@ describe("Ship Rules & Mechanics", () => {
       vi.stubGlobal("startRoll", mockStartRoll);
       vi.stubGlobal("finishRoll", vi.fn());
       stubTranslation();
+      vi.stubGlobal("getAttrs", (_request: string[], callback: (response: Record<string, string>) => void) => {
+        callback({
+          ship_hull: "0",
+          ship_mdmg: "0",
+          ship_mdmg_total: "0",
+        });
+      });
+      vi.stubGlobal("setAttrs", vi.fn());
 
       await handleAnnualMaintenanceCheck();
       await handleBankruptcySave();
@@ -165,6 +180,46 @@ describe("Ship Rules & Mechanics", () => {
       for (const expression of expressions) {
         expect(isZeroIndexed(expression)).toBe(true);
       }
+
+      vi.unstubAllGlobals();
+    });
+
+    it("should apply the Hull rule and write MDMG on a failed Battle Check", async () => {
+      const mockStartRoll = vi.fn()
+        // The Battle Check roll itself: 90 auto-fails regardless of target.
+        .mockResolvedValueOnce({
+          rollId: "check",
+          results: {
+            roll: { result: 90 },
+            roll2: { result: 90 },
+            target: { result: 50 },
+          },
+        })
+        // The follow-up alert/notes broadcast.
+        .mockResolvedValueOnce({
+          rollId: "alert",
+          results: {},
+        });
+      const mockSetAttrs = vi.fn();
+      vi.stubGlobal("startRoll", mockStartRoll);
+      vi.stubGlobal("finishRoll", vi.fn());
+      stubTranslation();
+      vi.stubGlobal("getAttrs", (_request: string[], callback: (response: Record<string, string>) => void) => {
+        callback({
+          ship_hull: "0",
+          ship_mdmg: "1",
+          ship_mdmg_total: "3",
+        });
+      });
+      vi.stubGlobal("setAttrs", mockSetAttrs);
+
+      await handleBattleCheck();
+
+      // Hull is already 0, so the 1 self-inflicted MDMG carries straight onto the track.
+      expect(mockSetAttrs).toHaveBeenCalledWith({
+        ship_hull: 0,
+        ship_mdmg: 2,
+      });
 
       vi.unstubAllGlobals();
     });
@@ -184,6 +239,138 @@ describe("Ship Rules & Mechanics", () => {
       const alert = shipFailureAlert(Outcomes.CriticalFailure);
       expect(alert).toContain(SHIP_STRESS_MESSAGE);
       expect(alert).toContain(SHIP_PANIC_MESSAGE);
+    });
+  });
+
+  describe("battleCheckDamageDealt", () => {
+    it("should deal the ship's own MDMG on a Success", () => {
+      expect(battleCheckDamageDealt(Outcomes.Success, 4)).toBe(4);
+    });
+
+    it("should double it on a Critical Success", () => {
+      expect(battleCheckDamageDealt(Outcomes.CriticalSuccess, 4)).toBe(8);
+    });
+
+    it("should deal nothing on a Failure or Critical Failure", () => {
+      expect(battleCheckDamageDealt(Outcomes.Failure, 4)).toBe(0);
+      expect(battleCheckDamageDealt(Outcomes.CriticalFailure, 4)).toBe(0);
+    });
+  });
+
+  describe("battleCheckSelfDamage", () => {
+    it("should deal the ship 1 MDMG on a Failure", () => {
+      expect(battleCheckSelfDamage(Outcomes.Failure)).toBe(1);
+    });
+
+    it("should deal the ship 2 MDMG on a Critical Failure", () => {
+      expect(battleCheckSelfDamage(Outcomes.CriticalFailure)).toBe(2);
+    });
+
+    it("should deal the ship itself nothing on a Success or Critical Success", () => {
+      expect(battleCheckSelfDamage(Outcomes.Success)).toBe(0);
+      expect(battleCheckSelfDamage(Outcomes.CriticalSuccess)).toBe(0);
+    });
+  });
+
+  describe("applyHullDamage", () => {
+    it("should absorb a hit smaller than Hull without touching MDMG", () => {
+      expect(applyHullDamage(3, 10, 0)).toEqual({
+        hull: 7,
+        mdmg: 0,
+      });
+    });
+
+    it("should zero Hull and carry the overflow onto MDMG when the hit meets it", () => {
+      expect(applyHullDamage(5, 5, 0)).toEqual({
+        hull: 0,
+        mdmg: 0,
+      });
+    });
+
+    it("should zero Hull and carry the overflow onto MDMG when the hit exceeds it", () => {
+      expect(applyHullDamage(7, 5, 0)).toEqual({
+        hull: 0,
+        mdmg: 2,
+      });
+    });
+
+    it("should clamp MDMG at the top of the 0-9 track", () => {
+      expect(applyHullDamage(5, 0, 8)).toEqual({
+        hull: 0,
+        mdmg: 9,
+      });
+    });
+  });
+
+  describe("getMegadamageEffect", () => {
+    it("should return the table's first entry at level 0", () => {
+      expect(getMegadamageEffect(0)).toEqual(megadamageTable[0]);
+    });
+
+    it("should return the table's last entry at level 9", () => {
+      expect(getMegadamageEffect(9)).toEqual(megadamageTable[9]);
+    });
+
+    it("should clamp out-of-range levels to 0-9", () => {
+      expect(getMegadamageEffect(-1)).toEqual(megadamageTable[0]);
+      expect(getMegadamageEffect(20)).toEqual(megadamageTable[9]);
+    });
+  });
+
+  describe("mdmgChangeMessage", () => {
+    it("should say nothing when MDMG decreases or stays the same", () => {
+      expect(mdmgChangeMessage(3, 2)).toBeUndefined();
+      expect(mdmgChangeMessage(3, 3)).toBeUndefined();
+    });
+
+    it("should broadcast the table's effect when MDMG increases", () => {
+      expect(mdmgChangeMessage(1, 2)).toBe("WEAPONS OFFLINE. Automatically fail Battle Checks.");
+    });
+  });
+
+  describe("handleMdmgChange", () => {
+    it("should post the new level's effect when ship_mdmg increases", async () => {
+      const mockStartRoll = vi.fn().mockResolvedValue({
+        rollId: "id",
+        results: {},
+      });
+      const mockFinishRoll = vi.fn();
+      vi.stubGlobal("startRoll", mockStartRoll);
+      vi.stubGlobal("finishRoll", mockFinishRoll);
+
+      handleMdmgChange({
+        sourceAttribute: "ship_mdmg",
+        newValue: "2",
+        previousValue: "1",
+        sourceType: "player",
+        triggerName: "change:ship_mdmg",
+      });
+      await new Promise((resolve) => {
+        setTimeout(resolve, 0);
+      });
+
+      expect(mockFinishRoll).toHaveBeenCalledWith("id", expect.objectContaining({
+        notes: "WEAPONS OFFLINE. Automatically fail Battle Checks.",
+      }));
+
+      vi.unstubAllGlobals();
+    });
+
+    it("should stay silent when ship_mdmg decreases", () => {
+      const mockStartRoll = vi.fn();
+      vi.stubGlobal("startRoll", mockStartRoll);
+      vi.stubGlobal("finishRoll", vi.fn());
+
+      handleMdmgChange({
+        sourceAttribute: "ship_mdmg",
+        newValue: "1",
+        previousValue: "2",
+        sourceType: "player",
+        triggerName: "change:ship_mdmg",
+      });
+
+      expect(mockStartRoll).not.toHaveBeenCalled();
+      vi.unstubAllGlobals();
     });
   });
 });

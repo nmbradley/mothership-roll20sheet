@@ -30,6 +30,7 @@ import {
   handleAnnualMaintenanceCheck,
   handleBankruptcySave,
   handleBattleCheck,
+  handleMdmgChange,
   handleStartingCondition,
   handleSystemsCheck,
   handleThrustersCheck,
@@ -57,6 +58,7 @@ on("clicked:thrusters_check", () => {
 on("clicked:battle_check", () => {
   void handleBattleCheck();
 });
+on("change:ship_mdmg", handleMdmgChange);
 
 // --- CHECKS ---
 
