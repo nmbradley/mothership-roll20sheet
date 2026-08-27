@@ -7,6 +7,7 @@
     init,
     military_training,
     sheet_skill_toggles,
+    skill_query,
     speed_initiative,
     worst_save,
   } from "#game/fields/pcFields.js";
@@ -24,6 +25,7 @@
   const state = [
     init,
     sheet_skill_toggles,
+    skill_query,
     drop_category,
     drop_name,
     drop_data,

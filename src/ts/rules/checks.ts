@@ -97,35 +97,182 @@ function queryText(key: string): string {
 
 /** Prompt and option labels the skill query asks through. */
 export const SKILL_PROMPT = "Apply Skill?";
-export const UNTRAINED_LABEL = "Untrained";
+export const NONE_LABEL = "None";
+
+/** One Skill the character currently has, at whichever tier grants its bonus. */
+export type SkillCatalogEntry = {
+  name: string;
+  bonus: number;
+};
 
 /**
- * Asked before a Stat or Save check: training raises the number rolled under.
- *
- * The text is translated here rather than with `^{...}`. Roll20 resolves those
- * in the sheet and not inside a query, so the closing brace of `^{...}` would
- * end the query early and take the roll with it. A roll button would have to
- * park the finished string in an attribute for that reason; these rolls are
- * made from a sheetworker, so the lookup happens where the string is built.
- *
- * Called per roll rather than once at load: translations are not in place when
- * this module is first evaluated.
- *
- * Values come from SKILL_BONUS so they cannot drift from the rules.
+ * Every Skill named on the Trained, Expert or Master rows, tier order, blank
+ * rows left out -- an added-but-unnamed row offers nothing to pick.
  */
-export function skillQuery(): string {
-  const untrained = queryText(UNTRAINED_LABEL);
-  const options: string[] = [`${untrained},0`];
+export function buildSkillCatalog(
+  trained: readonly string[],
+  expert: readonly string[],
+  master: readonly string[],
+): SkillCatalogEntry[] {
+  const tiers: readonly [readonly string[], number][] = [
+    [trained, SKILL_BONUS.trained],
+    [expert, SKILL_BONUS.expert],
+    [master, SKILL_BONUS.master],
+  ];
 
-  for (const [level, bonus] of Object.entries(SKILL_BONUS)) {
-    const name = titleCase(level);
-    const label = queryText(name);
-    options.push(`${label},${String(bonus)}`);
+  const catalog: SkillCatalogEntry[] = [];
+  for (const [names, bonus] of tiers) {
+    for (const name of names) {
+      const trimmed = name.trim();
+      if (trimmed === "") continue;
+      catalog.push({
+        name: trimmed,
+        bonus,
+      });
+    }
   }
+  return catalog;
+}
+
+/**
+ * A Skill's name, safe both as query syntax and as a Roll20 inline-roll
+ * annotation -- a Skill row is free text a player typed, so unlike the fixed
+ * vocabulary queryText() cleans, it can carry any of `| , { } [ ]` and needs
+ * the same treatment plus the two more of those an annotation reserves.
+ */
+function sanitizeSkillName(name: string): string {
+  const stripped = name.replace(/[|,{}[\]]/g, "").trim();
+  return stripped;
+}
+
+/**
+ * The Skill dropdown built from the character's own current Skills (#5),
+ * offered by name with `(none)` always first.
+ *
+ * Each option's value carries the tier bonus with the Skill's own name
+ * riding along as a Roll20 inline-roll annotation -- `10[Genetics]` rather
+ * than a bare `10` -- so the answer both totals correctly inside a check's
+ * target expression and can be read back out of the resolved roll afterward
+ * with readSkillName(). A Roll20 query answers with one value and several
+ * Skills can share a tier's bonus, so neither an index nor the bonus alone
+ * could be mapped back to a name; riding it inside the same value sidesteps
+ * that rather than working around it.
+ */
+export function buildSkillQuery(catalog: readonly SkillCatalogEntry[]): string {
+  const noneLabel = queryText(NONE_LABEL);
+  const options: string[] = [`${noneLabel},0`];
+
+  for (const entry of catalog) {
+    const safeName = sanitizeSkillName(entry.name);
+    if (safeName === "") continue;
+    options.push(`${safeName},${String(entry.bonus)}[${safeName}]`);
+  }
+
+  options.push(...tierOptions());
 
   const choices = options.join("|");
   const prompt = queryText(SKILL_PROMPT);
   return `?{${prompt}|${choices}}`;
+}
+
+/**
+ * The plain tier bonuses, appended below a character's own named Skills.
+ *
+ * Kept for two reasons. An NPC has no Trained/Expert/Master rows at all, so
+ * without these its checks would offer nothing but `(none)` -- the Warden
+ * could no longer apply an ad hoc bonus, which is a regression on what every
+ * check did before #5. And a PC can legitimately claim a bonus for something
+ * not written on their sheet, which the named list alone cannot express.
+ *
+ * These carry the tier's own name as their annotation -- `10[Trained]` --
+ * exactly as a named Skill carries its own, so a check taken on one still
+ * names what was claimed in the roll template rather than reading blank.
+ *
+ * The label is sanitized as well as cleaned: queryText() strips the four
+ * characters a query reserves, but an annotation also reserves `[` and `]`,
+ * and these labels are translatable.
+ */
+function tierOptions(): string[] {
+  const options: string[] = [];
+  for (const [level, bonus] of Object.entries(SKILL_BONUS)) {
+    const name = titleCase(level);
+    const translated = queryText(name);
+    const label = sanitizeSkillName(translated);
+    if (label === "") continue;
+    options.push(`${label},${String(bonus)}[${label}]`);
+  }
+  return options;
+}
+
+/**
+ * Points a roll at the Skill dropdown persisted attribute (#5), rather than
+ * building the query here.
+ *
+ * Roll20 expands an `@{...}` attribute reference before it parses a `?{...}`
+ * query sitting inside it, so this reference alone reaches the roll with the
+ * full query text recomputeSkillQuery already kept in step with the
+ * character's own Trained/Expert/Master rows -- the same shape as
+ * worst_save (#110). Building that query needs the async
+ * getSectionIDs/getAttrs a click handler cannot wait on and still reach
+ * startRoll synchronously, so it happens ahead of time instead, whenever
+ * those rows change.
+ */
+export function skillQuery(): string {
+  return "@{skill_query}";
+}
+
+/**
+ * The Skill name a check's target expression carries back, if any, decoded
+ * from the trailing `[Name]` annotation buildSkillQuery() rode the answer
+ * in on. Absent when `(none)` was picked, or the check offered no Skill
+ * prompt at all.
+ */
+export function readSkillName(expression: string | undefined): string {
+  if (expression === undefined) return "";
+  const match = /\[([^[\]]+)\]/.exec(expression);
+  return match?.[1] ?? "";
+}
+
+/** One repeating section's own Skill names, row order. */
+function readSkillNames(section: string): Promise<string[]> {
+  return new Promise((resolve) => {
+    getSectionIDs(section, (ids) => {
+      if (ids.length === 0) {
+        resolve([]);
+        return;
+      }
+
+      const keys = ids.map((id) => `${section}_${id}_skill_name`);
+      getAttrs(keys, (attrs) => {
+        const names = keys.map((key) => attrs[key] ?? "");
+        resolve(names);
+      });
+    });
+  });
+}
+
+/** Every Skill the character currently has, read fresh off the three rows. */
+async function readSkillCatalog(): Promise<SkillCatalogEntry[]> {
+  const [trained, expert, master] = await Promise.all([
+    readSkillNames("repeating_trained"),
+    readSkillNames("repeating_expert"),
+    readSkillNames("repeating_master"),
+  ]);
+  const catalog = buildSkillCatalog(trained, expert, master);
+  return catalog;
+}
+
+/**
+ * Roll20 Sheetworker: keeps skill_query in step with the Trained, Expert and
+ * Master rows (#5).
+ *
+ * Bound to those sections' change/remove events and to sheet:opened -- the
+ * same shape as recomputeWorstSave (#110), seeding a character saved before
+ * this attribute existed.
+ */
+export async function recomputeSkillQuery(): Promise<void> {
+  const catalog = await readSkillCatalog();
+  setAttrs({ skill_query: buildSkillQuery(catalog) });
 }
 
 /** Roll20 stores "0" for an unchecked box; anything else reads as on. */
@@ -237,7 +384,8 @@ export async function rollCheck(options: CheckOptions): Promise<CheckResult> {
   if (options.i18nKey !== undefined) request.i18nKey = options.i18nKey;
 
   const check = makeCheck(request);
-  const computed = checkComputed(check);
+  const skillName = readSkillName(roll.results["target"]?.expression);
+  const computed = checkComputed(check, skillName);
   finishRoll(roll.rollId, computed);
   return check;
 }

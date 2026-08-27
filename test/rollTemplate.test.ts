@@ -73,6 +73,7 @@ describe("Roll Templates", () => {
       expect(template).toContain("{{result=[[0]]}}");
       expect(template).toContain("{{counted=[[0]]}}");
       expect(template).toContain("{{notes=[[0]]}}");
+      expect(template).toContain("{{skill=[[0]]}}");
     });
   });
 
@@ -112,6 +113,24 @@ describe("Roll Templates", () => {
         rolls: [45],
       });
       expect(checkComputed(check).notes).toBe("");
+    });
+
+    it("should leave the Skill field blank by default", () => {
+      const check = makeCheck({
+        name: "Strength Check",
+        target: 45,
+        rolls: [30],
+      });
+      expect(checkComputed(check).skill).toBe("");
+    });
+
+    it("should carry the Skill name a caller decoded off the roll", () => {
+      const check = makeCheck({
+        name: "Strength Check",
+        target: 55,
+        rolls: [30],
+      });
+      expect(checkComputed(check, "Genetics").skill).toBe("Genetics");
     });
   });
 

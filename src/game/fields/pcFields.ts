@@ -277,6 +277,24 @@ export const sheet_skill_toggles = attribute({
   control: Controls.Hidden,
   value: "",
 });
+// #5: the Skill dropdown offering the character's own Trained/Expert/Master
+// rows by name, rebuilt by recomputeSkillQuery in checks.ts whenever those
+// rows change, so a skilled check's startRoll can reference it directly and
+// stay synchronous -- the same shape as worst_save (#110).
+// #5: the Skill dropdown a check's target expression points at, kept in step
+// with the character's own Trained/Expert/Master rows by recomputeSkillQuery.
+//
+// The default is not empty. Until that sheetworker first runs -- a character
+// made before this attribute existed, opened but not yet touched -- a check
+// would otherwise resolve `@{combat}+` and fail to parse. This seeds the same
+// query a character with no Skills at all gets, so the roll works from the
+// first click. A test asserts it stays identical to buildSkillQuery([]).
+export const skill_query = attribute({
+  name: "skill_query",
+  label: "Skill Query",
+  control: Controls.Hidden,
+  value: "?{Apply Skill?|None,0|Trained,10[Trained]|Expert,15[Expert]|Master,20[Master]}",
+});
 export const drop_category = attribute({
   name: "drop_category",
   label: "Drop Category",
@@ -351,6 +369,7 @@ export const pcAttributes = {
   save_skill_select,
   military_training,
   sheet_skill_toggles,
+  skill_query,
   drop_category,
   drop_name,
   drop_data,

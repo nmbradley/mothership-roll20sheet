@@ -28,6 +28,11 @@
         /><input
           class="attribute__input attribute__input--hidden"
           type="hidden"
+          name="attr_skill_query"
+          value="?{Apply Skill?|None,0|Trained,10[Trained]|Expert,15[Expert]|Master,20[Master]}"
+        /><input
+          class="attribute__input attribute__input--hidden"
+          type="hidden"
           name="attr_drop_category"
           value=""
         /><input
@@ -2610,6 +2615,13 @@
       <div class="ms-readout__value">{{target}}</div>
     </div>
     {{/target}}
+
+    {{#skill}}
+    <div class="ms-readout">
+      <div class="ms-readout__label" data-i18n="Skill">Skill</div>
+      <div class="ms-readout__value">{{skill}}</div>
+    </div>
+    {{/skill}}
 
     {{#damage}}
     <div class="ms-readout">
@@ -6729,7 +6741,8 @@
     Counted: "counted",
     Result: "result",
     Rank: "rank",
-    Notes: "notes"
+    Notes: "notes",
+    Skill: "skill"
   };
   var RANKS = {
     [Outcomes.CriticalFailure]: 0,
@@ -6761,15 +6774,17 @@
       [COMPUTED.Counted, "[[0]]"],
       [COMPUTED.Result, "[[0]]"],
       [COMPUTED.Rank, "[[0]]"],
+      [COMPUTED.Skill, "[[0]]"],
       [COMPUTED.Notes, "[[0]]"]
     ]);
     return template;
   }
-  function checkComputed(check) {
+  function checkComputed(check, skillName = "") {
     const computed = {
       [COMPUTED.Counted]: describeCounted(check),
       [COMPUTED.Result]: translated(check.outcome),
       [COMPUTED.Rank]: RANKS[check.outcome],
+      [COMPUTED.Skill]: skillName,
       [COMPUTED.Notes]: panicWarning(check)
     };
     return computed;
@@ -7049,18 +7064,89 @@
     return fallback;
   }
   var SKILL_PROMPT = "Apply Skill?";
-  var UNTRAINED_LABEL = "Untrained";
-  function skillQuery() {
-    const untrained = queryText(UNTRAINED_LABEL);
-    const options = [`${untrained},0`];
-    for (const [level, bonus] of Object.entries(SKILL_BONUS)) {
-      const name = titleCase(level);
-      const label = queryText(name);
-      options.push(`${label},${String(bonus)}`);
+  var NONE_LABEL = "None";
+  function buildSkillCatalog(trained, expert, master) {
+    const tiers = [
+      [trained, SKILL_BONUS.trained],
+      [expert, SKILL_BONUS.expert],
+      [master, SKILL_BONUS.master]
+    ];
+    const catalog = [];
+    for (const [names, bonus] of tiers) {
+      for (const name of names) {
+        const trimmed = name.trim();
+        if (trimmed === "") continue;
+        catalog.push({
+          name: trimmed,
+          bonus
+        });
+      }
     }
+    return catalog;
+  }
+  function sanitizeSkillName(name) {
+    const stripped = name.replace(/[|,{}[\]]/g, "").trim();
+    return stripped;
+  }
+  function buildSkillQuery(catalog) {
+    const noneLabel = queryText(NONE_LABEL);
+    const options = [`${noneLabel},0`];
+    for (const entry of catalog) {
+      const safeName = sanitizeSkillName(entry.name);
+      if (safeName === "") continue;
+      options.push(`${safeName},${String(entry.bonus)}[${safeName}]`);
+    }
+    options.push(...tierOptions());
     const choices = options.join("|");
     const prompt = queryText(SKILL_PROMPT);
     return `?{${prompt}|${choices}}`;
+  }
+  function tierOptions() {
+    const options = [];
+    for (const [level, bonus] of Object.entries(SKILL_BONUS)) {
+      const name = titleCase(level);
+      const translated2 = queryText(name);
+      const label = sanitizeSkillName(translated2);
+      if (label === "") continue;
+      options.push(`${label},${String(bonus)}[${label}]`);
+    }
+    return options;
+  }
+  function skillQuery() {
+    return "@{skill_query}";
+  }
+  function readSkillName(expression) {
+    if (expression === void 0) return "";
+    const match = /\[([^[\]]+)\]/.exec(expression);
+    return match?.[1] ?? "";
+  }
+  function readSkillNames(section) {
+    return new Promise((resolve) => {
+      getSectionIDs(section, (ids) => {
+        if (ids.length === 0) {
+          resolve([]);
+          return;
+        }
+        const keys = ids.map((id) => `${section}_${id}_skill_name`);
+        getAttrs(keys, (attrs) => {
+          const names = keys.map((key) => attrs[key] ?? "");
+          resolve(names);
+        });
+      });
+    });
+  }
+  async function readSkillCatalog() {
+    const [trained, expert, master] = await Promise.all([
+      readSkillNames("repeating_trained"),
+      readSkillNames("repeating_expert"),
+      readSkillNames("repeating_master")
+    ]);
+    const catalog = buildSkillCatalog(trained, expert, master);
+    return catalog;
+  }
+  async function recomputeSkillQuery() {
+    const catalog = await readSkillCatalog();
+    setAttrs({ skill_query: buildSkillQuery(catalog) });
   }
   function isSaveSkillSelectEnabled(raw) {
     return raw !== "0";
@@ -7112,7 +7198,8 @@
     };
     if (options.i18nKey !== void 0) request.i18nKey = options.i18nKey;
     const check = makeCheck(request);
-    const computed = checkComputed(check);
+    const skillName = readSkillName(roll.results["target"]?.expression);
+    const computed = checkComputed(check, skillName);
     finishRoll(roll.rollId, computed);
     return check;
   }
@@ -8596,6 +8683,20 @@ ${SHIP_PANIC_MESSAGE}`;
   on("sheet:opened", recomputeWorstSave);
   on("clicked:rest_save", () => {
     void rollRestSave();
+  });
+  var SKILL_ROW_EVENTS = [
+    "change:repeating_trained:skill_name",
+    "change:repeating_expert:skill_name",
+    "change:repeating_master:skill_name",
+    "remove:repeating_trained",
+    "remove:repeating_expert",
+    "remove:repeating_master"
+  ].join(" ");
+  on(SKILL_ROW_EVENTS, () => {
+    void recomputeSkillQuery();
+  });
+  on("sheet:opened", () => {
+    void recomputeSkillQuery();
   });
   on("clicked:death_save", () => {
     void rollDeathSave();

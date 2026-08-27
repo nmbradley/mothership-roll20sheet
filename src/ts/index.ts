@@ -27,6 +27,7 @@ import { handleDestroyArmor } from "./rules/armor";
 import {
   CHECK_ATTRIBUTES,
   checkKey,
+  recomputeSkillQuery,
   recomputeWorstSave,
   rollAttack,
   rollCheck,
@@ -171,6 +172,26 @@ on("sheet:opened", recomputeWorstSave);
 
 on("clicked:rest_save", () => {
   void rollRestSave();
+});
+
+// #5: skill_query is a hidden mirror of the character's own Trained, Expert
+// and Master rows, kept in step here rather than read inline by a skilled
+// check's click handler, so skillQuery()'s reference to it can reach
+// startRoll synchronously (#110). sheet:opened seeds it for a character
+// saved before this attribute existed.
+const SKILL_ROW_EVENTS = [
+  "change:repeating_trained:skill_name",
+  "change:repeating_expert:skill_name",
+  "change:repeating_master:skill_name",
+  "remove:repeating_trained",
+  "remove:repeating_expert",
+  "remove:repeating_master",
+].join(" ");
+on(SKILL_ROW_EVENTS, () => {
+  void recomputeSkillQuery();
+});
+on("sheet:opened", () => {
+  void recomputeSkillQuery();
 });
 
 on("clicked:death_save", () => {
