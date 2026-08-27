@@ -735,12 +735,12 @@ body.sheet-darkmode
   border: var(--ms-border-width) solid var(--ms-border);
   border-radius: var(--ms-radius-sm);
   padding: var(--ms-space-sm) var(--ms-space-md);
-  background: var(--ms-surface);
+  background: var(--ms-inverse);
   cursor: pointer;
-  color: var(--ms-fg);
+  color: var(--ms-fg-inverse);
 }
 .charsheet.charsheet.charsheet .button:hover {
-  background: var(--ms-sunken);
+  opacity: 0.85;
 }
 .charsheet.charsheet.charsheet .button__label {
   color: inherit;
@@ -853,12 +853,12 @@ body.sheet-darkmode
   border-radius: var(--ms-radius-pill);
   width: 1.9em;
   height: 1.9em;
-  background: none;
+  background: var(--ms-inverse);
   font-size: var(--ms-text-md);
   line-height: 1;
   font-family: "Pictos";
   font-weight: 700;
-  color: var(--ms-fg);
+  color: var(--ms-fg-inverse);
 }
 .charsheet.charsheet.charsheet .repeating .repcontrol button:hover::before {
   border-color: var(--ms-accent);
@@ -886,11 +886,17 @@ body.sheet-darkmode
 }
 .charsheet.charsheet.charsheet .repeating .itemcontrol .repcontrol_del {
   background: var(--ms-accent);
+  font-size: 0;
   color: var(--ms-fg-inverse);
 }
+.charsheet.charsheet.charsheet .repeating .itemcontrol .repcontrol_del::before {
+  content: "#";
+  font-size: var(--ms-text-sm);
+  font-family: "Pictos";
+}
 .charsheet.charsheet.charsheet .repeating .itemcontrol .repcontrol_move {
-  background: var(--ms-surface);
-  color: var(--ms-fg);
+  background: var(--ms-inverse);
+  color: var(--ms-fg-inverse);
 }
 .charsheet.charsheet.charsheet .settings__cog {
   display: flex;
@@ -1486,6 +1492,7 @@ body.sheet-darkmode
   padding: 0;
   background: none;
   font-size: var(--ms-text-sm);
+  color: var(--ms-fg);
   font-stretch: var(--ms-stretch-stat);
 }
 .charsheet.charsheet.charsheet .pc-stat-card .button:hover {

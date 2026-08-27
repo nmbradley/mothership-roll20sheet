@@ -142,13 +142,13 @@
         width: 1.9em;
         height: 1.9em;
 
-        background: none;
+        background: var(--ms-inverse);
 
         font-size: var(--ms-text-md);
         line-height: 1;
         font-family: "Pictos";
         font-weight: 700;
-        color: var(--ms-fg);
+        color: var(--ms-fg-inverse);
       }
 
       &:hover::before {
@@ -191,13 +191,24 @@
     .repcontrol_del {
       background: var(--ms-accent);
 
+      font-size: 0;
       color: var(--ms-fg-inverse);
+
+      // Zeroing the label above hides Roll20's raw text; this glyph replaces
+      // it the same way add/edit's does, still centred by the parent's
+      // inherited line-height/text-align rather than flex.
+      &::before {
+        content: "#";
+
+        font-size: var(--ms-text-sm);
+        font-family: "Pictos";
+      }
     }
 
     .repcontrol_move {
-      background: var(--ms-surface);
+      background: var(--ms-inverse);
 
-      color: var(--ms-fg);
+      color: var(--ms-fg-inverse);
     }
   }
 }
