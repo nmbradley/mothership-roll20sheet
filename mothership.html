@@ -260,16 +260,6 @@
                     <span class="button__label" data-i18n="Combat">Combat</span>
                   </button>
                 </div>
-                <div class="pc-stats-panel__initiative">
-                  <button
-                    class="button button--action"
-                    type="action"
-                    name="act_pc-initiative"
-                  >
-                    <span class="button__label" data-i18n="Initiative"
-                      >Initiative</span>
-                  </button>
-                </div>
               </div>
             </div>
           </section>
@@ -400,31 +390,15 @@
                 <div class="pc-status-card__label" data-i18n="Stress">
                   Stress
                 </div>
-                <div class="pc-status-card__stress">
-                  <button
-                    class="button button--action"
-                    type="action"
-                    name="act_stress_down"
-                  >
-                    <span class="button__label" data-i18n="−">−</span>
-                  </button>
-                  <div
-                    class="attribute attribute--number attribute--default attribute--stress"
-                  >
-                    <input
-                      class="attribute__input attribute__input--number attribute__input--number--default"
-                      type="number"
-                      name="attr_stress"
-                      value="2"
-                    />
-                  </div>
-                  <button
-                    class="button button--action"
-                    type="action"
-                    name="act_stress_up"
-                  >
-                    <span class="button__label" data-i18n="+">+</span>
-                  </button>
+                <div
+                  class="attribute attribute--number attribute--default attribute--stress"
+                >
+                  <input
+                    class="attribute__input attribute__input--number attribute__input--number--default"
+                    type="number"
+                    name="attr_stress"
+                    value="2"
+                  />
                 </div>
                 <input
                   class="attribute__input attribute__input--hidden"
@@ -439,7 +413,9 @@
                   value="20"
                 />
               </div>
-              <div class="pc-status-card pc-status-card--action">
+            </div>
+            <div class="pc-status-actions">
+              <div class="pc-status-actions__item">
                 <button
                   class="button button--action"
                   type="action"
@@ -449,7 +425,7 @@
                     >Panic Check</span>
                 </button>
               </div>
-              <div class="pc-status-card pc-status-card--action">
+              <div class="pc-status-actions__item">
                 <button
                   class="button button--action"
                   type="action"
@@ -459,7 +435,17 @@
                     >Rest Save</span>
                 </button>
               </div>
-              <div class="pc-status-card pc-status-card--action">
+              <div class="pc-status-actions__item">
+                <button
+                  class="button button--action"
+                  type="action"
+                  name="act_death_save"
+                >
+                  <span class="button__label" data-i18n="Death Save"
+                    >Death Save</span>
+                </button>
+              </div>
+              <div class="pc-status-actions__item">
                 <button
                   class="button button--action"
                   type="action"
@@ -469,7 +455,7 @@
                     >Take Damage</span>
                 </button>
               </div>
-              <div class="pc-status-card pc-status-card--action">
+              <div class="pc-status-actions__item">
                 <button
                   class="button button--action"
                   type="action"
@@ -479,14 +465,16 @@
                     >Take a Wound</span>
                 </button>
               </div>
-              <div class="pc-status-card pc-status-card--action">
+              <div
+                class="pc-status-actions__item pc-status-actions__item--initiative"
+              >
                 <button
                   class="button button--action"
                   type="action"
-                  name="act_death_save"
+                  name="act_pc-initiative"
                 >
-                  <span class="button__label" data-i18n="Death Save"
-                    >Death Save</span>
+                  <span class="button__label" data-i18n="Initiative"
+                    >Initiative</span>
                 </button>
               </div>
             </div>
@@ -7093,14 +7081,6 @@
     const computed = panicComputed(panic);
     finishRoll(roll.rollId, computed);
   }
-  function adjustStress(delta) {
-    getAttrs(["stress", "stress_min", "stress_max"], (attrs) => {
-      const stress = Number(attrs.stress);
-      const min = Number(attrs.stress_min);
-      const max = Number(attrs.stress_max);
-      applyStressDelta(stress, delta, min, max);
-    });
-  }
   function worstSave(sanity, fear, body) {
     const lowest = Math.min(sanity, fear, body);
     return lowest;
@@ -8338,12 +8318,6 @@ ${SHIP_PANIC_MESSAGE}`;
   });
   on("clicked:take_wound", () => {
     void handleTakeWound();
-  });
-  on("clicked:stress_up", () => {
-    adjustStress(1);
-  });
-  on("clicked:stress_down", () => {
-    adjustStress(-1);
   });
   on("clicked:repeating_attacks:attack", () => {
     void rollCheck({

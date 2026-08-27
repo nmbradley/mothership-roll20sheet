@@ -44,40 +44,53 @@
 
     <!-- Stress's Minimum/Maximum are fixed rule constants (#42), not a
          per-character range shown as current/max like Health and Wounds, so
-         they are rendered hidden and the Panic roll takes the cell beside it.
-         #18: +/- tick Stress by 1 without opening the field, through the same
-         applyStressDelta the rolls that change Stress already write through. -->
+         they are carried as hidden inputs rather than rendered. No steppers:
+         the field opens like any other number field to change it. -->
     <div class="pc-status-card">
       <div class="pc-status-card__label" data-i18n={stress.i18nLabel}>{stress.label}</div>
-      <div class="pc-status-card__stress">
-        <ButtonAction action="stress_down" label="−" />
-        <Attribute field={stress} isLabelHidden />
-        <ButtonAction action="stress_up" label="+" />
-      </div>
+      <Attribute field={stress} isLabelHidden />
       <Attribute field={stress_min} />
       <Attribute field={stress_max} />
     </div>
+  </div>
 
-    <div class="pc-status-card pc-status-card--action">
+  <!-- The six actions live on the PC sheet's Status Report (#111): Panic
+       Check, Rest Save and Death Save, Take Damage and Take a Wound (#113),
+       and Initiative (#50), moved in from PCStatsPanel since it is an action
+       like the rest of this row rather than a stat. Initiative is gated by
+       speed_initiative and must stay the last item here -- see the CSS
+       below, which depends on that DOM order. -->
+  <div class="pc-status-actions">
+    <div class="pc-status-actions__item">
       <ButtonAction action="panic" label="Panic Check" />
     </div>
 
-    <div class="pc-status-card pc-status-card--action">
+    <div class="pc-status-actions__item">
       <ButtonAction action="rest_save" label="Rest Save" />
     </div>
 
+    <div class="pc-status-actions__item">
+      <ButtonAction action="death_save" label="Death Save" />
+    </div>
+
     <!-- #52: an ordinary hit, resolved against Health, Armor and DR. -->
-    <div class="pc-status-card pc-status-card--action">
+    <div class="pc-status-actions__item">
       <ButtonAction action="take_damage" label="Take Damage" />
     </div>
 
     <!-- #52: for attacks that deal a Wound directly, bypassing Health. -->
-    <div class="pc-status-card pc-status-card--action">
+    <div class="pc-status-actions__item">
       <ButtonAction action="take_wound" label="Take a Wound" />
     </div>
 
-    <div class="pc-status-card pc-status-card--action">
-      <ButtonAction action="death_save" label="Death Save" />
+    <!-- Optional 1e rule (#50): a Speed Check doubles as Initiative, rolled
+         into the Turn Tracker. Hidden unless speed_initiative is on -- a
+         sheet cannot run JS outside its sheetworkers, so this rereads the
+         checkbox via :has() rather than script. CharacterSheet mirrors the
+         checkbox (its own control lives on the settings page) into
+         .pc-sheet so :has() can still find it, the same trick NPCSheet uses. -->
+    <div class="pc-status-actions__item pc-status-actions__item--initiative">
+      <ButtonAction action="pc-initiative" label="Initiative" />
     </div>
   </div>
 
@@ -113,10 +126,10 @@
 </Panel>
 
 <style lang="scss">
-// Two rows: Health and Wounds, then Stress with its Panic roll beside it.
+// One row: Health, Wounds and Stress side by side.
 .pc-status-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--ms-space-lg);
   align-items: start;
 }
@@ -126,7 +139,6 @@
   flex-direction: column;
   gap: var(--ms-space-sm);
 
-  // Two to a row rather than three, so the capsules can run large.
   .attribute--number .attribute__input,
   .attribute__minmax-wrapper .attribute__input {
     border-radius: var(--ms-radius-pill);
@@ -135,16 +147,6 @@
     font-size: var(--ms-text-lg);
     font-weight: 700;
     text-align: center;
-  }
-
-  // The Panic roll reads as a capsule too, not a square control.
-  &--action {
-    justify-content: flex-end;
-
-    .button {
-      border-radius: var(--ms-radius-pill);
-      padding: var(--ms-space-md) var(--ms-space-lg);
-    }
   }
 
   // A fixed label row keeps the three cards on the same baseline whether the
@@ -173,29 +175,49 @@
     font-size: var(--ms-text-sm);
     color: var(--ms-fg-muted);
   }
+}
 
-  // The +/- buttons flank the Stress capsule rather than sitting in their own
-  // card, so a tick stays one tap from the number it changes.
-  &__stress {
-    display: flex;
-    gap: var(--ms-space-sm);
-    align-items: center;
+// Panic Check, Rest Save, Death Save, Take Damage, Take a Wound and
+// Initiative, two to a row.
+.pc-status-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--ms-space-md);
 
-    .attribute {
-      flex: 1;
-    }
+  margin-top: var(--ms-space-lg);
+}
 
-    .button--action {
-      flex: none;
+.pc-status-actions__item {
+  display: flex;
+  justify-content: center;
 
-      border-radius: var(--ms-radius-pill);
-      width: 2.5rem;
-      height: 2.5rem;
-      padding: 0;
-
-      font-weight: 700;
-    }
+  .button {
+    border-radius: var(--ms-radius-pill);
+    padding: var(--ms-space-md) var(--ms-space-lg);
   }
+}
+
+.pc-status-actions__item--initiative {
+  display: none;
+}
+
+.pc-sheet:has(input[name="attr_speed_initiative"]:checked) .pc-status-actions__item--initiative {
+  display: flex;
+}
+
+// Layout rule: where the grid can't fill evenly, the lone trailing button
+// spans and centres rather than sitting flush in the first column with a gap
+// beside it. This can't be driven off :nth-child/:last-child, because
+// display:none takes Initiative out of layout flow but NOT out of that
+// counting -- with the toggle off, Initiative (6th) is still :last-child, so
+// the visible 5th button would never match. The :has() gate is the only
+// thing that actually knows what's rendered, so drive it off that instead.
+// NOTE: this hardcodes "5" as the index of the last visible item when
+// Initiative is hidden, and depends on Initiative being the last DOM child
+// above -- update both if the button order changes.
+.pc-sheet:not(:has(input[name="attr_speed_initiative"]:checked))
+  .pc-status-actions__item:nth-child(5) {
+  grid-column: 1 / -1;
 }
 
 // Its label sits above the field rather than beside it.

@@ -70,7 +70,6 @@ body.sheet-darkmode
 .charsheet.charsheet.charsheet .repeating__heading,
 .charsheet.charsheet.charsheet .pc-equipment-totals__label,
 .charsheet.charsheet.charsheet .pc-training__label,
-.charsheet.charsheet.charsheet .pc-stats-panel__initiative .button,
 .charsheet.charsheet.charsheet .pc-stat-card .button {
   font-size: var(--ms-text-xs);
   font-family: var(--ms-font-header);
@@ -1317,29 +1316,9 @@ body.sheet-darkmode
 .charsheet.charsheet.charsheet .pc-stats-grid--saves {
   grid-template-columns: repeat(3, 1fr);
 }
-.charsheet.charsheet.charsheet .pc-stats-panel__initiative {
-  display: none;
-  grid-column: 1/-1;
-  justify-content: center;
-}
-.charsheet.charsheet.charsheet .pc-stats-panel__initiative .button {
-  border: none;
-  padding: 0;
-  background: none;
-  font-size: var(--ms-text-sm);
-}
-.charsheet.charsheet.charsheet .pc-stats-panel__initiative .button:hover {
-  background: none;
-  color: var(--ms-accent);
-}
-.charsheet.charsheet.charsheet
-  .pc-sheet:has(input[name="attr_speed_initiative"]:checked)
-  .pc-stats-panel__initiative {
-  display: flex;
-}
 .charsheet.charsheet.charsheet .pc-status-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--ms-space-lg);
   align-items: start;
 }
@@ -1362,13 +1341,6 @@ body.sheet-darkmode
   font-weight: 700;
   text-align: center;
 }
-.charsheet.charsheet.charsheet .pc-status-card--action {
-  justify-content: flex-end;
-}
-.charsheet.charsheet.charsheet .pc-status-card--action .button {
-  border-radius: var(--ms-radius-pill);
-  padding: var(--ms-space-md) var(--ms-space-lg);
-}
 .charsheet.charsheet.charsheet .pc-status-card__label {
   display: flex;
   align-items: center;
@@ -1388,21 +1360,32 @@ body.sheet-darkmode
   font-size: var(--ms-text-sm);
   color: var(--ms-fg-muted);
 }
-.charsheet.charsheet.charsheet .pc-status-card__stress {
+.charsheet.charsheet.charsheet .pc-status-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--ms-space-md);
+  margin-top: var(--ms-space-lg);
+}
+.charsheet.charsheet.charsheet .pc-status-actions__item {
   display: flex;
-  gap: var(--ms-space-sm);
-  align-items: center;
+  justify-content: center;
 }
-.charsheet.charsheet.charsheet .pc-status-card__stress .attribute {
-  flex: 1;
-}
-.charsheet.charsheet.charsheet .pc-status-card__stress .button--action {
-  flex: none;
+.charsheet.charsheet.charsheet .pc-status-actions__item .button {
   border-radius: var(--ms-radius-pill);
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0;
-  font-weight: 700;
+  padding: var(--ms-space-md) var(--ms-space-lg);
+}
+.charsheet.charsheet.charsheet .pc-status-actions__item--initiative {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .pc-sheet:has(input[name="attr_speed_initiative"]:checked)
+  .pc-status-actions__item--initiative {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .pc-sheet:not(:has(input[name="attr_speed_initiative"]:checked))
+  .pc-status-actions__item:nth-child(5) {
+  grid-column: 1/-1;
 }
 .charsheet.charsheet.charsheet .pc-status-notes {
   margin-top: var(--ms-space-lg);

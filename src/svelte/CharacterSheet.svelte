@@ -51,7 +51,7 @@
 
   <!--
     speed_initiative's own control lives on the settings page, outside
-    .pc-sheet. This mirrors it here, hidden, so PCStatsPanel's
+    .pc-sheet. This mirrors it here, hidden, so PCStatusPanel's
     :has(input[name="attr_speed_initiative"]:checked) still finds a copy
     inside .pc-sheet to query -- Roll20 keeps every same-named input in step.
   -->

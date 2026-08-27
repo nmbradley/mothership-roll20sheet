@@ -25,7 +25,6 @@ import { onFinish } from "./charactermancer/7-final";
 import { TrackedStats, type CharmancerData } from "./charactermancer/types";
 import { handleDestroyArmor } from "./rules/armor";
 import {
-  adjustStress,
   CHECK_ATTRIBUTES,
   checkKey,
   recomputeWorstSave,
@@ -155,14 +154,6 @@ on("clicked:take_damage", () => {
 
 on("clicked:take_wound", () => {
   void handleTakeWound();
-});
-
-on("clicked:stress_up", () => {
-  adjustStress(1);
-});
-
-on("clicked:stress_down", () => {
-  adjustStress(-1);
 });
 
 // Rolls made from a repeating row read that row's own attributes. The PC and
