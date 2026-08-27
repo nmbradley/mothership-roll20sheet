@@ -1,5 +1,5 @@
 import {
-  describe, it, expect, vi,
+  describe, it, expect, vi, afterEach,
 } from "vitest";
 
 import { Outcomes } from "../src/ts/rules/rolls";
@@ -34,6 +34,8 @@ import {
   applyHullDamage,
   getMegadamageEffect,
   mdmgChangeMessage,
+  evaluateFuelBid,
+  handleRevealFuelBid,
 } from "../src/ts/rules/ships";
 
 /** Stands in for Roll20's translator, echoing every key untranslated. */
@@ -471,6 +473,107 @@ describe("Ship Rules & Mechanics", () => {
 
       expect(mockStartRoll).not.toHaveBeenCalled();
       vi.unstubAllGlobals();
+    });
+  });
+
+  describe("evaluateFuelBid", () => {
+    it("should spend the bid off Fuel and reset it", () => {
+      const result = evaluateFuelBid(10, 4);
+      expect(result.valid).toBe(true);
+      expect(result.fuel).toBe(6);
+    });
+
+    it("should reject a bid larger than current Fuel, leaving Fuel untouched", () => {
+      const result = evaluateFuelBid(3, 4);
+      expect(result.valid).toBe(false);
+      expect(result.fuel).toBe(3);
+    });
+
+    it("should reject a negative bid", () => {
+      const result = evaluateFuelBid(10, -1);
+      expect(result.valid).toBe(false);
+      expect(result.fuel).toBe(10);
+    });
+
+    it("should allow bidding every last drop of Fuel", () => {
+      const result = evaluateFuelBid(5, 5);
+      expect(result.valid).toBe(true);
+      expect(result.fuel).toBe(0);
+    });
+  });
+
+  describe("handleRevealFuelBid", () => {
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it("should deduct a valid bid from Fuel and reset the bid to 0", async () => {
+      const mockStartRoll = vi.fn().mockResolvedValue({
+        rollId: "id",
+        results: {
+          bid: { result: 4 },
+          fuel: { result: 10 },
+        },
+      });
+      const mockFinishRoll = vi.fn();
+      const mockSetAttrs = vi.fn();
+      vi.stubGlobal("startRoll", mockStartRoll);
+      vi.stubGlobal("finishRoll", mockFinishRoll);
+      vi.stubGlobal("setAttrs", mockSetAttrs);
+
+      await handleRevealFuelBid();
+
+      expect(mockSetAttrs).toHaveBeenCalledWith({
+        ship_fuel: 6,
+        ship_fuel_bid: 0,
+      });
+      expect(mockFinishRoll).toHaveBeenCalledWith("id", {
+        notes: "Fuel Bid Revealed: 4",
+      });
+    });
+
+    it("should not touch Fuel or the bid when the bid exceeds current Fuel", async () => {
+      const mockStartRoll = vi.fn().mockResolvedValue({
+        rollId: "id",
+        results: {
+          bid: { result: 8 },
+          fuel: { result: 3 },
+        },
+      });
+      const mockFinishRoll = vi.fn();
+      const mockSetAttrs = vi.fn();
+      vi.stubGlobal("startRoll", mockStartRoll);
+      vi.stubGlobal("finishRoll", mockFinishRoll);
+      vi.stubGlobal("setAttrs", mockSetAttrs);
+
+      await handleRevealFuelBid();
+
+      expect(mockSetAttrs).not.toHaveBeenCalled();
+      expect(mockFinishRoll).toHaveBeenCalledWith("id", expect.objectContaining({
+        notes: expect.stringContaining("INVALID FUEL BID"),
+      }));
+    });
+
+    it("should not touch Fuel or the bid when the bid is negative", async () => {
+      const mockStartRoll = vi.fn().mockResolvedValue({
+        rollId: "id",
+        results: {
+          bid: { result: -2 },
+          fuel: { result: 10 },
+        },
+      });
+      const mockFinishRoll = vi.fn();
+      const mockSetAttrs = vi.fn();
+      vi.stubGlobal("startRoll", mockStartRoll);
+      vi.stubGlobal("finishRoll", mockFinishRoll);
+      vi.stubGlobal("setAttrs", mockSetAttrs);
+
+      await handleRevealFuelBid();
+
+      expect(mockSetAttrs).not.toHaveBeenCalled();
+      expect(mockFinishRoll).toHaveBeenCalledWith("id", expect.objectContaining({
+        notes: expect.stringContaining("INVALID FUEL BID"),
+      }));
     });
   });
 });

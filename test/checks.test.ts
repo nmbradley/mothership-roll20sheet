@@ -265,10 +265,14 @@ describe("adjustStress", () => {
     vi.unstubAllGlobals();
   });
 
-  it("should tick Stress up by 1, reading the current value fresh", () => {
+  it("should tick Stress up by 1, reading the current value and bounds fresh", () => {
     type GetAttrsCallback = (response: Record<string, string>) => void;
     const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
-      callback({ stress: "5" });
+      callback({
+        stress: "5",
+        stress_min: "2",
+        stress_max: "20",
+      });
     });
     const mockSetAttrs = vi.fn();
     vi.stubGlobal("getAttrs", mockGetAttrs);
@@ -276,14 +280,21 @@ describe("adjustStress", () => {
 
     adjustStress(1);
 
-    expect(mockGetAttrs).toHaveBeenCalledWith(["stress"], expect.any(Function));
+    expect(mockGetAttrs).toHaveBeenCalledWith(
+      ["stress", "stress_min", "stress_max"],
+      expect.any(Function),
+    );
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 6 });
   });
 
   it("should tick Stress down by 1", () => {
     type GetAttrsCallback = (response: Record<string, string>) => void;
     const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
-      callback({ stress: "5" });
+      callback({
+        stress: "5",
+        stress_min: "2",
+        stress_max: "20",
+      });
     });
     const mockSetAttrs = vi.fn();
     vi.stubGlobal("getAttrs", mockGetAttrs);
@@ -294,10 +305,14 @@ describe("adjustStress", () => {
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 4 });
   });
 
-  it("should clamp at the 1e Stress bounds a button tick cannot cross", () => {
+  it("should clamp at the bounds read off the sheet, not a hardcoded value", () => {
     type GetAttrsCallback = (response: Record<string, string>) => void;
     const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
-      callback({ stress: "2" });
+      callback({
+        stress: "2",
+        stress_min: "2",
+        stress_max: "20",
+      });
     });
     const mockSetAttrs = vi.fn();
     vi.stubGlobal("getAttrs", mockGetAttrs);
@@ -375,6 +390,8 @@ describe("rollRestSave", () => {
         fear: "35",
         body: "50",
         stress: "10",
+        stress_min: "2",
+        stress_max: "20",
       });
     });
     const mockStartRoll = vi.fn().mockResolvedValue({
@@ -398,6 +415,43 @@ describe("rollRestSave", () => {
     const formula = mockStartRoll.mock.calls[0][0] as string;
     expect(formula).toContain("target=[[35+");
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 6 });
+  });
+
+  it("should clamp to stress_min as read off the sheet, not a hardcoded bound", async () => {
+    type GetAttrsCallback = (response: Record<string, string>) => void;
+    // An unusual floor of 4, not the ordinary 2, proves the clamp reads
+    // stress_min rather than a value baked into checks.ts.
+    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
+      callback({
+        sanity: "60",
+        fear: "35",
+        body: "50",
+        stress: "5",
+        stress_min: "4",
+        stress_max: "20",
+      });
+    });
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        roll: { result: 48 },
+        roll2: { result: 80 },
+        edge: { result: 0 },
+        target: { result: 99 },
+      },
+    });
+    const mockFinishRoll = vi.fn();
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", mockFinishRoll);
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    // A success reduces Stress by 8 (the roll's ones digit): 5 - 8 would be
+    // -3, floored at the custom minimum of 4 rather than the usual 2.
+    await rollRestSave();
+
+    expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 4 });
   });
 });
 

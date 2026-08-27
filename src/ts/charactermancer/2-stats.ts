@@ -11,6 +11,9 @@ const STARTING_ARMOR = 0;
 /** Every field the Stats step rolls in one pass, in the roll's template order. */
 const ROLLED_FIELDS = [...allStats, ...allSaves];
 
+/** Health rolls after the stats and saves in the same template (see rolledAttrs). */
+const HEALTH_ROLL_INDEX = ROLLED_FIELDS.length;
+
 /** Restores the rolled stats and saves when the player returns to the slide. */
 export function onLoadStats(): void {
   const data = charmancerData();
@@ -38,9 +41,9 @@ export function rolledAttrs(rolls: readonly RollResult[]): Record<string, string
     attrs[field] = roll.result;
   }
 
-  // 0e health rule (Strength x2); left for #42 to replace with the 1e formula.
-  const strength = rolls[0]?.result ?? 0;
-  attrs["health"] = strength * 2;
+  // 1e Max Health: its own 1d10+10 roll, independent of Strength (#42).
+  const healthRoll = rolls[HEALTH_ROLL_INDEX];
+  if (healthRoll !== undefined) attrs["health"] = healthRoll.result;
   attrs["stress"] = STARTING_STRESS;
   attrs["wounds"] = STARTING_WOUNDS;
   attrs["armor_points"] = STARTING_ARMOR;

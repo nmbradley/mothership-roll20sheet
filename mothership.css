@@ -1453,6 +1453,15 @@ body.sheet-darkmode
   background: none;
   color: var(--ms-accent);
 }
+.charsheet.charsheet.charsheet .ship-engines__bid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--ms-space-sm);
+  align-items: end;
+}
+.charsheet.charsheet.charsheet .ship-engines__bid :global(.button) {
+  align-self: end;
+}
 .charsheet.charsheet.charsheet .ship-header {
   display: grid;
   grid-template-columns: auto 1fr;
