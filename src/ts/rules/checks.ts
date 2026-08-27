@@ -319,6 +319,24 @@ export function worstSave(sanity: number, fear: number, body: number): number {
 }
 
 /**
+ * Roll20 Sheetworker: keeps worst_save in step with Sanity, Fear and Body.
+ *
+ * rollRestSave targets worst_save directly with a plain @{...} reference
+ * rather than reading the three Saves itself, so its startRoll fires
+ * synchronously (#110). Bound to change:sanity/fear/body and to sheet:opened,
+ * so a character saved before this attribute existed gets a value as soon as
+ * the sheet is opened rather than reading 0 until a Save next changes.
+ */
+export function recomputeWorstSave(): void {
+  getAttrs(["sanity", "fear", "body"], (attrs) => {
+    const sanity = Number(attrs.sanity);
+    const fear = Number(attrs.fear);
+    const body = Number(attrs.body);
+    setAttrs({ worst_save: worstSave(sanity, fear, body) });
+  });
+}
+
+/**
  * How a Rest Save changes Stress: success heals by the ones digit of the roll
  * (24 heals 4), failure costs a flat 1. Reads straight off CheckResult so the
  * digit trick is testable without Roll20.
@@ -334,29 +352,27 @@ export function restSaveStressDelta(check: CheckResult): number {
 /**
  * Rolls a Rest Save.
  *
- * The target is not player-chosen: it is whichever of Sanity, Fear or Body
- * currently reads lowest, read fresh via getAttrs rather than assumed.
+ * The target is not player-chosen: it is worst_save, a hidden attribute
+ * recomputeWorstSave keeps in step with Sanity, Fear and Body. Targeting it
+ * directly, rather than reading the three Saves here first, means startRoll
+ * (inside rollCheck) fires synchronously off the click like every other
+ * handler -- awaiting a getAttrs round trip before it, as this used to,
+ * silently broke the roll (#110). Stress is read after the roll resolves
+ * instead, exactly as the ship handlers do.
  */
 export async function rollRestSave(): Promise<void> {
-  const attrs = await new Promise<Record<string, string>>((resolve) => {
-    getAttrs(["sanity", "fear", "body", "stress", "stress_min", "stress_max"], resolve);
-  });
-
-  const sanity = Number(attrs.sanity);
-  const fear = Number(attrs.fear);
-  const body = Number(attrs.body);
-  const target = worstSave(sanity, fear, body);
-
   const check = await rollCheck({
     i18nKey: TEMPLATE_PHRASES.RestSave,
-    target: String(target),
+    target: "@{worst_save}",
   });
 
   const delta = restSaveStressDelta(check);
-  const stress = Number(attrs.stress);
-  const min = Number(attrs.stress_min);
-  const max = Number(attrs.stress_max);
-  applyStressDelta(stress, delta, min, max);
+  getAttrs(["stress", "stress_min", "stress_max"], (attrs) => {
+    const stress = Number(attrs.stress);
+    const min = Number(attrs.stress_min);
+    const max = Number(attrs.stress_max);
+    applyStressDelta(stress, delta, min, max);
+  });
 }
 
 /**
