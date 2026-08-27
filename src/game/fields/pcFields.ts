@@ -262,6 +262,15 @@ export const save_skill_select = attribute({
   checkedValue: "on",
   checked: true,
 });
+// #122: Military Training is a once-per-character, Warden-gated event, not
+// part of the skill list every sheet shows -- gated the same way as the
+// toggles above, off by default.
+export const military_training = attribute({
+  name: "military_training",
+  label: "Military Training",
+  control: Controls.Checkbox,
+  checkedValue: "on",
+});
 export const sheet_skill_toggles = attribute({
   name: "sheet_skill_toggles",
   label: "Skill Toggles",
@@ -329,6 +338,7 @@ export const pcAttributes = {
   settings_open,
   speed_initiative,
   save_skill_select,
+  military_training,
   sheet_skill_toggles,
   drop_category,
   drop_name,

@@ -1,11 +1,40 @@
 <script lang="ts">
   import {
-    save_skill_select, sheet_toggle_select, speed_initiative,
+    military_training, save_skill_select, sheet_toggle_select, speed_initiative,
   } from "#game/fields/pcFields.js";
   import { ship_npc } from "#game/fields/shipFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
   import Panel from "#svelte/components/Panel.svelte";
   import SettingsRow from "#svelte/components/SettingsRow.svelte";
+
+  // Grouped so the page can absorb more settings without turning back into a
+  // flat list. A group with no rows renders nothing -- see the {#if} in the
+  // markup below -- rather than an empty box; NPC and Roll are placeholders
+  // until settings land there.
+  const groups = [
+    {
+      title: "PC",
+      slug: "pc",
+      rows: [speed_initiative, save_skill_select, military_training],
+    },
+    {
+      // #62: only meaningful once a ship is the active sheet -- gated in CSS
+      // below the same way Sheet.svelte gates the sheet views themselves.
+      title: "Ship",
+      slug: "ship",
+      rows: [ship_npc],
+    },
+    {
+      title: "NPC",
+      slug: "npc",
+      rows: [],
+    },
+    {
+      title: "Roll",
+      slug: "roll",
+      rows: [],
+    },
+  ];
 </script>
 
 <!--
@@ -19,42 +48,44 @@
     &larr; Back
   </label>
 
+  <!-- Sheet type sits outside the groups below -- it picks which sheet you're on. -->
   <Panel title="Settings" corner="small">
     <div class="settings-sheet__rows">
       <SettingsRow field={sheet_toggle_select}>
         <Attribute field={sheet_toggle_select} isLabelHidden />
       </SettingsRow>
-
-      <SettingsRow field={speed_initiative}>
-        <Attribute field={speed_initiative} isLabelHidden />
-      </SettingsRow>
-
-      <SettingsRow field={save_skill_select}>
-        <Attribute field={save_skill_select} isLabelHidden />
-      </SettingsRow>
-
-      <!-- #62: only meaningful once a ship is the active sheet. -->
-      <div class="settings-sheet__gate settings-sheet__gate--ship">
-        <SettingsRow field={ship_npc}>
-          <Attribute field={ship_npc} isLabelHidden />
-        </SettingsRow>
-      </div>
-
-      <!--
-        Roll20's charactermancer navigation: a `back`-type button whose value
-        names the page to jump to, usable from anywhere in the sheet, not
-        only from inside a <charmancer> block.
-      -->
-      <button
-        class="settings-sheet__charmancer-launch"
-        type="back"
-        value="intro"
-        data-i18n="Launch Charactermancer"
-      >
-        Launch Charactermancer
-      </button>
     </div>
   </Panel>
+
+  {#each groups as group (group.slug)}
+    {#if group.rows.length > 0}
+      <div class="settings-sheet__group settings-sheet__group--{group.slug}">
+        <Panel title={group.title} corner="small">
+          <div class="settings-sheet__rows">
+            {#each group.rows as field (field.name)}
+              <SettingsRow {field}>
+                <Attribute {field} isLabelHidden />
+              </SettingsRow>
+            {/each}
+          </div>
+        </Panel>
+      </div>
+    {/if}
+  {/each}
+
+  <!--
+    Roll20's charactermancer navigation: a `back`-type button whose value
+    names the page to jump to, usable from anywhere in the sheet, not
+    only from inside a <charmancer> block.
+  -->
+  <button
+    class="settings-sheet__charmancer-launch"
+    type="back"
+    value="intro"
+    data-i18n="Launch Charactermancer"
+  >
+    Launch Charactermancer
+  </button>
 </div>
 
 <style lang="scss">
@@ -92,7 +123,7 @@
     gap: var(--ms-space-lg);
   }
 
-  &__gate {
+  &__group--ship {
     display: none;
   }
 
@@ -116,10 +147,12 @@
   }
 }
 
-// Rows scoped to one sheet type only make sense once that sheet is the
-// active one -- gated off sheet_toggle the same way Sheet.svelte gates the
-// sheet views themselves, since a sheet cannot run JS to hide them instead.
-input[name="attr_sheet_toggle"][value="ship"] ~ .sheet-view--settings .settings-sheet__gate--ship {
+// The Ship group only makes sense once a ship is the active sheet -- gated
+// off sheet_toggle the same way Sheet.svelte gates the sheet views
+// themselves, since a sheet cannot run JS to hide it instead. Gated on the
+// whole group, not just its row, so switching away from Ship doesn't leave
+// an empty panel box behind.
+input[name="attr_sheet_toggle"][value="ship"] ~ .sheet-view--settings .settings-sheet__group--ship {
   display: block;
 }
 </style>
