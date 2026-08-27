@@ -3,10 +3,11 @@
     character_name, class_, high_score, pronouns, patch, trinket,
   } from "#game/fields/pcFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
+  import ButtonAction from "#svelte/components/ButtonAction.svelte";
   import Panel from "#svelte/components/Panel.svelte";
 
   /** Stacked beside the portrait, in the order the printed sheet uses. */
-  const details = [character_name, pronouns, class_, patch, trinket, high_score];
+  const details = [character_name, pronouns, class_, patch, trinket];
 </script>
 
 <Panel title="Personal Details" mode="dark" corner="large">
@@ -15,6 +16,10 @@
       {#each details as detail (detail.name)}
         <Attribute field={detail} />
       {/each}
+    </div>
+    <div class="pc-details__score">
+      <Attribute field={high_score} />
+      <ButtonAction action="increment_score" label="+1" />
     </div>
   </div>
 </Panel>

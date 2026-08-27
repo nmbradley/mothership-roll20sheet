@@ -25,6 +25,17 @@ describe("pcFields", () => {
     expect(pcAttributes.sanity.name).toBe("sanity");
   });
 
+  it("no longer exports the 0e header fields", () => {
+    expect("level" in pcAttributes).toBe(false);
+    expect("rank_title" in pcAttributes).toBe(false);
+    expect("xp" in pcAttributes).toBe(false);
+  });
+
+  it("exports damage reduction alongside armor points", () => {
+    expect(pcAttributes.armor_points.name).toBe("armor_points");
+    expect(pcAttributes.damage_reduction.name).toBe("damage_reduction");
+  });
+
   it("exports repeating attacks", () => {
     expect(pcAttacks.name).toBe("repeating_attacks");
     expect(pcAttacks.attributes.attack_name.name).toBe("attack_name");
@@ -45,6 +56,10 @@ describe("pcFields", () => {
   it("keeps the superseded conditions attribute declared for old data", () => {
     expect(pcAttributes.conditions.name).toBe("conditions");
     expect(pcAttributes.conditions.control).toBe("textarea");
+  });
+
+  it("no longer exports the 0e equipment armor bonus", () => {
+    expect("equipment_armor_bonus" in pcEquipment.attributes).toBe(false);
   });
 
   it("exports repeating skills", () => {

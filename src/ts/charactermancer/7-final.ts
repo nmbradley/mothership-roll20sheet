@@ -66,8 +66,6 @@ function compileCharacter(data: CharmancerData): void {
   attrs["health_max"] = health;
   attrs["stress_panic"] = review["stressresponse_final"] ?? "";
   attrs["skill_points"] = review["skillpoints_final"] ?? "";
-  attrs["level"] = "0";
-  attrs["xp"] = "0";
 
   // Already attribute keys, so they go straight on the sheet.
   const skills = parseStringList(review["skills_final"]);
@@ -111,8 +109,10 @@ function equipmentRows(name: string): SheetAttributes {
     [`${row}_type`]: itemType(item),
   };
 
+  // 1e tracks Armor Points on the character rather than the equipment row
+  // (#53), so the picked armor's points seed armor_points directly.
   if (item?.kind === "armor") {
-    attrs[`${row}_armor_bonus`] = item.entry.points;
+    attrs["armor_points"] = item.entry.points;
     return attrs;
   }
 
