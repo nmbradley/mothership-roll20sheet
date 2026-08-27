@@ -191,10 +191,12 @@
   display: flex;
   justify-content: center;
 
-  width: 100%;
-
+  // The item is a grid item and already stretches to its cell; it is the
+  // button inside that has to be told to fill, or it sizes to its label and
+  // the rows read ragged.
   .button {
     border-radius: var(--ms-radius-pill);
+    width: 100%;
     padding: var(--ms-space-md) var(--ms-space-lg);
   }
 }
@@ -220,6 +222,13 @@
 .pc-sheet:not(:has(input[name="attr_speed_initiative"]:checked))
   .pc-status-actions__item:nth-child(5) {
   grid-column: 1 / -1;
+
+  // Spanning the row would otherwise make this button twice the width of
+  // every other one. Holding it to a single column's width keeps it matching
+  // its neighbours while still sitting centred across the pair.
+  .button {
+    width: calc(50% - var(--ms-space-md) / 2);
+  }
 }
 
 // Its label sits above the field rather than beside it.

@@ -1398,10 +1398,10 @@ body.sheet-darkmode
 .charsheet.charsheet.charsheet .pc-status-actions__item {
   display: flex;
   justify-content: center;
-  width: 100%;
 }
 .charsheet.charsheet.charsheet .pc-status-actions__item .button {
   border-radius: var(--ms-radius-pill);
+  width: 100%;
   padding: var(--ms-space-md) var(--ms-space-lg);
 }
 .charsheet.charsheet.charsheet .pc-status-actions__item--initiative {
@@ -1416,6 +1416,12 @@ body.sheet-darkmode
   .pc-sheet:not(:has(input[name="attr_speed_initiative"]:checked))
   .pc-status-actions__item:nth-child(5) {
   grid-column: 1/-1;
+}
+.charsheet.charsheet.charsheet
+  .pc-sheet:not(:has(input[name="attr_speed_initiative"]:checked))
+  .pc-status-actions__item:nth-child(5)
+  .button {
+  width: calc(50% - var(--ms-space-md) / 2);
 }
 .charsheet.charsheet.charsheet .pc-status-notes {
   margin-top: var(--ms-space-lg);
