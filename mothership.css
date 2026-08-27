@@ -1031,19 +1031,23 @@ body.sheet-darkmode
 .charsheet.charsheet.charsheet .npc-stats-panel {
   width: 100%;
 }
-.charsheet.charsheet.charsheet .npc-stats-grid {
+.charsheet.charsheet.charsheet .npc-checks-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 0.75rem;
-  align-items: stretch;
-  margin-top: 0.75rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--ms-space-lg);
+  margin-top: var(--ms-space-lg);
 }
-.charsheet.charsheet.charsheet .npc-stat-card,
-.charsheet.charsheet.charsheet .npc-vital-card {
+.charsheet.charsheet.charsheet .npc-vitals-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--ms-space-lg);
+  align-items: start;
+  margin-top: var(--ms-space-lg);
+}
+.charsheet.charsheet.charsheet .npc-stat-card {
   display: flex;
-  position: relative;
   flex-direction: column;
-  justify-content: space-between;
+  gap: var(--ms-space-sm);
   border: 2px solid var(--ms-border);
   border-radius: var(--ms-radius-sm);
   padding: var(--ms-space-md);
@@ -1052,40 +1056,24 @@ body.sheet-darkmode
 .charsheet.charsheet.charsheet .npc-stat-card__header {
   display: flex;
   position: relative;
-  align-items: center;
-  justify-content: space-between;
+  justify-content: center;
 }
 .charsheet.charsheet.charsheet
   .npc-stat-card__header:hover
   .npc-stat-card__tooltip {
   display: block;
 }
-.charsheet.charsheet.charsheet .npc-stat-card--initiative {
-  display: none;
-  border-color: var(--ms-border);
-  background-color: var(--ms-inverse);
-  color: var(--ms-fg-inverse);
-}
-.charsheet.charsheet.charsheet .npc-stat-card--initiative .button {
-  border: none;
-  padding: 0;
-  background: transparent;
-  font-size: var(--ms-text-md);
+.charsheet.charsheet.charsheet .npc-stat-card__label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.75rem;
+  font-size: var(--ms-text-sm);
   font-family: var(--ms-font-header);
   font-weight: bold;
+  text-align: center;
   text-transform: uppercase;
-  color: var(--ms-fg-inverse);
-}
-.charsheet.charsheet.charsheet .npc-stat-card--initiative .button:hover {
-  background: transparent;
-  color: var(--ms-accent);
-}
-.charsheet.charsheet.charsheet .npc-stat-card__initiative-subtext {
-  margin-top: var(--ms-space-sm);
-  font-size: var(--ms-text-xs);
-  font-family: var(--ms-font-header);
-  text-transform: uppercase;
-  color: var(--ms-fg-muted);
+  color: var(--ms-fg);
 }
 .charsheet.charsheet.charsheet .npc-stat-card__tooltip {
   display: none;
@@ -1104,54 +1092,7 @@ body.sheet-darkmode
   color: var(--ms-fg-inverse);
   pointer-events: none;
 }
-.charsheet.charsheet.charsheet .npc-stat-card__input {
-  margin-top: var(--ms-space-sm);
-  border: 1px solid var(--ms-border);
-  border-radius: 2px;
-  box-sizing: border-box;
-  width: 100%;
-  padding: var(--ms-space-sm);
-  background: var(--ms-surface);
-  font-size: var(--ms-text-lg);
-  font-family: var(--ms-font-header);
-  font-weight: bold;
-  text-align: center;
-  color: var(--ms-fg);
-}
-.charsheet.charsheet.charsheet .npc-stat-card__input--ap {
-  font-size: var(--ms-text-lg);
-}
-.charsheet.charsheet.charsheet .npc-vital-card__label {
-  margin-bottom: var(--ms-space-sm);
-  font-size: var(--ms-text-sm);
-  font-family: var(--ms-font-header);
-  font-weight: bold;
-  text-transform: uppercase;
-  color: var(--ms-fg);
-}
-.charsheet.charsheet.charsheet .npc-vital-card__minmax-wrapper {
-  display: flex;
-  gap: var(--ms-space-sm);
-  align-items: center;
-}
-.charsheet.charsheet.charsheet .npc-vital-card__input {
-  border: 1px solid var(--ms-border);
-  border-radius: 2px;
-  box-sizing: border-box;
-  width: 100%;
-  padding: var(--ms-space-sm);
-  background: var(--ms-surface);
-  font-size: var(--ms-text-lg);
-  font-family: var(--ms-font-header);
-  font-weight: bold;
-  text-align: center;
-  color: var(--ms-fg);
-}
-.charsheet.charsheet.charsheet .npc-vital-card__separator {
-  font-weight: bold;
-  color: var(--ms-fg);
-}
-.charsheet.charsheet.charsheet .npc-vital-card__sublabels {
+.charsheet.charsheet.charsheet .npc-stat-card__sublabels {
   display: flex;
   justify-content: space-between;
   margin-top: 0.15rem;
@@ -1160,9 +1101,46 @@ body.sheet-darkmode
   text-transform: uppercase;
   color: var(--ms-fg-muted);
 }
+.charsheet.charsheet.charsheet .npc-stat-card .button {
+  border: none;
+  padding: 0;
+  background: transparent;
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  text-transform: inherit;
+  color: inherit;
+}
+.charsheet.charsheet.charsheet .npc-stat-card .button:hover {
+  background: transparent;
+  color: var(--ms-accent);
+}
+.charsheet.charsheet.charsheet
+  .npc-stat-card
+  .attribute--number
+  .attribute__input,
+.charsheet.charsheet.charsheet
+  .npc-stat-card
+  .attribute__minmax-wrapper
+  .attribute__input {
+  border-radius: var(--ms-radius-pill);
+  padding: var(--ms-space-md) 0;
+  font-size: var(--ms-text-lg);
+  font-weight: 700;
+  text-align: center;
+}
+.charsheet.charsheet.charsheet .npc-stats-actions {
+  display: none;
+  justify-content: center;
+  margin-top: var(--ms-space-lg);
+}
+.charsheet.charsheet.charsheet .npc-stats-actions .button {
+  border-radius: var(--ms-radius-pill);
+  padding: var(--ms-space-md) var(--ms-space-lg);
+}
 .charsheet.charsheet.charsheet
   .npc-sheet:has(input[name="attr_speed_initiative"]:checked)
-  .npc-stat-card--initiative {
+  .npc-stats-actions {
   display: flex;
 }
 .charsheet.charsheet.charsheet .pc-attack-pair {

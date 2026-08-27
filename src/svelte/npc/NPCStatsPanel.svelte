@@ -26,8 +26,11 @@
 
 <section class="npc-stats-panel">
   <Panel title="Stats & Vitals">
-    <div class="npc-stats-grid">
-      <!-- Combat & Instinct Stats (No Speed) -->
+    <!-- Combat & Instinct Stats (No Speed): one box each, the label doubling
+         as the check-roll button, matching the single-box treatment of the
+         Wounds/Health/Armor Points cards below instead of nesting a bordered
+         button inside a bordered card. -->
+    <div class="npc-checks-grid">
       {#each stats as stat (stat.field.name)}
         <!-- The key has to spell out the whole label: the sheet shows "Combat
              (C)", so keying it on "combat" alone would collide with the PC
@@ -38,7 +41,7 @@
             <!-- An action button: the sheetworker rolls and grades the check. -->
             <ButtonAction action="check-{stat.field.name}">
               <span
-                class="npc-stat-card__title"
+                class="npc-stat-card__label"
                 data-i18n={i18nKey(title)}
               >{title}</span>
             </ButtonAction>
@@ -47,50 +50,48 @@
           <Attribute field={stat.field} isLabelHidden />
         </div>
       {/each}
+    </div>
 
-      <!-- Initiative (#50): optional rule where an Instinct Check also sets
-           Turn Order, gated on speed_initiative -- see the CSS below. The
-           sheetworker rolls it through rollCheck() like every other check,
-           with &{tracker} carried in the roll expression rather than the
-           raw inline macro this used to be (#79). -->
-      <div class="npc-stat-card npc-stat-card--initiative">
-        <div class="npc-stat-card__header">
-          <ButtonAction action="npc-initiative">
-            <span class="npc-stat-card__title" data-i18n="Initiative">Initiative</span>
-          </ButtonAction>
-          <span
-            class="npc-stat-card__tooltip"
-            data-i18n="Rolls Instinct and adds to Turn Tracker (&amp;&lbrace;tracker&rbrace;)"
-          >Rolls Instinct and adds to Turn Tracker (&amp;&lbrace;tracker&rbrace;)</span>
-        </div>
-        <div class="npc-stat-card__initiative-subtext">Instinct + Tracker</div>
-      </div>
-
+    <!-- Wounds, Health and Armor Points: the current/max pill treatment is
+         the reference this panel is built around, so Armor Points picks up
+         the same card rather than sitting orphaned on its own row. -->
+    <div class="npc-vitals-grid">
       <!-- Wounds Tracker (Supports W:1, W:2, etc.) -->
-      <div class="npc-vital-card npc-vital-card--wounds">
-        <div class="npc-vital-card__label" data-i18n="Wounds (W)">Wounds (W)</div>
+      <div class="npc-stat-card">
+        <div class="npc-stat-card__label" data-i18n="Wounds (W)">Wounds (W)</div>
         <Attribute field={wounds} isLabelHidden />
-        <div class="npc-vital-card__sublabels">
+        <div class="npc-stat-card__sublabels">
           <span data-i18n="Current">Current</span>
           <span data-i18n="Max">Max</span>
         </div>
       </div>
 
       <!-- Health per Wound (Supports W:2(20), optional for W:1) -->
-      <div class="npc-vital-card npc-vital-card--health">
-        <div class="npc-vital-card__label" data-i18n="Health (HP)">Health (HP)</div>
+      <div class="npc-stat-card">
+        <div class="npc-stat-card__label" data-i18n="Health (HP)">Health (HP)</div>
         <Attribute field={health} isLabelHidden />
-        <div class="npc-vital-card__sublabels">
+        <div class="npc-stat-card__sublabels">
           <span data-i18n="Current">Current</span>
           <span data-i18n="Per Wound">Per Wound</span>
         </div>
       </div>
 
       <!-- Armor Points (AP) Tracker -->
-      <div class="npc-vital-card npc-vital-card--ap">
-        <div class="npc-vital-card__label" data-i18n="Armor Points (AP)">Armor Points (AP)</div>
+      <div class="npc-stat-card">
+        <div class="npc-stat-card__label" data-i18n="Armor Points (AP)">Armor Points (AP)</div>
         <Attribute field={armor_points} isLabelHidden />
       </div>
+    </div>
+
+    <!-- Initiative (#50): optional rule where an Instinct Check also sets
+         Turn Order, gated on speed_initiative -- see the CSS below. Sits with
+         the actions, styled as a plain pill button, rather than wedged
+         between two stat cards as its own dark card. The sheetworker rolls
+         it through rollCheck() like every other check, with &{tracker}
+         carried in the roll expression rather than the raw inline macro this
+         used to be (#79). -->
+    <div class="npc-stats-actions">
+      <ButtonAction action="npc-initiative" label="Initiative" />
     </div>
   </Panel>
 </section>
@@ -100,85 +101,57 @@
     width: 100%;
   }
 
-  .npc-stats-grid {
+  .npc-checks-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 0.75rem;
-    align-items: stretch;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--ms-space-lg);
 
-    margin-top: 0.75rem;
+    margin-top: var(--ms-space-lg);
   }
 
-  .npc-stat-card,
-  .npc-vital-card {
+  .npc-vitals-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--ms-space-lg);
+    align-items: start;
+
+    margin-top: var(--ms-space-lg);
+  }
+
+  .npc-stat-card {
     display: flex;
-    position: relative;
     flex-direction: column;
-    justify-content: space-between;
+    gap: var(--ms-space-sm);
 
     border: 2px solid var(--ms-border);
     border-radius: var(--ms-radius-sm);
     padding: var(--ms-space-md);
 
     background-color: var(--ms-sunken);
-  }
 
-  .npc-stat-card {
     &__header {
       display: flex;
       position: relative;
-      align-items: center;
-      justify-content: space-between;
+      justify-content: center;
 
       &:hover .npc-stat-card__tooltip {
         display: block;
       }
     }
 
-    // Hidden until Speed Check Initiative (#50) is switched on in Settings --
-    // a sheet cannot run JS outside its sheetworkers, so this rereads the
-    // checkbox via :has() rather than script. The checkbox itself lives on
-    // the settings page now; NPCSheet mirrors it into a hidden state block
-    // so :has() still finds a copy inside .npc-sheet.
-    &--initiative {
-      display: none;
+    &__label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-      border-color: var(--ms-border);
+      min-height: 1.75rem;
 
-      background-color: var(--ms-inverse);
-
-      color: var(--ms-fg-inverse);
-
-      // The default button chrome (bordered, surface-coloured) reads as a
-      // light box against this card's dark background, so it is stripped
-      // back to plain, bold, uppercase text as the button it replaces was.
-      .button {
-        border: none;
-        padding: 0;
-
-        background: transparent;
-
-        font-size: var(--ms-text-md);
-        font-family: var(--ms-font-header);
-        font-weight: bold;
-        text-transform: uppercase;
-        color: var(--ms-fg-inverse);
-
-        &:hover {
-          background: transparent;
-
-          color: var(--ms-accent);
-        }
-      }
-    }
-
-    &__initiative-subtext {
-      margin-top: var(--ms-space-sm);
-
-      font-size: var(--ms-text-xs);
+      font-size: var(--ms-text-sm);
       font-family: var(--ms-font-header);
+      font-weight: bold;
+      text-align: center;
       text-transform: uppercase;
-      color: var(--ms-fg-muted);
+      color: var(--ms-fg);
     }
 
     &__tooltip {
@@ -203,66 +176,6 @@
       pointer-events: none;
     }
 
-    &__input {
-      margin-top: var(--ms-space-sm);
-      border: 1px solid var(--ms-border);
-      border-radius: 2px;
-      box-sizing: border-box;
-      width: 100%;
-      padding: var(--ms-space-sm);
-
-      background: var(--ms-surface);
-
-      font-size: var(--ms-text-lg);
-      font-family: var(--ms-font-header);
-      font-weight: bold;
-      text-align: center;
-      color: var(--ms-fg);
-
-      &--ap {
-        font-size: var(--ms-text-lg);
-      }
-    }
-  }
-
-  .npc-vital-card {
-    &__label {
-      margin-bottom: var(--ms-space-sm);
-
-      font-size: var(--ms-text-sm);
-      font-family: var(--ms-font-header);
-      font-weight: bold;
-      text-transform: uppercase;
-      color: var(--ms-fg);
-    }
-
-    &__minmax-wrapper {
-      display: flex;
-      gap: var(--ms-space-sm);
-      align-items: center;
-    }
-
-    &__input {
-      border: 1px solid var(--ms-border);
-      border-radius: 2px;
-      box-sizing: border-box;
-      width: 100%;
-      padding: var(--ms-space-sm);
-
-      background: var(--ms-surface);
-
-      font-size: var(--ms-text-lg);
-      font-family: var(--ms-font-header);
-      font-weight: bold;
-      text-align: center;
-      color: var(--ms-fg);
-    }
-
-    &__separator {
-      font-weight: bold;
-      color: var(--ms-fg);
-    }
-
     &__sublabels {
       display: flex;
       justify-content: space-between;
@@ -274,9 +187,63 @@
       text-transform: uppercase;
       color: var(--ms-fg-muted);
     }
+
+    // The label doubles as the check-roll button for Combat and Instinct; its
+    // own chrome (bordered, surface-coloured) would read as a second box
+    // nested inside this card, so it is stripped back to plain text and the
+    // card carries the only border.
+    .button {
+      border: none;
+      padding: 0;
+
+      background: transparent;
+
+      font-size: inherit;
+      font-family: inherit;
+      font-weight: inherit;
+      text-transform: inherit;
+      color: inherit;
+
+      &:hover {
+        background: transparent;
+
+        color: var(--ms-accent);
+      }
+    }
+
+    // Combat, Instinct and Armor Points have no built-in max to pair against,
+    // so they render through AttributeNumberInput rather than
+    // AttributeNumberMax; this brings their input to the same pill treatment
+    // Wounds and Health already get from AttributeNumberMax.
+    .attribute--number .attribute__input,
+    .attribute__minmax-wrapper .attribute__input {
+      border-radius: var(--ms-radius-pill);
+      padding: var(--ms-space-md) 0;
+
+      font-size: var(--ms-text-lg);
+      font-weight: 700;
+      text-align: center;
+    }
   }
 
-  .npc-sheet:has(input[name="attr_speed_initiative"]:checked) .npc-stat-card--initiative {
+  // Hidden until Speed Check Initiative (#50) is switched on in Settings --
+  // a sheet cannot run JS outside its sheetworkers, so this rereads the
+  // checkbox via :has() rather than script. The checkbox itself lives on
+  // the settings page now; NPCSheet mirrors it into a hidden state block
+  // so :has() still finds a copy inside .npc-sheet.
+  .npc-stats-actions {
+    display: none;
+    justify-content: center;
+
+    margin-top: var(--ms-space-lg);
+
+    .button {
+      border-radius: var(--ms-radius-pill);
+      padding: var(--ms-space-md) var(--ms-space-lg);
+    }
+  }
+
+  .npc-sheet:has(input[name="attr_speed_initiative"]:checked) .npc-stats-actions {
     display: flex;
   }
 </style>
