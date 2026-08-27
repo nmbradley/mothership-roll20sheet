@@ -221,6 +221,15 @@ export const speed_initiative = attribute({
   control: Controls.Checkbox,
   checkedValue: "on",
 });
+// #9: on by default, matching the Skill prompt's existing behaviour on Saves;
+// a Keeper who wants it gone unchecks this rather than opting in to lose it.
+export const save_skill_select = attribute({
+  name: "save_skill_select",
+  label: "Skill Select for Saves",
+  control: Controls.Checkbox,
+  checkedValue: "on",
+  checked: true,
+});
 export const sheet_skill_toggles = attribute({
   name: "sheet_skill_toggles",
   label: "Skill Toggles",
@@ -283,6 +292,7 @@ export const pcAttributes = {
   sheet_toggle_select,
   settings_open,
   speed_initiative,
+  save_skill_select,
   sheet_skill_toggles,
   drop_category,
   drop_name,

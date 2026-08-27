@@ -34,6 +34,7 @@ import {
   rollPanicCheck,
   rollPCInitiative,
   rollRestSave,
+  rollSaveCheck,
   skillQuery,
 } from "./rules/checks";
 import {
@@ -95,8 +96,15 @@ const SKILLED_CHECKS: readonly string[] = [...allStats, ...allSaves];
 
 for (const attribute of CHECK_ATTRIBUTES) {
   const isSkilled = SKILLED_CHECKS.includes(attribute);
+  const isSave = (allSaves as readonly string[]).includes(attribute);
 
   on(`clicked:check-${attribute}`, () => {
+    // #9: a Save's Skill prompt is a Keeper toggle read at click time, so it
+    // cannot be baked in below the way every other skilled check's is.
+    if (isSave) {
+      rollSaveCheck(attribute);
+      return;
+    }
     void rollCheck({
       i18nKey: checkKey(attribute),
       target: `@{${attribute}}`,

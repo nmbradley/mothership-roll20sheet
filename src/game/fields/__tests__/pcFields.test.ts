@@ -10,6 +10,7 @@ import {
   pcTrainedSkills,
   pcExpertSkills,
   pcMasterSkills,
+  save_skill_select,
   settings_open,
   sheet_toggle_select,
   speed_initiative,
@@ -74,6 +75,13 @@ describe("pcFields", () => {
     expect(pcAttributes.speed_initiative.name).toBe("speed_initiative");
     expect(speed_initiative.control).toBe("checkbox");
     expect(speed_initiative.checkedValue).toBe("on");
+  });
+
+  it("exports the Skill Select for Saves settings toggle, on by default", () => {
+    expect(pcAttributes.save_skill_select.name).toBe("save_skill_select");
+    expect(save_skill_select.control).toBe("checkbox");
+    expect(save_skill_select.checkedValue).toBe("on");
+    expect(save_skill_select.checked).toBe(true);
   });
 
   it("exports settings_open, layered over sheet_toggle rather than a value of it", () => {

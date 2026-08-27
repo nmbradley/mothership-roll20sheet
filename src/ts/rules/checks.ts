@@ -124,6 +124,32 @@ export function skillQuery(): string {
   return `?{${prompt}|${choices}}`;
 }
 
+/** Roll20 stores "0" for an unchecked box; anything else reads as on. */
+export function isSaveSkillSelectEnabled(raw: string | undefined): boolean {
+  return raw !== "0";
+}
+
+/**
+ * Rolls a Save check, honouring #9's Keeper toggle on the Skill prompt.
+ *
+ * Every other skilled check bakes skillQuery() into its click handler at
+ * registration in index.ts, since the bonus query never changes. A Save's
+ * only knows whether the Keeper wants it once the button is actually
+ * clicked, so this reads save_skill_select fresh with getAttrs instead --
+ * one extra attribute read per Save click. getAttrs answers from the sheet's
+ * own cached data rather than a network round trip, so the cost is trivial.
+ */
+export function rollSaveCheck(attribute: string): void {
+  getAttrs(["save_skill_select"], (attrs) => {
+    const bonus = isSaveSkillSelectEnabled(attrs.save_skill_select) ? skillQuery() : undefined;
+    void rollCheck({
+      i18nKey: checkKey(attribute),
+      target: `@{${attribute}}`,
+      ...(bonus === undefined ? {} : { bonus }),
+    });
+  });
+}
+
 const EDGE_NORMAL = 0;
 const EDGE_ADVANTAGE = 1;
 

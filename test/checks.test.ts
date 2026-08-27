@@ -12,12 +12,14 @@ import {
 import {
   adjustStress,
   applyStressDelta,
+  isSaveSkillSelectEnabled,
   restSaveStressDelta,
   rollCheck,
   rollDeathSave,
   rollNPCInitiative,
   rollPCInitiative,
   rollRestSave,
+  rollSaveCheck,
   skillQuery,
   worstSave,
 } from "../src/ts/rules/checks";
@@ -107,6 +109,74 @@ describe("rollCheck", () => {
     expect(check.target).toBe(45);
     expect(check.outcome).toBe(Outcomes.Success);
     expect(mockFinishRoll).toHaveBeenCalled();
+  });
+});
+
+describe("isSaveSkillSelectEnabled", () => {
+  it("should read the checkbox on by default", () => {
+    expect(isSaveSkillSelectEnabled(undefined)).toBe(true);
+    expect(isSaveSkillSelectEnabled("on")).toBe(true);
+  });
+
+  it("should read Roll20's unchecked sentinel as off", () => {
+    expect(isSaveSkillSelectEnabled("0")).toBe(false);
+  });
+});
+
+describe("rollSaveCheck", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("should offer the Skill prompt while the Keeper toggle is on", () => {
+    translateWith({});
+    type GetAttrsCallback = (response: Record<string, string>) => void;
+    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
+      callback({ save_skill_select: "on" });
+    });
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        roll: { result: 30 },
+        roll2: { result: 80 },
+        edge: { result: 0 },
+        target: { result: 45 },
+      },
+    });
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+
+    rollSaveCheck("sanity");
+
+    expect(mockGetAttrs).toHaveBeenCalledWith(["save_skill_select"], expect.any(Function));
+    const formula = mockStartRoll.mock.calls[0][0] as string;
+    expect(formula).toContain("target=[[@{sanity}+?{Apply Skill?");
+  });
+
+  it("should fall back to a plain modifier once the Keeper turns it off", () => {
+    type GetAttrsCallback = (response: Record<string, string>) => void;
+    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
+      callback({ save_skill_select: "0" });
+    });
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        roll: { result: 30 },
+        roll2: { result: 80 },
+        edge: { result: 0 },
+        target: { result: 45 },
+      },
+    });
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+
+    rollSaveCheck("sanity");
+
+    const formula = mockStartRoll.mock.calls[0][0] as string;
+    expect(formula).toContain("target=[[@{sanity}+?{Modifier?|0}]]");
+    expect(formula).not.toContain("Apply Skill?");
   });
 });
 
