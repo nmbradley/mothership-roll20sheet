@@ -4,6 +4,7 @@ import {
 } from "#game/enums.js";
 import { titleCase } from "#game/text.js";
 
+import { destroyWornArmor } from "./equipment";
 import { TEMPLATE_PHRASES, translated } from "./rollTemplate";
 import { woundEffect } from "./tables";
 
@@ -327,10 +328,15 @@ export async function handleTakeDamage(): Promise<void> {
   const woundDice = diceFields.map((field) => rollData.results[field]?.result ?? 0);
   const outcome = applyDamage(damageEntry.result, state, damageType, woundDice);
 
+  // Armor is a function of the rows worn (#112), so a hit that breaks it
+  // zeroes the worn Armor rows' own AP/DR rather than the pooled total --
+  // the panel's totals fall out of that section's own recalculation.
+  const armorUpdates = outcome.armorDestroyed ? await destroyWornArmor() : {};
+
   setAttrs({
     health: outcome.health,
     wounds: outcome.wounds,
-    ...(outcome.armorDestroyed ? { armor_points: outcome.armorPoints } : {}),
+    ...armorUpdates,
     ...woundAfflictionRows(outcome.woundRolls),
   });
 

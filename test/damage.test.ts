@@ -298,16 +298,27 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
     });
   });
 
-  it("handleTakeDamage writes armor_points only when the hit destroys the armor", async () => {
-    vi.stubGlobal("getAttrs", (_request: string[], callback: (response: Record<string, string>) => void) => {
+  it("handleTakeDamage zeroes the worn Armor row's own AP/DR only when the hit destroys the armor", async () => {
+    vi.stubGlobal("getAttrs", (request: string[], callback: (response: Record<string, string>) => void) => {
+      if (request.includes("armor_points")) {
+        callback({
+          health: "10",
+          health_max: "10",
+          wounds: "0",
+          wounds_max: "2",
+          armor_points: "5",
+          damage_reduction: "0",
+        });
+        return;
+      }
       callback({
-        health: "10",
-        health_max: "10",
-        wounds: "0",
-        wounds_max: "2",
-        armor_points: "5",
-        damage_reduction: "0",
+        repeating_equipment_row1_equipment_type: "Armor",
+        repeating_equipment_row1_equipment_armor_points: "5",
+        repeating_equipment_row1_equipment_damage_reduction: "0",
       });
+    });
+    vi.stubGlobal("getSectionIDs", (_section: string, callback: (ids: string[]) => void) => {
+      callback(["row1"]);
     });
     const mockStartRoll = vi.fn().mockResolvedValue({
       rollId: "id",
@@ -326,8 +337,12 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
     await handleTakeDamage();
 
     expect(mockSetAttrs).toHaveBeenCalledWith(
-      expect.objectContaining({ armor_points: 0 }),
+      expect.objectContaining({
+        repeating_equipment_row1_equipment_armor_points: 0,
+        repeating_equipment_row1_equipment_damage_reduction: 0,
+      }),
     );
+    expect(mockSetAttrs.mock.calls[0]?.[0]).not.toHaveProperty("armor_points");
   });
 
   it("handleTakeDamage surfaces the Death Save prompt once Wounds reach Maximum", async () => {

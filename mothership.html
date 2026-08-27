@@ -6348,6 +6348,16 @@
       damageReduction
     };
   }
+  function destroyedArmorUpdates(rows) {
+    const updates = {};
+    for (const row of rows) {
+      if (row.type !== ARMOR_TYPE) continue;
+      if (row.armorPoints === 0 && row.damageReduction === 0) continue;
+      updates[`repeating_equipment_${row.id}_equipment_armor_points`] = 0;
+      updates[`repeating_equipment_${row.id}_equipment_damage_reduction`] = 0;
+    }
+    return updates;
+  }
   function readEquipmentRows() {
     return new Promise((resolve) => {
       getSectionIDs("repeating_equipment", (ids) => {
@@ -6379,6 +6389,11 @@
       armor_points: totals.armorPoints,
       damage_reduction: totals.damageReduction
     });
+  }
+  async function destroyWornArmor() {
+    const rows = await readEquipmentRows();
+    const updates = destroyedArmorUpdates(rows);
+    return updates;
   }
 
   // src/ts/charactermancer/7-final.ts
@@ -7343,10 +7358,11 @@
     const damageType = readDamageType(typeEntry.result);
     const woundDice = diceFields.map((field) => rollData.results[field]?.result ?? 0);
     const outcome = applyDamage(damageEntry.result, state, damageType, woundDice);
+    const armorUpdates = outcome.armorDestroyed ? await destroyWornArmor() : {};
     setAttrs({
       health: outcome.health,
       wounds: outcome.wounds,
-      ...outcome.armorDestroyed ? { armor_points: outcome.armorPoints } : {},
+      ...armorUpdates,
       ...woundAfflictionRows(outcome.woundRolls)
     });
     finishRoll(rollData.rollId, {
