@@ -2,9 +2,6 @@
   import CharmancerGuide from "#svelte/charactermancer/components/CharmancerGuide.svelte";
   import CharmancerPageControl from "#svelte/charactermancer/components/CharmancerPageControl.svelte";
   import CharmancerSlide from "#svelte/charactermancer/components/CharmancerSlide.svelte";
-
-  // Plain string: Roll20's braces need no escaping outside markup.
-  const creditRoll = "{{template:ms-cm}} {{title=credit roll}} {{credits=[[5d10*10]]}}";
 </script>
 
 <CharmancerSlide name="equipment">
@@ -27,20 +24,15 @@
             data-i18n="You can add custom equipment to the character sheet after completing the charactermancer."
           ></span>
         </div>
+        <div class="choice noloadout">
+          <span data-i18n="You forgo a loadout and receive 2d10x100 credits instead."></span>
+        </div>
       </div>
 
       <div class="ms-cm-credits">
         <div class="ms-cm-credits__title" data-i18n="Starting Credits"></div>
-        <div class="ms-cm-credits__roll">
-          <button
-            data-i18n-title="Roll starting credits"
-            title="Roll starting credits"
-            name="roll_credits"
-            type="roll"
-            value={creditRoll}
-          ></button>
-          <input name="comp_credits" type="hidden" />
-        </div>
+        <div class="ms-cm-credits__roll t__creditsroll"></div>
+        <input name="comp_credits" type="hidden" />
         <div class="ms-cm-credits__display t__credits"></div>
       </div>
 
