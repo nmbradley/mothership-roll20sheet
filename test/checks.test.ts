@@ -6,9 +6,16 @@ import {
   vi,
 } from "vitest";
 
-import { Outcomes, SKILL_BONUS } from "../src/ts/rules/rolls";
 import {
-  applyStressDelta, rollCheck, skillQuery,
+  Comparisons, Outcomes, SKILL_BONUS, makeCheck,
+} from "../src/ts/rules/rolls";
+import {
+  applyStressDelta,
+  restSaveStressDelta,
+  rollCheck,
+  rollRestSave,
+  skillQuery,
+  worstSave,
 } from "../src/ts/rules/checks";
 
 /** Stands in for Roll20's translator with a fixed table. */
@@ -129,5 +136,97 @@ describe("applyStressDelta", () => {
     applyStressDelta(9, 5, 0, 10);
 
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 10 });
+  });
+});
+
+describe("worstSave", () => {
+  it("should pick the lowest of the three Saves", () => {
+    expect(worstSave(40, 25, 55)).toBe(25);
+  });
+
+  it("should resolve a tie to the shared value", () => {
+    expect(worstSave(30, 30, 55)).toBe(30);
+    expect(worstSave(10, 10, 10)).toBe(10);
+  });
+});
+
+describe("restSaveStressDelta", () => {
+  it("should reduce Stress by the ones digit of a successful roll", () => {
+    const check = makeCheck({
+      name: "Rest Save",
+      target: 50,
+      rolls: [24],
+      comparison: Comparisons.RollUnder,
+    });
+
+    expect(check.outcome).toBe(Outcomes.Success);
+    expect(restSaveStressDelta(check)).toBe(-4);
+  });
+
+  it("should grant 1 Stress on a failure", () => {
+    const check = makeCheck({
+      name: "Rest Save",
+      target: 10,
+      rolls: [57],
+    });
+
+    expect(check.outcome).toBe(Outcomes.Failure);
+    expect(restSaveStressDelta(check)).toBe(1);
+  });
+
+  it("should floor the reduction at the given minimum once applied", () => {
+    const check = makeCheck({
+      name: "Rest Save",
+      target: 99,
+      rolls: [38],
+    });
+    expect(check.outcome).toBe(Outcomes.Success);
+
+    const delta = restSaveStressDelta(check);
+    expect(delta).toBe(-8);
+
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+    applyStressDelta(3, delta, 2, 20);
+    expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 2 });
+  });
+});
+
+describe("rollRestSave", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("should target the worst Save, read fresh via getAttrs, and adjust Stress on the outcome", async () => {
+    type GetAttrsCallback = (response: Record<string, string>) => void;
+    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
+      callback({
+        sanity: "60",
+        fear: "35",
+        body: "50",
+        stress: "10",
+      });
+    });
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        roll: { result: 24 },
+        roll2: { result: 80 },
+        edge: { result: 0 },
+        target: { result: 35 },
+      },
+    });
+    const mockFinishRoll = vi.fn();
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", mockFinishRoll);
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    await rollRestSave();
+
+    const formula = mockStartRoll.mock.calls[0][0] as string;
+    expect(formula).toContain("target=[[35+");
+    expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 6 });
   });
 });

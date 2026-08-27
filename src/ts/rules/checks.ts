@@ -9,6 +9,7 @@ import {
   TEMPLATE_PHRASES,
 } from "./rollTemplate";
 import {
+  isFailure,
   makeCheck,
   resolveEdge,
   SKILL_BONUS,
@@ -236,4 +237,56 @@ export async function rollPanicCheck(): Promise<void> {
   const panic = makePanicCheck(stress, dice.rolls, dice.edge);
   const computed = panicComputed(panic);
   finishRoll(roll.rollId, computed);
+}
+
+/**
+ * 1e's Stress bounds. stress_min and stress_max are not declared attributes
+ * yet (#42 owns that); these stand in until it does.
+ */
+const STRESS_MIN = 2;
+const STRESS_MAX = 20;
+
+/** A Rest Save targets whichever Save reads lowest -- the player has no say in it. */
+export function worstSave(sanity: number, fear: number, body: number): number {
+  const lowest = Math.min(sanity, fear, body);
+  return lowest;
+}
+
+/**
+ * How a Rest Save changes Stress: success heals by the ones digit of the roll
+ * (24 heals 4), failure costs a flat 1. Reads straight off CheckResult so the
+ * digit trick is testable without Roll20.
+ */
+export function restSaveStressDelta(check: CheckResult): number {
+  const hasFailed = isFailure(check.outcome);
+  if (hasFailed) return 1;
+
+  const onesDigit = check.roll % 10;
+  return -onesDigit;
+}
+
+/**
+ * Rolls a Rest Save.
+ *
+ * The target is not player-chosen: it is whichever of Sanity, Fear or Body
+ * currently reads lowest, read fresh via getAttrs rather than assumed.
+ */
+export async function rollRestSave(): Promise<void> {
+  const attrs = await new Promise<Record<string, string>>((resolve) => {
+    getAttrs(["sanity", "fear", "body", "stress"], resolve);
+  });
+
+  const sanity = Number(attrs.sanity);
+  const fear = Number(attrs.fear);
+  const body = Number(attrs.body);
+  const target = worstSave(sanity, fear, body);
+
+  const check = await rollCheck({
+    i18nKey: TEMPLATE_PHRASES.RestSave,
+    target: String(target),
+  });
+
+  const delta = restSaveStressDelta(check);
+  const stress = Number(attrs.stress);
+  applyStressDelta(stress, delta, STRESS_MIN, STRESS_MAX);
 }

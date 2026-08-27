@@ -371,6 +371,16 @@
                     >Panic Check</span>
                 </button>
               </div>
+              <div class="pc-status-card pc-status-card--action">
+                <button
+                  class="button button--action"
+                  type="action"
+                  name="act_rest_save"
+                >
+                  <span class="button__label" data-i18n="Rest Save"
+                    >Rest Save</span>
+                </button>
+              </div>
             </div>
             <div class="pc-status-notes">
               <div class="attribute attribute--text">
@@ -6208,7 +6218,8 @@
   var TEMPLATE_PHRASES = {
     PanicCheck: "Panic Check",
     KeptItTogether: "Kept It Together",
-    PanicWarning: "Critical Failure: Make a Panic Check"
+    PanicWarning: "Critical Failure: Make a Panic Check",
+    RestSave: "Rest Save"
   };
   function panicWarning(check) {
     if (!check.triggersPanic) return "";
@@ -6469,6 +6480,11 @@
     finishRoll(roll.rollId, computed);
     return check;
   }
+  function applyStressDelta(current, delta, min, max) {
+    const floored = Math.max(min, current + delta);
+    const next = Math.min(max, floored);
+    setAttrs({ stress: next });
+  }
   async function rollPanicCheck() {
     const template = `${panicTemplate()} {{edge=[[${EDGE_QUERY}]]}}`;
     const roll = await startRoll(template);
@@ -6477,6 +6493,34 @@
     const panic = makePanicCheck(stress, dice.rolls, dice.edge);
     const computed = panicComputed(panic);
     finishRoll(roll.rollId, computed);
+  }
+  var STRESS_MIN = 2;
+  var STRESS_MAX = 20;
+  function worstSave(sanity, fear, body) {
+    const lowest = Math.min(sanity, fear, body);
+    return lowest;
+  }
+  function restSaveStressDelta(check) {
+    const hasFailed = isFailure(check.outcome);
+    if (hasFailed) return 1;
+    const onesDigit = check.roll % 10;
+    return -onesDigit;
+  }
+  async function rollRestSave() {
+    const attrs = await new Promise((resolve) => {
+      getAttrs(["sanity", "fear", "body", "stress"], resolve);
+    });
+    const sanity = Number(attrs.sanity);
+    const fear = Number(attrs.fear);
+    const body = Number(attrs.body);
+    const target = worstSave(sanity, fear, body);
+    const check = await rollCheck({
+      i18nKey: TEMPLATE_PHRASES.RestSave,
+      target: String(target)
+    });
+    const delta = restSaveStressDelta(check);
+    const stress = Number(attrs.stress);
+    applyStressDelta(stress, delta, STRESS_MIN, STRESS_MAX);
   }
 
   // src/game/data/bankruptcy.ts
@@ -7211,6 +7255,9 @@ Maintenance Issue 2 [${issue2.roll} - ${issue2.issue_type}]: ${issue2.descriptio
   }
   on("clicked:panic", () => {
     void rollPanicCheck();
+  });
+  on("clicked:rest_save", () => {
+    void rollRestSave();
   });
   on("clicked:repeating_attacks:attack", () => {
     void rollCheck({

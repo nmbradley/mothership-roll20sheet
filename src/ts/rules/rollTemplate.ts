@@ -126,6 +126,7 @@ export const TEMPLATE_PHRASES = {
   PanicCheck: "Panic Check",
   KeptItTogether: "Kept It Together",
   PanicWarning: "Critical Failure: Make a Panic Check",
+  RestSave: "Rest Save",
 } as const;
 
 /** A Critical Failure on a check forces a Panic Check; say so in chat. */
