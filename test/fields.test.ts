@@ -6,6 +6,7 @@ import {
 import {
   Controls,
   attribute,
+  cssMirror,
   section,
 } from "../src/game/fields/_factories";
 
@@ -150,6 +151,53 @@ describe("TypeScript Field Architecture", () => {
         control: Controls.Text,
         value: "",
       })).toThrow("contains \"parent\"");
+    });
+  });
+
+  describe("cssMirror", () => {
+    const equipment_type = attribute({
+      name: "equipment_type",
+      label: "Type",
+      control: Controls.Select,
+      options: ["Gear", "Armor"],
+      value: "Gear",
+    });
+
+    it("shares the source's attribute name so Roll20 keeps the two in step", () => {
+      const mirror = cssMirror(equipment_type);
+      expect(mirror.name).toBe(equipment_type.name);
+    });
+
+    it("renders hidden, so it carries a value attribute CSS can match", () => {
+      const mirror = cssMirror(equipment_type);
+      expect(mirror.control).toBe(Controls.Hidden);
+      expect(mirror.value).toBe("Gear");
+    });
+
+    it("stringifies a numeric source value, since a hidden input stores text", () => {
+      const mirror = cssMirror(attribute({
+        name: "range_band",
+        label: "Range",
+        control: Controls.Select,
+        options: [1, 2],
+        value: 2,
+      }));
+      expect(mirror.value).toBe("2");
+    });
+
+    it("leaves the source untouched", () => {
+      cssMirror(equipment_type);
+      expect(equipment_type.control).toBe(Controls.Select);
+    });
+
+    it("rejects a checkbox, whose state CSS already reads with :checked", () => {
+      const settings_open = attribute({
+        name: "settings_open",
+        label: "Settings Open",
+        control: Controls.Checkbox,
+        checkedValue: "on",
+      });
+      expect(() => cssMirror(settings_open)).toThrow(/checkbox/);
     });
   });
 

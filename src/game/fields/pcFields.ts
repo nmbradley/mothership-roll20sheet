@@ -1,7 +1,7 @@
 import { rangeBandOptions } from "#game/constants.js";
 
 import {
-  Controls, attribute, section, type RowAttributeName,
+  Controls, attribute, cssMirror, section, type RowAttributeName,
 } from "./_factories";
 
 export const character_name = attribute({
@@ -198,18 +198,6 @@ export const init = attribute({
   control: Controls.Hidden,
   value: "0",
 });
-export const sheet_toggle = attribute({
-  name: "sheet_toggle",
-  label: "Sheet Toggle",
-  control: Controls.Hidden,
-  value: "pc",
-});
-// A visible <select name="attr_sheet_toggle"> cannot drive Sheet.svelte's CSS
-// on its own: a select's selection lives on the chosen <option>, not as a
-// `value` attribute on the select itself, so `[value="pc"]` never matches it.
-// This shares sheet_toggle's attribute name so Roll20 keeps the two in step,
-// letting the settings page offer a real picker while the hidden input above
-// keeps switching the sheet views.
 export const sheet_toggle_select = attribute({
   name: "sheet_toggle",
   label: "Sheet Type",
@@ -230,6 +218,9 @@ export const sheet_toggle_select = attribute({
   ],
   value: "pc",
 });
+// The settings page offers the picker above; this hidden twin is what
+// Sheet.svelte's CSS actually switches the views on.
+export const sheet_toggle = cssMirror(sheet_toggle_select);
 // Layered on top of sheet_toggle rather than a fourth value of it: sheet_toggle
 // records which sheet the character is, and overwriting it to open Settings
 // would destroy the state the back button needs to restore.
@@ -431,18 +422,8 @@ export const equipment_type = attribute({
   options: ["Gear", "Weapon", "Ammunition", "Armor"],
   value: "Gear",
 });
-// A select's selection lives on the chosen <option>, not as a `value`
-// attribute on the select itself, so `[value="Armor"]` can never match
-// equipment_type directly -- the same constraint Sheet.svelte's
-// sheet_toggle/sheet_toggle_select pair works around. This hidden field
-// shares equipment_type's attribute name so Roll20 keeps the two in step,
-// letting PCEquipmentPanel's CSS key off this copy instead.
-export const equipment_type_mirror = attribute({
-  name: "equipment_type",
-  label: "Type",
-  control: Controls.Hidden,
-  value: "Gear",
-});
+// Lets PCEquipmentPanel gate its Armor-only fields on the row's own type.
+export const equipment_type_mirror = cssMirror(equipment_type);
 // Per-item Armor Points and Damage Reduction (#112): AP and DR are a
 // function of the armor worn, not a value the character owns independently,
 // so these live on the row and a sheetworker sums Armor-type rows into the
