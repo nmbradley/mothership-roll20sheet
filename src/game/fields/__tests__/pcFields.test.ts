@@ -63,6 +63,17 @@ describe("pcFields", () => {
     expect("equipment_armor_bonus" in pcEquipment.attributes).toBe(false);
   });
 
+  it("exports per-row Armor Points and Damage Reduction on equipment", () => {
+    expect(pcEquipment.attributes.equipment_armor_points.name).toBe("equipment_armor_points");
+    expect(pcEquipment.attributes.equipment_damage_reduction.name).toBe("equipment_damage_reduction");
+  });
+
+  it("exports a hidden mirror sharing equipment_type's attribute name", () => {
+    expect(pcEquipment.attributes.equipment_type_mirror.name)
+      .toBe(pcEquipment.attributes.equipment_type.name);
+    expect(pcEquipment.attributes.equipment_type_mirror.control).toBe("hidden");
+  });
+
   it("exports repeating skills", () => {
     expect(pcTrainedSkills.name).toBe("repeating_trained");
     expect(pcExpertSkills.name).toBe("repeating_expert");
