@@ -1,4 +1,5 @@
 {
+  "(none)": "(none)",
   "+1": "+1",
   "Absorbed by Armor": "Absorbed by Armor",
   "Add a custom patch.": "Add a custom patch.",
@@ -261,7 +262,6 @@
   "Trinket": "Trinket",
   "Type": "Type",
   "Unauthorized access to computer systems and networks.": "Unauthorized access to computer systems and networks.",
-  "Untrained": "Untrained",
   "Upgrade": "Upgrade",
   "Upgrades": "Upgrades",
   "Warp Cores": "Warp Cores",

@@ -105,6 +105,11 @@ describe("pcFields", () => {
     expect(save_skill_select.checked).toBe(true);
   });
 
+  it("exports the hidden Skill dropdown recomputeSkillQuery persists", () => {
+    expect(pcAttributes.skill_query.name).toBe("skill_query");
+    expect(pcAttributes.skill_query.control).toBe("hidden");
+  });
+
   it("exports settings_open, layered over sheet_toggle rather than a value of it", () => {
     expect(pcAttributes.settings_open.name).toBe("settings_open");
     expect(settings_open.control).toBe("checkbox");

@@ -277,6 +277,16 @@ export const sheet_skill_toggles = attribute({
   control: Controls.Hidden,
   value: "",
 });
+// #5: the Skill dropdown offering the character's own Trained/Expert/Master
+// rows by name, rebuilt by recomputeSkillQuery in checks.ts whenever those
+// rows change, so a skilled check's startRoll can reference it directly and
+// stay synchronous -- the same shape as worst_save (#110).
+export const skill_query = attribute({
+  name: "skill_query",
+  label: "Skill Query",
+  control: Controls.Hidden,
+  value: "",
+});
 export const drop_category = attribute({
   name: "drop_category",
   label: "Drop Category",
@@ -351,6 +361,7 @@ export const pcAttributes = {
   save_skill_select,
   military_training,
   sheet_skill_toggles,
+  skill_query,
   drop_category,
   drop_name,
   drop_data,

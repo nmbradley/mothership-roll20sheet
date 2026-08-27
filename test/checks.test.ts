@@ -11,11 +11,15 @@ import {
 } from "../src/ts/rules/rolls";
 import {
   applyStressDelta,
+  buildSkillCatalog,
+  buildSkillQuery,
   gradeAttack,
   isNpcSheet,
   isOutOfAmmo,
   isSaveSkillSelectEnabled,
   makePanicCheck,
+  readSkillName,
+  recomputeSkillQuery,
   recomputeWorstSave,
   restSaveStressDelta,
   rollAttack,
@@ -36,55 +40,147 @@ function translateWith(table: Record<string, string>): void {
   vi.stubGlobal("getTranslationByKey", (key: string) => table[key] ?? key);
 }
 
-describe("Skill query", () => {
+describe("skillQuery", () => {
+  it("should only ever reference the persisted attribute, never build the list itself", () => {
+    expect(skillQuery()).toBe("@{skill_query}");
+  });
+});
+
+describe("buildSkillCatalog", () => {
+  it("should tag every Skill with its own tier's bonus", () => {
+    const catalog = buildSkillCatalog(["Genetics"], ["Hacking"], ["Astrogation"]);
+    expect(catalog).toEqual([
+      {
+        name: "Genetics",
+        bonus: SKILL_BONUS.trained,
+      },
+      {
+        name: "Hacking",
+        bonus: SKILL_BONUS.expert,
+      },
+      {
+        name: "Astrogation",
+        bonus: SKILL_BONUS.master,
+      },
+    ]);
+  });
+
+  it("should leave out a row with no name typed yet", () => {
+    const catalog = buildSkillCatalog(["Genetics", "", "  "], [], []);
+    expect(catalog).toEqual([{
+      name: "Genetics",
+      bonus: SKILL_BONUS.trained,
+    }]);
+  });
+
+  it("should build an empty catalog for a character with no Skills at all", () => {
+    expect(buildSkillCatalog([], [], [])).toEqual([]);
+  });
+});
+
+describe("buildSkillQuery", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it("should offer the bonuses the rules give, untrained first", () => {
+  it("should offer (none) alone for a character with no Skills at all", () => {
     translateWith({});
-    expect(skillQuery()).toBe(
-      "?{Apply Skill?|Untrained,0|Trained,10|Expert,15|Master,20}",
+    expect(buildSkillQuery([])).toBe("?{Apply Skill?|(none),0}");
+  });
+
+  it("should carry each Skill's own name as an annotation on its tier bonus", () => {
+    translateWith({});
+    const query = buildSkillQuery([
+      {
+        name: "Genetics",
+        bonus: SKILL_BONUS.trained,
+      },
+      {
+        name: "Hydroponics",
+        bonus: SKILL_BONUS.expert,
+      },
+    ]);
+    expect(query).toBe(
+      "?{Apply Skill?|(none),0|Genetics,10[Genetics]|Hydroponics,15[Hydroponics]}",
     );
   });
 
-  it("should take its values from SKILL_BONUS rather than restating them", () => {
-    translateWith({});
-    const query = skillQuery();
-    for (const [level, bonus] of Object.entries(SKILL_BONUS)) {
-      const capitalised = level.charAt(0).toUpperCase() + level.slice(1);
-      expect(query).toContain(`${capitalised},${String(bonus)}`);
-    }
-  });
-
-  it("should translate the prompt and every option label", () => {
+  it("should translate the prompt and the (none) label", () => {
     translateWith({
       "Apply Skill?": "Compétence ?",
-      "Untrained": "Non formé",
-      "Trained": "Formé",
-      "Master": "Maître",
+      "(none)": "(aucune)",
     });
-    expect(skillQuery()).toBe(
-      "?{Compétence ?|Non formé,0|Formé,10|Expert,15|Maître,20}",
-    );
+    const query = buildSkillQuery([{
+      name: "Genetics",
+      bonus: SKILL_BONUS.trained,
+    }]);
+    expect(query).toBe("?{Compétence ?|(aucune),0|Genetics,10[Genetics]}");
   });
 
-  it("should strip query syntax a translation carries", () => {
-    // A pipe, comma or brace here would split the prompt, invent an option or
-    // close the query early, and the roll would fail rather than misread.
-    translateWith({
-      "Apply Skill?": "Skill|Level}",
-      "Untrained": "None, at all",
-      "Trained": "{Formé}",
-    });
-    expect(skillQuery()).toBe(
-      "?{SkillLevel|None at all,0|Formé,10|Expert,15|Master,20}",
-    );
+  it("should strip query and annotation syntax out of a player-typed Skill name", () => {
+    // A pipe, comma, brace or bracket here would split the prompt, invent an
+    // option, close the query early, or corrupt the [Name] annotation --
+    // and a malformed query takes the whole roll down with it.
+    translateWith({});
+    const query = buildSkillQuery([{
+      name: "Gen|et,ics{}[]",
+      bonus: SKILL_BONUS.trained,
+    }]);
+    expect(query).toBe("?{Apply Skill?|(none),0|Genetics,10[Genetics]}");
+  });
+});
+
+describe("readSkillName", () => {
+  it("should decode the [Name] annotation off a resolved target expression", () => {
+    expect(readSkillName("45 + 10[Genetics]")).toBe("Genetics");
   });
 
-  it("should keep the English when a translation is nothing but syntax", () => {
-    translateWith({ Expert: "|,{}" });
-    expect(skillQuery()).toContain("Expert,15");
+  it("should return empty when (none) was picked, leaving no annotation behind", () => {
+    expect(readSkillName("45 + 0")).toBe("");
+  });
+
+  it("should return empty when the check offered no Skill prompt at all", () => {
+    expect(readSkillName(undefined)).toBe("");
+  });
+});
+
+describe("recomputeSkillQuery", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("should persist a query built from the three Skill sections", async () => {
+    translateWith({});
+    vi.stubGlobal("getSectionIDs", (section: string, callback: (ids: string[]) => void) => {
+      if (section === "repeating_trained") callback(["row1"]);
+      else callback([]);
+    });
+    vi.stubGlobal("getAttrs", (_request: string[], callback: (response: Record<string, string>) => void) => {
+      callback({ repeating_trained_row1_skill_name: "Genetics" });
+    });
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    await recomputeSkillQuery();
+
+    expect(mockSetAttrs).toHaveBeenCalledWith({
+      skill_query: "?{Apply Skill?|(none),0|Genetics,10[Genetics]}",
+    });
+  });
+
+  it("should still persist (none) alone with every section empty", async () => {
+    translateWith({});
+    vi.stubGlobal("getSectionIDs", (_section: string, callback: (ids: string[]) => void) => {
+      callback([]);
+    });
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    await recomputeSkillQuery();
+
+    expect(mockSetAttrs).toHaveBeenCalledWith({
+      skill_query: "?{Apply Skill?|(none),0}",
+    });
   });
 });
 
@@ -116,6 +212,62 @@ describe("rollCheck", () => {
     expect(check.target).toBe(45);
     expect(check.outcome).toBe(Outcomes.Success);
     expect(mockFinishRoll).toHaveBeenCalled();
+  });
+
+  it("should decode the Skill a skilled check's target carries back (#5)", async () => {
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        roll: { result: 30 },
+        roll2: { result: 80 },
+        edge: { result: 0 },
+        target: {
+          result: 45,
+          expression: "35 + 10[Genetics]",
+        },
+      },
+    });
+    const mockFinishRoll = vi.fn();
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", mockFinishRoll);
+
+    await rollCheck({
+      name: "Strength Check",
+      target: "@{strength}",
+      bonus: skillQuery(),
+    });
+
+    expect(mockFinishRoll).toHaveBeenCalledWith("id", expect.objectContaining({
+      skill: "Genetics",
+    }));
+  });
+
+  it("should leave the Skill field blank once (none) leaves no annotation to decode", async () => {
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        roll: { result: 30 },
+        roll2: { result: 80 },
+        edge: { result: 0 },
+        target: {
+          result: 35,
+          expression: "35 + 0",
+        },
+      },
+    });
+    const mockFinishRoll = vi.fn();
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", mockFinishRoll);
+
+    await rollCheck({
+      name: "Strength Check",
+      target: "@{strength}",
+      bonus: skillQuery(),
+    });
+
+    expect(mockFinishRoll).toHaveBeenCalledWith("id", expect.objectContaining({
+      skill: "",
+    }));
   });
 });
 
@@ -158,7 +310,7 @@ describe("rollSaveCheck", () => {
 
     expect(mockGetAttrs).toHaveBeenCalledWith(["save_skill_select"], expect.any(Function));
     const formula = mockStartRoll.mock.calls[0][0] as string;
-    expect(formula).toContain("target=[[@{sanity}+?{Apply Skill?");
+    expect(formula).toContain("target=[[@{sanity}+@{skill_query}]]");
   });
 
   it("should fall back to a plain modifier once the Keeper turns it off", () => {
@@ -209,7 +361,7 @@ describe("Initiative (#50)", () => {
     await rollPCInitiative();
 
     const formula = mockStartRoll.mock.calls[0][0] as string;
-    expect(formula).toContain("target=[[@{speed}+?{Apply Skill?");
+    expect(formula).toContain("target=[[@{speed}+@{skill_query}]]");
     expect(formula).toContain("&{tracker}");
   });
 

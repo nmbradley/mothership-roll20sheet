@@ -1,5 +1,5 @@
 import {
-  CHECK_ATTRIBUTES, ROLL_PHRASES, SKILL_PROMPT, UNTRAINED_LABEL, checkKey,
+  CHECK_ATTRIBUTES, NONE_LABEL, ROLL_PHRASES, SKILL_PROMPT, checkKey,
 } from "./checks";
 import { Outcomes } from "./rolls";
 
@@ -22,7 +22,7 @@ export function rollMacroKeys(): readonly string[] {
   // The skill query's prompt and its option labels are translated in the
   // sheetworker, so they need keys of their own.
   keys.push(SKILL_PROMPT);
-  keys.push(UNTRAINED_LABEL);
+  keys.push(NONE_LABEL);
   for (const attribute of CHECK_ATTRIBUTES) {
     const key = checkKey(attribute);
     if (!keys.includes(key)) keys.push(key);

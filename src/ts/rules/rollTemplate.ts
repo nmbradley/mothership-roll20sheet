@@ -24,6 +24,7 @@ export const COMPUTED = {
   Result: "result",
   Rank: "rank",
   Notes: "notes",
+  Skill: "skill",
 } as const;
 
 /**
@@ -104,17 +105,28 @@ export function checkTemplate(options: CheckTemplateOptions): string {
     [COMPUTED.Counted, "[[0]]"],
     [COMPUTED.Result, "[[0]]"],
     [COMPUTED.Rank, "[[0]]"],
+    [COMPUTED.Skill, "[[0]]"],
     [COMPUTED.Notes, "[[0]]"],
   ]);
   return template;
 }
 
-/** The values finishRoll substitutes into the placeholders above. */
-export function checkComputed(check: CheckResult): Record<string, string | number> {
+/**
+ * The values finishRoll substitutes into the placeholders above.
+ *
+ * skillName is the Skill a check's target expression carried back (#5), read
+ * by checks.ts's readSkillName() off the resolved roll -- left blank for a
+ * check that offered no Skill prompt, or where the player picked `(none)`.
+ */
+export function checkComputed(
+  check: CheckResult,
+  skillName = "",
+): Record<string, string | number> {
   const computed: Record<string, string | number> = {
     [COMPUTED.Counted]: describeCounted(check),
     [COMPUTED.Result]: translated(check.outcome),
     [COMPUTED.Rank]: RANKS[check.outcome],
+    [COMPUTED.Skill]: skillName,
     [COMPUTED.Notes]: panicWarning(check),
   };
   return computed;
