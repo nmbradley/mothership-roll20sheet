@@ -51,6 +51,7 @@ import {
   handleSystemsCheck,
   handleThrustersCheck,
 } from "./rules/ships";
+import { handleMilitaryTraining } from "./rules/skills";
 import { incrementHighScore } from "./rules/stats";
 
 // --- SHIP ---
@@ -179,6 +180,12 @@ on("clicked:repeating_npctraits:npc-trait", () => {
     name: "@{trait_name}",
     target: "@{instinct}",
   });
+});
+
+// #49: the Military Training exception -- 6 years, free, its own Combat
+// Check rather than a Skill Training purchase.
+on("clicked:military_training", () => {
+  void handleMilitaryTraining();
 });
 
 // --- CHARACTERMANCER ---

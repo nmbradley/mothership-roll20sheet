@@ -1,9 +1,11 @@
 <script lang="ts">
-  import { SkillLevels } from "#game/enums.js";
+  import { SkillLevels, type SkillLevel } from "#game/enums.js";
   import {
     pcExpertSkills, pcMasterSkills, pcTrainedSkills, skill_training, skill_training_time,
   } from "#game/fields/pcFields.js";
+  import { SKILL_TRAINING_COSTS } from "#rules/skills.js";
   import Attribute from "#svelte/components/Attribute.svelte";
+  import Button from "#svelte/components/Button.svelte";
   import Panel from "#svelte/components/Panel.svelte";
   import PCSkillSection from "#svelte/pc/components/PCSkillSection.svelte";
 
@@ -23,6 +25,28 @@
   ];
 
   const training = [skill_training, skill_training_time];
+
+  // #49: Skill Training's fixed costs, shown as a reference beside the
+  // tracker -- the sheet has no way to validate a prereq against a player's
+  // own free-text Skill rows, so the player and Warden apply it by hand.
+  const trainingCosts = [
+    {
+      level: SkillLevels.Trained,
+      label: "Trained",
+    },
+    {
+      level: SkillLevels.Expert,
+      label: "Expert",
+    },
+    {
+      level: SkillLevels.Master,
+      label: "Master",
+    },
+  ] as const;
+
+  function prereqLabel(level: SkillLevel | undefined): string | undefined {
+    return trainingCosts.find((tier) => tier.level === level)?.label;
+  }
 </script>
 
 <Panel title="Skills" corner="large">
@@ -33,6 +57,20 @@
   <!-- The printed sheet tracks one training course at the foot of the list. -->
   <div class="pc-training">
     <div class="pc-training__label" data-i18n="Skill Training">Skill Training</div>
+
+    <ul class="pc-training__costs">
+      {#each trainingCosts as tier (tier.level)}
+        {@const cost = SKILL_TRAINING_COSTS[tier.level]}
+        <li class="pc-training__cost">
+          <span data-i18n={tier.label}>{tier.label}</span>:
+          {cost.years} years, {cost.credits}
+          {#if cost.prereq}
+            (requires 1 {prereqLabel(cost.prereq)})
+          {/if}
+        </li>
+      {/each}
+    </ul>
+
     <div class="pc-training__fields">
       {#each training as field (field.name)}
         <div class="pc-training__field">
@@ -40,6 +78,18 @@
           <div class="pc-training__caption" data-i18n={field.i18nLabel}>{field.label}</div>
         </div>
       {/each}
+    </div>
+
+    <!-- #49: the Military Training exception -- 6 years, free, its own Combat Check. -->
+    <div class="pc-training__military">
+      <Button action="military_training" label="Military Training" />
+      <p class="pc-training__military-desc" data-i18n="Military Training Description">
+        6 years, free. Rolls a Combat Check: on a success, gain Military Training,
+        Athletics, 2 Trained Skills (1 Expert on a Critical Success), +10 Combat,
+        -10 to a chosen Stat and Marine Trauma Response. On a failure, gain Military
+        Training, Athletics, 1 Trained Skill and Marine Trauma Response. A Critical
+        Failure kills the character in action.
+      </p>
     </div>
   </div>
 </Panel>
@@ -88,6 +138,35 @@
 
     font-size: var(--ms-text-xs);
     font-weight: 700;
+    color: var(--ms-fg-muted);
+  }
+
+  &__costs {
+    margin: 0 0 var(--ms-space-md);
+    padding: 0;
+
+    list-style: none;
+  }
+
+  &__cost {
+    font-size: var(--ms-text-xs);
+    color: var(--ms-fg-muted);
+  }
+
+  &__military {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ms-space-sm);
+    align-items: flex-start;
+
+    margin-top: var(--ms-space-lg);
+  }
+
+  &__military-desc {
+    margin: 0;
+
+    font-size: var(--ms-text-xs);
+    line-height: 1.4;
     color: var(--ms-fg-muted);
   }
 }
