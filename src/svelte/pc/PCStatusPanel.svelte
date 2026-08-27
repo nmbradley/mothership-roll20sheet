@@ -60,6 +60,16 @@
       <ButtonAction action="rest_save" label="Rest Save" />
     </div>
 
+    <!-- #52: an ordinary hit, resolved against Health, Armor and DR. -->
+    <div class="pc-status-card pc-status-card--action">
+      <ButtonAction action="take_damage" label="Take Damage" />
+    </div>
+
+    <!-- #52: for attacks that deal a Wound directly, bypassing Health. -->
+    <div class="pc-status-card pc-status-card--action">
+      <ButtonAction action="take_wound" label="Take a Wound" />
+    </div>
+
     <div class="pc-status-card pc-status-card--action">
       <ButtonAction action="death_save" label="Death Save" />
     </div>
