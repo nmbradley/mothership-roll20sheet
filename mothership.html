@@ -937,6 +937,16 @@
   </div>
   <div class="sheet-view sheet-view--ship">
     <div class="ship-sheet">
+      <div class="ship-sheet__state">
+        <div class="attribute attribute--checkbox">
+          <input
+            class="attribute__input attribute__input--checkbox"
+            type="checkbox"
+            name="attr_ship_npc"
+            value="on"
+          />
+        </div>
+      </div>
       <header class="ship-sheet__header">
         <div class="frame frame--mode-dark frame--corner-large">
           <div class="ship-header">
@@ -1350,6 +1360,24 @@
                 value="0"
               />
             </div>
+            <div class="morale-check-gate">
+              <div class="ship-operation-card">
+                <div class="ship-operation-card__header">
+                  <button
+                    class="button button--action"
+                    type="action"
+                    name="act_morale_check"
+                  >
+                    <span class="button__label" data-i18n="Morale Check"
+                      >Morale Check</span>
+                  </button>
+                </div>
+                <p class="ship-operation-card__desc">
+                  Rolls <strong>1d10</strong>. A result under the ship's current
+                  MDMG breaks the enemy's morale -- they signal for a ceasefire.
+                </p>
+              </div>
+            </div>
           </div>
         </section>
         <section class="ship-operations-panel">
@@ -1396,6 +1424,26 @@
                     on the <em>Maintenance Issues Table</em> (everyone gains 1
                     Stress). Critical Failure rolls twice on the table (everyone
                     makes a Panic Check).
+                  </p>
+                </div>
+                <div class="ship-operation-card">
+                  <div class="ship-operation-card__header">
+                    <button
+                      class="button button--action"
+                      type="action"
+                      name="act_after_battle_report"
+                    >
+                      <span
+                        class="button__label"
+                        data-i18n="After Battle Report"
+                        >After Battle Report</span>
+                    </button>
+                  </div>
+                  <p class="ship-operation-card__desc">
+                    Rolls a <strong>Systems Check</strong> after the ship takes
+                    MDMG in a confrontation. Failure rolls once on the
+                    <em>Maintenance Issues Table</em>. Critical Failure rolls
+                    twice on the table.
                   </p>
                 </div>
                 <div class="ship-operation-card">
@@ -7303,48 +7351,70 @@
     }
     return issue;
   }
-  function evaluateAnnualMaintenance(roll, target, maintRoll1, maintRoll2) {
+  function formatMaintenanceIssue(issue, index) {
+    const label = index === void 0 ? "Maintenance Issue" : `Maintenance Issue ${index}`;
+    return `${label} [${issue.roll} - ${issue.issue_type}]: ${issue.description}`;
+  }
+  function resolveMaintenanceCheck(roll, target, maintRoll1, maintRoll2, framing) {
     const result = evaluateRoll(roll, target);
     if (result === Outcomes.CriticalSuccess) {
       return {
         result,
-        stressGain: 0,
-        panicCheck: false,
         issues: [],
-        message: "CRITICAL SUCCESS: Systems operating at peak efficiency. No maintenance issues encountered."
+        message: framing.criticalSuccess
       };
     }
     if (result === Outcomes.Success) {
       return {
         result,
-        stressGain: 0,
-        panicCheck: false,
         issues: [],
-        message: "SUCCESS: Systems check passed. Maintenance in order with no issues."
+        message: framing.success
       };
     }
     if (result === Outcomes.Failure) {
       const issue = getMaintenanceIssue(maintRoll1);
       return {
         result,
-        stressGain: 1,
-        panicCheck: false,
         issues: [issue],
-        message: `FAILURE: Everyone gains 1 Stress.
-Maintenance Issue [${issue.roll} - ${issue.issue_type}]: ${issue.description}`
+        message: framing.failure(issue)
       };
     }
     const issue1 = getMaintenanceIssue(maintRoll1);
     const issue2 = getMaintenanceIssue(maintRoll2);
     return {
       result,
-      stressGain: 0,
-      panicCheck: true,
       issues: [issue1, issue2],
-      message: `CRITICAL FAILURE: Everyone makes a Panic Check!
-Maintenance Issue 1 [${issue1.roll} - ${issue1.issue_type}]: ${issue1.description}
-Maintenance Issue 2 [${issue2.roll} - ${issue2.issue_type}]: ${issue2.description}`
+      message: framing.criticalFailure(issue1, issue2)
     };
+  }
+  function evaluateAnnualMaintenance(roll, target, maintRoll1, maintRoll2) {
+    const outcome = resolveMaintenanceCheck(roll, target, maintRoll1, maintRoll2, {
+      criticalSuccess: "CRITICAL SUCCESS: Systems operating at peak efficiency. No maintenance issues encountered.",
+      success: "SUCCESS: Systems check passed. Maintenance in order with no issues.",
+      failure: (issue) => `FAILURE: Everyone gains 1 Stress.
+${formatMaintenanceIssue(issue)}`,
+      criticalFailure: (issue1, issue2) => `CRITICAL FAILURE: Everyone makes a Panic Check!
+${formatMaintenanceIssue(issue1, 1)}
+${formatMaintenanceIssue(issue2, 2)}`
+    });
+    return {
+      result: outcome.result,
+      stressGain: outcome.result === Outcomes.Failure ? 1 : 0,
+      panicCheck: outcome.result === Outcomes.CriticalFailure,
+      issues: outcome.issues,
+      message: outcome.message
+    };
+  }
+  function evaluateAfterBattleReport(roll, target, maintRoll1, maintRoll2) {
+    const outcome = resolveMaintenanceCheck(roll, target, maintRoll1, maintRoll2, {
+      criticalSuccess: "CRITICAL SUCCESS: The ship comes through the confrontation without a scratch.",
+      success: "SUCCESS: Systems check passed. No maintenance issues.",
+      failure: (issue) => `FAILURE: ${formatMaintenanceIssue(issue)}`,
+      criticalFailure: (issue1, issue2) => `CRITICAL FAILURE: Roll twice on the Maintenance Issues Table.
+${formatMaintenanceIssue(issue1, 1)}
+${formatMaintenanceIssue(issue2, 2)}`
+    });
+    return outcome;
   }
   function evaluateBankruptcySave(roll, target) {
     const result = evaluateRoll(roll, target);
@@ -7376,6 +7446,26 @@ Maintenance Issue 2 [${issue2.roll} - ${issue2.issue_type}]: ${issue2.descriptio
       target,
       maintRoll1,
       maintRoll2
+    );
+    finishRoll(rollData.rollId, {
+      notes: evaluation.message
+    });
+  }
+  async function handleAfterBattleReport() {
+    const rollFormula = `&{template:ms} {{name=After Battle Report}} {{character_name=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}}`;
+    const rollData = await startRoll(rollFormula);
+    const rollEntry = rollData.results.roll;
+    const targetEntry = rollData.results.target;
+    const maint1Entry = rollData.results.maint_roll1;
+    const maint2Entry = rollData.results.maint_roll2;
+    if (rollEntry === void 0 || targetEntry === void 0 || maint1Entry === void 0 || maint2Entry === void 0) {
+      return;
+    }
+    const evaluation = evaluateAfterBattleReport(
+      rollEntry.result,
+      targetEntry.result,
+      maint1Entry.result,
+      maint2Entry.result
     );
     finishRoll(rollData.rollId, {
       notes: evaluation.message
@@ -7515,6 +7605,25 @@ ${SHIP_PANIC_MESSAGE}`;
     if (message === void 0) return;
     void postShipAlert({ notes: message });
   }
+  var MORALE_BROKEN_MESSAGE = "MORALE BROKEN: The enemy ship signals for a ceasefire and opens negotiations.";
+  function evaluateMoraleCheck(roll, mdmg) {
+    const isBroken = roll < mdmg;
+    return {
+      broken: isBroken,
+      message: isBroken ? MORALE_BROKEN_MESSAGE : "Morale holds."
+    };
+  }
+  async function handleMoraleCheck() {
+    const rollFormula = "&{template:ms} {{name=Morale Check}} {{character_name=@{character_name}}} {{roll=[[1d10]]}} {{target=[[@{ship_mdmg}]]}} {{notes=[[0]]}}";
+    const rollData = await startRoll(rollFormula);
+    const rollEntry = rollData.results.roll;
+    const targetEntry = rollData.results.target;
+    if (rollEntry === void 0 || targetEntry === void 0) return;
+    const evaluation = evaluateMoraleCheck(rollEntry.result, targetEntry.result);
+    finishRoll(rollData.rollId, {
+      notes: evaluation.message
+    });
+  }
   function getRandomUniqueIssues(count, table = maintenanceTable, randomFn = Math.random) {
     if (count <= 0) return [];
     const pool = [...table];
@@ -7578,6 +7687,9 @@ ${SHIP_PANIC_MESSAGE}`;
   on("clicked:annual_maintenance", () => {
     void handleAnnualMaintenanceCheck();
   });
+  on("clicked:after_battle_report", () => {
+    void handleAfterBattleReport();
+  });
   on("clicked:bankruptcy_save", () => {
     void handleBankruptcySave();
   });
@@ -7591,6 +7703,9 @@ ${SHIP_PANIC_MESSAGE}`;
     void handleBattleCheck();
   });
   on("change:ship_mdmg", handleMdmgChange);
+  on("clicked:morale_check", () => {
+    void handleMoraleCheck();
+  });
   on("clicked:destroy_armor", () => {
     void handleDestroyArmor();
   });

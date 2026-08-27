@@ -20,6 +20,12 @@ export type AnnualMaintenanceResult = {
   message: string;
 };
 
+export type AfterBattleReportResult = {
+  result: Outcome;
+  issues: MaintenanceIssue[];
+  message: string;
+};
+
 export type BankruptcySaveResult = {
   result: Outcome;
   consequence: string;
@@ -40,6 +46,74 @@ export function getMaintenanceIssue(roll: number): MaintenanceIssue {
   return issue;
 }
 
+/** Renders one maintenance issue as a chat line, numbered when a check draws two. */
+function formatMaintenanceIssue(issue: MaintenanceIssue, index?: number): string {
+  const label = index === undefined ? "Maintenance Issue" : `Maintenance Issue ${index}`;
+  return `${label} [${issue.roll} - ${issue.issue_type}]: ${issue.description}`;
+}
+
+/** Chat framing an outcome tier maps to -- everything a maintenance-table check's callers vary. */
+type MaintenanceCheckFraming = {
+  criticalSuccess: string;
+  success: string;
+  failure: (issue: MaintenanceIssue) => string;
+  criticalFailure: (issue1: MaintenanceIssue, issue2: MaintenanceIssue) => string;
+};
+
+/**
+ * Grades a Systems Check against the Maintenance Issues Table: no issues on
+ * either success, one roll on Failure, two on Critical Failure. Shared by the
+ * Annual Maintenance Check (#65) and the After Battle Report (#63) -- the two
+ * differ only in their chat framing (supplied here) and in Annual
+ * Maintenance's Stress/Panic consequences, which its own wrapper layers on
+ * top of this result.
+ */
+function resolveMaintenanceCheck(
+  roll: number,
+  target: number,
+  maintRoll1: number,
+  maintRoll2: number,
+  framing: MaintenanceCheckFraming,
+): {
+  result: Outcome;
+  issues: MaintenanceIssue[];
+  message: string;
+} {
+  const result = evaluateRoll(roll, target);
+
+  if (result === Outcomes.CriticalSuccess) {
+    return {
+      result,
+      issues: [],
+      message: framing.criticalSuccess,
+    };
+  }
+  if (result === Outcomes.Success) {
+    return {
+      result,
+      issues: [],
+      message: framing.success,
+    };
+  }
+  if (result === Outcomes.Failure) {
+    const issue = getMaintenanceIssue(maintRoll1);
+    return {
+      result,
+      issues: [issue],
+      message: framing.failure(issue),
+    };
+  }
+
+  // CRITICAL FAILURE
+  const issue1 = getMaintenanceIssue(maintRoll1);
+  const issue2 = getMaintenanceIssue(maintRoll2);
+  return {
+    result,
+    issues: [issue1, issue2],
+    message: framing.criticalFailure(issue1, issue2),
+  };
+}
+
 /**
  * Evaluates an Annual Maintenance Check (Systems Check) according to Mothership 1e rules:
  * - Success: No issues.
@@ -53,51 +127,46 @@ export function evaluateAnnualMaintenance(
   maintRoll1: number,
   maintRoll2: number,
 ): AnnualMaintenanceResult {
-  const result = evaluateRoll(roll, target);
+  const outcome = resolveMaintenanceCheck(roll, target, maintRoll1, maintRoll2, {
+    criticalSuccess:
+      "CRITICAL SUCCESS: Systems operating at peak efficiency. No maintenance issues encountered.",
+    success: "SUCCESS: Systems check passed. Maintenance in order with no issues.",
+    failure: (issue) => `FAILURE: Everyone gains 1 Stress.\n${formatMaintenanceIssue(issue)}`,
+    criticalFailure: (issue1, issue2) => `CRITICAL FAILURE: Everyone makes a Panic Check!\n${formatMaintenanceIssue(issue1, 1)}\n${formatMaintenanceIssue(issue2, 2)}`,
+  });
 
-  if (result === Outcomes.CriticalSuccess) {
-    return {
-      result,
-      stressGain: 0,
-      panicCheck: false,
-      issues: [],
-      message:
-        "CRITICAL SUCCESS: Systems operating at peak efficiency. No maintenance issues encountered.",
-    };
-  }
-
-  if (result === Outcomes.Success) {
-    return {
-      result,
-      stressGain: 0,
-      panicCheck: false,
-      issues: [],
-      message:
-        "SUCCESS: Systems check passed. Maintenance in order with no issues.",
-    };
-  }
-
-  if (result === Outcomes.Failure) {
-    const issue = getMaintenanceIssue(maintRoll1);
-    return {
-      result,
-      stressGain: 1,
-      panicCheck: false,
-      issues: [issue],
-      message: `FAILURE: Everyone gains 1 Stress.\nMaintenance Issue [${issue.roll} - ${issue.issue_type}]: ${issue.description}`,
-    };
-  }
-
-  // CRITICAL FAILURE
-  const issue1 = getMaintenanceIssue(maintRoll1);
-  const issue2 = getMaintenanceIssue(maintRoll2);
   return {
-    result,
-    stressGain: 0,
-    panicCheck: true,
-    issues: [issue1, issue2],
-    message: `CRITICAL FAILURE: Everyone makes a Panic Check!\nMaintenance Issue 1 [${issue1.roll} - ${issue1.issue_type}]: ${issue1.description}\nMaintenance Issue 2 [${issue2.roll} - ${issue2.issue_type}]: ${issue2.description}`,
+    result: outcome.result,
+    stressGain: outcome.result === Outcomes.Failure ? 1 : 0,
+    panicCheck: outcome.result === Outcomes.CriticalFailure,
+    issues: outcome.issues,
+    message: outcome.message,
   };
+}
+
+/**
+ * Evaluates an After Battle Report (Systems Check) per Mothership 1e rules
+ * (#63): after any confrontation where the ship takes MDMG, the captain
+ * makes a Systems Check.
+ * - Success: nothing happens.
+ * - Failure: 1 roll on the Maintenance Issues Table.
+ * - Critical Failure: 2 rolls on the Maintenance Issues Table.
+ * Unlike Annual Maintenance, a failure here carries no Stress/Panic of its
+ * own -- that already came from whatever Battle Check damaged the ship.
+ */
+export function evaluateAfterBattleReport(
+  roll: number,
+  target: number,
+  maintRoll1: number,
+  maintRoll2: number,
+): AfterBattleReportResult {
+  const outcome = resolveMaintenanceCheck(roll, target, maintRoll1, maintRoll2, {
+    criticalSuccess: "CRITICAL SUCCESS: The ship comes through the confrontation without a scratch.",
+    success: "SUCCESS: Systems check passed. No maintenance issues.",
+    failure: (issue) => `FAILURE: ${formatMaintenanceIssue(issue)}`,
+    criticalFailure: (issue1, issue2) => `CRITICAL FAILURE: Roll twice on the Maintenance Issues Table.\n${formatMaintenanceIssue(issue1, 1)}\n${formatMaintenanceIssue(issue2, 2)}`,
+  });
+  return outcome;
 }
 
 /**
@@ -119,7 +188,8 @@ export function evaluateBankruptcySave(
 }
 
 /**
- * The advantage query for the Annual Maintenance Check.
+ * The advantage query for a maintenance-table check: the Annual Maintenance
+ * Check and the After Battle Report (#63) both use it.
  *
  * Same prompt and option order as EDGE_QUERY in checks.ts, so the two read as
  * one convention to a player, but the options here pick a dice formula
@@ -167,6 +237,45 @@ export async function handleAnnualMaintenanceCheck(): Promise<void> {
     target,
     maintRoll1,
     maintRoll2,
+  );
+
+  finishRoll(rollData.rollId, {
+    notes: evaluation.message,
+  });
+}
+
+/**
+ * Roll20 Sheetworker: After Battle Report (#63)
+ *
+ * Same shape as handleAnnualMaintenanceCheck above and for the same reason:
+ * the two extra maintenance-table rolls and the combined notes message don't
+ * fit checkTemplate's fixed fields, so this rolls its own template rather
+ * than going through rollCheck().
+ */
+export async function handleAfterBattleReport(): Promise<void> {
+  const rollFormula =
+    `&{template:ms} {{name=After Battle Report}} {{character_name=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}}`;
+  const rollData = await startRoll(rollFormula);
+
+  const rollEntry = rollData.results.roll;
+  const targetEntry = rollData.results.target;
+  const maint1Entry = rollData.results.maint_roll1;
+  const maint2Entry = rollData.results.maint_roll2;
+
+  if (
+    rollEntry === undefined
+    || targetEntry === undefined
+    || maint1Entry === undefined
+    || maint2Entry === undefined
+  ) {
+    return;
+  }
+
+  const evaluation = evaluateAfterBattleReport(
+    rollEntry.result,
+    targetEntry.result,
+    maint1Entry.result,
+    maint2Entry.result,
   );
 
   finishRoll(rollData.rollId, {
@@ -406,6 +515,51 @@ export function handleMdmgChange(eventInfo: EventInfo): void {
   );
   if (message === undefined) return;
   void postShipAlert({ notes: message });
+}
+
+export type MoraleCheckResult = {
+  broken: boolean;
+  message: string;
+};
+
+/** The chat line announcing an NPC ship's crew wants out. */
+export const MORALE_BROKEN_MESSAGE =
+  "MORALE BROKEN: The enemy ship signals for a ceasefire and opens negotiations.";
+
+/**
+ * Evaluates a Morale Check (#62): a 1d10 roll under the ship's current MDMG
+ * breaks morale. A roll equal to MDMG does not count -- "under" is strict,
+ * as with every other roll-under check in these rules.
+ */
+export function evaluateMoraleCheck(roll: number, mdmg: number): MoraleCheckResult {
+  const isBroken = roll < mdmg;
+  return {
+    broken: isBroken,
+    message: isBroken ? MORALE_BROKEN_MESSAGE : "Morale holds.",
+  };
+}
+
+/**
+ * Roll20 Sheetworker: Morale Check (#62)
+ *
+ * Only meaningful for an NPC ship -- the button itself is gated off ship_npc
+ * in CSS (ShipMegadamagePanel.svelte), since a sheet cannot run JS outside
+ * its sheetworkers to hide it any other way.
+ */
+export async function handleMoraleCheck(): Promise<void> {
+  const rollFormula =
+    "&{template:ms} {{name=Morale Check}} {{character_name=@{character_name}}} {{roll=[[1d10]]}} {{target=[[@{ship_mdmg}]]}} {{notes=[[0]]}}";
+  const rollData = await startRoll(rollFormula);
+
+  const rollEntry = rollData.results.roll;
+  const targetEntry = rollData.results.target;
+  if (rollEntry === undefined || targetEntry === undefined) return;
+
+  const evaluation = evaluateMoraleCheck(rollEntry.result, targetEntry.result);
+
+  finishRoll(rollData.rollId, {
+    notes: evaluation.message,
+  });
 }
 
 export type StartingConditionResult = {

@@ -581,6 +581,9 @@ body.sheet-darkmode
   font-family: var(--ms-font-body);
   color: var(--ms-fg);
 }
+.charsheet.charsheet.charsheet .ship-sheet__state {
+  display: none;
+}
 .charsheet.charsheet.charsheet .ship-sheet__header {
   width: 100%;
 }
@@ -1486,6 +1489,14 @@ body.sheet-darkmode
   display: flex;
   flex-direction: column;
   gap: var(--ms-space-lg);
+}
+.charsheet.charsheet.charsheet .morale-check-gate {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .ship-sheet:has(input[name="attr_ship_npc"]:checked)
+  .morale-check-gate {
+  display: block;
 }
 .charsheet.charsheet.charsheet .ship-operations-panel {
   display: flex;
