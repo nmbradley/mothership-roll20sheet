@@ -6333,6 +6333,54 @@
     return void 0;
   }
 
+  // src/ts/rules/equipment.ts
+  var ARMOR_TYPE = "Armor";
+  function sumArmor(rows) {
+    let armorPoints = 0;
+    let damageReduction = 0;
+    for (const row of rows) {
+      if (row.type !== ARMOR_TYPE) continue;
+      armorPoints += row.armorPoints;
+      damageReduction += row.damageReduction;
+    }
+    return {
+      armorPoints,
+      damageReduction
+    };
+  }
+  function readEquipmentRows() {
+    return new Promise((resolve) => {
+      getSectionIDs("repeating_equipment", (ids) => {
+        if (ids.length === 0) {
+          resolve([]);
+          return;
+        }
+        const keys = ids.flatMap((id) => [
+          `repeating_equipment_${id}_equipment_type`,
+          `repeating_equipment_${id}_equipment_armor_points`,
+          `repeating_equipment_${id}_equipment_damage_reduction`
+        ]);
+        getAttrs(keys, (attrs) => {
+          const rows = ids.map((id) => ({
+            id,
+            type: attrs[`repeating_equipment_${id}_equipment_type`] ?? "",
+            armorPoints: Number(attrs[`repeating_equipment_${id}_equipment_armor_points`]) || 0,
+            damageReduction: Number(attrs[`repeating_equipment_${id}_equipment_damage_reduction`]) || 0
+          }));
+          resolve(rows);
+        });
+      });
+    });
+  }
+  async function recalculateArmorTotals() {
+    const rows = await readEquipmentRows();
+    const totals = sumArmor(rows);
+    setAttrs({
+      armor_points: totals.armorPoints,
+      damage_reduction: totals.damageReduction
+    });
+  }
+
   // src/ts/charactermancer/7-final.ts
   var REBUILT_SECTIONS = ["equipment", "attacks"];
   var COPIED_ATTRIBUTES = [
@@ -6386,6 +6434,7 @@
       Object.assign(attrs, rows);
     }
     writeCharacter(attrs);
+    void recalculateArmorTotals();
   }
   function equipmentNames(packed) {
     const parsed = parseJSON(packed);
@@ -6410,7 +6459,7 @@
       [`${row}_type`]: itemType(item)
     };
     if (item?.kind === "armor") {
-      attrs["armor_points"] = item.entry.points;
+      attrs[`${row}_armor_points`] = item.entry.points;
       return attrs;
     }
     if (item?.kind === "weapon") {
@@ -7329,54 +7378,6 @@
     finishRoll(rollData.rollId, {
       notes: outcome.woundRoll === void 0 ? "" : woundLine(outcome.woundRoll),
       alert: outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : ""
-    });
-  }
-
-  // src/ts/rules/equipment.ts
-  var ARMOR_TYPE = "Armor";
-  function sumArmor(rows) {
-    let armorPoints = 0;
-    let damageReduction = 0;
-    for (const row of rows) {
-      if (row.type !== ARMOR_TYPE) continue;
-      armorPoints += row.armorPoints;
-      damageReduction += row.damageReduction;
-    }
-    return {
-      armorPoints,
-      damageReduction
-    };
-  }
-  function readEquipmentRows() {
-    return new Promise((resolve) => {
-      getSectionIDs("repeating_equipment", (ids) => {
-        if (ids.length === 0) {
-          resolve([]);
-          return;
-        }
-        const keys = ids.flatMap((id) => [
-          `repeating_equipment_${id}_equipment_type`,
-          `repeating_equipment_${id}_equipment_armor_points`,
-          `repeating_equipment_${id}_equipment_damage_reduction`
-        ]);
-        getAttrs(keys, (attrs) => {
-          const rows = ids.map((id) => ({
-            id,
-            type: attrs[`repeating_equipment_${id}_equipment_type`] ?? "",
-            armorPoints: Number(attrs[`repeating_equipment_${id}_equipment_armor_points`]) || 0,
-            damageReduction: Number(attrs[`repeating_equipment_${id}_equipment_damage_reduction`]) || 0
-          }));
-          resolve(rows);
-        });
-      });
-    });
-  }
-  async function recalculateArmorTotals() {
-    const rows = await readEquipmentRows();
-    const totals = sumArmor(rows);
-    setAttrs({
-      armor_points: totals.armorPoints,
-      damage_reduction: totals.damageReduction
     });
   }
 

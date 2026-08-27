@@ -2,6 +2,7 @@ import { skillsByKey } from "#game/constants.js";
 import { findItem, type Item } from "#game/data/items.js";
 import { type Weapon } from "#game/data/weapons.js";
 import { RangeBands } from "#game/enums.js";
+import { recalculateArmorTotals } from "#rules/equipment.js";
 
 import {
   parseJSON, parseStringList, stepValues,
@@ -79,6 +80,12 @@ function compileCharacter(data: CharmancerData): void {
   }
 
   writeCharacter(attrs);
+
+  // writeCharacter writes silently, so the equipment section's own
+  // change:repeating_equipment:... listener never fires for it (#112) --
+  // this runs the same summing routine directly once the armour rows above
+  // have landed, rather than seeding armor_points itself.
+  void recalculateArmorTotals();
 }
 
 /** The bare item names from a package, dropping any quantities. */
@@ -109,10 +116,10 @@ function equipmentRows(name: string): SheetAttributes {
     [`${row}_type`]: itemType(item),
   };
 
-  // 1e tracks Armor Points on the character rather than the equipment row
-  // (#53), so the picked armor's points seed armor_points directly.
+  // Armor Points live on the row itself, like any other equipment (#112);
+  // the equipment section's own sheetworker sums them into the panel total.
   if (item?.kind === "armor") {
-    attrs["armor_points"] = item.entry.points;
+    attrs[`${row}_armor_points`] = item.entry.points;
     return attrs;
   }
 
