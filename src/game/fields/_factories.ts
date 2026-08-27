@@ -183,6 +183,45 @@ export function attribute<TName extends string>(
   return localized;
 }
 
+/**
+ * A hidden twin of an existing attribute, for CSS to read.
+ *
+ * Conditional visibility on this sheet is CSS-driven, because a sheet runs no
+ * JS outside its sheetworkers, so a selector has to match the current value as
+ * an HTML attribute. A `<select>` never exposes one: its selection lives on
+ * the chosen `<option>`, so `[value="x"]` matches nothing however the player
+ * sets it. A `<textarea>` has the same problem, its content sitting between
+ * the tags rather than in an attribute.
+ *
+ * Rendering this twin alongside the real control gives those selectors
+ * something to bite on. Both carry the same `name`, so Roll20 treats them as
+ * one attribute and keeps them in step; only the hidden one carries a `value`
+ * attribute a selector can match.
+ *
+ * Render it inside whichever element the `:has()` is anchored on. Every row of
+ * a repeating section emits the same `name`, so an unanchored selector lets
+ * one row's value gate every row.
+ */
+export function cssMirror<TName extends string>(
+  source: Attribute<TName>,
+): TextAttribute<TName> {
+  if (source.control === Controls.Checkbox) {
+    throw new Error(
+      `Attribute "${source.name}" is a checkbox, whose state CSS already reads `
+      + "with :checked; mirroring it would only add an input that never matches",
+    );
+  }
+
+  const mirror = attribute({
+    name: source.name,
+    label: source.label,
+    control: Controls.Hidden,
+    value: String(source.value),
+  });
+
+  return mirror;
+}
+
 export type SectionArgs<
   TName extends string = string,
   TAttributes extends Record<string, Attribute> = Record<string, Attribute>,
