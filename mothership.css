@@ -1501,14 +1501,6 @@ body.sheet-darkmode
   flex-direction: column;
   gap: var(--ms-space-lg);
 }
-.charsheet.charsheet.charsheet .morale-check-gate {
-  display: none;
-}
-.charsheet.charsheet.charsheet
-  .ship-sheet:has(input[name="attr_ship_npc"]:checked)
-  .morale-check-gate {
-  display: block;
-}
 .charsheet.charsheet.charsheet .ship-operations-panel {
   display: flex;
   flex-direction: column;
@@ -1517,47 +1509,63 @@ body.sheet-darkmode
 .charsheet.charsheet.charsheet .ship-operations {
   display: flex;
   flex-direction: column;
-  gap: var(--ms-space-xl);
-}
-.charsheet.charsheet.charsheet .ship-stats-panel {
-  display: flex;
-  flex-direction: column;
   gap: var(--ms-space-lg);
+}
+.charsheet.charsheet.charsheet .morale-check-gate {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .ship-sheet:has(input[name="attr_ship_npc"]:checked)
+  .morale-check-gate {
+  display: block;
+}
+.charsheet.charsheet.charsheet .ship-stats-panel__checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ms-space-lg);
+}
+.charsheet.charsheet.charsheet .ship-survival-panel__grid {
+  display: flex;
+  gap: var(--ms-space-lg);
+}
+.charsheet.charsheet.charsheet .ship-survival-panel__grid .attribute {
+  flex: 1;
 }
 .charsheet.charsheet.charsheet .ship-weapons-totals {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--ms-space-lg);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ms-space-xl);
+  align-items: end;
   margin-bottom: var(--ms-space-lg);
 }
+.charsheet.charsheet.charsheet .ship-weapons-totals .attribute__input--number {
+  width: 3.5rem;
+  text-align: center;
+}
 .charsheet.charsheet.charsheet .ship-weapons-pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: var(--ms-space-md);
 }
 .charsheet.charsheet.charsheet .ship-operation-card {
   display: flex;
   flex-direction: column;
-  gap: var(--ms-space-md);
-  border: var(--ms-border-width) solid var(--ms-border);
-  border-radius: var(--ms-radius-md);
-  padding: var(--ms-space-lg);
-  background: var(--ms-surface);
+  gap: var(--ms-space-sm);
 }
-.charsheet.charsheet.charsheet .ship-operation-card__header {
-  display: flex;
-  align-items: center;
+.charsheet.charsheet.charsheet .ship-operation-card .button {
+  width: 100%;
 }
 .charsheet.charsheet.charsheet .ship-operation-card__desc {
   margin: 0;
-  font-size: var(--ms-text-sm);
+  font-size: var(--ms-text-xs);
   line-height: 1.4;
-  color: var(--ms-fg);
+  color: var(--ms-fg-muted);
 }
 .charsheet.charsheet.charsheet .ship-stat-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: var(--ms-space-md);
+  display: inline-flex;
+  gap: var(--ms-space-sm);
   align-items: center;
-  margin-bottom: var(--ms-space-md);
+}
+.charsheet.charsheet.charsheet .ship-stat-row .attribute__input--number {
+  width: 3.5rem;
+  text-align: center;
 }

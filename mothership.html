@@ -1176,69 +1176,72 @@
               <h2 class="header header--section" data-i18n="Ship Stats (1e)">
                 Ship Stats (1e)
               </h2>
-              <div class="ship-stat-row">
-                <div class="ship-stat-row__btn">
-                  <button
-                    class="button button--action"
-                    type="action"
-                    name="act_systems_check"
+              <div class="ship-stats-panel__checks">
+                <div class="ship-stat-row">
+                  <div class="ship-stat-row__btn">
+                    <button
+                      class="button button--action"
+                      type="action"
+                      name="act_systems_check"
+                    >
+                      <span class="button__label" data-i18n="Systems"
+                        >Systems</span>
+                    </button>
+                  </div>
+                  <div
+                    class="attribute attribute--number attribute--default attribute--ship_systems"
                   >
-                    <span class="button__label" data-i18n="Systems"
-                      >Systems</span>
-                  </button>
+                    <input
+                      class="attribute__input attribute__input--number attribute__input--number--default"
+                      type="number"
+                      name="attr_ship_systems"
+                      value="0"
+                    />
+                  </div>
                 </div>
-                <div
-                  class="attribute attribute--number attribute--default attribute--ship_systems"
-                >
-                  <input
-                    class="attribute__input attribute__input--number attribute__input--number--default"
-                    type="number"
-                    name="attr_ship_systems"
-                    value="0"
-                  />
-                </div>
-              </div>
-              <div class="ship-stat-row">
-                <div class="ship-stat-row__btn">
-                  <button
-                    class="button button--action"
-                    type="action"
-                    name="act_thrusters_check"
+                <div class="ship-stat-row">
+                  <div class="ship-stat-row__btn">
+                    <button
+                      class="button button--action"
+                      type="action"
+                      name="act_thrusters_check"
+                    >
+                      <span class="button__label" data-i18n="Thrusters"
+                        >Thrusters</span>
+                    </button>
+                  </div>
+                  <div
+                    class="attribute attribute--number attribute--default attribute--ship_thrusters"
                   >
-                    <span class="button__label" data-i18n="Thrusters"
-                      >Thrusters</span>
-                  </button>
+                    <input
+                      class="attribute__input attribute__input--number attribute__input--number--default"
+                      type="number"
+                      name="attr_ship_thrusters"
+                      value="0"
+                    />
+                  </div>
                 </div>
-                <div
-                  class="attribute attribute--number attribute--default attribute--ship_thrusters"
-                >
-                  <input
-                    class="attribute__input attribute__input--number attribute__input--number--default"
-                    type="number"
-                    name="attr_ship_thrusters"
-                    value="0"
-                  />
-                </div>
-              </div>
-              <div class="ship-stat-row">
-                <div class="ship-stat-row__btn">
-                  <button
-                    class="button button--action"
-                    type="action"
-                    name="act_battle_check"
+                <div class="ship-stat-row">
+                  <div class="ship-stat-row__btn">
+                    <button
+                      class="button button--action"
+                      type="action"
+                      name="act_battle_check"
+                    >
+                      <span class="button__label" data-i18n="Battle"
+                        >Battle</span>
+                    </button>
+                  </div>
+                  <div
+                    class="attribute attribute--number attribute--default attribute--ship_battle"
                   >
-                    <span class="button__label" data-i18n="Battle">Battle</span>
-                  </button>
-                </div>
-                <div
-                  class="attribute attribute--number attribute--default attribute--ship_battle"
-                >
-                  <input
-                    class="attribute__input attribute__input--number attribute__input--number--default"
-                    type="number"
-                    name="attr_ship_battle"
-                    value="0"
-                  />
+                    <input
+                      class="attribute__input attribute__input--number attribute__input--number--default"
+                      type="number"
+                      name="attr_ship_battle"
+                      value="0"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -1315,50 +1318,52 @@
             <h2 class="header header--section" data-i18n="Survival">
               Survival
             </h2>
-            <div
-              class="attribute attribute--number attribute--default attribute--ship_o2"
-            >
-              <label
-                class="attribute__label attribute__label--number-input attribute__label--number-input--default"
-                for="attr_ship_o2"
-                data-i18n="O2 Remaining"
-                >O2 Remaining</label>
-              <input
-                class="attribute__input attribute__input--number attribute__input--number--default"
-                type="number"
-                name="attr_ship_o2"
-                value="0"
-              />
-            </div>
-            <div
-              class="attribute attribute--number attribute--default attribute--ship_cryopods"
-            >
-              <label
-                class="attribute__label attribute__label--number-input attribute__label--number-input--default"
-                for="attr_ship_cryopods"
-                data-i18n="Cryopods"
-                >Cryopods</label>
-              <input
-                class="attribute__input attribute__input--number attribute__input--number--default"
-                type="number"
-                name="attr_ship_cryopods"
-                value="0"
-              />
-            </div>
-            <div
-              class="attribute attribute--number attribute--default attribute--ship_escape_pods"
-            >
-              <label
-                class="attribute__label attribute__label--number-input attribute__label--number-input--default"
-                for="attr_ship_escape_pods"
-                data-i18n="Escape Pods"
-                >Escape Pods</label>
-              <input
-                class="attribute__input attribute__input--number attribute__input--number--default"
-                type="number"
-                name="attr_ship_escape_pods"
-                value="0"
-              />
+            <div class="ship-survival-panel__grid">
+              <div
+                class="attribute attribute--number attribute--default attribute--ship_o2"
+              >
+                <label
+                  class="attribute__label attribute__label--number-input attribute__label--number-input--default"
+                  for="attr_ship_o2"
+                  data-i18n="O2 Remaining"
+                  >O2 Remaining</label>
+                <input
+                  class="attribute__input attribute__input--number attribute__input--number--default"
+                  type="number"
+                  name="attr_ship_o2"
+                  value="0"
+                />
+              </div>
+              <div
+                class="attribute attribute--number attribute--default attribute--ship_cryopods"
+              >
+                <label
+                  class="attribute__label attribute__label--number-input attribute__label--number-input--default"
+                  for="attr_ship_cryopods"
+                  data-i18n="Cryopods"
+                  >Cryopods</label>
+                <input
+                  class="attribute__input attribute__input--number attribute__input--number--default"
+                  type="number"
+                  name="attr_ship_cryopods"
+                  value="0"
+                />
+              </div>
+              <div
+                class="attribute attribute--number attribute--default attribute--ship_escape_pods"
+              >
+                <label
+                  class="attribute__label attribute__label--number-input attribute__label--number-input--default"
+                  for="attr_ship_escape_pods"
+                  data-i18n="Escape Pods"
+                  >Escape Pods</label>
+                <input
+                  class="attribute__input attribute__input--number attribute__input--number--default"
+                  type="number"
+                  name="attr_ship_escape_pods"
+                  value="0"
+                />
+              </div>
             </div>
           </div>
         </section>
@@ -1567,24 +1572,6 @@
                 value="0"
               />
             </div>
-            <div class="morale-check-gate">
-              <div class="ship-operation-card">
-                <div class="ship-operation-card__header">
-                  <button
-                    class="button button--action"
-                    type="action"
-                    name="act_morale_check"
-                  >
-                    <span class="button__label" data-i18n="Morale Check"
-                      >Morale Check</span>
-                  </button>
-                </div>
-                <p class="ship-operation-card__desc">
-                  Rolls <strong>1d10</strong>. A result under the ship's current
-                  MDMG breaks the enemy's morale -- they signal for a ceasefire.
-                </p>
-              </div>
-            </div>
           </div>
         </section>
         <section class="ship-operations-panel">
@@ -1598,34 +1585,30 @@
               </h2>
               <div class="ship-operations">
                 <div class="ship-operation-card">
-                  <div class="ship-operation-card__header">
-                    <button
-                      class="button button--action"
-                      type="action"
-                      name="act_starting_condition"
-                    >
-                      <span class="button__label" data-i18n="Starting Condition"
-                        >Starting Condition</span>
-                    </button>
-                  </div>
+                  <button
+                    class="button button--action"
+                    type="action"
+                    name="act_starting_condition"
+                  >
+                    <span class="button__label" data-i18n="Starting Condition"
+                      >Starting Condition</span>
+                  </button>
                   <p class="ship-operation-card__desc">
                     Rolls <strong>1d5+1</strong> to determine the number of
                     starting issues.
                   </p>
                 </div>
                 <div class="ship-operation-card">
-                  <div class="ship-operation-card__header">
-                    <button
-                      class="button button--action"
-                      type="action"
-                      name="act_annual_maintenance"
-                    >
-                      <span
-                        class="button__label"
-                        data-i18n="Annual Maintenance Check"
-                        >Annual Maintenance Check</span>
-                    </button>
-                  </div>
+                  <button
+                    class="button button--action"
+                    type="action"
+                    name="act_annual_maintenance"
+                  >
+                    <span
+                      class="button__label"
+                      data-i18n="Annual Maintenance Check"
+                      >Annual Maintenance Check</span>
+                  </button>
                   <p class="ship-operation-card__desc">
                     Rolls a <strong>Systems Check</strong>. Failure rolls once
                     on the <em>Maintenance Issues Table</em> (everyone gains 1
@@ -1634,18 +1617,14 @@
                   </p>
                 </div>
                 <div class="ship-operation-card">
-                  <div class="ship-operation-card__header">
-                    <button
-                      class="button button--action"
-                      type="action"
-                      name="act_after_battle_report"
-                    >
-                      <span
-                        class="button__label"
-                        data-i18n="After Battle Report"
-                        >After Battle Report</span>
-                    </button>
-                  </div>
+                  <button
+                    class="button button--action"
+                    type="action"
+                    name="act_after_battle_report"
+                  >
+                    <span class="button__label" data-i18n="After Battle Report"
+                      >After Battle Report</span>
+                  </button>
                   <p class="ship-operation-card__desc">
                     Rolls a <strong>Systems Check</strong> after the ship takes
                     MDMG in a confrontation. Failure rolls once on the
@@ -1654,21 +1633,36 @@
                   </p>
                 </div>
                 <div class="ship-operation-card">
-                  <div class="ship-operation-card__header">
-                    <button
-                      class="button button--action"
-                      type="action"
-                      name="act_bankruptcy_save"
-                    >
-                      <span class="button__label" data-i18n="Bankruptcy Save"
-                        >Bankruptcy Save</span>
-                    </button>
-                  </div>
+                  <button
+                    class="button button--action"
+                    type="action"
+                    name="act_bankruptcy_save"
+                  >
+                    <span class="button__label" data-i18n="Bankruptcy Save"
+                      >Bankruptcy Save</span>
+                  </button>
                   <p class="ship-operation-card__desc">
                     Rolls 1d100 under your
                     <strong>Bankruptcy Save</strong> (defaults to 2d10+10) and
                     resolves consequences from the <em>Bankruptcy Table</em>.
                   </p>
+                </div>
+                <div class="morale-check-gate">
+                  <div class="ship-operation-card">
+                    <button
+                      class="button button--action"
+                      type="action"
+                      name="act_morale_check"
+                    >
+                      <span class="button__label" data-i18n="Morale Check"
+                        >Morale Check</span>
+                    </button>
+                    <p class="ship-operation-card__desc">
+                      Rolls <strong>1d10</strong>. A result under the ship's
+                      current MDMG breaks the enemy's morale -- they signal for
+                      a ceasefire.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

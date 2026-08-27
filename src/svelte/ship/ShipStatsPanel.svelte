@@ -28,16 +28,18 @@
      grouping in ShipOperationsPanel, and Hull moved to ShipMegadamagePanel. -->
 <section class="ship-stats-panel">
   <Panel title="Ship Stats (1e)">
-    {#each checks as check (check.field.name)}
-      <ShipStatRow field={check.field} action={check.action} />
-    {/each}
+    <div class="ship-stats-panel__checks">
+      {#each checks as check (check.field.name)}
+        <ShipStatRow field={check.field} action={check.action} />
+      {/each}
+    </div>
   </Panel>
 </section>
 
 <style lang="scss">
-.ship-stats-panel {
+.ship-stats-panel__checks {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: var(--ms-space-lg);
 }
 </style>

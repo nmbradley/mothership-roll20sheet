@@ -20,12 +20,19 @@
 </div>
 
 <style lang="scss">
+// The printed sheet sets the stat name tight against its value rather than
+// stretching a full-width input beside it, so this hugs its content instead
+// of stretching across the row -- ShipStatsPanel lines several up side by
+// side in the space that used to hold one.
 .ship-stat-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: var(--ms-space-md);
+  display: inline-flex;
+  gap: var(--ms-space-sm);
   align-items: center;
 
-  margin-bottom: var(--ms-space-md);
+  .attribute__input--number {
+    width: 3.5rem;
+
+    text-align: center;
+  }
 }
 </style>

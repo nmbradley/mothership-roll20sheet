@@ -44,17 +44,27 @@
 </Panel>
 
 <style lang="scss">
+// Base/Total/MDMG/Hardpoints used to be forced into equal thirds of the
+// panel's width, squeezing every label down to fit -- letting each stat hug
+// its own content instead gives the labels room and reads as one compact
+// strip rather than a cramped row.
 .ship-weapons-totals {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--ms-space-lg);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ms-space-xl);
+  align-items: end;
 
   margin-bottom: var(--ms-space-lg);
+
+  .attribute__input--number {
+    width: 3.5rem;
+
+    text-align: center;
+  }
 }
 
 .ship-weapons-pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: var(--ms-space-md);
 }
 </style>
