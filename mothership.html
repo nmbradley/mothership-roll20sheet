@@ -1337,31 +1337,9 @@
           </section>
           <section class="panel">
             <div class="frame frame--mode-light frame--corner-medium">
-              <h2 class="header header--section" data-i18n="Secondary Stats">
-                Secondary Stats
+              <h2 class="header header--section" data-i18n="Bankruptcy Save">
+                Bankruptcy Save
               </h2>
-              <div class="attribute attribute--number-max">
-                <label
-                  class="attribute__label attribute__label--number-max"
-                  for="attr_ship_crew"
-                  data-i18n="Crew"
-                  >Crew</label>
-                <div class="attribute__minmax-wrapper">
-                  <input
-                    class="attribute__input attribute__input--number"
-                    type="number"
-                    name="attr_ship_crew"
-                    value="0"
-                  />
-                  <span class="attribute__separator">/</span>
-                  <input
-                    class="attribute__input attribute__input--number"
-                    type="number"
-                    name="attr_ship_crew_max"
-                    value="0"
-                  />
-                </div>
-              </div>
               <div class="attribute attribute--number attribute--default">
                 <label
                   class="attribute__label attribute__label--number-input attribute__label--number-input--default"
@@ -1375,30 +1353,6 @@
                   value="21"
                 />
               </div>
-              <div class="ship-stat-row">
-                <div class="attribute attribute--number-max">
-                  <label
-                    class="attribute__label attribute__label--number-max"
-                    for="attr_ship_cargo"
-                    data-i18n="Cargo"
-                    >Cargo</label>
-                  <div class="attribute__minmax-wrapper">
-                    <input
-                      class="attribute__input attribute__input--number"
-                      type="number"
-                      name="attr_ship_cargo"
-                      value="0"
-                    />
-                    <span class="attribute__separator">/</span>
-                    <input
-                      class="attribute__input attribute__input--number"
-                      type="number"
-                      name="attr_ship_cargo_max"
-                      value="0"
-                    />
-                  </div>
-                </div>
-              </div>
             </div>
           </section>
         </section>
@@ -1407,6 +1361,28 @@
             <h2 class="header header--section" data-i18n="Officers &amp; Crew">
               Officers &amp; Crew
             </h2>
+            <div class="attribute attribute--number-max">
+              <label
+                class="attribute__label attribute__label--number-max"
+                for="attr_ship_crew"
+                data-i18n="Crew"
+                >Crew</label>
+              <div class="attribute__minmax-wrapper">
+                <input
+                  class="attribute__input attribute__input--number"
+                  type="number"
+                  name="attr_ship_crew"
+                  value="0"
+                />
+                <span class="attribute__separator">/</span>
+                <input
+                  class="attribute__input attribute__input--number"
+                  type="number"
+                  name="attr_ship_crew_max"
+                  value="0"
+                />
+              </div>
+            </div>
             <div class="repeating">
               <div
                 class="repeating__head"
@@ -1442,46 +1418,131 @@
             </div>
           </div>
         </section>
-        <section class="panel">
-          <div class="frame frame--mode-light frame--corner-medium">
-            <h2 class="header header--section" data-i18n="Cargo &amp; Loadout">
-              Cargo &amp; Loadout
-            </h2>
-            <div class="repeating">
-              <div
-                class="repeating__head"
-                style="grid-template-columns: 3fr 1fr"
-              >
-                <span class="repeating__heading" data-i18n="Item">Item</span><span class="repeating__heading" data-i18n="Amount"
-                  >Amount</span>
-              </div>
-              <fieldset class="repeating_shiploadout">
-                <div
-                  class="repeating__row"
-                  style="grid-template-columns: 3fr 1fr"
-                >
-                  <div class="attribute attribute--text">
-                    <input
-                      class="attribute__input attribute__input--text"
-                      type="text"
-                      name="attr_ship_loadout_item"
-                      value=""
-                      spellcheck="false"
-                    />
-                  </div>
-                  <div class="attribute attribute--text">
-                    <input
-                      class="attribute__input attribute__input--text"
-                      type="text"
-                      name="attr_ship_loadout_number"
-                      value=""
-                      spellcheck="false"
-                    />
-                  </div>
+        <section class="ship-manifest-panel">
+          <section class="panel">
+            <div class="frame frame--mode-light frame--corner-medium">
+              <h2 class="header header--section" data-i18n="Upgrades">
+                Upgrades
+              </h2>
+              <div class="attribute attribute--number-max">
+                <label
+                  class="attribute__label attribute__label--number-max"
+                  for="attr_ship_upgrades"
+                  data-i18n="Upgrades"
+                  >Upgrades</label>
+                <div class="attribute__minmax-wrapper">
+                  <input
+                    class="attribute__input attribute__input--number"
+                    type="number"
+                    name="attr_ship_upgrades"
+                    value="0"
+                  />
+                  <span class="attribute__separator">/</span>
+                  <input
+                    class="attribute__input attribute__input--number"
+                    type="number"
+                    name="attr_ship_upgrades_max"
+                    value="0"
+                  />
                 </div>
-              </fieldset>
+              </div>
+              <div class="repeating">
+                <div class="repeating__head" style="grid-template-columns: 1fr">
+                  <span class="repeating__heading" data-i18n="Upgrade"
+                    >Upgrade</span>
+                </div>
+                <fieldset class="repeating_shipupgrades">
+                  <div
+                    class="repeating__row"
+                    style="grid-template-columns: 1fr"
+                  >
+                    <div class="attribute attribute--text">
+                      <input
+                        class="attribute__input attribute__input--text"
+                        type="text"
+                        name="attr_ship_upgrade_name"
+                        value=""
+                        spellcheck="false"
+                      />
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
             </div>
-          </div>
+          </section>
+          <section class="panel">
+            <div class="frame frame--mode-light frame--corner-medium">
+              <h2 class="header header--section" data-i18n="Ship Manifest">
+                Ship Manifest
+              </h2>
+              <div class="attribute attribute--number-max">
+                <label
+                  class="attribute__label attribute__label--number-max"
+                  for="attr_ship_cargo"
+                  data-i18n="Cargo"
+                  >Cargo</label>
+                <div class="attribute__minmax-wrapper">
+                  <input
+                    class="attribute__input attribute__input--number"
+                    type="number"
+                    name="attr_ship_cargo"
+                    value="0"
+                  />
+                  <span class="attribute__separator">/</span>
+                  <input
+                    class="attribute__input attribute__input--number"
+                    type="number"
+                    name="attr_ship_cargo_max"
+                    value="0"
+                  />
+                </div>
+              </div>
+              <div class="attribute attribute--number-max">
+                <label
+                  class="attribute__label attribute__label--number-max"
+                  for="attr_ship_minor_repairs"
+                  data-i18n="Minor Repairs"
+                  >Minor Repairs</label>
+                <div class="attribute__minmax-wrapper">
+                  <input
+                    class="attribute__input attribute__input--number"
+                    type="number"
+                    name="attr_ship_minor_repairs"
+                    value="0"
+                  />
+                  <span class="attribute__separator">/</span>
+                  <input
+                    class="attribute__input attribute__input--number"
+                    type="number"
+                    name="attr_ship_minor_repairs_max"
+                    value="0"
+                  />
+                </div>
+              </div>
+              <div class="attribute attribute--number-max">
+                <label
+                  class="attribute__label attribute__label--number-max"
+                  for="attr_ship_major_repairs"
+                  data-i18n="Major Repairs"
+                  >Major Repairs</label>
+                <div class="attribute__minmax-wrapper">
+                  <input
+                    class="attribute__input attribute__input--number"
+                    type="number"
+                    name="attr_ship_major_repairs"
+                    value="0"
+                  />
+                  <span class="attribute__separator">/</span>
+                  <input
+                    class="attribute__input attribute__input--number"
+                    type="number"
+                    name="attr_ship_major_repairs_max"
+                    value="0"
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
         </section>
       </div>
     </div>

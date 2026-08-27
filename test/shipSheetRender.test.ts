@@ -95,11 +95,16 @@ function withMaxCompanion(field: {
 }
 
 // Every attr_* name the whole ship sheet may legitimately render: shipAttributes'
-// companion _max inputs plus every repeating section's row fields. Crew,
-// Upgrades and the Manifest trackers (#87) and the ship_npc setting are
-// declared here but not required to be rendered yet -- this set only bounds
-// what's *allowed*, drift-checking is done against the fields these two
-// issues actually own, in `ownedAttributeNames` below.
+// companion _max inputs plus every repeating section's row fields.
+// `shipLoadout` stays in this allowed set even though no panel renders it any
+// more (#87 supersedes it with `ship_cargo` + `shipUpgrades`) -- #84 declared
+// and tested it, and any `repeating_shiploadout` rows already saved on a
+// character sheet are still legal storage, just no longer shown. The
+// ship_npc setting is declared here but not required to be rendered yet --
+// that's #92's panel. This set only bounds what's *allowed*, drift-checking
+// is done against the fields the sheet actually owns, in `ownedAttributeNames`
+// below.
+
 // Controls the ship sheet renders but does not own. The settings drawer is
 // shared across all three sheets and declares its toggle in pcFields, so it is
 // legitimately not a ship attribute -- without this the drift check reads a
@@ -115,9 +120,8 @@ const validAttributeNames = new Set([
   ...sharedControlNames,
 ]);
 
-// The fields #85 and #86 put on the sheet: #58 sections 1-6 (Transponder,
-// Stats & Saves, Engines, Survival, Weapons, MegaDamage Track & Hull). Crew
-// (7) and Status/Manifest (8) are #87's.
+// Every field the ship sheet renders: #58 sections 1-6 (#85/#86) plus 7 and 8
+// (#87, Crew and Status/Ship Manifest). ship_npc is #92's and excluded.
 const ownedAttributeNames = new Set([
   ...[
     shipAttributes.ship_name,
@@ -140,8 +144,15 @@ const ownedAttributeNames = new Set([
     shipAttributes.ship_hardpoints,
     shipAttributes.ship_mdmg,
     shipAttributes.ship_hull,
+    shipAttributes.ship_crew,
+    shipAttributes.ship_upgrades,
+    shipAttributes.ship_cargo,
+    shipAttributes.ship_minor_repairs,
+    shipAttributes.ship_major_repairs,
   ].flatMap(withMaxCompanion),
   ...Object.keys(shipWeapons.attributes),
+  ...Object.keys(shipCrew.attributes),
+  ...Object.keys(shipUpgrades.attributes),
 ]);
 
 describe("ShipSheet render (svelte/server)", () => {
@@ -154,7 +165,7 @@ describe("ShipSheet render (svelte/server)", () => {
     }
   }, 30000);
 
-  it("renders every field #85 and #86 put on the sheet", async () => {
+  it("renders every field the ship sheet owns", async () => {
     const html = await renderShipSheet();
     const rendered = renderedAttributeNames(html);
 

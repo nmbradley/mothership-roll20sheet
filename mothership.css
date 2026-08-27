@@ -1337,6 +1337,11 @@ body.sheet-darkmode
 .charsheet.charsheet.charsheet .ship-header__field--name {
   grid-column: 1/-1;
 }
+.charsheet.charsheet.charsheet .ship-manifest-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ms-space-lg);
+}
 .charsheet.charsheet.charsheet .ship-operations-panel {
   display: flex;
   flex-direction: column;

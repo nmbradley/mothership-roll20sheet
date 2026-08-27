@@ -1,8 +1,8 @@
 <script lang="ts">
-  import ShipCargoPanel from "./ship/ShipCargoPanel.svelte";
   import ShipCrewPanel from "./ship/ShipCrewPanel.svelte";
   import ShipEnginesPanel from "./ship/ShipEnginesPanel.svelte";
   import ShipHeader from "./ship/ShipHeader.svelte";
+  import ShipManifestPanel from "./ship/ShipManifestPanel.svelte";
   import ShipMegadamagePanel from "./ship/ShipMegadamagePanel.svelte";
   import ShipOperationsPanel from "./ship/ShipOperationsPanel.svelte";
   import ShipSettingsPanel from "./ship/ShipSettingsPanel.svelte";
@@ -28,7 +28,7 @@
     <ShipMegadamagePanel />
     <ShipOperationsPanel />
     <ShipCrewPanel />
-    <ShipCargoPanel />
+    <ShipManifestPanel />
   </div>
 </div>
 
