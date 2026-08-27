@@ -26,6 +26,26 @@ describe("Roll Templates", () => {
       expect(template).toContain("{{target=[[@{strength}]]}}");
     });
 
+    it("should send only the first die to the Turn Tracker (#50)", () => {
+      const template = checkTemplate({
+        i18nKey: "Initiative",
+        target: "@{instinct}",
+        die: "1d100-1",
+        sendToTracker: true,
+      });
+      expect(template).toContain("{{roll=[[1d100-1 &{tracker}]]}}");
+      expect(template).toContain("{{roll2=[[1d100-1]]}}");
+    });
+
+    it("should leave the tracker out of an ordinary check", () => {
+      const template = checkTemplate({
+        i18nKey: "Strength Check",
+        target: "@{strength}",
+        die: "1d100-1",
+      });
+      expect(template).not.toContain("&{tracker}");
+    });
+
     it("should translate a name given a key", () => {
       const template = checkTemplate({
         i18nKey: "Strength Check",

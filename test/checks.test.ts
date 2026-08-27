@@ -15,6 +15,8 @@ import {
   restSaveStressDelta,
   rollCheck,
   rollDeathSave,
+  rollNPCInitiative,
+  rollPCInitiative,
   rollRestSave,
   skillQuery,
   worstSave,
@@ -105,6 +107,53 @@ describe("rollCheck", () => {
     expect(check.target).toBe(45);
     expect(check.outcome).toBe(Outcomes.Success);
     expect(mockFinishRoll).toHaveBeenCalled();
+  });
+});
+
+describe("Initiative (#50)", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("should roll a PC's Speed into the Turn Tracker, Skill prompt included", async () => {
+    translateWith({});
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        roll: { result: 30 },
+        roll2: { result: 80 },
+        edge: { result: 0 },
+        target: { result: 45 },
+      },
+    });
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+
+    await rollPCInitiative();
+
+    const formula = mockStartRoll.mock.calls[0][0] as string;
+    expect(formula).toContain("target=[[@{speed}+?{Apply Skill?");
+    expect(formula).toContain("&{tracker}");
+  });
+
+  it("should roll an NPC's Instinct into the Turn Tracker, without a Skill prompt", async () => {
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        roll: { result: 30 },
+        roll2: { result: 80 },
+        edge: { result: 0 },
+        target: { result: 45 },
+      },
+    });
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+
+    await rollNPCInitiative();
+
+    const formula = mockStartRoll.mock.calls[0][0] as string;
+    expect(formula).toContain("target=[[@{instinct}+?{Modifier?|0}]]");
+    expect(formula).toContain("&{tracker}");
   });
 });
 

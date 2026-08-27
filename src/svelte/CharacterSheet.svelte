@@ -6,6 +6,7 @@
     drop_name,
     init,
     sheet_skill_toggles,
+    speed_initiative,
   } from "#game/fields/pcFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
 
@@ -44,6 +45,16 @@
     {#each state as field (field.name)}
       <Attribute {field} />
     {/each}
+  </div>
+
+  <!--
+    speed_initiative's own control lives on the settings page, outside
+    .pc-sheet. This mirrors it here, hidden, so PCStatsPanel's
+    :has(input[name="attr_speed_initiative"]:checked) still finds a copy
+    inside .pc-sheet to query -- Roll20 keeps every same-named input in step.
+  -->
+  <div class="pc-sheet__state">
+    <Attribute field={speed_initiative} isLabelHidden />
   </div>
 
   <div class="pc-sheet__column pc-sheet__column--left">

@@ -71,6 +71,17 @@ export type CheckTemplateOptions = {
   target: string;
   /** Dice expression rolled twice, so an edge has a second die to choose from. */
   die: string;
+  /**
+   * Also drops the roll into Roll20's Turn Tracker via `&{tracker}` (#50's
+   * Initiative rolls). Only the first die carries it: both dice are always
+   * rolled here regardless of the edge answer, and Roll20 applies each
+   * `&{tracker}` in the message as it evaluates -- putting it on both would
+   * let the second, possibly-discarded die silently overwrite the tracker
+   * value the first one just set. A static macro cannot know ahead of the
+   * roll which die an edge will end up choosing, so this favours the plain,
+   * no-edge case, which is what Initiative is rolled for almost always.
+   */
+  sendToTracker?: boolean;
 };
 
 /**
@@ -83,11 +94,12 @@ export function checkTemplate(options: CheckTemplateOptions): string {
   const label = options.i18nKey === undefined
     ? options.name ?? ""
     : translated(options.i18nKey);
+  const rollDie = options.sendToTracker ? `${options.die} &{tracker}` : options.die;
 
   const template = render([
     ["name", label],
     ["character_name", "@{character_name}"],
-    ["roll", `[[${options.die}]]`],
+    ["roll", `[[${rollDie}]]`],
     ["roll2", `[[${options.die}]]`],
     ["target", `[[${options.target}]]`],
     [COMPUTED.Counted, "[[0]]"],
@@ -131,6 +143,7 @@ export const TEMPLATE_PHRASES = {
   RestSave: "Rest Save",
   DeathSave: "Death Save",
   ArmorDestroyed: "Armor Destroyed",
+  Initiative: "Initiative",
 } as const;
 
 /** A Critical Failure on a check forces a Panic Check; say so in chat. */

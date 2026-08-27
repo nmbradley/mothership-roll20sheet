@@ -48,19 +48,16 @@
         </div>
       {/each}
 
-      <!-- Initiative Roll Button (rolls Instinct into Turn Tracker) -->
+      <!-- Initiative (#50): optional rule where an Instinct Check also sets
+           Turn Order, gated on speed_initiative -- see the CSS below. The
+           sheetworker rolls it through rollCheck() like every other check,
+           with &{tracker} carried in the roll expression rather than the
+           raw inline macro this used to be (#79). -->
       <div class="npc-stat-card npc-stat-card--initiative">
         <div class="npc-stat-card__header">
-          <button
-            class="npc-stat-card__roll-btn npc-stat-card__roll-btn--initiative"
-            type="roll"
-            name="roll_initiative"
-            title="Roll Initiative into Turn Tracker"
-            aria-label="Roll Initiative into Turn Tracker"
-            value="&lbrace;&lbrace;template:ms&rbrace;&rbrace; &lbrace;&lbrace;name=Initiative&rbrace;&rbrace; &lbrace;&lbrace;character_name=@&lbrace;character_name&rbrace;&rbrace;&rbrace; &lbrace;&lbrace;roll=[[1d100-1cs1cf99 &amp;&lbrace;tracker&rbrace;]]&rbrace;&rbrace; &lbrace;&lbrace;roll2=[[?&lbrace;Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99 &amp;&lbrace;tracker&rbrace;&rbrace;]]&rbrace;&rbrace; &lbrace;&lbrace;target=@&lbrace;instinct&rbrace;&rbrace;&rbrace;"
-          >
+          <ButtonAction action="npc-initiative">
             <span class="npc-stat-card__title" data-i18n="Initiative">Initiative</span>
-          </button>
+          </ButtonAction>
           <span
             class="npc-stat-card__tooltip"
             data-i18n="Rolls Instinct and adds to Turn Tracker (&amp;&lbrace;tracker&rbrace;)"
@@ -138,32 +135,6 @@
       }
     }
 
-    &__roll-btn {
-      display: inline-flex;
-      gap: var(--ms-space-sm);
-      align-items: center;
-
-      border: none;
-      padding: 0;
-
-      background: transparent;
-      cursor: pointer;
-
-      font-size: var(--ms-text-md);
-      font-family: var(--ms-font-header);
-      font-weight: bold;
-      text-transform: uppercase;
-      color: var(--ms-fg);
-
-      &:hover {
-        color: var(--ms-accent);
-      }
-
-      &--initiative {
-        color: var(--ms-fg-inverse);
-      }
-    }
-
     // Hidden until Speed Check Initiative (#50) is switched on in Settings --
     // a sheet cannot run JS outside its sheetworkers, so this rereads the
     // checkbox via :has() rather than script. The checkbox itself lives on
@@ -178,8 +149,26 @@
 
       color: var(--ms-fg-inverse);
 
-      .npc-stat-card__roll-btn:hover {
-        color: var(--ms-accent);
+      // The default button chrome (bordered, surface-coloured) reads as a
+      // light box against this card's dark background, so it is stripped
+      // back to plain, bold, uppercase text as the button it replaces was.
+      .button {
+        border: none;
+        padding: 0;
+
+        background: transparent;
+
+        font-size: var(--ms-text-md);
+        font-family: var(--ms-font-header);
+        font-weight: bold;
+        text-transform: uppercase;
+        color: var(--ms-fg-inverse);
+
+        &:hover {
+          background: transparent;
+
+          color: var(--ms-accent);
+        }
       }
     }
 

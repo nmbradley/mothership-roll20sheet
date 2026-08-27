@@ -173,6 +173,8 @@ export type CheckOptions = {
   target: string;
   /** Query asked for the bonus; a plain modifier unless a skill can apply. */
   bonus?: string;
+  /** Also sends the roll to Roll20's Turn Tracker (#50's Initiative rolls). */
+  sendToTracker?: boolean;
 };
 
 /**
@@ -189,6 +191,7 @@ export async function rollCheck(options: CheckOptions): Promise<CheckResult> {
     die: D100,
     ...(options.name === undefined ? {} : { name: options.name }),
     ...(options.i18nKey === undefined ? {} : { i18nKey: options.i18nKey }),
+    ...(options.sendToTracker ? { sendToTracker: true } : {}),
   };
 
   const template = `${checkTemplate(templateOptions)} {{edge=[[${EDGE_QUERY}]]}}`;
@@ -206,6 +209,33 @@ export async function rollCheck(options: CheckOptions): Promise<CheckResult> {
   const check = makeCheck(request);
   const computed = checkComputed(check);
   finishRoll(roll.rollId, computed);
+  return check;
+}
+
+/**
+ * Rolls Initiative for the optional Speed Check Initiative rule (#50): a
+ * Speed Check whose result also lands in Roll20's Turn Tracker.
+ */
+export async function rollPCInitiative(): Promise<CheckResult> {
+  const check = await rollCheck({
+    i18nKey: TEMPLATE_PHRASES.Initiative,
+    target: "@{speed}",
+    bonus: skillQuery(),
+    sendToTracker: true,
+  });
+  return check;
+}
+
+/**
+ * Rolls Initiative for an NPC: an Instinct Check, since NPCs have no Speed
+ * stat, whose result also lands in Roll20's Turn Tracker.
+ */
+export async function rollNPCInitiative(): Promise<CheckResult> {
+  const check = await rollCheck({
+    i18nKey: TEMPLATE_PHRASES.Initiative,
+    target: "@{instinct}",
+    sendToTracker: true,
+  });
   return check;
 }
 

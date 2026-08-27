@@ -30,7 +30,9 @@ import {
   checkKey,
   rollCheck,
   rollDeathSave,
+  rollNPCInitiative,
   rollPanicCheck,
+  rollPCInitiative,
   rollRestSave,
   skillQuery,
 } from "./rules/checks";
@@ -102,6 +104,17 @@ for (const attribute of CHECK_ATTRIBUTES) {
     });
   });
 }
+
+// #50: the optional rule where a Speed/Instinct Check also sets Initiative.
+// Two buttons rather than one shared action: the PC and NPC sheets target
+// different attributes, and a Roll20 button click cannot branch on which
+// sheet is active before the handler runs.
+on("clicked:pc-initiative", () => {
+  void rollPCInitiative();
+});
+on("clicked:npc-initiative", () => {
+  void rollNPCInitiative();
+});
 
 on("clicked:panic", () => {
   void rollPanicCheck();
