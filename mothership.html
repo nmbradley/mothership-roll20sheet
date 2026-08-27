@@ -135,6 +135,8 @@
                     spellcheck="false"
                   />
                 </div>
+              </div>
+              <div class="pc-details__score">
                 <div class="attribute attribute--text">
                   <label
                     class="attribute__label attribute__label--text"
@@ -149,6 +151,13 @@
                     spellcheck="false"
                   />
                 </div>
+                <button
+                  class="button button--action"
+                  type="action"
+                  name="act_increment_score"
+                >
+                  <span class="button__label" data-i18n="+1">+1</span>
+                </button>
               </div>
             </div>
           </div>
@@ -6068,8 +6077,6 @@
     attrs["health_max"] = health;
     attrs["stress_panic"] = review["stressresponse_final"] ?? "";
     attrs["skill_points"] = review["skillpoints_final"] ?? "";
-    attrs["level"] = "0";
-    attrs["xp"] = "0";
     const skills2 = parseStringList(review["skills_final"]);
     for (const key of skills2) {
       attrs[key] = "on";

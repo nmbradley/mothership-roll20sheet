@@ -1,5 +1,5 @@
 {
-  "+": "+",
+  "+1": "+1",
   "Add a custom patch.": "Add a custom patch.",
   "Add a custom trinket.": "Add a custom trinket.",
   "Adjacent": "Adjacent",
@@ -48,7 +48,7 @@
   "Coming soon": "Coming soon",
   "Command": "Command",
   "Computers": "Computers",
-  "Conditions & Afflictions": "Conditions & Afflictions",
+  "Conditions": "Conditions",
   "Contact Range": "Contact Range",
   "Counted": "Counted",
   "Credits": "Credits",
@@ -62,13 +62,11 @@
   "Current": "Current",
   "Cybernetics": "Cybernetics",
   "Damage": "Damage",
-  "Death Save": "Death Save",
   "Description": "Description",
   "Design and effective use of explosive devices (bombs, grenades, shells, land mines, etc.).": "Design and effective use of explosive devices (bombs, grenades, shells, land mines, etc.).",
   "Design, maintenance, and operation of robots, drones, and androids.": "Design, maintenance, and operation of robots, drones, and androids.",
   "Detection Range": "Detection Range",
   "Ecology": "Ecology",
-  "Effect": "Effect",
   "Emergency medical care and treatment.": "Emergency medical care and treatment.",
   "Engineering": "Engineering",
   "Engines": "Engines",
@@ -167,7 +165,6 @@
   "Remaining Skill Points": "Remaining Skill Points",
   "Reselect Class": "Reselect Class",
   "Resolve": "Resolve",
-  "Rest Save": "Rest Save",
   "Review": "Review",
   "Rimwise": "Rimwise",
   "Robotics": "Robotics",
@@ -247,7 +244,6 @@
   "Training in the tools and procedures used for mining asteroids.": "Training in the tools and procedures used for mining asteroids.",
   "Trait Name": "Trait Name",
   "Traits": "Traits",
-  "Treated": "Treated",
   "Trinket": "Trinket",
   "Type": "Type",
   "Unauthorized access to computer systems and networks.": "Unauthorized access to computer systems and networks.",
@@ -274,6 +270,5 @@
   "charmancer-step3b": "Each class has their own starting Save values which represent how resistant they are to different kinds of trauma. The starting Saves for your selected class have been filled in below. Each of the classes also alters your starting Stats a little bit, which you'll see reflected above. Each class also deals with Stress and Panic differently; your Class' special rule is indicated below.",
   "charmancer-step4": "Each class comes preloaded with some relevant Skills which will help them perform better at different challenges. Additionally, each class has a number of points to spend on Skills during character creation. Spend all your skill points now, keeping in mind that Trained Skills cost 1 point, Expert Skills cost 2 points, Master Skills cost 3 points, and that to take Expert or Master skills you must have already taken one of its prequsite skills. Alternatively, if you don't want to spend them right now, we'll save them for you for later!",
   "charmancer-step5": "There are four different starting equipment packages to choose from. These are here for convenience, so you don't have to spend a lot of time shopping before the game begins. You also get to roll for a random Trinket and Patch; they don't have any mechanical significance, but might give you insight into what your character is like. You also get to roll for your starting credits (5d10x10). If you select a package with Armor, it will improve your Armor Save. Don't worry, we'll take care of that at the end for you!",
-  "charmancer-step6": "Take a few moments to review your character. If you're not happy with anything, you can navigate backwards and change it. Once you're ready, click the green checkmark at the bottom of the screen. You're now ready to play your first session of Mothership!",
-  "−": "−"
+  "charmancer-step6": "Take a few moments to review your character. If you're not happy with anything, you can navigate backwards and change it. Once you're ready, click the green checkmark at the bottom of the screen. You're now ready to play your first session of Mothership!"
 }

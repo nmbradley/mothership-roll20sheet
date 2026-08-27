@@ -50,24 +50,6 @@ export const skill_training_time = attribute({
   control: Controls.Text,
   value: "",
 });
-export const level = attribute({
-  name: "level",
-  label: "Level",
-  control: Controls.Number,
-  value: 0,
-});
-export const rank_title = attribute({
-  name: "rank_title",
-  label: "Rank / Title",
-  control: Controls.Text,
-  value: "",
-});
-export const xp = attribute({
-  name: "xp",
-  label: "XP",
-  control: Controls.Text,
-  value: "",
-});
 export const class_ = attribute({
   name: "class",
   label: "Class",
@@ -264,9 +246,6 @@ export const drop_content = attribute({
 
 export const pcAttributes = {
   character_name,
-  level,
-  rank_title,
-  xp,
   class: class_,
   stress,
   stress_panic,

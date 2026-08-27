@@ -25,6 +25,12 @@ describe("pcFields", () => {
     expect(pcAttributes.sanity.name).toBe("sanity");
   });
 
+  it("no longer exports the 0e header fields", () => {
+    expect("level" in pcAttributes).toBe(false);
+    expect("rank_title" in pcAttributes).toBe(false);
+    expect("xp" in pcAttributes).toBe(false);
+  });
+
   it("exports repeating attacks", () => {
     expect(pcAttacks.name).toBe("repeating_attacks");
     expect(pcAttacks.attributes.attack_name.name).toBe("attack_name");
