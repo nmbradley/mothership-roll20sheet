@@ -405,6 +405,18 @@
                     <span class="button__label" data-i18n="+">+</span>
                   </button>
                 </div>
+                <input
+                  class="attribute__input attribute__input--hidden"
+                  type="hidden"
+                  name="attr_stress_min"
+                  value="2"
+                />
+                <input
+                  class="attribute__input attribute__input--hidden"
+                  type="hidden"
+                  name="attr_stress_max"
+                  value="20"
+                />
               </div>
               <div class="pc-status-card pc-status-card--action">
                 <button
@@ -1143,18 +1155,27 @@
                 />
               </div>
             </div>
-            <div class="attribute attribute--number attribute--default">
-              <label
-                class="attribute__label attribute__label--number-input attribute__label--number-input--default"
-                for="attr_ship_fuel_bid"
-                data-i18n="Fuel Bid"
-                >Fuel Bid</label>
-              <input
-                class="attribute__input attribute__input--number attribute__input--number--default"
-                type="number"
-                name="attr_ship_fuel_bid"
-                value="0"
-              />
+            <div class="ship-engines__bid">
+              <div class="attribute attribute--number attribute--default">
+                <label
+                  class="attribute__label attribute__label--number-input attribute__label--number-input--default"
+                  for="attr_ship_fuel_bid"
+                  data-i18n="Fuel Bid"
+                  >Fuel Bid</label>
+                <input
+                  class="attribute__input attribute__input--number attribute__input--number--default"
+                  type="number"
+                  name="attr_ship_fuel_bid"
+                  value="0"
+                />
+              </div>
+              <button
+                class="button button--action"
+                type="action"
+                name="act_reveal_bid"
+              >
+                <span class="button__label" data-i18n="Reveal">Reveal</span>
+              </button>
             </div>
             <div class="attribute attribute--number attribute--default">
               <label
@@ -2531,7 +2552,7 @@
             data-i18n="Roll Stats"
             name="roll_stats"
             type="roll"
-            value="{{template:ms-cm}} {{title=stats roll}} {{strength=[[2d10+25]]}} {{speed=[[2d10+25]]}} {{intellect=[[2d10+25]]}} {{combat=[[2d10+25]]}} {{sanity=[[2d10+10]]}} {{fear=[[2d10+10]]}} {{body=[[2d10+10]]}}"
+            value="{{template:ms-cm}} {{title=stats roll}} {{strength=[[2d10+25]]}} {{speed=[[2d10+25]]}} {{intellect=[[2d10+25]]}} {{combat=[[2d10+25]]}} {{sanity=[[2d10+10]]}} {{fear=[[2d10+10]]}} {{body=[[2d10+10]]}} {{health=[[1d10+10]]}}"
           >
             Roll Stats
           </button>
@@ -4513,6 +4534,7 @@
   var STARTING_WOUNDS = 2;
   var STARTING_ARMOR = 0;
   var ROLLED_FIELDS = [...allStats, ...allSaves];
+  var HEALTH_ROLL_INDEX = ROLLED_FIELDS.length;
   function onLoadStats() {
     const data = charmancerData();
     const values = stepValues(data, Steps.Stats);
@@ -4531,8 +4553,8 @@
       if (roll === void 0) continue;
       attrs[field] = roll.result;
     }
-    const strength = rolls[0]?.result ?? 0;
-    attrs["health"] = strength * 2;
+    const healthRoll = rolls[HEALTH_ROLL_INDEX];
+    if (healthRoll !== void 0) attrs["health"] = healthRoll.result;
     attrs["stress"] = STARTING_STRESS;
     attrs["wounds"] = STARTING_WOUNDS;
     attrs["armor_points"] = STARTING_ARMOR;
@@ -4798,7 +4820,9 @@
     for (const stat of allStats) {
       attrs[`${stat}_mod`] = mods[stat];
     }
-    attrs["health"] = classHealth();
+    const wounds = maxWounds(definition);
+    attrs["wounds"] = wounds;
+    attrs["wounds_max"] = wounds;
     attrs["stress_effect"] = definition.traumaResponse;
     text["t__stress_effect"] = definition.traumaResponse;
     const granted = definition.skills.granted;
@@ -4820,11 +4844,9 @@
     }
     return mods;
   }
-  function classHealth() {
-    const data = charmancerData();
-    const strength = resolveNumber(data, "strength");
-    const modifier = resolveNumber(data, "strength_mod");
-    return (strength + modifier) * 2;
+  var BASE_MAX_WOUNDS = 2;
+  function maxWounds(definition) {
+    return BASE_MAX_WOUNDS + definition.maxWoundsBonus;
   }
   function offerSkillChoices(definition) {
     clearRepeatingSections(SKILL_CHOICE_LIST);
@@ -6914,12 +6936,12 @@
     const computed = panicComputed(panic);
     finishRoll(roll.rollId, computed);
   }
-  var STRESS_MIN = 2;
-  var STRESS_MAX = 20;
   function adjustStress(delta) {
-    getAttrs(["stress"], (attrs) => {
+    getAttrs(["stress", "stress_min", "stress_max"], (attrs) => {
       const stress = Number(attrs.stress);
-      applyStressDelta(stress, delta, STRESS_MIN, STRESS_MAX);
+      const min = Number(attrs.stress_min);
+      const max = Number(attrs.stress_max);
+      applyStressDelta(stress, delta, min, max);
     });
   }
   function worstSave(sanity, fear, body) {
@@ -6934,7 +6956,7 @@
   }
   async function rollRestSave() {
     const attrs = await new Promise((resolve) => {
-      getAttrs(["sanity", "fear", "body", "stress"], resolve);
+      getAttrs(["sanity", "fear", "body", "stress", "stress_min", "stress_max"], resolve);
     });
     const sanity = Number(attrs.sanity);
     const fear = Number(attrs.fear);
@@ -6946,7 +6968,9 @@
     });
     const delta = restSaveStressDelta(check);
     const stress = Number(attrs.stress);
-    applyStressDelta(stress, delta, STRESS_MIN, STRESS_MAX);
+    const min = Number(attrs.stress_min);
+    const max = Number(attrs.stress_max);
+    applyStressDelta(stress, delta, min, max);
   }
   async function rollDeathSave() {
     const template = deathSaveTemplate();
@@ -8039,6 +8063,37 @@ ${SHIP_PANIC_MESSAGE}`;
       notes: evaluation.message
     });
   }
+  function evaluateFuelBid(fuel, bid) {
+    if (bid < 0 || bid > fuel) {
+      return {
+        valid: false,
+        fuel,
+        message: `INVALID FUEL BID: ${bid} (Fuel available: ${fuel}). No fuel spent.`
+      };
+    }
+    return {
+      valid: true,
+      fuel: fuel - bid,
+      message: `Fuel Bid Revealed: ${bid}`
+    };
+  }
+  async function handleRevealFuelBid() {
+    const rollFormula = "&{template:ms} {{name=Fuel Bid}} {{character_name=@{character_name}}} {{bid=[[@{ship_fuel_bid}]]}} {{fuel=[[@{ship_fuel}]]}} {{notes=[[0]]}}";
+    const rollData = await startRoll(rollFormula);
+    const bidEntry = rollData.results.bid;
+    const fuelEntry = rollData.results.fuel;
+    if (bidEntry === void 0 || fuelEntry === void 0) return;
+    const evaluation = evaluateFuelBid(fuelEntry.result, bidEntry.result);
+    if (evaluation.valid) {
+      setAttrs({
+        ship_fuel: evaluation.fuel,
+        ship_fuel_bid: 0
+      });
+    }
+    finishRoll(rollData.rollId, {
+      notes: evaluation.message
+    });
+  }
 
   // src/ts/rules/stats.ts
   function incrementHighScore() {
@@ -8078,6 +8133,9 @@ ${SHIP_PANIC_MESSAGE}`;
   on("change:ship_mdmg", handleMdmgChange);
   on("clicked:morale_check", () => {
     void handleMoraleCheck();
+  });
+  on("clicked:reveal_bid", () => {
+    void handleRevealFuelBid();
   });
   on("clicked:destroy_armor", () => {
     void handleDestroyArmor();
