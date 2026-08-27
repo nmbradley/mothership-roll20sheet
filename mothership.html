@@ -7146,7 +7146,9 @@
   }
   async function recomputeSkillQuery() {
     const catalog = await readSkillCatalog();
-    setAttrs({ skill_query: buildSkillQuery(catalog) });
+    const query = buildSkillQuery(catalog);
+    console.log("[ms] recomputeSkillQuery catalog", catalog.length, catalog, query);
+    setAttrs({ skill_query: query });
   }
   function isSaveSkillSelectEnabled(raw) {
     return raw !== "0";
@@ -8652,6 +8654,7 @@ ${SHIP_PANIC_MESSAGE}`;
     void recalculateArmorTotals();
   });
   on("sheet:opened", () => {
+    console.log("[ms] sheet:opened -> recalculateArmorTotals");
     void recalculateArmorTotals();
   });
   var SKILLED_CHECKS = [...allStats, ...allSaves];
@@ -8680,7 +8683,10 @@ ${SHIP_PANIC_MESSAGE}`;
     void rollPanicCheck();
   });
   on("change:sanity change:fear change:body", recomputeWorstSave);
-  on("sheet:opened", recomputeWorstSave);
+  on("sheet:opened", () => {
+    console.log("[ms] sheet:opened -> recomputeWorstSave");
+    recomputeWorstSave();
+  });
   on("clicked:rest_save", () => {
     void rollRestSave();
   });
@@ -8696,6 +8702,7 @@ ${SHIP_PANIC_MESSAGE}`;
     void recomputeSkillQuery();
   });
   on("sheet:opened", () => {
+    console.log("[ms] sheet:opened -> recomputeSkillQuery");
     void recomputeSkillQuery();
   });
   on("clicked:death_save", () => {

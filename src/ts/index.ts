@@ -117,6 +117,7 @@ on(ARMOR_ROW_EVENTS, () => {
 // row changes, so a sheet opened before that leaves both attributes
 // unwritten -- this seeds them from whatever equipment is already worn.
 on("sheet:opened", () => {
+  console.log("[ms] sheet:opened -> recalculateArmorTotals");
   void recalculateArmorTotals();
 });
 
@@ -168,7 +169,10 @@ on("clicked:panic", () => {
 // fire synchronously off the click. sheet:opened seeds it for a character
 // saved before this attribute existed.
 on("change:sanity change:fear change:body", recomputeWorstSave);
-on("sheet:opened", recomputeWorstSave);
+on("sheet:opened", () => {
+  console.log("[ms] sheet:opened -> recomputeWorstSave");
+  recomputeWorstSave();
+});
 
 on("clicked:rest_save", () => {
   void rollRestSave();
@@ -191,6 +195,7 @@ on(SKILL_ROW_EVENTS, () => {
   void recomputeSkillQuery();
 });
 on("sheet:opened", () => {
+  console.log("[ms] sheet:opened -> recomputeSkillQuery");
   void recomputeSkillQuery();
 });
 

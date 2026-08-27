@@ -272,7 +272,9 @@ async function readSkillCatalog(): Promise<SkillCatalogEntry[]> {
  */
 export async function recomputeSkillQuery(): Promise<void> {
   const catalog = await readSkillCatalog();
-  setAttrs({ skill_query: buildSkillQuery(catalog) });
+  const query = buildSkillQuery(catalog);
+  console.log("[ms] recomputeSkillQuery catalog", catalog.length, catalog, query);
+  setAttrs({ skill_query: query });
 }
 
 /** Roll20 stores "0" for an unchecked box; anything else reads as on. */
