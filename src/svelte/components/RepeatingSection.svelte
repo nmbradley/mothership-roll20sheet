@@ -9,6 +9,8 @@
   export let columns: string;
   /** Extra trailing heading cells, e.g. the settings cog column. */
   export let trailing: number = 0;
+  /** Off for a single-field section, where the one heading only repeats the label. */
+  export let hasHeadings: boolean = true;
 
   // The fieldset class is read from the section rather than written by hand:
   // a stale literal here silently points rows at another section's storage.
@@ -17,14 +19,16 @@
 </script>
 
 <div class="repeating">
-  <div class="repeating__head" style={grid}>
-    {#each fields as field (field.name)}
-      <span class="repeating__heading" data-i18n={field.i18nLabel}>{field.label}</span>
-    {/each}
-    {#each spacers as spacer (spacer)}
-      <span class="repeating__heading repeating__heading--spacer"></span>
-    {/each}
-  </div>
+  {#if hasHeadings}
+    <div class="repeating__head" style={grid}>
+      {#each fields as field (field.name)}
+        <span class="repeating__heading" data-i18n={field.i18nLabel}>{field.label}</span>
+      {/each}
+      {#each spacers as spacer (spacer)}
+        <span class="repeating__heading repeating__heading--spacer"></span>
+      {/each}
+    </div>
+  {/if}
 
   <fieldset class={section.name}>
     <div class="repeating__row" style={grid}>

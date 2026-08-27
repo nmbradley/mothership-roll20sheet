@@ -1281,6 +1281,8 @@ body.sheet-darkmode
 }
 .charsheet.charsheet.charsheet .pc-skills-section__title {
   margin-bottom: var(--ms-space-md);
+  border-bottom: var(--ms-border-width) solid var(--ms-border);
+  padding-bottom: var(--ms-space-sm);
   font-size: var(--ms-text-md);
   font-family: var(--ms-font-header);
   text-transform: uppercase;
@@ -1288,6 +1290,13 @@ body.sheet-darkmode
 .charsheet.charsheet.charsheet .pc-skills-section .repeating__row {
   border-bottom: none;
   padding-bottom: 0;
+}
+.charsheet.charsheet.charsheet .pc-skills-section .attribute__input {
+  border: none;
+  border-bottom: 1px solid var(--ms-rule);
+  border-radius: 0;
+  padding-left: 0;
+  background: none;
 }
 .charsheet.charsheet.charsheet .pc-stat-card {
   display: flex;
