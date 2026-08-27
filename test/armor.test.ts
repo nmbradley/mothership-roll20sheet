@@ -12,7 +12,7 @@ describe("Armor", () => {
   });
 
   describe("handleDestroyArmor", () => {
-    it("zeroes armor_points and posts a chat notification", async () => {
+    it("zeroes the clicked row's own AP and DR and posts a chat notification", async () => {
       const mockSetAttrs = vi.fn();
       const mockStartRoll = vi.fn().mockResolvedValue({
         rollId: "id",
@@ -23,9 +23,12 @@ describe("Armor", () => {
       vi.stubGlobal("startRoll", mockStartRoll);
       vi.stubGlobal("finishRoll", mockFinishRoll);
 
-      await handleDestroyArmor();
+      await handleDestroyArmor("row1");
 
-      expect(mockSetAttrs).toHaveBeenCalledWith({ armor_points: DESTROYED_AP });
+      expect(mockSetAttrs).toHaveBeenCalledWith({
+        repeating_equipment_row1_equipment_armor_points: DESTROYED_AP,
+        repeating_equipment_row1_equipment_damage_reduction: DESTROYED_AP,
+      });
       expect(mockStartRoll).toHaveBeenCalledWith(expect.stringContaining("template:ms"));
       expect(mockFinishRoll).toHaveBeenCalledWith("id", expect.any(Object));
 

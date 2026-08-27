@@ -87,8 +87,13 @@ on("clicked:reveal_bid", () => {
 
 // --- ARMOR ---
 
-on("clicked:destroy_armor", () => {
-  void handleDestroyArmor();
+// Destroy lives on the equipment row now (#112): it zeroes the clicked row's
+// own AP/DR rather than a panel-level total, so the sourceSection the click
+// raised on says which row.
+on("clicked:repeating_equipment:destroy_armor", (eventInfo) => {
+  const rowId = eventInfo.sourceSection;
+  if (rowId === undefined) return;
+  void handleDestroyArmor(rowId);
 });
 
 // AP and DR are summed from the equipment rows rather than owned by the

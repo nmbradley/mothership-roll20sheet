@@ -6676,8 +6676,12 @@
 
   // src/ts/rules/armor.ts
   var DESTROYED_AP = 0;
-  async function handleDestroyArmor() {
-    setAttrs({ armor_points: DESTROYED_AP });
+  async function handleDestroyArmor(rowId) {
+    const row = `repeating_equipment_${rowId}_equipment`;
+    setAttrs({
+      [`${row}_armor_points`]: DESTROYED_AP,
+      [`${row}_damage_reduction`]: DESTROYED_AP
+    });
     const rollFormula = `&{template:ms} {{name=^{${TEMPLATE_PHRASES.ArmorDestroyed}}}} {{character_name=@{character_name}}} {{notes=[[0]]}}`;
     const rollData = await startRoll(rollFormula);
     finishRoll(rollData.rollId, { notes: "" });
@@ -8344,8 +8348,10 @@ ${SHIP_PANIC_MESSAGE}`;
   on("clicked:reveal_bid", () => {
     void handleRevealFuelBid();
   });
-  on("clicked:destroy_armor", () => {
-    void handleDestroyArmor();
+  on("clicked:repeating_equipment:destroy_armor", (eventInfo) => {
+    const rowId = eventInfo.sourceSection;
+    if (rowId === void 0) return;
+    void handleDestroyArmor(rowId);
   });
   var ARMOR_ROW_EVENTS = [
     "change:repeating_equipment:equipment_type",
