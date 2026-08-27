@@ -124,6 +124,32 @@ export function skillQuery(): string {
   return `?{${prompt}|${choices}}`;
 }
 
+/** Roll20 stores "0" for an unchecked box; anything else reads as on. */
+export function isSaveSkillSelectEnabled(raw: string | undefined): boolean {
+  return raw !== "0";
+}
+
+/**
+ * Rolls a Save check, honouring #9's Keeper toggle on the Skill prompt.
+ *
+ * Every other skilled check bakes skillQuery() into its click handler at
+ * registration in index.ts, since the bonus query never changes. A Save's
+ * only knows whether the Keeper wants it once the button is actually
+ * clicked, so this reads save_skill_select fresh with getAttrs instead --
+ * one extra attribute read per Save click. getAttrs answers from the sheet's
+ * own cached data rather than a network round trip, so the cost is trivial.
+ */
+export function rollSaveCheck(attribute: string): void {
+  getAttrs(["save_skill_select"], (attrs) => {
+    const bonus = isSaveSkillSelectEnabled(attrs.save_skill_select) ? skillQuery() : undefined;
+    void rollCheck({
+      i18nKey: checkKey(attribute),
+      target: `@{${attribute}}`,
+      ...(bonus === undefined ? {} : { bonus }),
+    });
+  });
+}
+
 const EDGE_NORMAL = 0;
 const EDGE_ADVANTAGE = 1;
 
@@ -173,6 +199,8 @@ export type CheckOptions = {
   target: string;
   /** Query asked for the bonus; a plain modifier unless a skill can apply. */
   bonus?: string;
+  /** Also sends the roll to Roll20's Turn Tracker (#50's Initiative rolls). */
+  sendToTracker?: boolean;
 };
 
 /**
@@ -189,6 +217,7 @@ export async function rollCheck(options: CheckOptions): Promise<CheckResult> {
     die: D100,
     ...(options.name === undefined ? {} : { name: options.name }),
     ...(options.i18nKey === undefined ? {} : { i18nKey: options.i18nKey }),
+    ...(options.sendToTracker ? { sendToTracker: true } : {}),
   };
 
   const template = `${checkTemplate(templateOptions)} {{edge=[[${EDGE_QUERY}]]}}`;
@@ -206,6 +235,33 @@ export async function rollCheck(options: CheckOptions): Promise<CheckResult> {
   const check = makeCheck(request);
   const computed = checkComputed(check);
   finishRoll(roll.rollId, computed);
+  return check;
+}
+
+/**
+ * Rolls Initiative for the optional Speed Check Initiative rule (#50): a
+ * Speed Check whose result also lands in Roll20's Turn Tracker.
+ */
+export async function rollPCInitiative(): Promise<CheckResult> {
+  const check = await rollCheck({
+    i18nKey: TEMPLATE_PHRASES.Initiative,
+    target: "@{speed}",
+    bonus: skillQuery(),
+    sendToTracker: true,
+  });
+  return check;
+}
+
+/**
+ * Rolls Initiative for an NPC: an Instinct Check, since NPCs have no Speed
+ * stat, whose result also lands in Roll20's Turn Tracker.
+ */
+export async function rollNPCInitiative(): Promise<CheckResult> {
+  const check = await rollCheck({
+    i18nKey: TEMPLATE_PHRASES.Initiative,
+    target: "@{instinct}",
+    sendToTracker: true,
+  });
   return check;
 }
 

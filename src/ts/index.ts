@@ -30,8 +30,11 @@ import {
   checkKey,
   rollCheck,
   rollDeathSave,
+  rollNPCInitiative,
   rollPanicCheck,
+  rollPCInitiative,
   rollRestSave,
+  rollSaveCheck,
   skillQuery,
 } from "./rules/checks";
 import {
@@ -93,8 +96,15 @@ const SKILLED_CHECKS: readonly string[] = [...allStats, ...allSaves];
 
 for (const attribute of CHECK_ATTRIBUTES) {
   const isSkilled = SKILLED_CHECKS.includes(attribute);
+  const isSave = (allSaves as readonly string[]).includes(attribute);
 
   on(`clicked:check-${attribute}`, () => {
+    // #9: a Save's Skill prompt is a Keeper toggle read at click time, so it
+    // cannot be baked in below the way every other skilled check's is.
+    if (isSave) {
+      rollSaveCheck(attribute);
+      return;
+    }
     void rollCheck({
       i18nKey: checkKey(attribute),
       target: `@{${attribute}}`,
@@ -102,6 +112,17 @@ for (const attribute of CHECK_ATTRIBUTES) {
     });
   });
 }
+
+// #50: the optional rule where a Speed/Instinct Check also sets Initiative.
+// Two buttons rather than one shared action: the PC and NPC sheets target
+// different attributes, and a Roll20 button click cannot branch on which
+// sheet is active before the handler runs.
+on("clicked:pc-initiative", () => {
+  void rollPCInitiative();
+});
+on("clicked:npc-initiative", () => {
+  void rollNPCInitiative();
+});
 
 on("clicked:panic", () => {
   void rollPanicCheck();

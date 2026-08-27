@@ -1,6 +1,6 @@
 <script lang="ts">
   import {
-    sheet_toggle_select, speed_initiative,
+    save_skill_select, sheet_toggle_select, speed_initiative,
   } from "#game/fields/pcFields.js";
   import { ship_npc } from "#game/fields/shipFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
@@ -29,24 +29,15 @@
         <Attribute field={speed_initiative} isLabelHidden />
       </SettingsRow>
 
+      <SettingsRow field={save_skill_select}>
+        <Attribute field={save_skill_select} isLabelHidden />
+      </SettingsRow>
+
       <!-- #62: only meaningful once a ship is the active sheet. -->
       <div class="settings-sheet__gate settings-sheet__gate--ship">
         <SettingsRow field={ship_npc}>
           <Attribute field={ship_npc} isLabelHidden />
         </SettingsRow>
-      </div>
-
-      <!--
-        #9 hasn't settled on an attribute name yet, so there is nothing to
-        bind here -- this row is a placeholder, not a control.
-      -->
-      <div class="settings-sheet__row settings-sheet__row--placeholder">
-        <span class="settings-sheet__label" data-i18n="Skill Select for Saves">
-          Skill Select for Saves
-        </span>
-        <span class="settings-sheet__placeholder-note" data-i18n="Coming soon">
-          Coming soon
-        </span>
       </div>
 
       <!--
@@ -103,25 +94,6 @@
 
   &__gate {
     display: none;
-  }
-
-  &__row {
-    display: flex;
-    flex-direction: column;
-    gap: var(--ms-space-sm);
-  }
-
-  &__label {
-    font-size: var(--ms-text-sm);
-    font-family: var(--ms-font-header);
-    font-weight: 700;
-    color: var(--ms-fg-muted);
-  }
-
-  &__placeholder-note {
-    font-size: var(--ms-text-sm);
-    font-style: italic;
-    color: var(--ms-fg-muted);
   }
 
   &__charmancer-launch {

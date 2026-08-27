@@ -47,6 +47,16 @@
           value=""
         />
       </div>
+      <div class="pc-sheet__state">
+        <div class="attribute attribute--checkbox">
+          <input
+            class="attribute__input attribute__input--checkbox"
+            type="checkbox"
+            name="attr_speed_initiative"
+            value="on"
+          />
+        </div>
+      </div>
       <div class="pc-sheet__column pc-sheet__column--left">
         <div class="frame frame--mode-light frame--corner-large">
           <div class="pc-masthead">
@@ -235,6 +245,16 @@
                     name="act_check-combat"
                   >
                     <span class="button__label" data-i18n="Combat">Combat</span>
+                  </button>
+                </div>
+                <div class="pc-stats-panel__initiative">
+                  <button
+                    class="button button--action"
+                    type="action"
+                    name="act_pc-initiative"
+                  >
+                    <span class="button__label" data-i18n="Initiative"
+                      >Initiative</span>
                   </button>
                 </div>
               </div>
@@ -1771,12 +1791,9 @@
               <div class="npc-stat-card npc-stat-card--initiative">
                 <div class="npc-stat-card__header">
                   <button
-                    class="npc-stat-card__roll-btn npc-stat-card__roll-btn--initiative"
-                    type="roll"
-                    name="roll_initiative"
-                    title="Roll Initiative into Turn Tracker"
-                    aria-label="Roll Initiative into Turn Tracker"
-                    value="{{template:ms}} {{name=Initiative}} {{character_name=@{character_name}}} {{roll=[[1d100-1cs1cf99 &amp;{tracker}]]}} {{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99 &amp;{tracker}}]]}} {{target=@{instinct}}}"
+                    class="button button--action"
+                    type="action"
+                    name="act_npc-initiative"
                   >
                     <span class="npc-stat-card__title" data-i18n="Initiative"
                       >Initiative</span>
@@ -2186,6 +2203,19 @@
                 />
               </div>
             </div>
+            <div class="settings__row">
+              <span class="settings__label" data-i18n="Skill Select for Saves"
+                >Skill Select for Saves</span>
+              <div class="attribute attribute--checkbox">
+                <input
+                  class="attribute__input attribute__input--checkbox"
+                  type="checkbox"
+                  name="attr_save_skill_select"
+                  value="on"
+                  checked=""
+                />
+              </div>
+            </div>
             <div class="settings-sheet__gate settings-sheet__gate--ship">
               <div class="settings__row">
                 <span class="settings__label" data-i18n="NPC Ship"
@@ -2199,16 +2229,6 @@
                   />
                 </div>
               </div>
-            </div>
-            <div class="settings-sheet__row settings-sheet__row--placeholder">
-              <span
-                class="settings-sheet__label"
-                data-i18n="Skill Select for Saves"
-                >Skill Select for Saves</span>
-              <span
-                class="settings-sheet__placeholder-note"
-                data-i18n="Coming soon"
-                >Coming soon</span>
             </div>
             <button
               class="settings-sheet__charmancer-launch"
@@ -6352,10 +6372,11 @@
   }
   function checkTemplate(options) {
     const label = options.i18nKey === void 0 ? options.name ?? "" : translated(options.i18nKey);
+    const rollDie = options.sendToTracker ? `${options.die} &{tracker}` : options.die;
     const template = render([
       ["name", label],
       ["character_name", "@{character_name}"],
-      ["roll", `[[${options.die}]]`],
+      ["roll", `[[${rollDie}]]`],
       ["roll2", `[[${options.die}]]`],
       ["target", `[[${options.target}]]`],
       [COMPUTED.Counted, "[[0]]"],
@@ -6386,7 +6407,8 @@
     PanicWarning: "Critical Failure: Make a Panic Check",
     RestSave: "Rest Save",
     DeathSave: "Death Save",
-    ArmorDestroyed: "Armor Destroyed"
+    ArmorDestroyed: "Armor Destroyed",
+    Initiative: "Initiative"
   };
   function panicWarning(check) {
     if (!check.triggersPanic) return "";
@@ -6675,6 +6697,19 @@
     const prompt = queryText(SKILL_PROMPT);
     return `?{${prompt}|${choices}}`;
   }
+  function isSaveSkillSelectEnabled(raw) {
+    return raw !== "0";
+  }
+  function rollSaveCheck(attribute) {
+    getAttrs(["save_skill_select"], (attrs) => {
+      const bonus = isSaveSkillSelectEnabled(attrs.save_skill_select) ? skillQuery() : void 0;
+      void rollCheck({
+        i18nKey: checkKey(attribute),
+        target: `@{${attribute}}`,
+        ...bonus === void 0 ? {} : { bonus }
+      });
+    });
+  }
   var EDGE_NORMAL = 0;
   var EDGE_ADVANTAGE = 1;
   var D100 = "1d100-1";
@@ -6698,7 +6733,8 @@
       target: `${options.target}+${options.bonus ?? MODIFIER_QUERY}`,
       die: D100,
       ...options.name === void 0 ? {} : { name: options.name },
-      ...options.i18nKey === void 0 ? {} : { i18nKey: options.i18nKey }
+      ...options.i18nKey === void 0 ? {} : { i18nKey: options.i18nKey },
+      ...options.sendToTracker ? { sendToTracker: true } : {}
     };
     const template = `${checkTemplate(templateOptions)} {{edge=[[${EDGE_QUERY}]]}}`;
     const roll = await startRoll(template);
@@ -6713,6 +6749,23 @@
     const check = makeCheck(request);
     const computed = checkComputed(check);
     finishRoll(roll.rollId, computed);
+    return check;
+  }
+  async function rollPCInitiative() {
+    const check = await rollCheck({
+      i18nKey: TEMPLATE_PHRASES.Initiative,
+      target: "@{speed}",
+      bonus: skillQuery(),
+      sendToTracker: true
+    });
+    return check;
+  }
+  async function rollNPCInitiative() {
+    const check = await rollCheck({
+      i18nKey: TEMPLATE_PHRASES.Initiative,
+      target: "@{instinct}",
+      sendToTracker: true
+    });
     return check;
   }
   function applyStressDelta(current, delta, min, max) {
@@ -7712,7 +7765,12 @@ ${SHIP_PANIC_MESSAGE}`;
   var SKILLED_CHECKS = [...allStats, ...allSaves];
   for (const attribute of CHECK_ATTRIBUTES) {
     const isSkilled = SKILLED_CHECKS.includes(attribute);
+    const isSave = allSaves.includes(attribute);
     on(`clicked:check-${attribute}`, () => {
+      if (isSave) {
+        rollSaveCheck(attribute);
+        return;
+      }
       void rollCheck({
         i18nKey: checkKey(attribute),
         target: `@{${attribute}}`,
@@ -7720,6 +7778,12 @@ ${SHIP_PANIC_MESSAGE}`;
       });
     });
   }
+  on("clicked:pc-initiative", () => {
+    void rollPCInitiative();
+  });
+  on("clicked:npc-initiative", () => {
+    void rollNPCInitiative();
+  });
   on("clicked:panic", () => {
     void rollPanicCheck();
   });
