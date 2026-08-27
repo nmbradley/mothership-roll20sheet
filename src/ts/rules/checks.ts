@@ -267,6 +267,41 @@ export function gradeAttack(outcome: Outcome): AttackGrade {
 }
 
 /**
+ * #147: repeating_attacks is shared with the NPC sheet (#90), but a missed
+ * attack's Stress cost is a PC-only rule -- NPCs have no Stress of their own
+ * to spend. sheet_toggle carries which sheet is active ("pc"/"npc"/"ship").
+ */
+export function isNpcSheet(sheetToggle: string | undefined): boolean {
+  return sheetToggle === "npc";
+}
+
+/**
+ * #14: attack_shots holds the weapon's current magazine count as plain text.
+ * Only a plain non-negative integer is spent -- "∞", blank, or freeform
+ * notes (an untracked weapon) are left exactly as written.
+ */
+function parseShots(shots: string): number | undefined {
+  const trimmed = shots.trim();
+  if (!/^\d+$/.test(trimmed)) return undefined;
+  const parsed = Number(trimmed);
+  return parsed;
+}
+
+/** Firing a weapon spends one shot from its magazine, floored at 0. */
+export function spendAmmo(shots: string): string {
+  const current = parseShots(shots);
+  if (current === undefined) return shots;
+  const remaining = Math.max(0, current - 1);
+  const spent = String(remaining);
+  return spent;
+}
+
+/** Whether a tracked weapon's magazine now reads empty. */
+export function isOutOfAmmo(shots: string): boolean {
+  return parseShots(shots) === 0;
+}
+
+/**
  * Posts the second half of an attack: the row's own Damage on a hit, or a
  * loud note that the attack failed on a miss. A second card rather than
  * extra fields on the Check's own template, the same way ships.ts's
@@ -288,28 +323,61 @@ async function postAttackResult(showDamage: boolean): Promise<void> {
   });
 }
 
+/** #14: a third, loud card once a tracked weapon's magazine runs dry. */
+async function postOutOfAmmoAlert(name: string): Promise<void> {
+  const template =
+    `&{template:ms} {{name=${name}}} {{character_name=@{character_name}}} {{alert=[[0]]}}`;
+  const rollData = await startRoll(template);
+  finishRoll(rollData.rollId, { alert: translated(TEMPLATE_PHRASES.OutOfAmmo) });
+}
+
 /**
- * Rolls a weapon attack (#51, #13): a Combat Check like any other skilled
- * check -- the bonus query is baked in by the caller at index.ts
- * registration, same as every other skilled check -- plus the two things a
- * plain Stat/Save Check doesn't do: Damage on a hit, and 1 automatic Stress
- * on a miss. Stress is read and applied only after the Check resolves,
- * exactly as rollRestSave does, since the Check's own startRoll already
- * fired synchronously off the click.
+ * Rolls a weapon attack (#51, #13, #6, #14): a Combat Check like any other
+ * skilled check -- the bonus query, and the per-weapon/global attack bonuses,
+ * are baked in by the caller at index.ts registration, same as every other
+ * skilled check -- plus what a plain Stat/Save Check doesn't do: Damage on a
+ * hit, 1 automatic Stress on a miss (skipped for an NPC, #147), and spending
+ * the row's own ammo. All of that is read and applied only after the Check
+ * resolves, exactly as rollRestSave does, since the Check's own startRoll
+ * already fired synchronously off the click.
+ *
+ * `rowId` (the triggering row, from `eventInfo.sourceSection`) is how the
+ * row's own attack_shots is addressed for reading and writing -- unlike
+ * `@{attack_shots}` inside a roll formula, a getAttrs/setAttrs call outside
+ * the row's own click context needs the fully-qualified attribute name.
+ * Omitted, ammo tracking is simply skipped.
  */
-export async function rollAttack(options: CheckOptions): Promise<CheckResult> {
+export async function rollAttack(options: CheckOptions, rowId?: string): Promise<CheckResult> {
   const check = await rollCheck(options);
   const grade = gradeAttack(check.outcome);
 
   await postAttackResult(grade.showDamage);
 
-  if (grade.stressDelta !== 0) {
-    getAttrs(["stress", "stress_min", "stress_max"], (attrs) => {
+  const shotsKey = rowId === undefined ? undefined : `repeating_attacks_${rowId}_attack_shots`;
+  const shouldReadAttrs = grade.stressDelta !== 0 || shotsKey !== undefined;
+
+  if (shouldReadAttrs) {
+    const keys = [
+      "stress", "stress_min", "stress_max", "sheet_toggle",
+      ...(shotsKey === undefined ? [] : [shotsKey]),
+    ];
+    const attrs = await new Promise<Record<string, string>>((resolve) => {
+      getAttrs(keys, resolve);
+    });
+
+    if (grade.stressDelta !== 0 && !isNpcSheet(attrs.sheet_toggle)) {
       const stress = Number(attrs.stress);
       const min = Number(attrs.stress_min);
       const max = Number(attrs.stress_max);
       applyStressDelta(stress, grade.stressDelta, min, max);
-    });
+    }
+
+    if (shotsKey !== undefined) {
+      const spent = spendAmmo(attrs[shotsKey] ?? "");
+      setAttrs({ [shotsKey]: spent });
+      const isEmpty = isOutOfAmmo(spent);
+      if (isEmpty) await postOutOfAmmoAlert(options.name ?? "");
+    }
   }
 
   return check;

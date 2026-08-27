@@ -1,6 +1,6 @@
 <script lang="ts">
   import {
-    military_training, save_skill_select, sheet_toggle_select, speed_initiative,
+    attack_modifier, military_training, save_skill_select, sheet_toggle_select, speed_initiative,
   } from "#game/fields/pcFields.js";
   import { ship_npc } from "#game/fields/shipFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
@@ -15,7 +15,11 @@
     {
       title: "PC",
       slug: "pc",
-      rows: [speed_initiative, save_skill_select, military_training],
+      // #6: attack_modifier is added to every attack regardless of which
+      // sheet view is active -- repeating_attacks and its click handler are
+      // shared with the NPC sheet (#90), and this is one attribute per
+      // character rather than per view.
+      rows: [speed_initiative, save_skill_select, military_training, attack_modifier],
     },
     {
       // #62: only meaningful once a ship is the active sheet -- gated in CSS

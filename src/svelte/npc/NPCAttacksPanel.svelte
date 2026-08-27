@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     attack_ammunition,
+    attack_bonus,
     attack_crit_damage,
     attack_crit_effect,
     attack_damage,
@@ -23,6 +24,7 @@
   // Written as a plain string so the Roll20 braces need no entity escaping.
 
   const pairs = [
+    [attack_range, attack_bonus],
     [attack_crit_damage, attack_crit_effect],
     [attack_shots, attack_ammunition],
   ];
@@ -45,10 +47,6 @@
     <SettingsDrawer field={attack_settings}>
       <SettingsRow field={attack_name}>
         <Attribute field={attack_name} isLabelHidden />
-      </SettingsRow>
-
-      <SettingsRow field={attack_range}>
-        <Attribute field={attack_range} isLabelHidden />
       </SettingsRow>
 
       {#each pairs as pair (pair[0].name)}

@@ -1023,6 +1023,20 @@
                     </div>
                     <div class="pc-attack-stats">
                       <div class="settings__row">
+                        <span class="settings__label" data-i18n="Bonus"
+                          >Bonus</span>
+                        <div
+                          class="attribute attribute--number attribute--default attribute--attack_bonus"
+                        >
+                          <input
+                            class="attribute__input attribute__input--number attribute__input--number--default"
+                            type="number"
+                            name="attr_attack_bonus"
+                            value="0"
+                          />
+                        </div>
+                      </div>
+                      <div class="settings__row">
                         <span class="settings__label" data-i18n="Crit Damage"
                           >Crit Damage</span>
                         <div
@@ -2148,33 +2162,49 @@
                         />
                       </div>
                     </div>
-                    <div class="settings__row">
-                      <span class="settings__label" data-i18n="Range"
-                        >Range</span>
-                      <div
-                        class="attribute attribute--select attribute--attack_range"
-                      >
-                        <select
-                          class="attribute__input attribute__input--select"
-                          name="attr_attack_range"
+                    <div class="npc-attack-pair">
+                      <div class="settings__row">
+                        <span class="settings__label" data-i18n="Range"
+                          >Range</span>
+                        <div
+                          class="attribute attribute--select attribute--attack_range"
                         >
-                          <option
-                            value="adjacent"
-                            selected=""
-                            data-i18n="Adjacent"
+                          <select
+                            class="attribute__input attribute__input--select"
+                            name="attr_attack_range"
                           >
-                            Adjacent
-                          </option>
-                          <option value="close" data-i18n="Close Range">
-                            Close Range
-                          </option>
-                          <option value="long" data-i18n="Long Range">
-                            Long Range
-                          </option>
-                          <option value="extreme" data-i18n="Extreme Range">
-                            Extreme Range
-                          </option>
-                        </select>
+                            <option
+                              value="adjacent"
+                              selected=""
+                              data-i18n="Adjacent"
+                            >
+                              Adjacent
+                            </option>
+                            <option value="close" data-i18n="Close Range">
+                              Close Range
+                            </option>
+                            <option value="long" data-i18n="Long Range">
+                              Long Range
+                            </option>
+                            <option value="extreme" data-i18n="Extreme Range">
+                              Extreme Range
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="settings__row">
+                        <span class="settings__label" data-i18n="Bonus"
+                          >Bonus</span>
+                        <div
+                          class="attribute attribute--number attribute--default attribute--attack_bonus"
+                        >
+                          <input
+                            class="attribute__input attribute__input--number attribute__input--number--default"
+                            type="number"
+                            name="attr_attack_bonus"
+                            value="0"
+                          />
+                        </div>
                       </div>
                     </div>
                     <div class="npc-attack-pair">
@@ -2454,6 +2484,20 @@
                     type="checkbox"
                     name="attr_military_training"
                     value="on"
+                  />
+                </div>
+              </div>
+              <div class="settings__row">
+                <span class="settings__label" data-i18n="Attack Modifier"
+                  >Attack Modifier</span>
+                <div
+                  class="attribute attribute--number attribute--default attribute--attack_modifier"
+                >
+                  <input
+                    class="attribute__input attribute__input--number attribute__input--number--default"
+                    type="number"
+                    name="attr_attack_modifier"
+                    value="0"
                   />
                 </div>
               </div>
@@ -6749,7 +6793,8 @@
     ArmorAbsorbed: "Absorbed by Armor",
     MilitaryTraining: "Military Training",
     TraumaResponse: "Trauma Response",
-    AttackFailed: "Attack Failed: Gain 1 Stress"
+    AttackFailed: "Attack Failed: Gain 1 Stress",
+    OutOfAmmo: "Out of Ammo"
   };
   function panicWarning(check) {
     if (!check.triggersPanic) return "";
@@ -7078,6 +7123,25 @@
       stressDelta: hasFailed ? 1 : 0
     };
   }
+  function isNpcSheet(sheetToggle) {
+    return sheetToggle === "npc";
+  }
+  function parseShots(shots) {
+    const trimmed = shots.trim();
+    if (!/^\d+$/.test(trimmed)) return void 0;
+    const parsed = Number(trimmed);
+    return parsed;
+  }
+  function spendAmmo(shots) {
+    const current = parseShots(shots);
+    if (current === void 0) return shots;
+    const remaining = Math.max(0, current - 1);
+    const spent = String(remaining);
+    return spent;
+  }
+  function isOutOfAmmo(shots) {
+    return parseShots(shots) === 0;
+  }
   async function postAttackResult(showDamage) {
     const fields = [
       "&{template:ms}",
@@ -7091,17 +7155,40 @@
       alert: showDamage ? "" : translated(TEMPLATE_PHRASES.AttackFailed)
     });
   }
-  async function rollAttack(options) {
+  async function postOutOfAmmoAlert(name) {
+    const template = `&{template:ms} {{name=${name}}} {{character_name=@{character_name}}} {{alert=[[0]]}}`;
+    const rollData = await startRoll(template);
+    finishRoll(rollData.rollId, { alert: translated(TEMPLATE_PHRASES.OutOfAmmo) });
+  }
+  async function rollAttack(options, rowId) {
     const check = await rollCheck(options);
     const grade = gradeAttack(check.outcome);
     await postAttackResult(grade.showDamage);
-    if (grade.stressDelta !== 0) {
-      getAttrs(["stress", "stress_min", "stress_max"], (attrs) => {
+    const shotsKey = rowId === void 0 ? void 0 : `repeating_attacks_${rowId}_attack_shots`;
+    const shouldReadAttrs = grade.stressDelta !== 0 || shotsKey !== void 0;
+    if (shouldReadAttrs) {
+      const keys = [
+        "stress",
+        "stress_min",
+        "stress_max",
+        "sheet_toggle",
+        ...shotsKey === void 0 ? [] : [shotsKey]
+      ];
+      const attrs = await new Promise((resolve) => {
+        getAttrs(keys, resolve);
+      });
+      if (grade.stressDelta !== 0 && !isNpcSheet(attrs.sheet_toggle)) {
         const stress = Number(attrs.stress);
         const min = Number(attrs.stress_min);
         const max = Number(attrs.stress_max);
         applyStressDelta(stress, grade.stressDelta, min, max);
-      });
+      }
+      if (shotsKey !== void 0) {
+        const spent = spendAmmo(attrs[shotsKey] ?? "");
+        setAttrs({ [shotsKey]: spent });
+        const isEmpty = isOutOfAmmo(spent);
+        if (isEmpty) await postOutOfAmmoAlert(options.name ?? "");
+      }
     }
     return check;
   }
@@ -8519,12 +8606,12 @@ ${SHIP_PANIC_MESSAGE}`;
   on("clicked:take_wound", () => {
     void handleTakeWound();
   });
-  on("clicked:repeating_attacks:attack", () => {
+  on("clicked:repeating_attacks:attack", (eventInfo) => {
     void rollAttack({
       name: "@{attack_name}",
-      target: "@{combat}",
+      target: "@{combat}+@{attack_bonus}+@{attack_modifier}",
       bonus: skillQuery()
-    });
+    }, eventInfo.sourceSection);
   });
   on("clicked:repeating_npctraits:npc-trait", () => {
     void rollCheck({

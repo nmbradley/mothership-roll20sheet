@@ -302,6 +302,17 @@ export const drop_content = attribute({
   value: "",
 });
 
+// #6: a sheet-wide bonus added to every attack (e.g. a standing Marine +5),
+// set once on the settings page rather than retyped through the ad hoc
+// Modifier query on every roll. Kept next to the attack row fields below so
+// a concurrent edit elsewhere in this file conflicts trivially.
+export const attack_modifier = attribute({
+  name: "attack_modifier",
+  label: "Attack Modifier",
+  control: Controls.Number,
+  value: 0,
+});
+
 export const pcAttributes = {
   character_name,
   class: class_,
@@ -344,6 +355,7 @@ export const pcAttributes = {
   drop_name,
   drop_data,
   drop_content,
+  attack_modifier,
 } as const;
 
 // This section and its fields are shared verbatim with the NPC sheet: an
@@ -380,6 +392,15 @@ export const attack_ammunition = attribute({
   label: "Ammo",
   control: Controls.Text,
   value: "",
+});
+// #6: applied automatically to this weapon's attack roll via @{attack_bonus}
+// in the click handler (index.ts), the same resolve-to-current-row trick
+// attack_damage already relies on.
+export const attack_bonus = attribute({
+  name: "attack_bonus",
+  label: "Bonus",
+  control: Controls.Number,
+  value: 0,
 });
 export const attack_shots = attribute({
   name: "attack_shots",
@@ -427,6 +448,7 @@ export const pcAttacks = section({
     attack_damage,
     attack_ammunition,
     attack_shots,
+    attack_bonus,
     attack_notes,
     attack_crit_damage,
     attack_crit_effect,

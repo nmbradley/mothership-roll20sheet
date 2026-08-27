@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     attack_ammunition,
+    attack_bonus,
     attack_crit_damage,
     attack_crit_effect,
     attack_damage,
@@ -19,8 +20,8 @@
   import SettingsDrawer from "#svelte/components/SettingsDrawer.svelte";
   import SettingsRow from "#svelte/components/SettingsRow.svelte";
 
-  /** Crit Damage, Shots and Ammo read as one row of three equal columns. */
-  const stats = [attack_crit_damage, attack_shots, attack_ammunition];
+  /** Bonus, Crit Damage, Shots and Ammo read as one row of four equal columns. */
+  const stats = [attack_bonus, attack_crit_damage, attack_shots, attack_ammunition];
 </script>
 
 <Panel title="Weapons" corner="large">
@@ -108,7 +109,7 @@
 
 .pc-attack-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   grid-column: 1 / -1;
   gap: var(--ms-space-md);
 }
