@@ -19,18 +19,8 @@
   import SettingsDrawer from "#svelte/components/SettingsDrawer.svelte";
   import SettingsRow from "#svelte/components/SettingsRow.svelte";
 
-  // Written as a plain string so the Roll20 braces need no entity escaping.
-
-  const pairs = [
-    {
-      key: "critical",
-      fields: [attack_crit_damage, attack_crit_effect],
-    },
-    {
-      key: "ammunition",
-      fields: [attack_shots, attack_ammunition],
-    },
-  ];
+  /** Crit Damage, Shots and Ammo read as one row of three equal columns. */
+  const stats = [attack_crit_damage, attack_shots, attack_ammunition];
 </script>
 
 <Panel title="Weapons" corner="large">
@@ -42,7 +32,7 @@
   >
     <div class="pc-attack-name">
       <Attribute field={attack_name} isLabelHidden />
-      <ButtonAction action="attack" label="Attack" />
+      <ButtonAction action="attack" label="" />
     </div>
 
     <Attribute field={attack_type} isLabelHidden />
@@ -53,15 +43,17 @@
         <Attribute field={attack_range} isLabelHidden />
       </SettingsRow>
 
-      {#each pairs as pair (pair.key)}
-        <div class="pc-attack-pair">
-          {#each pair.fields as field (field.name)}
-            <SettingsRow {field}>
-              <Attribute {field} isLabelHidden />
-            </SettingsRow>
-          {/each}
-        </div>
-      {/each}
+      <SettingsRow field={attack_crit_effect} isFullWidth>
+        <Attribute field={attack_crit_effect} isLabelHidden />
+      </SettingsRow>
+
+      <div class="pc-attack-stats">
+        {#each stats as field (field.name)}
+          <SettingsRow {field}>
+            <Attribute {field} isLabelHidden />
+          </SettingsRow>
+        {/each}
+      </div>
 
       <SettingsRow field={attack_notes} isFullWidth>
         <Attribute field={attack_notes} isLabelHidden />
@@ -81,11 +73,42 @@
 
     min-width: 0;
   }
+
+  // RepeatingSection strips the row button's chrome, which suited it when the
+  // weapon's own name was the button. Now the name is an input and this is a
+  // separate roll trigger, so it takes its fill back -- without this it
+  // inherits the base button's knocked-out text over no background at all.
+  .button--action {
+    flex: 0 0 auto;
+    justify-content: center;
+
+    border-radius: var(--ms-radius-pill);
+    width: 28px;
+    height: 28px;
+    padding: 0;
+
+    background: var(--ms-inverse);
+
+    color: var(--ms-fg-inverse);
+
+    &::before {
+      content: "\25CE";
+
+      font-size: var(--ms-text-md);
+      line-height: 1;
+    }
+
+    &:hover {
+      background: var(--ms-accent);
+
+      color: var(--ms-fg-inverse);
+    }
+  }
 }
 
-.pc-attack-pair {
+.pc-attack-stats {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   grid-column: 1 / -1;
   gap: var(--ms-space-md);
 }

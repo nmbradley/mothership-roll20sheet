@@ -1,3 +1,4 @@
+@charset "UTF-8";
 @import url("https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400&display=swap");
 .charsheet,
 .sheet-rolltemplate-ms,
@@ -1151,9 +1152,28 @@ body.sheet-darkmode
   flex: 1;
   min-width: 0;
 }
-.charsheet.charsheet.charsheet .pc-attack-pair {
+.charsheet.charsheet.charsheet .pc-attack-name .button--action {
+  flex: 0 0 auto;
+  justify-content: center;
+  border-radius: var(--ms-radius-pill);
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: var(--ms-inverse);
+  color: var(--ms-fg-inverse);
+}
+.charsheet.charsheet.charsheet .pc-attack-name .button--action::before {
+  content: "◎";
+  font-size: var(--ms-text-md);
+  line-height: 1;
+}
+.charsheet.charsheet.charsheet .pc-attack-name .button--action:hover {
+  background: var(--ms-accent);
+  color: var(--ms-fg-inverse);
+}
+.charsheet.charsheet.charsheet .pc-attack-stats {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   grid-column: 1/-1;
   gap: var(--ms-space-md);
 }
@@ -1243,25 +1263,37 @@ body.sheet-darkmode
 .charsheet.charsheet.charsheet .pc-equipment-armor {
   display: none;
   gap: var(--ms-space-lg);
-  align-items: flex-end;
+  align-items: center;
+}
+.charsheet.charsheet.charsheet .pc-equipment-armor .attribute--round {
+  align-items: stretch;
+  justify-items: center;
 }
 .charsheet.charsheet.charsheet .pc-equipment-armor .attribute--round label {
   order: 0;
   font-size: var(--ms-text-sm);
+  text-align: center;
 }
 .charsheet.charsheet.charsheet
   .pc-equipment-armor
   .attribute--round
   .attribute__input[type="number"] {
   order: 1;
-  width: 40px;
-  height: 40px;
-  font-size: var(--ms-text-md);
+  width: 60px;
+  height: 60px;
+  font-size: var(--ms-text-lg);
+  text-align: center;
 }
 .charsheet.charsheet.charsheet .pc-equipment-armor .button--action {
+  align-self: center;
   border-color: var(--ms-accent);
   border-radius: var(--ms-radius-pill);
+  padding: var(--ms-space-sm) var(--ms-space-lg);
   background: var(--ms-accent);
+  font-size: var(--ms-text-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--ms-fg-inverse);
 }
 .charsheet.charsheet.charsheet
