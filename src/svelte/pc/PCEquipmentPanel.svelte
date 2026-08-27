@@ -128,7 +128,39 @@
 .pc-equipment-armor {
   display: none;
   gap: var(--ms-space-lg);
-  align-items: center;
+  align-items: flex-end;
+
+  // Scaled down from the stats-block round well, and with the label read
+  // above the circle instead of below it -- a tight drawer row, not a stat
+  // block.
+  .attribute--round {
+    label {
+      order: 0;
+
+      font-size: var(--ms-text-sm);
+    }
+
+    .attribute__input[type="number"] {
+      order: 1;
+
+      width: 40px;
+      height: 40px;
+
+      font-size: var(--ms-text-md);
+    }
+  }
+
+  // A destructive action, so it borrows the same accent-fill treatment as
+  // RepeatingSection's own row-delete control rather than reading as plain
+  // text.
+  .button--action {
+    border-color: var(--ms-accent);
+    border-radius: var(--ms-radius-pill);
+
+    background: var(--ms-accent);
+
+    color: var(--ms-fg-inverse);
+  }
 }
 
 .settings__drawer:has(input[name="attr_equipment_type"][value="Armor"]) .pc-equipment-armor {
