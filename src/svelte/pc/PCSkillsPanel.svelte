@@ -80,7 +80,11 @@
       {/each}
     </div>
 
-    <!-- #49: the Military Training exception -- 6 years, free, its own Combat Check. -->
+    <!--
+      #49/#122: the Military Training exception -- 6 years, free, its own
+      Combat Check. Once-per-character and Warden-gated, so it stays hidden
+      until the military_training setting is turned on -- see the CSS below.
+    -->
     <div class="pc-training__military">
       <Button action="military_training" label="Military Training" />
       <p class="pc-training__military-desc" data-i18n="Military Training Description">
@@ -153,8 +157,10 @@
     color: var(--ms-fg-muted);
   }
 
+  // Hidden until the military_training setting is on -- see the :has() gate
+  // below, which flips this back to flex.
   &__military {
-    display: flex;
+    display: none;
     flex-direction: column;
     gap: var(--ms-space-sm);
     align-items: flex-start;
@@ -169,5 +175,9 @@
     line-height: 1.4;
     color: var(--ms-fg-muted);
   }
+}
+
+.pc-sheet:has(input[name="attr_military_training"]:checked) .pc-training__military {
+  display: flex;
 }
 </style>

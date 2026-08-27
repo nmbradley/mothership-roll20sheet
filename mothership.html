@@ -61,6 +61,14 @@
             value="on"
           />
         </div>
+        <div class="attribute attribute--checkbox attribute--military_training">
+          <input
+            class="attribute__input attribute__input--checkbox"
+            type="checkbox"
+            name="attr_military_training"
+            value="on"
+          />
+        </div>
       </div>
       <div class="pc-sheet__column pc-sheet__column--left">
         <div class="frame frame--mode-light frame--corner-large">
@@ -2409,36 +2417,66 @@
                 </select>
               </div>
             </div>
-            <div class="settings__row">
-              <span class="settings__label" data-i18n="Speed Check Initiative"
-                >Speed Check Initiative</span>
-              <div
-                class="attribute attribute--checkbox attribute--speed_initiative"
-              >
-                <input
-                  class="attribute__input attribute__input--checkbox"
-                  type="checkbox"
-                  name="attr_speed_initiative"
-                  value="on"
-                />
+          </div>
+        </div>
+      </section>
+      <div class="settings-sheet__group settings-sheet__group--pc">
+        <section class="panel">
+          <div class="frame frame--mode-light frame--corner-small">
+            <h2 class="header header--section" data-i18n="PC">PC</h2>
+            <div class="settings-sheet__rows">
+              <div class="settings__row">
+                <span class="settings__label" data-i18n="Speed Check Initiative"
+                  >Speed Check Initiative</span>
+                <div
+                  class="attribute attribute--checkbox attribute--speed_initiative"
+                >
+                  <input
+                    class="attribute__input attribute__input--checkbox"
+                    type="checkbox"
+                    name="attr_speed_initiative"
+                    value="on"
+                  />
+                </div>
+              </div>
+              <div class="settings__row">
+                <span class="settings__label" data-i18n="Skill Select for Saves"
+                  >Skill Select for Saves</span>
+                <div
+                  class="attribute attribute--checkbox attribute--save_skill_select"
+                >
+                  <input
+                    class="attribute__input attribute__input--checkbox"
+                    type="checkbox"
+                    name="attr_save_skill_select"
+                    value="on"
+                    checked=""
+                  />
+                </div>
+              </div>
+              <div class="settings__row">
+                <span class="settings__label" data-i18n="Military Training"
+                  >Military Training</span>
+                <div
+                  class="attribute attribute--checkbox attribute--military_training"
+                >
+                  <input
+                    class="attribute__input attribute__input--checkbox"
+                    type="checkbox"
+                    name="attr_military_training"
+                    value="on"
+                  />
+                </div>
               </div>
             </div>
-            <div class="settings__row">
-              <span class="settings__label" data-i18n="Skill Select for Saves"
-                >Skill Select for Saves</span>
-              <div
-                class="attribute attribute--checkbox attribute--save_skill_select"
-              >
-                <input
-                  class="attribute__input attribute__input--checkbox"
-                  type="checkbox"
-                  name="attr_save_skill_select"
-                  value="on"
-                  checked=""
-                />
-              </div>
-            </div>
-            <div class="settings-sheet__gate settings-sheet__gate--ship">
+          </div>
+        </section>
+      </div>
+      <div class="settings-sheet__group settings-sheet__group--ship">
+        <section class="panel">
+          <div class="frame frame--mode-light frame--corner-small">
+            <h2 class="header header--section" data-i18n="Ship">Ship</h2>
+            <div class="settings-sheet__rows">
               <div class="settings__row">
                 <span class="settings__label" data-i18n="NPC Ship"
                   >NPC Ship</span>
@@ -2452,17 +2490,17 @@
                 </div>
               </div>
             </div>
-            <button
-              class="settings-sheet__charmancer-launch"
-              type="back"
-              value="intro"
-              data-i18n="Launch Charactermancer"
-            >
-              Launch Charactermancer
-            </button>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
+      <button
+        class="settings-sheet__charmancer-launch"
+        type="back"
+        value="intro"
+        data-i18n="Launch Charactermancer"
+      >
+        Launch Charactermancer
+      </button>
     </div>
   </div>
 </div>

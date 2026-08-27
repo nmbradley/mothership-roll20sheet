@@ -5,6 +5,7 @@
     drop_data,
     drop_name,
     init,
+    military_training,
     sheet_skill_toggles,
     speed_initiative,
     worst_save,
@@ -50,13 +51,15 @@
   </div>
 
   <!--
-    speed_initiative's own control lives on the settings page, outside
-    .pc-sheet. This mirrors it here, hidden, so PCStatusPanel's
-    :has(input[name="attr_speed_initiative"]:checked) still finds a copy
-    inside .pc-sheet to query -- Roll20 keeps every same-named input in step.
+    speed_initiative and military_training's own controls live on the
+    settings page, outside .pc-sheet. This mirrors them here, hidden, so
+    :has(input[name="attr_speed_initiative"]:checked)-style CSS gates still
+    find a copy inside .pc-sheet to query -- Roll20 keeps every same-named
+    input in step.
   -->
   <div class="pc-sheet__state">
     <Attribute field={speed_initiative} isLabelHidden />
+    <Attribute field={military_training} isLabelHidden />
   </div>
 
   <div class="pc-sheet__column pc-sheet__column--left">
