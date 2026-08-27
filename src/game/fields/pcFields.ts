@@ -29,6 +29,9 @@ export const high_score = attribute({
   control: Controls.Text,
   value: "",
 });
+// #55: superseded by the pcAfflictions repeating section below, kept declared
+// rather than removed so a character saved before the change still legally
+// stores this value, as shiploadout was kept on the ship sheet.
 export const conditions = attribute({
   name: "conditions",
   label: "Conditions",
@@ -438,6 +441,46 @@ export const pcEquipment = section({
   } as const,
 });
 
+// Lasting Conditions from a failed Panic Check and lingering Injuries from
+// Wounds, tracked as rows rather than the flat conditions textarea above:
+// each one needs its own mechanical penalty on record, not just a name.
+export const affliction_name = attribute({
+  name: "affliction_name",
+  label: "Name",
+  control: Controls.Text,
+  value: "",
+});
+export const affliction_effect = attribute({
+  name: "affliction_effect",
+  label: "Effect",
+  control: Controls.Textarea,
+  value: "",
+});
+// Marks a Condition or Injury as currently being treated, e.g. by a Doctor,
+// rather than still an open penalty.
+export const affliction_treated = attribute({
+  name: "affliction_treated",
+  label: "Treated",
+  control: Controls.Checkbox,
+  checkedValue: "on",
+});
+export const affliction_settings = attribute({
+  name: "affliction_settings",
+  label: "Settings",
+  control: Controls.Hidden,
+  value: "on",
+});
+
+export const pcAfflictions = section({
+  name: "afflictions",
+  attributes: {
+    affliction_name,
+    affliction_effect,
+    affliction_treated,
+    affliction_settings,
+  } as const,
+});
+
 export const skill_name = attribute({
   name: "skill_name",
   label: "Name",
@@ -468,6 +511,7 @@ export type PCAttributeNames = keyof typeof pcAttributes;
 export type PCAttacksFields = keyof typeof pcAttacks.attributes;
 export type PCAttacksAttributes = RowAttributeName<typeof pcAttacks>;
 export type PCEquipmentAttributes = RowAttributeName<typeof pcEquipment>;
+export type PCAfflictionsAttributes = RowAttributeName<typeof pcAfflictions>;
 export type PCTrainedSkillsAttributes = RowAttributeName<typeof pcTrainedSkills>;
 export type PCExpertSkillsAttributes = RowAttributeName<typeof pcExpertSkills>;
 export type PCMasterSkillsAttributes = RowAttributeName<typeof pcMasterSkills>;
@@ -476,6 +520,7 @@ export type AllPCAttributes =
   | PCAttributeNames
   | PCAttacksAttributes
   | PCEquipmentAttributes
+  | PCAfflictionsAttributes
   | PCTrainedSkillsAttributes
   | PCExpertSkillsAttributes
   | PCMasterSkillsAttributes;

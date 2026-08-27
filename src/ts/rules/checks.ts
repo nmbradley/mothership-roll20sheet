@@ -248,6 +248,19 @@ export async function rollPanicCheck(): Promise<void> {
 const STRESS_MIN = 2;
 const STRESS_MAX = 20;
 
+/**
+ * Ticks Stress up or down by 1 from the Status Report's +/- buttons (#18),
+ * without a roll behind it. Reads the current value fresh via getAttrs and
+ * writes through applyStressDelta, so a plain tick is clamped the same way as
+ * every roll that changes Stress.
+ */
+export function adjustStress(delta: number): void {
+  getAttrs(["stress"], (attrs) => {
+    const stress = Number(attrs.stress);
+    applyStressDelta(stress, delta, STRESS_MIN, STRESS_MAX);
+  });
+}
+
 /** A Rest Save targets whichever Save reads lowest -- the player has no say in it. */
 export function worstSave(sanity: number, fear: number, body: number): number {
   const lowest = Math.min(sanity, fear, body);

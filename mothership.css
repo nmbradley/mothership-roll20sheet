@@ -1370,6 +1370,22 @@ body.sheet-darkmode
   font-size: var(--ms-text-sm);
   color: var(--ms-fg-muted);
 }
+.charsheet.charsheet.charsheet .pc-status-card__stress {
+  display: flex;
+  gap: var(--ms-space-sm);
+  align-items: center;
+}
+.charsheet.charsheet.charsheet .pc-status-card__stress .attribute {
+  flex: 1;
+}
+.charsheet.charsheet.charsheet .pc-status-card__stress .button--action {
+  flex: none;
+  border-radius: var(--ms-radius-pill);
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  font-weight: 700;
+}
 .charsheet.charsheet.charsheet .pc-status-notes {
   margin-top: var(--ms-space-lg);
 }

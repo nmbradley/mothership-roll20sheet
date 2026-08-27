@@ -1,10 +1,22 @@
 <script lang="ts">
   import {
-    conditions, health, stress, stress_panic, wounds,
+    affliction_effect,
+    affliction_name,
+    affliction_settings,
+    affliction_treated,
+    health,
+    pcAfflictions,
+    stress,
+    stress_panic,
+    wounds,
   } from "#game/fields/pcFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
   import ButtonAction from "#svelte/components/ButtonAction.svelte";
+  import DisplayValue from "#svelte/components/DisplayValue.svelte";
   import Panel from "#svelte/components/Panel.svelte";
+  import RepeatingSection from "#svelte/components/RepeatingSection.svelte";
+  import SettingsDrawer from "#svelte/components/SettingsDrawer.svelte";
+  import SettingsRow from "#svelte/components/SettingsRow.svelte";
 
   /** Health and Wounds are tracked as a current/maximum pair. */
   const ranged = [health, wounds];
@@ -28,10 +40,16 @@
       </div>
     {/each}
 
-    <!-- Stress has no maximum, so the Panic roll takes the cell beside it. -->
+    <!-- Stress has no maximum, so the Panic roll takes the cell beside it.
+         #18: +/- tick it by 1 without opening the field, through the same
+         applyStressDelta the rolls that change Stress already write through. -->
     <div class="pc-status-card">
       <div class="pc-status-card__label" data-i18n={stress.i18nLabel}>{stress.label}</div>
-      <Attribute field={stress} isLabelHidden />
+      <div class="pc-status-card__stress">
+        <ButtonAction action="stress_down" label="−" />
+        <Attribute field={stress} isLabelHidden />
+        <ButtonAction action="stress_up" label="+" />
+      </div>
     </div>
 
     <div class="pc-status-card pc-status-card--action">
@@ -51,9 +69,30 @@
     <Attribute field={stress_panic} />
   </div>
 
+  <!-- #55: lasting Conditions from a failed Panic Check and lingering
+       Injuries from Wounds, replacing the old flat conditions textarea. -->
   <div class="pc-conditions">
-    <div class="pc-conditions__label" data-i18n={conditions.i18nLabel}>{conditions.label}</div>
-    <Attribute field={conditions} isLabelHidden />
+    <div class="pc-conditions__label" data-i18n="Conditions &amp; Afflictions">
+      Conditions &amp; Afflictions
+    </div>
+    <RepeatingSection
+      section={pcAfflictions}
+      fields={[affliction_name, affliction_treated]}
+      columns="1fr auto auto"
+      trailing={1}
+    >
+      <DisplayValue field={affliction_name} isLabelHidden />
+      <Attribute field={affliction_treated} isLabelHidden />
+
+      <SettingsDrawer field={affliction_settings}>
+        <SettingsRow field={affliction_name}>
+          <Attribute field={affliction_name} isLabelHidden />
+        </SettingsRow>
+        <SettingsRow field={affliction_effect} isFullWidth>
+          <Attribute field={affliction_effect} isLabelHidden />
+        </SettingsRow>
+      </SettingsDrawer>
+    </RepeatingSection>
   </div>
 </Panel>
 
@@ -117,6 +156,29 @@
 
     font-size: var(--ms-text-sm);
     color: var(--ms-fg-muted);
+  }
+
+  // The +/- buttons flank the Stress capsule rather than sitting in their own
+  // card, so a tick stays one tap from the number it changes.
+  &__stress {
+    display: flex;
+    gap: var(--ms-space-sm);
+    align-items: center;
+
+    .attribute {
+      flex: 1;
+    }
+
+    .button--action {
+      flex: none;
+
+      border-radius: var(--ms-radius-pill);
+      width: 2.5rem;
+      height: 2.5rem;
+      padding: 0;
+
+      font-weight: 700;
+    }
   }
 }
 
