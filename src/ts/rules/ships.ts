@@ -4,7 +4,9 @@ import {
   type MaintenanceIssue,
 } from "#game/data/maintenance";
 
-import { checkKey, rollCheck } from "./checks";
+import {
+  checkKey, rollCheck, skillQuery,
+} from "./checks";
 import {
   Outcomes, evaluateRoll, type Outcome,
 } from "./rolls";
@@ -195,33 +197,78 @@ export async function handleBankruptcySave(): Promise<void> {
 }
 
 /**
+ * Loud chat text a failed ship stat check owes the table (#59).
+ *
+ * Roll20 sheetworkers cannot write another character's Stress, and a ship has
+ * no player of its own to grant it to -- everyone aboard has to apply this by
+ * hand once they see it, hence "loud" rather than automated.
+ */
+export const SHIP_STRESS_MESSAGE = "EVERYONE ON BOARD GAINS 1 STRESS";
+export const SHIP_PANIC_MESSAGE = "CRITICAL FAILURE: EVERYONE ABOARD MUST MAKE A PANIC CHECK";
+
+/**
+ * The Stress/Panic warning for a graded ship stat check, or "" on a success.
+ * A Critical Failure carries both lines: it is still a failure (Stress)
+ * on top of forcing the Panic Check.
+ */
+export function shipFailureAlert(outcome: Outcome): string {
+  if (outcome === Outcomes.CriticalFailure) return `${SHIP_STRESS_MESSAGE}\n${SHIP_PANIC_MESSAGE}`;
+  if (outcome === Outcomes.Failure) return SHIP_STRESS_MESSAGE;
+  return "";
+}
+
+/**
+ * Posts a follow-up chat card for the Stress/Panic warning a graded
+ * rollCheck() result can't say itself. A second roll rather than an extra
+ * field on the first, since checkTemplate()'s fields are fixed and shared
+ * with PC checks (#48/#54).
+ */
+async function postShipAlert(alert: string): Promise<void> {
+  if (alert === "") return;
+
+  const rollData = await startRoll(
+    "&{template:ms} {{character_name=@{character_name}}} {{alert=[[0]]}}",
+  );
+  finishRoll(rollData.rollId, { alert });
+}
+
+/**
  * Roll20 Sheetworker: Systems Check
  */
 export async function handleSystemsCheck(): Promise<void> {
-  await rollCheck({
+  const result = await rollCheck({
     i18nKey: checkKey("systems"),
     target: "@{ship_systems}",
+    bonus: skillQuery(),
   });
+  const alert = shipFailureAlert(result.outcome);
+  await postShipAlert(alert);
 }
 
 /**
  * Roll20 Sheetworker: Thrusters Check
  */
 export async function handleThrustersCheck(): Promise<void> {
-  await rollCheck({
+  const result = await rollCheck({
     i18nKey: checkKey("thrusters"),
     target: "@{ship_thrusters}",
+    bonus: skillQuery(),
   });
+  const alert = shipFailureAlert(result.outcome);
+  await postShipAlert(alert);
 }
 
 /**
  * Roll20 Sheetworker: Battle Check
  */
 export async function handleBattleCheck(): Promise<void> {
-  await rollCheck({
+  const result = await rollCheck({
     i18nKey: checkKey("battle"),
     target: "@{ship_battle}",
+    bonus: skillQuery(),
   });
+  const alert = shipFailureAlert(result.outcome);
+  await postShipAlert(alert);
 }
 
 export type StartingConditionResult = {

@@ -2168,6 +2168,10 @@
     {{#notes}}
     <div class="ms-notes">{{notes}}</div>
     {{/notes}}
+
+    {{#alert}}
+    <div class="ms-alert">{{alert}}</div>
+    {{/alert}}
   </div>
 </rolltemplate>
 
@@ -7227,23 +7231,47 @@ Maintenance Issue 2 [${issue2.roll} - ${issue2.issue_type}]: ${issue2.descriptio
       notes: evaluation.message
     });
   }
+  var SHIP_STRESS_MESSAGE = "EVERYONE ON BOARD GAINS 1 STRESS";
+  var SHIP_PANIC_MESSAGE = "CRITICAL FAILURE: EVERYONE ABOARD MUST MAKE A PANIC CHECK";
+  function shipFailureAlert(outcome) {
+    if (outcome === Outcomes.CriticalFailure) return `${SHIP_STRESS_MESSAGE}
+${SHIP_PANIC_MESSAGE}`;
+    if (outcome === Outcomes.Failure) return SHIP_STRESS_MESSAGE;
+    return "";
+  }
+  async function postShipAlert(alert) {
+    if (alert === "") return;
+    const rollData = await startRoll(
+      "&{template:ms} {{character_name=@{character_name}}} {{alert=[[0]]}}"
+    );
+    finishRoll(rollData.rollId, { alert });
+  }
   async function handleSystemsCheck() {
-    await rollCheck({
+    const result = await rollCheck({
       i18nKey: checkKey("systems"),
-      target: "@{ship_systems}"
+      target: "@{ship_systems}",
+      bonus: skillQuery()
     });
+    const alert = shipFailureAlert(result.outcome);
+    await postShipAlert(alert);
   }
   async function handleThrustersCheck() {
-    await rollCheck({
+    const result = await rollCheck({
       i18nKey: checkKey("thrusters"),
-      target: "@{ship_thrusters}"
+      target: "@{ship_thrusters}",
+      bonus: skillQuery()
     });
+    const alert = shipFailureAlert(result.outcome);
+    await postShipAlert(alert);
   }
   async function handleBattleCheck() {
-    await rollCheck({
+    const result = await rollCheck({
       i18nKey: checkKey("battle"),
-      target: "@{ship_battle}"
+      target: "@{ship_battle}",
+      bonus: skillQuery()
     });
+    const alert = shipFailureAlert(result.outcome);
+    await postShipAlert(alert);
   }
   function getRandomUniqueIssues(count, table = maintenanceTable, randomFn = Math.random) {
     if (count <= 0) return [];

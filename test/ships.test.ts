@@ -19,7 +19,15 @@ import {
   evaluateStartingCondition,
   handleStartingCondition,
   MAINTENANCE_EDGE_QUERY,
+  shipFailureAlert,
+  SHIP_STRESS_MESSAGE,
+  SHIP_PANIC_MESSAGE,
 } from "../src/ts/rules/ships";
+
+/** Stands in for Roll20's translator, echoing every key untranslated. */
+function stubTranslation(): void {
+  vi.stubGlobal("getTranslationByKey", (key: string) => key);
+}
 
 /** Every `NdN`-style d100 expression a formula rolls, e.g. "2d100kl1-1". */
 const D100_EXPRESSION = /\d*d100(?:k[lh]1)?(-1)?/g;
@@ -143,6 +151,7 @@ describe("Ship Rules & Mechanics", () => {
       });
       vi.stubGlobal("startRoll", mockStartRoll);
       vi.stubGlobal("finishRoll", vi.fn());
+      stubTranslation();
 
       await handleAnnualMaintenanceCheck();
       await handleBankruptcySave();
@@ -158,6 +167,23 @@ describe("Ship Rules & Mechanics", () => {
       }
 
       vi.unstubAllGlobals();
+    });
+  });
+
+  describe("shipFailureAlert", () => {
+    it("should say nothing on a Success or Critical Success", () => {
+      expect(shipFailureAlert(Outcomes.Success)).toBe("");
+      expect(shipFailureAlert(Outcomes.CriticalSuccess)).toBe("");
+    });
+
+    it("should gain everyone 1 Stress on a Failure", () => {
+      expect(shipFailureAlert(Outcomes.Failure)).toBe(SHIP_STRESS_MESSAGE);
+    });
+
+    it("should also demand a Panic Check on a Critical Failure", () => {
+      const alert = shipFailureAlert(Outcomes.CriticalFailure);
+      expect(alert).toContain(SHIP_STRESS_MESSAGE);
+      expect(alert).toContain(SHIP_PANIC_MESSAGE);
     });
   });
 });
