@@ -1,8 +1,9 @@
 <script lang="ts">
   import { i18nKey } from "#game/fields/_factories.js";
+  import { instinct } from "#game/fields/npcFields.js";
   import {
-    npc_combat, npc_instinct, npc_wounds, npc_health, npc_armor_points,
-  } from "#game/fields/npcFields.js";
+    armor_points, combat, health, wounds,
+  } from "#game/fields/pcFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
   import ButtonAction from "#svelte/components/ButtonAction.svelte";
   import Panel from "#svelte/components/Panel.svelte";
@@ -10,13 +11,13 @@
   const stats = [
     {
       short: "C",
-      field: npc_combat,
+      field: combat,
       desc: "This works exactly like the Combat Stat, showing how good they are in a fight.",
       placeholder: "20",
     },
     {
       short: "I",
-      field: npc_instinct,
+      field: instinct,
       desc: "This is a catchall Stat for Fear, Sanity, Body, Speed, Intellect, and everything else.",
       placeholder: "25",
     },
@@ -56,7 +57,7 @@
             name="roll_initiative"
             title="Roll Initiative into Turn Tracker"
             aria-label="Roll Initiative into Turn Tracker"
-            value="&lbrace;&lbrace;template:ms&rbrace;&rbrace; &lbrace;&lbrace;name=Initiative&rbrace;&rbrace; &lbrace;&lbrace;character_name=@&lbrace;character_name&rbrace;&rbrace;&rbrace; &lbrace;&lbrace;roll=[[1d100-1cs1cf99 &amp;&lbrace;tracker&rbrace;]]&rbrace;&rbrace; &lbrace;&lbrace;roll2=[[?&lbrace;Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99 &amp;&lbrace;tracker&rbrace;&rbrace;]]&rbrace;&rbrace; &lbrace;&lbrace;target=@&lbrace;npc_instinct&rbrace;&rbrace;&rbrace;"
+            value="&lbrace;&lbrace;template:ms&rbrace;&rbrace; &lbrace;&lbrace;name=Initiative&rbrace;&rbrace; &lbrace;&lbrace;character_name=@&lbrace;character_name&rbrace;&rbrace;&rbrace; &lbrace;&lbrace;roll=[[1d100-1cs1cf99 &amp;&lbrace;tracker&rbrace;]]&rbrace;&rbrace; &lbrace;&lbrace;roll2=[[?&lbrace;Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99 &amp;&lbrace;tracker&rbrace;&rbrace;]]&rbrace;&rbrace; &lbrace;&lbrace;target=@&lbrace;instinct&rbrace;&rbrace;&rbrace;"
           >
             <span class="npc-stat-card__title" data-i18n="Initiative">Initiative</span>
           </button>
@@ -71,7 +72,7 @@
       <!-- Wounds Tracker (Supports W:1, W:2, etc.) -->
       <div class="npc-vital-card npc-vital-card--wounds">
         <div class="npc-vital-card__label" data-i18n="Wounds (W)">Wounds (W)</div>
-        <Attribute field={npc_wounds} isLabelHidden />
+        <Attribute field={wounds} isLabelHidden />
         <div class="npc-vital-card__sublabels">
           <span data-i18n="Current">Current</span>
           <span data-i18n="Max">Max</span>
@@ -81,7 +82,7 @@
       <!-- Health per Wound (Supports W:2(20), optional for W:1) -->
       <div class="npc-vital-card npc-vital-card--health">
         <div class="npc-vital-card__label" data-i18n="Health (HP)">Health (HP)</div>
-        <Attribute field={npc_health} isLabelHidden />
+        <Attribute field={health} isLabelHidden />
         <div class="npc-vital-card__sublabels">
           <span data-i18n="Current">Current</span>
           <span data-i18n="Per Wound">Per Wound</span>
@@ -91,7 +92,7 @@
       <!-- Armor Points (AP) Tracker -->
       <div class="npc-vital-card npc-vital-card--ap">
         <div class="npc-vital-card__label" data-i18n="Armor Points (AP)">Armor Points (AP)</div>
-        <Attribute field={npc_armor_points} isLabelHidden />
+        <Attribute field={armor_points} isLabelHidden />
       </div>
     </div>
   </Panel>

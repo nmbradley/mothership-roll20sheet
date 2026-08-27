@@ -1,5 +1,3 @@
-import { rangeBandOptions } from "#game/constants.js";
-
 import {
   Controls,
   attribute,
@@ -7,55 +5,35 @@ import {
   type RowAttributeName,
 } from "./_factories";
 
-// Every NPC attribute carries an `npc_` prefix so it never shares storage with
-// the PC sheet. `character_name` is the deliberate exception: Roll20 links that
-// name to the journal entry, so both sheets must write the same attribute.
+// A PC and an NPC model the same kind of entity, so combat, wounds, health,
+// armor_points and the attack row are the same attributes the PC sheet writes
+// (see #90) -- statting an NPC and promoting it to a PC then keeps the data.
+// Those fields live in pcFields.ts; only what has no PC equivalent is
+// declared here. character_name is the longstanding exception: Roll20 links
+// it to the journal entry, so both sheets write the same attribute.
 export const character_name = attribute({
   name: "character_name",
   label: "Name",
   control: Controls.Text,
   value: "",
 });
-export const npc_combat = attribute({
-  name: "npc_combat",
-  label: "Combat",
-  control: Controls.Number,
-  value: 0,
-});
-export const npc_instinct = attribute({
-  name: "npc_instinct",
+export const instinct = attribute({
+  name: "instinct",
   label: "Instinct",
   control: Controls.Number,
   value: 0,
 });
-export const npc_wounds = attribute({
-  name: "npc_wounds",
-  label: "Wounds",
-  control: Controls.Number,
-  value: 0,
-  max: 0,
-});
-export const npc_health = attribute({
-  name: "npc_health",
-  label: "Health",
-  control: Controls.Number,
-  value: 0,
-  max: 0,
-});
-export const npc_armor_points = attribute({
-  name: "npc_armor_points",
-  label: "Armor Points",
-  control: Controls.Number,
-  value: 0,
-});
-export const npc_description = attribute({
-  name: "npc_description",
+export const description = attribute({
+  name: "description",
   label: "Description",
   control: Controls.Textarea,
   value: "",
 });
-export const npc_equipment = attribute({
-  name: "npc_equipment",
+// Renamed from `equipment`: the PC charactermancer writes attr_equipment as
+// JSON'd loadout items, so an unprefixed name here would collide and the
+// charactermancer would silently overwrite this free-text field (#90).
+export const gear_notes = attribute({
+  name: "gear_notes",
   label: "Equipment",
   control: Controls.Textarea,
   value: "",
@@ -63,112 +41,30 @@ export const npc_equipment = attribute({
 
 export const npcAttributes = {
   character_name,
-  npc_combat,
-  npc_instinct,
-  npc_wounds,
-  npc_health,
-  npc_armor_points,
-  npc_description,
-  npc_equipment,
+  instinct,
+  description,
+  gear_notes,
 } as const;
 
-export const npc_attack_name = attribute({
-  name: "npc_attack_name",
-  label: "Attack",
-  control: Controls.Text,
-  value: "",
-});
-export const npc_attack_type = attribute({
-  name: "npc_attack_type",
-  label: "Type",
-  control: Controls.Select,
-  options: ["Ranged", "Melee"],
-  value: "Ranged",
-});
-export const npc_attack_damage = attribute({
-  name: "npc_attack_damage",
-  label: "Damage",
-  control: Controls.Text,
-  value: "",
-});
-export const npc_attack_range = attribute({
-  name: "npc_attack_range",
-  label: "Range",
-  control: Controls.Select,
-  options: rangeBandOptions,
-  value: "adjacent",
-});
-export const npc_attack_crit_damage = attribute({
-  name: "npc_attack_crit_damage",
-  label: "Critical Damage",
-  control: Controls.Text,
-  value: "",
-});
-export const npc_attack_crit_effect = attribute({
-  name: "npc_attack_crit_effect",
-  label: "Critical Effect",
-  control: Controls.Text,
-  value: "",
-});
-export const npc_attack_shots = attribute({
-  name: "npc_attack_shots",
-  label: "Shots",
-  control: Controls.Text,
-  value: "",
-});
-export const npc_attack_ammunition = attribute({
-  name: "npc_attack_ammunition",
-  label: "Ammunition",
-  control: Controls.Text,
-  value: "",
-});
-export const npc_attack_settings = attribute({
-  name: "npc_attack_settings",
-  label: "Settings",
-  control: Controls.Checkbox,
-  checkedValue: "on",
-  checked: true,
-});
-export const npc_attack_notes = attribute({
-  name: "npc_attack_notes",
-  label: "Notes",
-  control: Controls.Textarea,
-  value: "",
-});
-
-// Repeating section names cannot contain an underscore or Roll20 silently drops
-// every row, so the segment after "repeating_" is concatenated.
-export const npcAttacks = section({
-  name: "npcattacks",
-  attributes: {
-    npc_attack_name,
-    npc_attack_type,
-    npc_attack_damage,
-    npc_attack_range,
-    npc_attack_crit_damage,
-    npc_attack_crit_effect,
-    npc_attack_shots,
-    npc_attack_ammunition,
-    npc_attack_notes,
-    npc_attack_settings,
-  } as const,
-});
-
-export const npc_trait_name = attribute({
-  name: "npc_trait_name",
+// Traits have no PC equivalent, so the section keeps its own name; only its
+// member fields drop the npc_ prefix. Repeating section names cannot contain
+// an underscore or Roll20 silently drops every row, which is also why the
+// segment after "repeating_" stays concatenated.
+export const trait_name = attribute({
+  name: "trait_name",
   label: "Trait Name",
   control: Controls.Text,
   value: "",
 });
-export const npc_trait_description = attribute({
-  name: "npc_trait_description",
+export const trait_description = attribute({
+  name: "trait_description",
   label: "Description",
   control: Controls.Textarea,
   value: "",
 });
 
-export const npc_trait_settings = attribute({
-  name: "npc_trait_settings",
+export const trait_settings = attribute({
+  name: "trait_settings",
   label: "Settings",
   control: Controls.Checkbox,
   checkedValue: "on",
@@ -178,19 +74,14 @@ export const npc_trait_settings = attribute({
 export const npcTraits = section({
   name: "npctraits",
   attributes: {
-    npc_trait_name,
-    npc_trait_description,
-    npc_trait_settings,
+    trait_name,
+    trait_description,
+    trait_settings,
   } as const,
 });
 
 export type NPCAttributeNames = keyof typeof npcAttributes;
-export type NPCAttackFields = keyof typeof npcAttacks.attributes;
-export type NPCAttackAttributes = RowAttributeName<typeof npcAttacks>;
 export type NPCTraitFields = keyof typeof npcTraits.attributes;
 export type NPCTraitAttributes = RowAttributeName<typeof npcTraits>;
 
-export type AllNPCAttributes =
-  | NPCAttributeNames
-  | NPCAttackAttributes
-  | NPCTraitAttributes;
+export type AllNPCAttributes = NPCAttributeNames | NPCTraitAttributes;
