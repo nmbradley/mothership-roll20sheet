@@ -51,11 +51,15 @@ describe("Charactermancer Stats Step (Mothership 1e)", () => {
       expect(attrs["health"]).toBeUndefined();
     });
 
-    it("should seed starting stress, wounds and armor regardless of the roll", () => {
+    it("should seed starting stress and wounds regardless of the roll", () => {
       const attrs = rolledAttrs(FULL_ROLL);
       expect(attrs["stress"]).toBe(2);
       expect(attrs["wounds"]).toBe(2);
-      expect(attrs["armor_points"]).toBe(0);
+    });
+
+    it("should not seed armor_points -- AP and DR are a function of armor worn (#112)", () => {
+      const attrs = rolledAttrs(FULL_ROLL);
+      expect(attrs["armor_points"]).toBeUndefined();
     });
   });
 });

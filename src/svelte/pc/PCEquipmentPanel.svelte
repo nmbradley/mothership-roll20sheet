@@ -89,6 +89,10 @@
   &__well {
     border: var(--ms-border-width-thick) solid var(--ms-border);
     border-radius: var(--ms-radius-lg);
+    // #127: DisplayValue's span stays empty until Roll20 has an attribute
+    // value to fill it with, which can be true on first render -- this floor
+    // keeps the well from collapsing to a line while that's the case.
+    min-height: calc(var(--ms-text-xl) + var(--ms-space-md) * 2);
     padding: var(--ms-space-md) var(--ms-space-lg);
 
     .attribute {

@@ -4730,7 +4730,6 @@
   // src/ts/charactermancer/2-stats.ts
   var STARTING_STRESS = 2;
   var STARTING_WOUNDS = 2;
-  var STARTING_ARMOR = 0;
   var ROLLED_FIELDS = [...allStats, ...allSaves];
   var HEALTH_ROLL_INDEX = ROLLED_FIELDS.length;
   function onLoadStats() {
@@ -4755,7 +4754,6 @@
     if (healthRoll !== void 0) attrs["health"] = healthRoll.result;
     attrs["stress"] = STARTING_STRESS;
     attrs["wounds"] = STARTING_WOUNDS;
-    attrs["armor_points"] = STARTING_ARMOR;
     return attrs;
   }
   function onRollStats(rolls) {
@@ -8532,6 +8530,9 @@ ${SHIP_PANIC_MESSAGE}`;
     "remove:repeating_equipment"
   ].join(" ");
   on(ARMOR_ROW_EVENTS, () => {
+    void recalculateArmorTotals();
+  });
+  on("sheet:opened", () => {
     void recalculateArmorTotals();
   });
   var SKILLED_CHECKS = [...allStats, ...allSaves];

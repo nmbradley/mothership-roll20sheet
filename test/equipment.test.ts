@@ -147,6 +147,24 @@ describe("Sheetworkers getSectionIDs / getAttrs integration", () => {
     });
   });
 
+  it("recalculateArmorTotals always writes both attributes, even unworn (#127)", async () => {
+    // #127: this is what sheet:opened relies on to seed armor_points and
+    // damage_reduction before an Armor row has ever changed -- an attribute
+    // Roll20 has never written leaves its DisplayValue span empty.
+    vi.stubGlobal("getSectionIDs", (_section: string, callback: (ids: string[]) => void) => {
+      callback([]);
+    });
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    await recalculateArmorTotals();
+
+    expect(mockSetAttrs).toHaveBeenCalledTimes(1);
+    const written = mockSetAttrs.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(written).toHaveProperty("armor_points");
+    expect(written).toHaveProperty("damage_reduction");
+  });
+
   it("destroyWornArmor reads the current rows and returns the zeroing updates", async () => {
     vi.stubGlobal("getSectionIDs", (_section: string, callback: (ids: string[]) => void) => {
       callback(["row1"]);
