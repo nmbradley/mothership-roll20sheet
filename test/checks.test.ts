@@ -11,10 +11,12 @@ import {
 } from "../src/ts/rules/rolls";
 import {
   applyStressDelta,
+  gradeAttack,
   isSaveSkillSelectEnabled,
   makePanicCheck,
   recomputeWorstSave,
   restSaveStressDelta,
+  rollAttack,
   rollCheck,
   rollDeathSave,
   rollNPCInitiative,
@@ -539,5 +541,207 @@ describe("rollPanicCheck", () => {
     await rollPanicCheck();
 
     expect(mockGetAttrs).not.toHaveBeenCalled();
+  });
+});
+
+describe("gradeAttack (#51)", () => {
+  it("should show Damage and cost no Stress on a Success", () => {
+    expect(gradeAttack(Outcomes.Success)).toEqual({
+      showDamage: true,
+      stressDelta: 0,
+    });
+  });
+
+  it("should show Damage and cost no Stress on a Critical Success", () => {
+    expect(gradeAttack(Outcomes.CriticalSuccess)).toEqual({
+      showDamage: true,
+      stressDelta: 0,
+    });
+  });
+
+  it("should withhold Damage and cost 1 Stress on a Failure", () => {
+    expect(gradeAttack(Outcomes.Failure)).toEqual({
+      showDamage: false,
+      stressDelta: 1,
+    });
+  });
+
+  it("should withhold Damage and cost 1 Stress on a Critical Failure too", () => {
+    expect(gradeAttack(Outcomes.CriticalFailure)).toEqual({
+      showDamage: false,
+      stressDelta: 1,
+    });
+  });
+});
+
+describe("rollAttack", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("should roll the row's own Damage as a second card on a hit", async () => {
+    const mockStartRoll = vi.fn()
+      .mockResolvedValueOnce({
+        rollId: "check",
+        results: {
+          roll: { result: 20 },
+          roll2: { result: 80 },
+          edge: { result: 0 },
+          target: { result: 45 },
+        },
+      })
+      .mockResolvedValueOnce({
+        rollId: "damage",
+        results: {},
+      });
+    const mockFinishRoll = vi.fn();
+    const mockGetAttrs = vi.fn();
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", mockFinishRoll);
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+
+    await rollAttack({
+      name: "@{attack_name}",
+      target: "@{combat}",
+    });
+
+    const followUpFormula = mockStartRoll.mock.calls[1][0] as string;
+    expect(followUpFormula).toContain("{{damage=[[@{attack_damage}]]}}");
+    expect(mockFinishRoll).toHaveBeenLastCalledWith("damage", { alert: "" });
+    // A hit costs no Stress, so there is nothing to read off the sheet for.
+    expect(mockGetAttrs).not.toHaveBeenCalled();
+  });
+
+  it("should withhold Damage and gain 1 Stress automatically on a miss", async () => {
+    const mockStartRoll = vi.fn()
+      .mockResolvedValueOnce({
+        rollId: "check",
+        results: {
+          roll: { result: 91 },
+          roll2: { result: 91 },
+          edge: { result: 0 },
+          target: { result: 45 },
+        },
+      })
+      .mockResolvedValueOnce({
+        rollId: "miss",
+        results: {},
+      });
+    const mockFinishRoll = vi.fn();
+    type GetAttrsCallback = (response: Record<string, string>) => void;
+    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
+      callback({
+        stress: "3",
+        stress_min: "0",
+        stress_max: "10",
+      });
+    });
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", mockFinishRoll);
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    await rollAttack({
+      name: "@{attack_name}",
+      target: "@{combat}",
+    });
+
+    const followUpFormula = mockStartRoll.mock.calls[1][0] as string;
+    expect(followUpFormula).not.toContain("damage");
+    expect(mockFinishRoll).toHaveBeenLastCalledWith("miss", {
+      alert: "^{Attack Failed: Gain 1 Stress}",
+    });
+    expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 4 });
+  });
+
+  it("should still gain Stress on a Critical Failure, on top of the Panic warning the Check card already carries", async () => {
+    const mockStartRoll = vi.fn()
+      .mockResolvedValueOnce({
+        rollId: "check",
+        results: {
+          roll: { result: 99 },
+          roll2: { result: 99 },
+          edge: { result: 0 },
+          target: { result: 45 },
+        },
+      })
+      .mockResolvedValueOnce({
+        rollId: "miss",
+        results: {},
+      });
+    const mockFinishRoll = vi.fn();
+    type GetAttrsCallback = (response: Record<string, string>) => void;
+    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
+      callback({
+        stress: "3",
+        stress_min: "0",
+        stress_max: "10",
+      });
+    });
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", mockFinishRoll);
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    await rollAttack({
+      name: "@{attack_name}",
+      target: "@{combat}",
+    });
+
+    // The Check card itself (the first finishRoll call) already carries the
+    // Panic warning via checkComputed -- rollAttack does not duplicate it.
+    expect(mockFinishRoll.mock.calls[0][1]).toEqual(
+      expect.objectContaining({ notes: "^{Critical Failure: Make a Panic Check}" }),
+    );
+    expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 4 });
+  });
+
+  // Mirrors the #110 regression coverage on rollRestSave: the Check's own
+  // startRoll must still be reached synchronously off the click, before any
+  // getAttrs the failure-Stress follow-up makes.
+  it("should reach the Check's startRoll before making any getAttrs call", async () => {
+    const calls: string[] = [];
+    type GetAttrsCallback = (response: Record<string, string>) => void;
+    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
+      calls.push("getAttrs");
+      callback({
+        stress: "3",
+        stress_min: "0",
+        stress_max: "10",
+      });
+    });
+    const mockStartRoll = vi.fn()
+      .mockImplementationOnce(() => {
+        calls.push("startRoll");
+        return Promise.resolve({
+          rollId: "check",
+          results: {
+            roll: { result: 91 },
+            roll2: { result: 91 },
+            edge: { result: 0 },
+            target: { result: 45 },
+          },
+        });
+      })
+      .mockImplementationOnce(() => {
+        calls.push("startRoll");
+        return Promise.resolve({
+          rollId: "miss",
+          results: {},
+        });
+      });
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+    vi.stubGlobal("setAttrs", vi.fn());
+
+    await rollAttack({
+      name: "@{attack_name}",
+      target: "@{combat}",
+    });
+
+    expect(calls).toEqual(["startRoll", "startRoll", "getAttrs"]);
   });
 });

@@ -28,6 +28,7 @@ import {
   CHECK_ATTRIBUTES,
   checkKey,
   recomputeWorstSave,
+  rollAttack,
   rollCheck,
   rollDeathSave,
   rollNPCInitiative,
@@ -186,10 +187,13 @@ on("clicked:take_wound", () => {
 
 // Rolls made from a repeating row read that row's own attributes. The PC and
 // NPC attack rows share repeating_attacks (#90), so one handler covers both.
+// #13: the Skill/situational bonus query is baked in here, same as every
+// other skilled check in the loop above.
 on("clicked:repeating_attacks:attack", () => {
-  void rollCheck({
+  void rollAttack({
     name: "@{attack_name}",
     target: "@{combat}",
+    bonus: skillQuery(),
   });
 });
 
