@@ -129,7 +129,7 @@
 // One row: Health, Wounds and Stress side by side.
 .pc-status-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr 1fr 0.75fr;
   gap: var(--ms-space-lg);
   align-items: start;
 }
@@ -190,6 +190,8 @@
 .pc-status-actions__item {
   display: flex;
   justify-content: center;
+
+  width: 100%;
 
   .button {
     border-radius: var(--ms-radius-pill);
