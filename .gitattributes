@@ -1,0 +1,10 @@
+# Build outputs that must still be committed -- Roll20 uploads them directly.
+#
+# Marked binary so git never attempts a line-level merge on them. A textual
+# auto-merge of generated markup can succeed and still be wrong, which is far
+# worse than a conflict: the file looks merged but the sheet is subtly broken.
+# Marking them binary turns that silent corruption into an honest conflict,
+# resolved by rebuilding from source rather than by reading a diff.
+mothership.html binary
+mothership.css  binary
+translation.json binary

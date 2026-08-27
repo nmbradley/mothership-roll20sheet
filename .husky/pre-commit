@@ -1,1 +1,19 @@
 npx lint-staged
+
+# Rebuild the committed sheet whenever source changed.
+#
+# mothership.html, mothership.css and translation.json are build outputs that
+# are nonetheless committed -- Roll20 uploads them directly, so they cannot be
+# gitignored. Regenerating them here means a commit can never carry source that
+# disagrees with its own artifacts, which is otherwise easy to miss and shows up
+# later as a phantom diff on someone else's branch.
+#
+# Runs after lint-staged so the artifacts are built from the linted source, not
+# the source as it was typed. A build failure fails the commit, which is the
+# point: broken source should not reach a branch.
+if git diff --cached --name-only | grep -qE '^(src/|scripts/)'; then
+  echo "🔧 rebuilding sheet artifacts..."
+  node scripts/build-svelte.js >/dev/null || exit 1
+  node scripts/build-translations.js >/dev/null || exit 1
+  git add mothership.html mothership.css translation.json
+fi
