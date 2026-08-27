@@ -14,7 +14,6 @@
   } from "#game/fields/pcFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
   import ButtonAction from "#svelte/components/ButtonAction.svelte";
-  import DisplayValue from "#svelte/components/DisplayValue.svelte";
   import Panel from "#svelte/components/Panel.svelte";
   import RepeatingSection from "#svelte/components/RepeatingSection.svelte";
   import SettingsDrawer from "#svelte/components/SettingsDrawer.svelte";
@@ -41,18 +40,15 @@
     columns="2fr 1fr 1fr auto"
     trailing={1}
   >
-    <ButtonAction action="attack" label="">
-      <DisplayValue field={attack_name} isLabelHidden />
-    </ButtonAction>
+    <div class="pc-attack-name">
+      <Attribute field={attack_name} isLabelHidden />
+      <ButtonAction action="attack" label="Attack" />
+    </div>
 
     <Attribute field={attack_type} isLabelHidden />
     <Attribute field={attack_damage} isLabelHidden />
 
     <SettingsDrawer field={attack_settings}>
-      <SettingsRow field={attack_name}>
-        <Attribute field={attack_name} isLabelHidden />
-      </SettingsRow>
-
       <SettingsRow field={attack_range}>
         <Attribute field={attack_range} isLabelHidden />
       </SettingsRow>
@@ -75,10 +71,31 @@
 </Panel>
 
 <style lang="scss">
+.pc-attack-name {
+  display: flex;
+  gap: var(--ms-space-sm);
+  align-items: center;
+
+  .attribute {
+    flex: 1;
+
+    min-width: 0;
+  }
+}
+
 .pc-attack-pair {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-column: 1 / -1;
   gap: var(--ms-space-md);
+}
+
+// The heading row sits flush with the column edge, but every input beneath it
+// is inset by its own border and padding -- so "WEAPON / TYPE / DAMAGE" reads
+// left of the fields it labels. `.pc-attack-name` only ever renders here, so
+// `:has()` scopes the fix to this section's own heading row rather than every
+// RepeatingSection's (repeating_attacks is shared with the NPC sheet, #90).
+.repeating:has(.pc-attack-name) .repeating__heading {
+  padding-left: calc(var(--ms-border-width) + var(--ms-space-md));
 }
 </style>

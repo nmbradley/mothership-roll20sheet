@@ -1143,11 +1143,25 @@ body.sheet-darkmode
   .npc-stats-actions {
   display: flex;
 }
+.charsheet.charsheet.charsheet .pc-attack-name {
+  display: flex;
+  gap: var(--ms-space-sm);
+  align-items: center;
+}
+.charsheet.charsheet.charsheet .pc-attack-name .attribute {
+  flex: 1;
+  min-width: 0;
+}
 .charsheet.charsheet.charsheet .pc-attack-pair {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-column: 1/-1;
   gap: var(--ms-space-md);
+}
+.charsheet.charsheet.charsheet
+  .repeating:has(.pc-attack-name)
+  .repeating__heading {
+  padding-left: calc(var(--ms-border-width) + var(--ms-space-md));
 }
 .charsheet.charsheet.charsheet .pc-details {
   gap: var(--ms-space-lg);
