@@ -130,6 +130,7 @@ export const TEMPLATE_PHRASES = {
   PanicWarning: "Critical Failure: Make a Panic Check",
   RestSave: "Rest Save",
   DeathSave: "Death Save",
+  ArmorDestroyed: "Armor Destroyed",
 } as const;
 
 /** A Critical Failure on a check forces a Panic Check; say so in chat. */

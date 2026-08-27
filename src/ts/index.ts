@@ -23,6 +23,7 @@ import {
 import { onLoadReview } from "./charactermancer/6-review";
 import { onFinish } from "./charactermancer/7-final";
 import { TrackedStats, type CharmancerData } from "./charactermancer/types";
+import { handleDestroyArmor } from "./rules/armor";
 import {
   adjustStress,
   CHECK_ATTRIBUTES,
@@ -66,6 +67,12 @@ on("clicked:battle_check", () => {
   void handleBattleCheck();
 });
 on("change:ship_mdmg", handleMdmgChange);
+
+// --- ARMOR ---
+
+on("clicked:destroy_armor", () => {
+  void handleDestroyArmor();
+});
 
 // --- CHECKS ---
 

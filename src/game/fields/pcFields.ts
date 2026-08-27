@@ -91,6 +91,14 @@ export const armor_points = attribute({
   control: Controls.Number,
   value: 0,
 });
+// 1e heavy armor (e.g. Advanced Battle Dress) also grants flat Damage
+// Reduction, subtracted from a hit before AP is checked against it.
+export const damage_reduction = attribute({
+  name: "damage_reduction",
+  label: "Damage Reduction",
+  control: Controls.Number,
+  value: 0,
+});
 export const strength = attribute({
   name: "strength",
   label: "Strength",
@@ -252,6 +260,7 @@ export const pcAttributes = {
   health,
   wounds,
   armor_points,
+  damage_reduction,
   strength,
   speed,
   intellect,
@@ -383,12 +392,6 @@ export const equipment_type = attribute({
   options: ["Gear", "Weapon", "Ammunition", "Armor"],
   value: "Gear",
 });
-export const equipment_armor_bonus = attribute({
-  name: "equipment_armor_bonus",
-  label: "Armor Bonus",
-  control: Controls.Text,
-  value: "",
-});
 export const equipment_notes = attribute({
   name: "equipment_notes",
   label: "Notes",
@@ -413,7 +416,6 @@ export const pcEquipment = section({
   attributes: {
     equipment_name,
     equipment_type,
-    equipment_armor_bonus,
     equipment_notes,
     equipment_settings,
     equipment_linkedid,

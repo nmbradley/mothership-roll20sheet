@@ -1230,7 +1230,7 @@ body.sheet-darkmode
 }
 .charsheet.charsheet.charsheet .pc-equipment-totals {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--ms-space-lg);
   margin-top: var(--ms-space-lg);
 }
@@ -1253,6 +1253,18 @@ body.sheet-darkmode
   width: 100%;
   background: none;
   text-align: center;
+}
+.charsheet.charsheet.charsheet .pc-equipment-totals__well--armor {
+  display: flex;
+  gap: var(--ms-space-sm);
+  align-items: center;
+}
+.charsheet.charsheet.charsheet .pc-equipment-totals__well--armor .attribute {
+  flex: 1;
+}
+.charsheet.charsheet.charsheet .pc-equipment-totals__well--armor .button {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .charsheet.charsheet.charsheet .pc-masthead {
   display: flex;
