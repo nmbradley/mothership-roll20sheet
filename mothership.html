@@ -660,6 +660,19 @@
               <div class="pc-training__label" data-i18n="Skill Training">
                 Skill Training
               </div>
+              <ul class="pc-training__costs">
+                <li class="pc-training__cost">
+                  <span data-i18n="Trained">Trained</span>: 2 years, 10kcr
+                </li>
+                <li class="pc-training__cost">
+                  <span data-i18n="Expert">Expert</span>: 4 years, 50kcr
+                  (requires 1 Trained)
+                </li>
+                <li class="pc-training__cost">
+                  <span data-i18n="Master">Master</span>: 6 years, 200kcr
+                  (requires 1 Expert)
+                </li>
+              </ul>
               <div class="pc-training__fields">
                 <div class="pc-training__field">
                   <div
@@ -693,6 +706,27 @@
                     Time Remaining
                   </div>
                 </div>
+              </div>
+              <div class="pc-training__military">
+                <button
+                  class="button button--action"
+                  type="action"
+                  name="act_military_training"
+                >
+                  <span class="button__label" data-i18n="Military Training"
+                    >Military Training</span>
+                </button>
+                <p
+                  class="pc-training__military-desc"
+                  data-i18n="Military Training Description"
+                >
+                  6 years, free. Rolls a Combat Check: on a success, gain
+                  Military Training, Athletics, 2 Trained Skills (1 Expert on a
+                  Critical Success), +10 Combat, -10 to a chosen Stat and Marine
+                  Trauma Response. On a failure, gain Military Training,
+                  Athletics, 1 Trained Skill and Marine Trauma Response. A
+                  Critical Failure kills the character in action.
+                </p>
               </div>
             </div>
           </div>
@@ -6689,7 +6723,8 @@
     Initiative: "Initiative",
     TakeDamage: "Take Damage",
     TakeAWound: "Take a Wound",
-    ArmorAbsorbed: "Absorbed by Armor"
+    ArmorAbsorbed: "Absorbed by Armor",
+    MilitaryTraining: "Military Training"
   };
   function panicWarning(check) {
     if (!check.triggersPanic) return "";
@@ -8323,6 +8358,126 @@ ${SHIP_PANIC_MESSAGE}`;
     });
   }
 
+  // src/ts/rules/skills.ts
+  var SKILL_TRAINING_COSTS = {
+    [SkillLevels.Trained]: {
+      years: 2,
+      credits: "10kcr"
+    },
+    [SkillLevels.Expert]: {
+      years: 4,
+      credits: "50kcr",
+      prereq: SkillLevels.Trained
+    },
+    [SkillLevels.Master]: {
+      years: 6,
+      credits: "200kcr",
+      prereq: SkillLevels.Expert
+    }
+  };
+  var MILITARY_TRAINING_SKILLS = [
+    {
+      name: titleCase(Skills.MilitaryTraining),
+      level: SkillLevels.Trained
+    },
+    {
+      name: titleCase(Skills.Athletics),
+      level: SkillLevels.Trained
+    }
+  ];
+  function evaluateMilitaryTraining(outcome) {
+    if (outcome === Outcomes.CriticalFailure) {
+      return {
+        outcome,
+        killed: true,
+        namedSkills: [],
+        bonusSkillCount: 0,
+        bonusSkillLevel: SkillLevels.Trained,
+        combatBonus: 0,
+        statReduction: 0,
+        marineTraumaResponse: false,
+        message: "CRITICAL FAILURE: Killed in action."
+      };
+    }
+    if (outcome === Outcomes.Failure) {
+      return {
+        outcome,
+        killed: false,
+        namedSkills: MILITARY_TRAINING_SKILLS,
+        bonusSkillCount: 1,
+        bonusSkillLevel: SkillLevels.Trained,
+        combatBonus: 0,
+        statReduction: 0,
+        marineTraumaResponse: true,
+        message: "FAILURE: Gain Military Training, Athletics, 1 Trained Skill of your choice, and Marine Trauma Response."
+      };
+    }
+    const isCritical = outcome === Outcomes.CriticalSuccess;
+    return {
+      outcome,
+      killed: false,
+      namedSkills: MILITARY_TRAINING_SKILLS,
+      bonusSkillCount: isCritical ? 1 : 2,
+      bonusSkillLevel: isCritical ? SkillLevels.Expert : SkillLevels.Trained,
+      combatBonus: 10,
+      statReduction: 10,
+      marineTraumaResponse: true,
+      message: isCritical ? "CRITICAL SUCCESS: Gain Military Training, Athletics, 1 Expert Skill of your choice, +10 Combat, -10 to a chosen Stat, and Marine Trauma Response." : "SUCCESS: Gain Military Training, Athletics, 2 Trained Skills of your choice, +10 Combat, -10 to a chosen Stat, and Marine Trauma Response."
+    };
+  }
+  var REDUCIBLE_STATS = [Stats.Strength, Stats.Speed, Stats.Intellect];
+  function statReductionQuery() {
+    const options = REDUCIBLE_STATS.map((stat, index) => `${titleCase(stat)},${index}`).join("|");
+    return `?{Stat to Reduce|${options}}`;
+  }
+  function readReducedStat(index) {
+    return REDUCIBLE_STATS[index] ?? Stats.Strength;
+  }
+  async function handleMilitaryTraining() {
+    const template = `${checkTemplate({
+      i18nKey: TEMPLATE_PHRASES.MilitaryTraining,
+      target: `@{combat}+${skillQuery()}`,
+      die: D100
+    })} {{edge=[[${EDGE_QUERY}]]}} {{stat_choice=[[${statReductionQuery()}]]}}`;
+    const rollData = await startRoll(template);
+    const statEntry = rollData.results["stat_choice"];
+    if (statEntry === void 0) return;
+    const dice = readDice(rollData.results);
+    const check = makeCheck({
+      name: "",
+      i18nKey: TEMPLATE_PHRASES.MilitaryTraining,
+      target: readTarget(rollData.results),
+      rolls: dice.rolls,
+      edge: dice.edge
+    });
+    const evaluation = evaluateMilitaryTraining(check.outcome);
+    finishRoll(rollData.rollId, {
+      ...checkComputed(check),
+      [COMPUTED.Notes]: evaluation.message
+    });
+    if (evaluation.killed) return;
+    const reducedStat = readReducedStat(statEntry.result);
+    getAttrs(["combat", reducedStat], (attrs) => {
+      const updates = {};
+      for (const skill of evaluation.namedSkills) {
+        const rowId = generateRowID();
+        updates[`repeating_trained_${rowId}_skill_name`] = skill.name;
+      }
+      if (evaluation.marineTraumaResponse) {
+        const afflictionId = generateRowID();
+        updates[`repeating_afflictions_${afflictionId}_affliction_name`] = "Marine Trauma Response";
+        updates[`repeating_afflictions_${afflictionId}_affliction_settings`] = "0";
+      }
+      if (evaluation.combatBonus > 0) {
+        updates["combat"] = (Number(attrs.combat) || 0) + evaluation.combatBonus;
+      }
+      if (evaluation.statReduction > 0) {
+        updates[reducedStat] = (Number(attrs[reducedStat]) || 0) - evaluation.statReduction;
+      }
+      setAttrs(updates);
+    });
+  }
+
   // src/ts/rules/stats.ts
   function incrementHighScore() {
     const request = ["high_score"];
@@ -8429,6 +8584,9 @@ ${SHIP_PANIC_MESSAGE}`;
       name: "@{trait_name}",
       target: "@{instinct}"
     });
+  });
+  on("clicked:military_training", () => {
+    void handleMilitaryTraining();
   });
   var TOPBAR_SLIDES = ["intro", "stats", "class", "skills", "equipment"];
   for (const slide of TOPBAR_SLIDES) {

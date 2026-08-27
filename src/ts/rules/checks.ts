@@ -154,9 +154,9 @@ const EDGE_NORMAL = 0;
 const EDGE_ADVANTAGE = 1;
 
 /** Checks and saves roll a d100 reading 00-99. */
-const D100 = "1d100-1";
+export const D100 = "1d100-1";
 
-type RolledDice = {
+export type RolledDice = {
   rolls: readonly number[];
   edge: Edge;
 };
@@ -167,7 +167,7 @@ type RolledDice = {
  * Both dice are always rolled; the edge decides whether the second one counts,
  * which is why the query travels with them.
  */
-function readDice(results: RollResults): RolledDice {
+export function readDice(results: RollResults): RolledDice {
   const first = results["roll"]?.result ?? 0;
   const second = results["roll2"]?.result ?? first;
   const answer = results["edge"]?.result ?? EDGE_NORMAL;
@@ -182,7 +182,7 @@ function readDice(results: RollResults): RolledDice {
 }
 
 /** The target the dice were actually measured against. */
-function readTarget(results: RollResults): number {
+export function readTarget(results: RollResults): number {
   const target = results["target"]?.result ?? 0;
   return target;
 }

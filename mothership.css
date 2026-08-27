@@ -1306,6 +1306,28 @@ body.sheet-darkmode
   font-weight: 700;
   color: var(--ms-fg-muted);
 }
+.charsheet.charsheet.charsheet .pc-training__costs {
+  margin: 0 0 var(--ms-space-md);
+  padding: 0;
+  list-style: none;
+}
+.charsheet.charsheet.charsheet .pc-training__cost {
+  font-size: var(--ms-text-xs);
+  color: var(--ms-fg-muted);
+}
+.charsheet.charsheet.charsheet .pc-training__military {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ms-space-sm);
+  align-items: flex-start;
+  margin-top: var(--ms-space-lg);
+}
+.charsheet.charsheet.charsheet .pc-training__military-desc {
+  margin: 0;
+  font-size: var(--ms-text-xs);
+  line-height: 1.4;
+  color: var(--ms-fg-muted);
+}
 .charsheet.charsheet.charsheet .pc-stats-panel {
   display: flex;
   flex-direction: column;
