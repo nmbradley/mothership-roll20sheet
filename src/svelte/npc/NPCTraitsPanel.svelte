@@ -1,9 +1,9 @@
 <script lang="ts">
   import {
     npcTraits,
-    npc_trait_description,
-    npc_trait_name,
-    npc_trait_settings,
+    trait_description,
+    trait_name,
+    trait_settings,
   } from "#game/fields/npcFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
   import ButtonAction from "#svelte/components/ButtonAction.svelte";
@@ -18,20 +18,20 @@
 <Panel title="Traits">
   <RepeatingSection
     section={npcTraits}
-    fields={[npc_trait_name]}
+    fields={[trait_name]}
     columns="1fr auto"
     trailing={1}
   >
     <ButtonAction action="npc-trait" label="">
-      <DisplayValue field={npc_trait_name} isLabelHidden />
+      <DisplayValue field={trait_name} isLabelHidden />
     </ButtonAction>
 
-    <SettingsDrawer field={npc_trait_settings}>
-      <SettingsRow field={npc_trait_name}>
-        <Attribute field={npc_trait_name} isLabelHidden />
+    <SettingsDrawer field={trait_settings}>
+      <SettingsRow field={trait_name}>
+        <Attribute field={trait_name} isLabelHidden />
       </SettingsRow>
-      <SettingsRow field={npc_trait_description} isFullWidth>
-        <Attribute field={npc_trait_description} isLabelHidden />
+      <SettingsRow field={trait_description} isFullWidth>
+        <Attribute field={trait_description} isLabelHidden />
       </SettingsRow>
     </SettingsDrawer>
   </RepeatingSection>

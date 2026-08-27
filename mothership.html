@@ -1483,7 +1483,7 @@
                   <button
                     class="button button--action"
                     type="action"
-                    name="act_check-npc_combat"
+                    name="act_check-combat"
                   >
                     <span class="npc-stat-card__title" data-i18n="Combat (C)"
                       >Combat (C)</span>
@@ -1496,7 +1496,7 @@
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
-                    name="attr_npc_combat"
+                    name="attr_combat"
                     value="0"
                   />
                 </div>
@@ -1506,7 +1506,7 @@
                   <button
                     class="button button--action"
                     type="action"
-                    name="act_check-npc_instinct"
+                    name="act_check-instinct"
                   >
                     <span class="npc-stat-card__title" data-i18n="Instinct (I)"
                       >Instinct (I)</span>
@@ -1519,7 +1519,7 @@
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
-                    name="attr_npc_instinct"
+                    name="attr_instinct"
                     value="0"
                   />
                 </div>
@@ -1532,7 +1532,7 @@
                     name="roll_initiative"
                     title="Roll Initiative into Turn Tracker"
                     aria-label="Roll Initiative into Turn Tracker"
-                    value="{{template:ms}} {{name=Initiative}} {{character_name=@{character_name}}} {{roll=[[1d100-1cs1cf99 &amp;{tracker}]]}} {{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99 &amp;{tracker}}]]}} {{target=@{npc_instinct}}}"
+                    value="{{template:ms}} {{name=Initiative}} {{character_name=@{character_name}}} {{roll=[[1d100-1cs1cf99 &amp;{tracker}]]}} {{roll2=[[?{Advantage/Disadvantage|Normal,0|Advantage/Disadvantage,1d100-1cs1cf99 &amp;{tracker}}]]}} {{target=@{instinct}}}"
                   >
                     <span class="npc-stat-card__title" data-i18n="Initiative"
                       >Initiative</span>
@@ -1556,15 +1556,15 @@
                     <input
                       class="attribute__input attribute__input--number"
                       type="number"
-                      name="attr_npc_wounds"
-                      value="0"
+                      name="attr_wounds"
+                      value="2"
                     />
                     <span class="attribute__separator">/</span>
                     <input
                       class="attribute__input attribute__input--number"
                       type="number"
-                      name="attr_npc_wounds_max"
-                      value="0"
+                      name="attr_wounds_max"
+                      value="2"
                     />
                   </div>
                 </div>
@@ -1582,15 +1582,15 @@
                     <input
                       class="attribute__input attribute__input--number"
                       type="number"
-                      name="attr_npc_health"
-                      value="0"
+                      name="attr_health"
+                      value="78"
                     />
                     <span class="attribute__separator">/</span>
                     <input
                       class="attribute__input attribute__input--number"
                       type="number"
-                      name="attr_npc_health_max"
-                      value="0"
+                      name="attr_health_max"
+                      value="78"
                     />
                   </div>
                 </div>
@@ -1610,7 +1610,7 @@
                   <input
                     class="attribute__input attribute__input--number attribute__input--number--default"
                     type="number"
-                    name="attr_npc_armor_points"
+                    name="attr_armor_points"
                     value="0"
                   />
                 </div>
@@ -1628,13 +1628,13 @@
                 class="repeating__head"
                 style="grid-template-columns: 2fr 1fr 1fr auto"
               >
-                <span class="repeating__heading" data-i18n="Attack">Attack</span><span class="repeating__heading" data-i18n="Type">Type</span><span class="repeating__heading" data-i18n="Damage"
+                <span class="repeating__heading" data-i18n="Weapon">Weapon</span><span class="repeating__heading" data-i18n="Type">Type</span><span class="repeating__heading" data-i18n="Damage"
                   >Damage</span>
                 <span
                   class="repeating__heading repeating__heading--spacer"
                 ></span>
               </div>
-              <fieldset class="repeating_npcattacks">
+              <fieldset class="repeating_attacks">
                 <div
                   class="repeating__row"
                   style="grid-template-columns: 2fr 1fr 1fr auto"
@@ -1642,31 +1642,31 @@
                   <button
                     class="button button--action"
                     type="action"
-                    name="act_npc-attack"
+                    name="act_attack"
                   >
                     <div class="attribute attribute--display">
                       <span
                         class="attribute__value attribute__value--display"
-                        name="attr_npc_attack_name"
+                        name="attr_attack_name"
                       ></span>
                     </div>
                   </button>
                   <div class="attribute attribute--select">
                     <select
                       class="attribute__input attribute__input--select"
-                      name="attr_npc_attack_type"
+                      name="attr_attack_type"
                     >
-                      <option value="Ranged" selected="" data-i18n="Ranged">
-                        Ranged
-                      </option>
+                      <option value="" selected=""></option>
                       <option value="Melee" data-i18n="Melee">Melee</option>
+                      <option value="Ranged" data-i18n="Ranged">Ranged</option>
+                      <option value="Skill" data-i18n="Skill">Skill</option>
                     </select>
                   </div>
                   <div class="attribute attribute--text">
                     <input
                       class="attribute__input attribute__input--text"
                       type="text"
-                      name="attr_npc_attack_damage"
+                      name="attr_attack_damage"
                       value=""
                       spellcheck="false"
                     />
@@ -1675,20 +1675,18 @@
                     ><input
                       class="settings__toggle"
                       type="checkbox"
-                      name="attr_npc_attack_settings"
-                      value="on"
-                      checked=""
+                      name="attr_attack_settings"
                     />
                     <span class="settings__icon">y</span></label>
                   <div class="settings__drawer">
                     <div class="settings__row">
-                      <span class="settings__label" data-i18n="Attack"
-                        >Attack</span>
+                      <span class="settings__label" data-i18n="Weapon"
+                        >Weapon</span>
                       <div class="attribute attribute--text">
                         <input
                           class="attribute__input attribute__input--text"
                           type="text"
-                          name="attr_npc_attack_name"
+                          name="attr_attack_name"
                           value=""
                           spellcheck="false"
                         />
@@ -1700,7 +1698,7 @@
                       <div class="attribute attribute--select">
                         <select
                           class="attribute__input attribute__input--select"
-                          name="attr_npc_attack_range"
+                          name="attr_attack_range"
                         >
                           <option
                             value="adjacent"
@@ -1723,33 +1721,27 @@
                     </div>
                     <div class="npc-attack-pair">
                       <div class="settings__row">
-                        <span
-                          class="settings__label"
-                          data-i18n="Critical Damage"
-                          >Critical Damage</span>
+                        <span class="settings__label" data-i18n="Crit Damage"
+                          >Crit Damage</span>
                         <div class="attribute attribute--text">
                           <input
                             class="attribute__input attribute__input--text"
                             type="text"
-                            name="attr_npc_attack_crit_damage"
+                            name="attr_attack_crit_damage"
                             value=""
                             spellcheck="false"
                           />
                         </div>
                       </div>
                       <div class="settings__row">
-                        <span
-                          class="settings__label"
-                          data-i18n="Critical Effect"
-                          >Critical Effect</span>
-                        <div class="attribute attribute--text">
-                          <input
-                            class="attribute__input attribute__input--text"
-                            type="text"
-                            name="attr_npc_attack_crit_effect"
-                            value=""
+                        <span class="settings__label" data-i18n="Crit Effect"
+                          >Crit Effect</span>
+                        <div class="attribute attribute--textarea">
+                          <textarea
+                            class="attribute__input attribute__input--textarea"
+                            name="attr_attack_crit_effect"
                             spellcheck="false"
-                          />
+                          ></textarea>
                         </div>
                       </div>
                     </div>
@@ -1761,20 +1753,20 @@
                           <input
                             class="attribute__input attribute__input--text"
                             type="text"
-                            name="attr_npc_attack_shots"
+                            name="attr_attack_shots"
                             value=""
                             spellcheck="false"
                           />
                         </div>
                       </div>
                       <div class="settings__row">
-                        <span class="settings__label" data-i18n="Ammunition"
-                          >Ammunition</span>
+                        <span class="settings__label" data-i18n="Ammo"
+                          >Ammo</span>
                         <div class="attribute attribute--text">
                           <input
                             class="attribute__input attribute__input--text"
                             type="text"
-                            name="attr_npc_attack_ammunition"
+                            name="attr_attack_ammunition"
                             value=""
                             spellcheck="false"
                           />
@@ -1787,7 +1779,7 @@
                       <div class="attribute attribute--textarea">
                         <textarea
                           class="attribute__input attribute__input--textarea"
-                          name="attr_npc_attack_notes"
+                          name="attr_attack_notes"
                           spellcheck="false"
                         ></textarea>
                       </div>
@@ -1825,7 +1817,7 @@
                     <div class="attribute attribute--display">
                       <span
                         class="attribute__value attribute__value--display"
-                        name="attr_npc_trait_name"
+                        name="attr_trait_name"
                       ></span>
                     </div>
                   </button>
@@ -1833,7 +1825,7 @@
                     ><input
                       class="settings__toggle"
                       type="checkbox"
-                      name="attr_npc_trait_settings"
+                      name="attr_trait_settings"
                       value="on"
                       checked=""
                     />
@@ -1846,7 +1838,7 @@
                         <input
                           class="attribute__input attribute__input--text"
                           type="text"
-                          name="attr_npc_trait_name"
+                          name="attr_trait_name"
                           value=""
                           spellcheck="false"
                         />
@@ -1858,7 +1850,7 @@
                       <div class="attribute attribute--textarea">
                         <textarea
                           class="attribute__input attribute__input--textarea"
-                          name="attr_npc_trait_description"
+                          name="attr_trait_description"
                           spellcheck="false"
                         ></textarea>
                       </div>
@@ -1881,7 +1873,7 @@
                 <div class="attribute attribute--textarea">
                   <textarea
                     class="attribute__input attribute__input--textarea"
-                    name="attr_npc_description"
+                    name="attr_description"
                     spellcheck="false"
                   ></textarea>
                 </div>
@@ -1902,7 +1894,7 @@
                 <div class="attribute attribute--textarea">
                   <textarea
                     class="attribute__input attribute__input--textarea"
-                    name="attr_npc_equipment"
+                    name="attr_gear_notes"
                     spellcheck="false"
                   ></textarea>
                 </div>
@@ -6168,12 +6160,10 @@
   var CHECK_ATTRIBUTES = [
     ...allStats,
     ...allSaves,
-    "npc_combat",
-    "npc_instinct"
+    "instinct"
   ];
   function checkKey(attribute) {
-    const phrase = attribute.replace(/^npc_/, "");
-    return `${titleCase(phrase)} Check`;
+    return `${titleCase(attribute)} Check`;
   }
   var SHIP_CHECKS = ["systems", "thrusters", "battle"];
   function rollPhrases() {
@@ -6999,16 +6989,10 @@ Maintenance Issue 2 [${issue2.roll} - ${issue2.issue_type}]: ${issue2.descriptio
       target: "@{combat}"
     });
   });
-  on("clicked:repeating_npcattacks:npc-attack", () => {
-    void rollCheck({
-      name: "@{npc_attack_name}",
-      target: "@{npc_combat}"
-    });
-  });
   on("clicked:repeating_npctraits:npc-trait", () => {
     void rollCheck({
-      name: "@{npc_trait_name}",
-      target: "@{npc_instinct}"
+      name: "@{trait_name}",
+      target: "@{instinct}"
     });
   });
   var TOPBAR_SLIDES = ["intro", "stats", "class", "skills", "equipment"];

@@ -83,6 +83,9 @@ export const stress_panic = attribute({
   control: Controls.Text,
   value: "",
 });
+// health, wounds and armor_points model an NPC exactly the same way -- a
+// Contractor promoted to a PC keeps its stats -- so the NPC sheet reads and
+// writes these attributes too rather than declaring its own.
 export const health = attribute({
   name: "health",
   label: "Health",
@@ -121,6 +124,7 @@ export const intellect = attribute({
   control: Controls.Number,
   value: 0,
 });
+// Also the NPC sheet's Combat stat -- see the note by health above.
 export const combat = attribute({
   name: "combat",
   label: "Combat",
@@ -265,6 +269,9 @@ export const pcAttributes = {
   drop_content,
 } as const;
 
+// This section and its fields are shared verbatim with the NPC sheet: an
+// NPC's attack row has no field the PC row lacks except attack_linkedid,
+// which an NPC row simply never populates.
 export const attack_name = attribute({
   name: "attack_name",
   label: "Weapon",
