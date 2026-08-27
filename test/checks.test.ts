@@ -12,6 +12,8 @@ import {
 import {
   applyStressDelta,
   gradeAttack,
+  isNpcSheet,
+  isOutOfAmmo,
   isSaveSkillSelectEnabled,
   makePanicCheck,
   recomputeWorstSave,
@@ -25,6 +27,7 @@ import {
   rollRestSave,
   rollSaveCheck,
   skillQuery,
+  spendAmmo,
   worstSave,
 } from "../src/ts/rules/checks";
 
@@ -743,5 +746,226 @@ describe("rollAttack", () => {
     });
 
     expect(calls).toEqual(["startRoll", "startRoll", "getAttrs"]);
+  });
+
+  // #147: NPCs share repeating_attacks and this same handler with PCs (#90),
+  // but must not gain Stress from a miss.
+  it("should not grant Stress on a miss for an NPC", async () => {
+    const mockStartRoll = vi.fn()
+      .mockResolvedValueOnce({
+        rollId: "check",
+        results: {
+          roll: { result: 91 },
+          roll2: { result: 91 },
+          edge: { result: 0 },
+          target: { result: 45 },
+        },
+      })
+      .mockResolvedValueOnce({
+        rollId: "miss",
+        results: {},
+      });
+    type GetAttrsCallback = (response: Record<string, string>) => void;
+    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
+      callback({
+        stress: "3",
+        stress_min: "0",
+        stress_max: "10",
+        sheet_toggle: "npc",
+      });
+    });
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    await rollAttack({
+      name: "@{attack_name}",
+      target: "@{combat}",
+    });
+
+    expect(mockSetAttrs).not.toHaveBeenCalled();
+  });
+
+  // #14: a rowId lets rollAttack spend the row's own ammo after the roll.
+  it("should spend one shot from the row's ammo on a hit, given a rowId", async () => {
+    const mockStartRoll = vi.fn()
+      .mockResolvedValueOnce({
+        rollId: "check",
+        results: {
+          roll: { result: 20 },
+          roll2: { result: 80 },
+          edge: { result: 0 },
+          target: { result: 45 },
+        },
+      })
+      .mockResolvedValueOnce({
+        rollId: "damage",
+        results: {},
+      });
+    type GetAttrsCallback = (response: Record<string, string>) => void;
+    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
+      callback({
+        "stress": "3",
+        "stress_min": "0",
+        "stress_max": "10",
+        "sheet_toggle": "pc",
+        "repeating_attacks_-row1_attack_shots": "5",
+      });
+    });
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    await rollAttack({
+      name: "@{attack_name}",
+      target: "@{combat}",
+    }, "-row1");
+
+    expect(mockGetAttrs).toHaveBeenCalledWith(
+      expect.arrayContaining(["repeating_attacks_-row1_attack_shots"]),
+      expect.any(Function),
+    );
+    expect(mockSetAttrs).toHaveBeenCalledWith({
+      "repeating_attacks_-row1_attack_shots": "4",
+    });
+  });
+
+  it("should post a loud Out of Ammo card once a tracked weapon's magazine empties", async () => {
+    const mockStartRoll = vi.fn()
+      .mockResolvedValueOnce({
+        rollId: "check",
+        results: {
+          roll: { result: 20 },
+          roll2: { result: 80 },
+          edge: { result: 0 },
+          target: { result: 45 },
+        },
+      })
+      .mockResolvedValueOnce({
+        rollId: "damage",
+        results: {},
+      })
+      .mockResolvedValueOnce({
+        rollId: "empty",
+        results: {},
+      });
+    type GetAttrsCallback = (response: Record<string, string>) => void;
+    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
+      callback({
+        "stress": "3",
+        "stress_min": "0",
+        "stress_max": "10",
+        "sheet_toggle": "pc",
+        "repeating_attacks_-row1_attack_shots": "1",
+      });
+    });
+    const mockFinishRoll = vi.fn();
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", mockFinishRoll);
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("setAttrs", vi.fn());
+
+    await rollAttack({
+      name: "@{attack_name}",
+      target: "@{combat}",
+    }, "-row1");
+
+    expect(mockStartRoll).toHaveBeenCalledTimes(3);
+    expect(mockFinishRoll).toHaveBeenLastCalledWith("empty", {
+      alert: "^{Out of Ammo}",
+    });
+  });
+
+  it("should leave an untracked (e.g. infinite) weapon's ammo untouched", async () => {
+    const mockStartRoll = vi.fn()
+      .mockResolvedValueOnce({
+        rollId: "check",
+        results: {
+          roll: { result: 20 },
+          roll2: { result: 80 },
+          edge: { result: 0 },
+          target: { result: 45 },
+        },
+      })
+      .mockResolvedValueOnce({
+        rollId: "damage",
+        results: {},
+      });
+    type GetAttrsCallback = (response: Record<string, string>) => void;
+    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
+      callback({
+        "stress": "3",
+        "stress_min": "0",
+        "stress_max": "10",
+        "sheet_toggle": "pc",
+        "repeating_attacks_-row1_attack_shots": "∞",
+      });
+    });
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    await rollAttack({
+      name: "@{attack_name}",
+      target: "@{combat}",
+    }, "-row1");
+
+    expect(mockSetAttrs).toHaveBeenCalledWith({
+      "repeating_attacks_-row1_attack_shots": "∞",
+    });
+    expect(mockStartRoll).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("isNpcSheet (#147)", () => {
+  it("should read the npc sheet type as an NPC", () => {
+    expect(isNpcSheet("npc")).toBe(true);
+  });
+
+  it("should read pc, ship and unset as not an NPC", () => {
+    expect(isNpcSheet("pc")).toBe(false);
+    expect(isNpcSheet("ship")).toBe(false);
+    expect(isNpcSheet(undefined)).toBe(false);
+  });
+});
+
+describe("spendAmmo (#14)", () => {
+  it("should spend one shot from a plain magazine count", () => {
+    expect(spendAmmo("5")).toBe("4");
+  });
+
+  it("should floor at 0 rather than go negative", () => {
+    expect(spendAmmo("0")).toBe("0");
+  });
+
+  it("should tolerate surrounding whitespace", () => {
+    expect(spendAmmo(" 3 ")).toBe("2");
+  });
+
+  it("should leave an untracked value untouched", () => {
+    expect(spendAmmo("∞")).toBe("∞");
+    expect(spendAmmo("")).toBe("");
+    expect(spendAmmo("many")).toBe("many");
+  });
+});
+
+describe("isOutOfAmmo (#14)", () => {
+  it("should read a tracked magazine at 0 as out", () => {
+    expect(isOutOfAmmo("0")).toBe(true);
+  });
+
+  it("should read a tracked magazine above 0 as not out", () => {
+    expect(isOutOfAmmo("3")).toBe(false);
+  });
+
+  it("should read an untracked value as not out", () => {
+    expect(isOutOfAmmo("∞")).toBe(false);
+    expect(isOutOfAmmo("")).toBe(false);
   });
 });

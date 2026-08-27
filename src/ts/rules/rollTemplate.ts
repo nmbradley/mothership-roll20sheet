@@ -149,6 +149,7 @@ export const TEMPLATE_PHRASES = {
   MilitaryTraining: "Military Training",
   TraumaResponse: "Trauma Response",
   AttackFailed: "Attack Failed: Gain 1 Stress",
+  OutOfAmmo: "Out of Ammo",
 } as const;
 
 /** A Critical Failure on a check forces a Panic Check; say so in chat. */

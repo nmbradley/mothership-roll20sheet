@@ -188,13 +188,17 @@ on("clicked:take_wound", () => {
 // Rolls made from a repeating row read that row's own attributes. The PC and
 // NPC attack rows share repeating_attacks (#90), so one handler covers both.
 // #13: the Skill/situational bonus query is baked in here, same as every
-// other skilled check in the loop above.
-on("clicked:repeating_attacks:attack", () => {
+// other skilled check in the loop above. #6: the row's own attack_bonus and
+// the sheet-wide attack_modifier are added the same way -- @{...} references
+// resolved by Roll20 itself, so the roll still fires synchronously (#110).
+// The row id (eventInfo.sourceSection) is passed through for #14's ammo
+// tracking, which needs the fully-qualified attribute name to read/write it.
+on("clicked:repeating_attacks:attack", (eventInfo) => {
   void rollAttack({
     name: "@{attack_name}",
-    target: "@{combat}",
+    target: "@{combat}+@{attack_bonus}+@{attack_modifier}",
     bonus: skillQuery(),
-  });
+  }, eventInfo.sourceSection);
 });
 
 on("clicked:repeating_npctraits:npc-trait", () => {
