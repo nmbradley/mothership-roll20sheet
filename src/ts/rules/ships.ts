@@ -637,3 +637,60 @@ export async function handleStartingCondition(): Promise<void> {
     notes: evaluation.message,
   });
 }
+
+export type FuelBidResult = {
+  valid: boolean;
+  fuel: number;
+  message: string;
+};
+
+/**
+ * Evaluates a Movement Phase fuel bid reveal (#60): spending more fuel than
+ * the ship has, or a negative bid, would send Fuel negative or hand it back
+ * for free, so an out-of-range bid is rejected instead -- chat says why and
+ * Fuel is left untouched.
+ */
+export function evaluateFuelBid(fuel: number, bid: number): FuelBidResult {
+  if (bid < 0 || bid > fuel) {
+    return {
+      valid: false,
+      fuel,
+      message: `INVALID FUEL BID: ${bid} (Fuel available: ${fuel}). No fuel spent.`,
+    };
+  }
+  return {
+    valid: true,
+    fuel: fuel - bid,
+    message: `Fuel Bid Revealed: ${bid}`,
+  };
+}
+
+/**
+ * Roll20 Sheetworker: Reveal Fuel Bid (#60)
+ *
+ * The Movement Phase: captains write ship_fuel_bid down secretly, then this
+ * reveals it to chat and, once valid, spends it off ship_fuel and resets the
+ * bid back to 0. Same read-via-roll-then-post-and-write shape as
+ * handleMoraleCheck and handleStartingCondition above.
+ */
+export async function handleRevealFuelBid(): Promise<void> {
+  const rollFormula =
+    "&{template:ms} {{name=Fuel Bid}} {{character_name=@{character_name}}} {{bid=[[@{ship_fuel_bid}]]}} {{fuel=[[@{ship_fuel}]]}} {{notes=[[0]]}}";
+  const rollData = await startRoll(rollFormula);
+
+  const bidEntry = rollData.results.bid;
+  const fuelEntry = rollData.results.fuel;
+  if (bidEntry === undefined || fuelEntry === undefined) return;
+
+  const evaluation = evaluateFuelBid(fuelEntry.result, bidEntry.result);
+  if (evaluation.valid) {
+    setAttrs({
+      ship_fuel: evaluation.fuel,
+      ship_fuel_bid: 0,
+    });
+  }
+
+  finishRoll(rollData.rollId, {
+    notes: evaluation.message,
+  });
+}

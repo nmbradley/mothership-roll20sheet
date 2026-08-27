@@ -45,6 +45,7 @@ import {
   handleBattleCheck,
   handleMdmgChange,
   handleMoraleCheck,
+  handleRevealFuelBid,
   handleStartingCondition,
   handleSystemsCheck,
   handleThrustersCheck,
@@ -78,6 +79,9 @@ on("clicked:battle_check", () => {
 on("change:ship_mdmg", handleMdmgChange);
 on("clicked:morale_check", () => {
   void handleMoraleCheck();
+});
+on("clicked:reveal_bid", () => {
+  void handleRevealFuelBid();
 });
 
 // --- ARMOR ---
