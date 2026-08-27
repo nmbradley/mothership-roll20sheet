@@ -1,13 +1,8 @@
 <script lang="ts">
-  import {
-    ship_bankruptcy_save,
-    ship_cargo,
-    ship_crew,
-  } from "#game/fields/shipFields.js";
+  import { ship_bankruptcy_save } from "#game/fields/shipFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
   import Panel from "#svelte/components/Panel.svelte";
   import ShipOperationCard from "#svelte/ship/components/ShipOperationCard.svelte";
-  import ShipStatRow from "#svelte/ship/components/ShipStatRow.svelte";
 </script>
 
 <section class="ship-operations-panel">
@@ -30,11 +25,9 @@
     </div>
   </Panel>
 
-  <Panel title="Secondary Stats">
-    <Attribute field={ship_crew} />
+  <Panel title="Bankruptcy Save">
     <!-- Target number only; the roll button lives in the Bankruptcy Save card above. -->
     <Attribute field={ship_bankruptcy_save} />
-    <ShipStatRow field={ship_cargo} />
   </Panel>
 </section>
 
