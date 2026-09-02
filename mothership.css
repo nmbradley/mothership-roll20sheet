@@ -1435,6 +1435,7 @@ body.sheet-darkmode
 }
 .charsheet.charsheet.charsheet .pc-status-card__sublabels {
   display: flex;
+  gap: var(--ms-space-sm);
   align-items: center;
   justify-content: space-around;
   min-height: 2rem;
@@ -1443,7 +1444,7 @@ body.sheet-darkmode
 }
 .charsheet.charsheet.charsheet .pc-status-card__stress-row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: var(--ms-space-sm);
   align-items: center;
 }
