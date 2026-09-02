@@ -43,15 +43,35 @@
     {/each}
 
     <!-- Stress's Minimum/Maximum are fixed rule constants (#42), not a
-         per-character range shown as current/max like Health and Wounds, so
-         they are carried as hidden inputs rather than rendered. No steppers:
-         the field opens like any other number field to change it. -->
+         per-character range shown as current/max like Health and Wounds --
+         so unlike those two, the bounds stay read-only. They still render
+         (#154), so a player can see 2 is the floor rather than 0; the hidden
+         twins keep seeding the actual attribute value checks.ts reads via
+         getAttrs. No steppers: the field opens like any other number field
+         to change it. -->
     <div class="pc-status-card">
       <div class="pc-status-card__label" data-i18n={stress.i18nLabel}>{stress.label}</div>
-      <Attribute field={stress} isLabelHidden />
+      <div class="pc-status-card__stress-row">
+        <DisplayValue field={stress_min} isLabelHidden />
+        <Attribute field={stress} isLabelHidden />
+        <DisplayValue field={stress_max} isLabelHidden />
+      </div>
+      <div class="pc-status-card__sublabels">
+        <span data-i18n="Minimum">Minimum</span>
+        <span data-i18n="Current">Current</span>
+        <span data-i18n="Maximum">Maximum</span>
+      </div>
       <Attribute field={stress_min} />
       <Attribute field={stress_max} />
     </div>
+  </div>
+
+  <!-- #132: the class's Trauma Response, what a failed Panic Check now points
+       to instead of a rolled table entry. Sits above the actions (#155): it
+       is reference text read when a Panic Check fails, so it belongs with
+       the vitals it explains rather than after the controls. -->
+  <div class="pc-status-notes">
+    <Attribute field={stress_effect} />
   </div>
 
   <!-- The six actions live on the PC sheet's Status Report (#111): Panic
@@ -94,12 +114,6 @@
     </div>
   </div>
 
-  <!-- #132: the class's Trauma Response, what a failed Panic Check now points
-       to instead of a rolled table entry. -->
-  <div class="pc-status-notes">
-    <Attribute field={stress_effect} />
-  </div>
-
   <!-- #55: lasting Conditions from a failed Panic Check and lingering
        Injuries from Wounds, replacing the old flat conditions textarea. -->
   <div class="pc-conditions">
@@ -112,13 +126,14 @@
       columns="1fr auto auto"
       trailing={1}
     >
-      <DisplayValue field={affliction_name} isLabelHidden />
+      <!-- #156: directly editable on the row, as PCEquipmentPanel does for
+           equipment_name and PCAttacksPanel does for attack_name, so a
+           collapsed row is still labelled. It has no roll/action trigger of
+           its own to displace -- afflictions are just a name and an effect. -->
+      <Attribute field={affliction_name} isLabelHidden />
       <Attribute field={affliction_treated} isLabelHidden />
 
       <SettingsDrawer field={affliction_settings}>
-        <SettingsRow field={affliction_name}>
-          <Attribute field={affliction_name} isLabelHidden />
-        </SettingsRow>
         <SettingsRow field={affliction_effect} isFullWidth>
           <Attribute field={affliction_effect} isLabelHidden />
         </SettingsRow>
@@ -176,6 +191,25 @@
 
     font-size: var(--ms-text-sm);
     color: var(--ms-fg-muted);
+  }
+
+  // Stress's fixed Minimum and Maximum (#154) flank the editable Current
+  // value rather than sharing its input the way Health/Wounds' editable max
+  // does -- these two are read-only rule constants, not a per-character pair.
+  &__stress-row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: var(--ms-space-sm);
+    align-items: center;
+
+    .attribute__value--display {
+      min-width: 1.5em;
+
+      font-size: var(--ms-text-lg);
+      font-weight: 700;
+      text-align: center;
+      color: var(--ms-fg-muted);
+    }
   }
 }
 

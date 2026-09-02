@@ -395,15 +395,34 @@
                 <div class="pc-status-card__label" data-i18n="Stress">
                   Stress
                 </div>
-                <div
-                  class="attribute attribute--number attribute--default attribute--stress"
-                >
-                  <input
-                    class="attribute__input attribute__input--number attribute__input--number--default"
-                    type="number"
-                    name="attr_stress"
-                    value="2"
-                  />
+                <div class="pc-status-card__stress-row">
+                  <div class="attribute attribute--display">
+                    <span
+                      class="attribute__value attribute__value--display"
+                      name="attr_stress_min"
+                    ></span>
+                  </div>
+                  <div
+                    class="attribute attribute--number attribute--default attribute--stress"
+                  >
+                    <input
+                      class="attribute__input attribute__input--number attribute__input--number--default"
+                      type="number"
+                      name="attr_stress"
+                      value="2"
+                    />
+                  </div>
+                  <div class="attribute attribute--display">
+                    <span
+                      class="attribute__value attribute__value--display"
+                      name="attr_stress_max"
+                    ></span>
+                  </div>
+                </div>
+                <div class="pc-status-card__sublabels">
+                  <span data-i18n="Minimum">Minimum</span>
+                  <span data-i18n="Current">Current</span>
+                  <span data-i18n="Maximum">Maximum</span>
                 </div>
                 <input
                   class="attribute__input attribute__input--hidden"
@@ -417,6 +436,22 @@
                   name="attr_stress_max"
                   value="20"
                 />
+              </div>
+            </div>
+            <div class="pc-status-notes">
+              <div
+                class="attribute attribute--textarea attribute--stress_effect"
+              >
+                <label
+                  class="attribute__label attribute__label--textarea"
+                  for="attr_stress_effect"
+                  data-i18n="Trauma Response"
+                  >Trauma Response</label>
+                <textarea
+                  class="attribute__input attribute__input--textarea"
+                  name="attr_stress_effect"
+                  spellcheck="false"
+                ></textarea>
               </div>
             </div>
             <div class="pc-status-actions">
@@ -483,22 +518,6 @@
                 </button>
               </div>
             </div>
-            <div class="pc-status-notes">
-              <div
-                class="attribute attribute--textarea attribute--stress_effect"
-              >
-                <label
-                  class="attribute__label attribute__label--textarea"
-                  for="attr_stress_effect"
-                  data-i18n="Trauma Response"
-                  >Trauma Response</label>
-                <textarea
-                  class="attribute__input attribute__input--textarea"
-                  name="attr_stress_effect"
-                  spellcheck="false"
-                ></textarea>
-              </div>
-            </div>
             <div class="pc-conditions">
               <div
                 class="pc-conditions__label"
@@ -522,11 +541,16 @@
                     class="repeating__row"
                     style="grid-template-columns: 1fr auto auto"
                   >
-                    <div class="attribute attribute--display">
-                      <span
-                        class="attribute__value attribute__value--display"
+                    <div
+                      class="attribute attribute--text attribute--affliction_name"
+                    >
+                      <input
+                        class="attribute__input attribute__input--text"
+                        type="text"
                         name="attr_affliction_name"
-                      ></span>
+                        value=""
+                        spellcheck="false"
+                      />
                     </div>
                     <div
                       class="attribute attribute--checkbox attribute--affliction_treated"
@@ -546,21 +570,6 @@
                       />
                       <span class="settings__icon">y</span></label>
                     <div class="settings__drawer">
-                      <div class="settings__row">
-                        <span class="settings__label" data-i18n="Name"
-                          >Name</span>
-                        <div
-                          class="attribute attribute--text attribute--affliction_name"
-                        >
-                          <input
-                            class="attribute__input attribute__input--text"
-                            type="text"
-                            name="attr_affliction_name"
-                            value=""
-                            spellcheck="false"
-                          />
-                        </div>
-                      </div>
                       <div class="settings__row settings__row--full">
                         <span class="settings__label" data-i18n="Effect"
                           >Effect</span>
