@@ -1,4 +1,3 @@
-@charset "UTF-8";
 @import url("https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400&display=swap");
 .charsheet,
 .sheet-rolltemplate-ms,
@@ -1163,9 +1162,10 @@ body.sheet-darkmode
   color: var(--ms-fg-inverse);
 }
 .charsheet.charsheet.charsheet .pc-attack-name .button--action::before {
-  content: "◎";
+  content: "k";
   font-size: var(--ms-text-md);
   line-height: 1;
+  font-family: "dicefontd10";
 }
 .charsheet.charsheet.charsheet .pc-attack-name .button--action:hover {
   background: var(--ms-accent);
@@ -1255,6 +1255,7 @@ body.sheet-darkmode
   display: block;
   border: none;
   width: 100%;
+  padding: 0;
   background: none;
   font-size: var(--ms-text-xl);
   font-weight: 700;
@@ -1264,6 +1265,7 @@ body.sheet-darkmode
   display: none;
   gap: var(--ms-space-lg);
   align-items: center;
+  justify-content: space-between;
 }
 .charsheet.charsheet.charsheet .pc-equipment-armor .attribute--round {
   align-items: stretch;
@@ -1288,9 +1290,9 @@ body.sheet-darkmode
   align-self: center;
   border-color: var(--ms-accent);
   border-radius: var(--ms-radius-pill);
-  padding: var(--ms-space-sm) var(--ms-space-lg);
+  padding: var(--ms-space-md) var(--ms-space-xl);
   background: var(--ms-accent);
-  font-size: var(--ms-text-sm);
+  font-size: var(--ms-text-md);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;

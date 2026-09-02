@@ -103,13 +103,17 @@
     // Two classes deep so Roll20's own `.charsheet input[type=...]` sizing does
     // not put a second border inside the pill. AP and DR are read-only
     // derived totals (a plain <span>, see DisplayValue); Credits stays an
-    // editable input. Both are headline numbers, so both share the scale.
+    // editable input. Both are headline numbers, so both share the scale --
+    // and #158: Credits' base `input[type="text"]` rule (src/svelte/styles/
+    // _base.scss) still adds its own padding on top of this well's, which the
+    // span never had, so it has to be zeroed here for the two boxes to match.
     .attribute .attribute__input,
     .attribute__value--display {
       display: block;
 
       border: none;
       width: 100%;
+      padding: 0;
 
       background: none;
 
@@ -129,6 +133,7 @@
   display: none;
   gap: var(--ms-space-lg);
   align-items: center;
+  justify-content: space-between;
 
   // The label reads above the circle rather than below it, and the circle
   // centres under it. align-items has to be reset: the base .attribute grid
@@ -165,11 +170,11 @@
 
     border-color: var(--ms-accent);
     border-radius: var(--ms-radius-pill);
-    padding: var(--ms-space-sm) var(--ms-space-lg);
+    padding: var(--ms-space-md) var(--ms-space-xl);
 
     background: var(--ms-accent);
 
-    font-size: var(--ms-text-sm);
+    font-size: var(--ms-text-md);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
