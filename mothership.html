@@ -66,14 +66,6 @@
             value="on"
           />
         </div>
-        <div class="attribute attribute--checkbox attribute--military_training">
-          <input
-            class="attribute__input attribute__input--checkbox"
-            type="checkbox"
-            name="attr_military_training"
-            value="on"
-          />
-        </div>
       </div>
       <div class="pc-sheet__column pc-sheet__column--left">
         <div class="frame frame--mode-light frame--corner-large">
@@ -719,27 +711,6 @@
                     Time Remaining
                   </div>
                 </div>
-              </div>
-              <div class="pc-training__military">
-                <button
-                  class="button button--action"
-                  type="action"
-                  name="act_military_training"
-                >
-                  <span class="button__label" data-i18n="Military Training"
-                    >Military Training</span>
-                </button>
-                <p
-                  class="pc-training__military-desc"
-                  data-i18n="Military Training Description"
-                >
-                  6 years, free. Rolls a Combat Check: on a success, gain
-                  Military Training, Athletics, 2 Trained Skills (1 Expert on a
-                  Critical Success), +10 Combat, -10 to a chosen Stat and Marine
-                  Trauma Response. On a failure, gain Military Training,
-                  Athletics, 1 Trained Skill and Marine Trauma Response. A
-                  Critical Failure kills the character in action.
-                </p>
               </div>
             </div>
           </div>
@@ -2418,14 +2389,22 @@
   </div>
   <div class="sheet-view sheet-view--settings">
     <div class="settings-sheet">
-      <label
-        for="attr_settings_open"
-        class="settings-sheet__back"
-        data-i18n="Back"
-        >← Back</label>
       <section class="panel">
         <div class="frame frame--mode-light frame--corner-small">
           <h2 class="header header--section" data-i18n="Settings">Settings</h2>
+          <div class="settings-sheet__nav">
+            <label for="attr_settings_open" class="settings-sheet__back button"
+              ><span aria-hidden="true">←</span>
+              <span data-i18n="Back">Back</span></label>
+            <button
+              class="button button--action"
+              type="action"
+              name="act_launch_charmancer"
+            >
+              <span class="button__label" data-i18n="Launch Charactermancer"
+                >Launch Charactermancer</span>
+            </button>
+          </div>
           <div class="settings-sheet__rows">
             <div class="settings__row">
               <span class="settings__label" data-i18n="Sheet Type"
@@ -2444,102 +2423,124 @@
           </div>
         </div>
       </section>
-      <div class="settings-sheet__group settings-sheet__group--pc">
-        <section class="panel">
-          <div class="frame frame--mode-light frame--corner-small">
-            <h2 class="header header--section" data-i18n="PC">PC</h2>
-            <div class="settings-sheet__rows">
-              <div class="settings__row">
-                <span class="settings__label" data-i18n="Speed Check Initiative"
-                  >Speed Check Initiative</span>
-                <div
-                  class="attribute attribute--checkbox attribute--speed_initiative"
-                >
-                  <input
-                    class="attribute__input attribute__input--checkbox"
-                    type="checkbox"
-                    name="attr_speed_initiative"
-                    value="on"
-                  />
+      <div class="settings-sheet__groups">
+        <div class="settings-sheet__group settings-sheet__group--pc">
+          <section class="panel">
+            <div class="frame frame--mode-light frame--corner-small">
+              <h2 class="header header--section" data-i18n="PC">PC</h2>
+              <div class="settings-sheet__rows">
+                <div class="settings__row">
+                  <span
+                    class="settings__label"
+                    data-i18n="Speed Check Initiative"
+                    >Speed Check Initiative</span>
+                  <div
+                    class="attribute attribute--checkbox attribute--speed_initiative"
+                  >
+                    <input
+                      class="attribute__input attribute__input--checkbox"
+                      type="checkbox"
+                      name="attr_speed_initiative"
+                      value="on"
+                    />
+                  </div>
+                </div>
+                <div class="settings__row">
+                  <span
+                    class="settings__label"
+                    data-i18n="Skill Select for Saves"
+                    >Skill Select for Saves</span>
+                  <div
+                    class="attribute attribute--checkbox attribute--save_skill_select"
+                  >
+                    <input
+                      class="attribute__input attribute__input--checkbox"
+                      type="checkbox"
+                      name="attr_save_skill_select"
+                      value="on"
+                      checked=""
+                    />
+                  </div>
+                </div>
+                <div class="settings__row">
+                  <span
+                    class="settings__label"
+                    data-i18n="Global Attack Modifier"
+                    >Global Attack Modifier</span>
+                  <div
+                    class="attribute attribute--number attribute--default attribute--attack_modifier"
+                  >
+                    <input
+                      class="attribute__input attribute__input--number attribute__input--number--default"
+                      type="number"
+                      name="attr_attack_modifier"
+                      value="0"
+                    />
+                  </div>
                 </div>
               </div>
-              <div class="settings__row">
-                <span class="settings__label" data-i18n="Skill Select for Saves"
-                  >Skill Select for Saves</span>
-                <div
-                  class="attribute attribute--checkbox attribute--save_skill_select"
-                >
-                  <input
-                    class="attribute__input attribute__input--checkbox"
-                    type="checkbox"
-                    name="attr_save_skill_select"
-                    value="on"
-                    checked=""
-                  />
-                </div>
+              <div class="settings-sheet__military-panel">
+                <section class="panel">
+                  <div class="frame frame--mode-light-grey frame--corner-small">
+                    <h2
+                      class="header header--section"
+                      data-i18n="Military Training"
+                    >
+                      Military Training
+                    </h2>
+                    <div class="settings-sheet__military">
+                      <button
+                        class="button button--action"
+                        type="action"
+                        name="act_military_training"
+                      >
+                        <span
+                          class="button__label"
+                          data-i18n="Military Training"
+                          >Military Training</span>
+                      </button>
+                      <p
+                        class="settings-sheet__military-desc"
+                        data-i18n="Military Training Description"
+                      >
+                        6 years, free. Rolls a Combat Check: on a success, gain
+                        Military Training, Athletics, 2 Trained Skills (1 Expert
+                        on a Critical Success), +10 Combat, -10 to a chosen Stat
+                        and Marine Trauma Response. On a failure, gain Military
+                        Training, Athletics, 1 Trained Skill and Marine Trauma
+                        Response. A Critical Failure kills the character in
+                        action.
+                      </p>
+                    </div>
+                  </div>
+                </section>
               </div>
-              <div class="settings__row">
-                <span class="settings__label" data-i18n="Military Training"
-                  >Military Training</span>
-                <div
-                  class="attribute attribute--checkbox attribute--military_training"
-                >
-                  <input
-                    class="attribute__input attribute__input--checkbox"
-                    type="checkbox"
-                    name="attr_military_training"
-                    value="on"
-                  />
-                </div>
-              </div>
-              <div class="settings__row">
-                <span class="settings__label" data-i18n="Attack Modifier"
-                  >Attack Modifier</span>
-                <div
-                  class="attribute attribute--number attribute--default attribute--attack_modifier"
-                >
-                  <input
-                    class="attribute__input attribute__input--number attribute__input--number--default"
-                    type="number"
-                    name="attr_attack_modifier"
-                    value="0"
-                  />
+            </div>
+          </section>
+        </div>
+        <div class="settings-sheet__group settings-sheet__group--ship">
+          <section class="panel">
+            <div class="frame frame--mode-light frame--corner-small">
+              <h2 class="header header--section" data-i18n="Ship">Ship</h2>
+              <div class="settings-sheet__rows">
+                <div class="settings__row">
+                  <span class="settings__label" data-i18n="NPC Ship"
+                    >NPC Ship</span>
+                  <div
+                    class="attribute attribute--checkbox attribute--ship_npc"
+                  >
+                    <input
+                      class="attribute__input attribute__input--checkbox"
+                      type="checkbox"
+                      name="attr_ship_npc"
+                      value="on"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
-      </div>
-      <div class="settings-sheet__group settings-sheet__group--ship">
-        <section class="panel">
-          <div class="frame frame--mode-light frame--corner-small">
-            <h2 class="header header--section" data-i18n="Ship">Ship</h2>
-            <div class="settings-sheet__rows">
-              <div class="settings__row">
-                <span class="settings__label" data-i18n="NPC Ship"
-                  >NPC Ship</span>
-                <div class="attribute attribute--checkbox attribute--ship_npc">
-                  <input
-                    class="attribute__input attribute__input--checkbox"
-                    type="checkbox"
-                    name="attr_ship_npc"
-                    value="on"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-      <div class="settings-sheet__charmancer-launch">
-        <button
-          class="button button--action"
-          type="action"
-          name="act_launch_charmancer"
-        >
-          <span class="button__label" data-i18n="Launch Charactermancer"
-            >Launch Charactermancer</span>
-        </button>
+          </section>
+        </div>
       </div>
     </div>
   </div>

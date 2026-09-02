@@ -57,7 +57,6 @@ body.sheet-darkmode
   --ms-logo-filter: none;
 }
 
-.charsheet.charsheet.charsheet .settings-sheet__charmancer-launch,
 .charsheet.charsheet.charsheet .button {
   margin: 0;
   border: none;
@@ -465,38 +464,55 @@ body.sheet-darkmode
   background-color: var(--ms-surface);
   color: var(--ms-fg);
 }
-.charsheet.charsheet.charsheet .settings-sheet__back {
-  align-self: flex-start;
-  cursor: pointer;
-  font-size: var(--ms-text-sm);
-  font-family: var(--ms-font-header);
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--ms-fg-muted);
-}
-.charsheet.charsheet.charsheet .settings-sheet__back:hover {
-  color: var(--ms-accent);
+.charsheet.charsheet.charsheet .settings-sheet__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--ms-space-lg);
 }
 .charsheet.charsheet.charsheet .settings-sheet__rows {
   display: flex;
   flex-direction: column;
   gap: var(--ms-space-lg);
 }
+.charsheet.charsheet.charsheet .settings-sheet__groups {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ms-space-lg);
+}
+.charsheet.charsheet.charsheet .settings-sheet__group--pc,
+.charsheet.charsheet.charsheet .settings-sheet__group--npc,
 .charsheet.charsheet.charsheet .settings-sheet__group--ship {
   display: none;
 }
-.charsheet.charsheet.charsheet .settings-sheet__charmancer-launch {
-  align-self: flex-start;
-  border: var(--ms-border-width) solid var(--ms-border);
-  border-radius: var(--ms-radius-sm);
-  padding: var(--ms-space-sm) var(--ms-space-md);
-  background: var(--ms-surface);
-  cursor: pointer;
-  color: var(--ms-fg);
+.charsheet.charsheet.charsheet .settings-sheet__military-panel {
+  margin-top: var(--ms-space-lg);
 }
-.charsheet.charsheet.charsheet .settings-sheet__charmancer-launch:hover {
-  background: var(--ms-sunken);
+.charsheet.charsheet.charsheet .settings-sheet__military {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ms-space-sm);
+  align-items: flex-start;
 }
+.charsheet.charsheet.charsheet .settings-sheet__military-desc {
+  margin: 0;
+  font-size: var(--ms-text-xs);
+  line-height: 1.4;
+  color: var(--ms-fg-muted);
+}
+.charsheet.charsheet.charsheet .settings-sheet__back.button {
+  gap: var(--ms-space-sm);
+  padding: var(--ms-space-md) var(--ms-space-lg);
+  font-size: var(--ms-text-md);
+}
+.charsheet.charsheet.charsheet
+  input[name="attr_sheet_toggle"][value="pc"]
+  ~ .sheet-view--settings
+  .settings-sheet__group--pc,
+.charsheet.charsheet.charsheet
+  input[name="attr_sheet_toggle"][value="npc"]
+  ~ .sheet-view--settings
+  .settings-sheet__group--npc,
 .charsheet.charsheet.charsheet
   input[name="attr_sheet_toggle"][value="ship"]
   ~ .sheet-view--settings
@@ -1359,25 +1375,8 @@ body.sheet-darkmode
 }
 .charsheet.charsheet.charsheet .pc-training__cost {
   font-size: var(--ms-text-xs);
+  white-space: nowrap;
   color: var(--ms-fg-muted);
-}
-.charsheet.charsheet.charsheet .pc-training__military {
-  display: none;
-  flex-direction: column;
-  gap: var(--ms-space-sm);
-  align-items: flex-start;
-  margin-top: var(--ms-space-lg);
-}
-.charsheet.charsheet.charsheet .pc-training__military-desc {
-  margin: 0;
-  font-size: var(--ms-text-xs);
-  line-height: 1.4;
-  color: var(--ms-fg-muted);
-}
-.charsheet.charsheet.charsheet
-  .pc-sheet:has(input[name="attr_military_training"]:checked)
-  .pc-training__military {
-  display: flex;
 }
 .charsheet.charsheet.charsheet .pc-stats-panel {
   display: flex;

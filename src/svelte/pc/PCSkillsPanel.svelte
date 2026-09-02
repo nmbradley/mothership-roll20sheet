@@ -5,7 +5,6 @@
   } from "#game/fields/pcFields.js";
   import { SKILL_TRAINING_COSTS } from "#rules/skills.js";
   import Attribute from "#svelte/components/Attribute.svelte";
-  import Button from "#svelte/components/Button.svelte";
   import Panel from "#svelte/components/Panel.svelte";
   import PCSkillSection from "#svelte/pc/components/PCSkillSection.svelte";
 
@@ -79,22 +78,6 @@
         </div>
       {/each}
     </div>
-
-    <!--
-      #49/#122: the Military Training exception -- 6 years, free, its own
-      Combat Check. Once-per-character and Warden-gated, so it stays hidden
-      until the military_training setting is turned on -- see the CSS below.
-    -->
-    <div class="pc-training__military">
-      <Button action="military_training" label="Military Training" />
-      <p class="pc-training__military-desc" data-i18n="Military Training Description">
-        6 years, free. Rolls a Combat Check: on a success, gain Military Training,
-        Athletics, 2 Trained Skills (1 Expert on a Critical Success), +10 Combat,
-        -10 to a chosen Stat and Marine Trauma Response. On a failure, gain Military
-        Training, Athletics, 1 Trained Skill and Marine Trauma Response. A Critical
-        Failure kills the character in action.
-      </p>
-    </div>
   </div>
 </Panel>
 
@@ -152,32 +135,13 @@
     list-style: none;
   }
 
+  // #157: one row per tier -- forced rather than left to wrap, since a
+  // sentence this length otherwise breaks across two lines and defeats the
+  // point of a compact reference list.
   &__cost {
     font-size: var(--ms-text-xs);
+    white-space: nowrap;
     color: var(--ms-fg-muted);
   }
-
-  // Hidden until the military_training setting is on -- see the :has() gate
-  // below, which flips this back to flex.
-  &__military {
-    display: none;
-    flex-direction: column;
-    gap: var(--ms-space-sm);
-    align-items: flex-start;
-
-    margin-top: var(--ms-space-lg);
-  }
-
-  &__military-desc {
-    margin: 0;
-
-    font-size: var(--ms-text-xs);
-    line-height: 1.4;
-    color: var(--ms-fg-muted);
-  }
-}
-
-.pc-sheet:has(input[name="attr_military_training"]:checked) .pc-training__military {
-  display: flex;
 }
 </style>
