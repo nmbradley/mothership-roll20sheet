@@ -1,6 +1,8 @@
 export type Armor = {
   name: string;
   points: string;
+  /** Damage Reduction, when the armor carries one. Most armor does not. */
+  reduction?: string;
   description: string;
 };
 
@@ -32,6 +34,7 @@ export const armor: Armor[] = [
   {
     name: "Advanced Battle Dress",
     points: "10",
+    reduction: "3",
     description:
       "Armadyne “Heavy-K” Advanced Battle Dress. Armor Points: 10. Combat heavy attire for offworld engagements. Heavy: Speed Checks at [-]. Damage Reduction: 3. Includes Heads-Up Display (HUD), Body Cam, Radiation Shielding, Short-Range Comms, and Exoskeletal Weave (grants [+] to Strength Checks).",
   },

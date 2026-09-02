@@ -6084,6 +6084,7 @@
     {
       name: "Advanced Battle Dress",
       points: "10",
+      reduction: "3",
       description: "Armadyne \u201CHeavy-K\u201D Advanced Battle Dress. Armor Points: 10. Combat heavy attire for offworld engagements. Heavy: Speed Checks at [-]. Damage Reduction: 3. Includes Heads-Up Display (HUD), Body Cam, Radiation Shielding, Short-Range Comms, and Exoskeletal Weave (grants [+] to Strength Checks)."
     }
   ];
@@ -6607,6 +6608,9 @@
     };
     if (item?.kind === "armor") {
       attrs[`${row}_armor_points`] = item.entry.points;
+      if (item.entry.reduction !== void 0) {
+        attrs[`${row}_damage_reduction`] = item.entry.reduction;
+      }
       return attrs;
     }
     if (item?.kind === "weapon") {
