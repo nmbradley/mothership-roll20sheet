@@ -541,7 +541,7 @@ export async function rollAttack(options: CheckOptions, rowId?: string): Promise
 
   if (shouldReadAttrs) {
     const keys = [
-      "stress", "stress_min", "stress_max", "sheet_toggle",
+      "stress", "stress_min", "sheet_toggle",
       ...(shotsKey === undefined ? [] : [shotsKey]),
     ];
 
@@ -553,8 +553,7 @@ export async function rollAttack(options: CheckOptions, rowId?: string): Promise
       if (grade.stressDelta !== 0 && !isNpcSheet(attrs.sheet_toggle)) {
         const stress = Number(attrs.stress);
         const min = Number(attrs.stress_min);
-        const max = Number(attrs.stress_max);
-        applyStressDelta(stress, grade.stressDelta, min, max);
+        applyStressDelta(stress, grade.stressDelta, min);
       }
 
       if (shotsKey === undefined) return;
@@ -596,18 +595,23 @@ export async function rollNPCInitiative(): Promise<CheckResult> {
   return check;
 }
 
+/** 1e caps Stress at 20 (#42). A fixed rule constant, not per-character. */
+export const STRESS_MAX = 20;
+
 /**
- * Applies a Stress change and writes it back, clamped to the given bounds.
+ * Applies a Stress change and writes it back, clamped to the bounds.
  *
- * stress_min and stress_max are declared attributes (#42); the bounds still
- * travel with the call rather than being read here, since a caller already
- * has them fresh from its own getAttrs and this is the one place that writes
- * Stress, so the several checks that grant or reduce it (#47, #48, #51) agree
- * on how the clamp works.
+ * The minimum still travels with the call: it is a real attribute the card
+ * shows, and a caller already has it fresh from its own getAttrs. The maximum
+ * does not -- it is the same 20 for every character, so it lives here rather
+ * than costing an attribute read on every Stress write.
+ *
+ * This is the one place that writes Stress, so the several checks that grant
+ * or reduce it (#47, #48, #51) agree on how the clamp works.
  */
-export function applyStressDelta(current: number, delta: number, min: number, max: number): void {
+export function applyStressDelta(current: number, delta: number, min: number): void {
   const floored = Math.max(min, current + delta);
-  const next = Math.min(max, floored);
+  const next = Math.min(STRESS_MAX, floored);
   setAttrs({ stress: next });
 }
 
@@ -706,11 +710,10 @@ export async function rollRestSave(): Promise<void> {
   });
 
   const delta = restSaveStressDelta(check);
-  getAttrs(["stress", "stress_min", "stress_max"], (attrs) => {
+  getAttrs(["stress", "stress_min"], (attrs) => {
     const stress = Number(attrs.stress);
     const min = Number(attrs.stress_min);
-    const max = Number(attrs.stress_max);
-    applyStressDelta(stress, delta, min, max);
+    applyStressDelta(stress, delta, min);
   });
 }
 

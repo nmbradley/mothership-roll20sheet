@@ -423,12 +423,6 @@
                   name="attr_stress_min"
                   value="2"
                 />
-                <input
-                  class="attribute__input attribute__input--hidden"
-                  type="hidden"
-                  name="attr_stress_max"
-                  value="20"
-                />
               </div>
             </div>
             <div class="pc-status-notes">
@@ -7283,7 +7277,6 @@
       const keys = [
         "stress",
         "stress_min",
-        "stress_max",
         "sheet_toggle",
         ...shotsKey === void 0 ? [] : [shotsKey]
       ];
@@ -7291,8 +7284,7 @@
         if (grade.stressDelta !== 0 && !isNpcSheet(attrs.sheet_toggle)) {
           const stress = Number(attrs.stress);
           const min = Number(attrs.stress_min);
-          const max = Number(attrs.stress_max);
-          applyStressDelta(stress, grade.stressDelta, min, max);
+          applyStressDelta(stress, grade.stressDelta, min);
         }
         if (shotsKey === void 0) return;
         const spent = spendAmmo(attrs[shotsKey] ?? "");
@@ -7320,9 +7312,10 @@
     });
     return check;
   }
-  function applyStressDelta(current, delta, min, max) {
+  var STRESS_MAX = 20;
+  function applyStressDelta(current, delta, min) {
     const floored = Math.max(min, current + delta);
-    const next = Math.min(max, floored);
+    const next = Math.min(STRESS_MAX, floored);
     setAttrs({ stress: next });
   }
   function makePanicCheck(stress, rolls, edge = Edges.None) {
@@ -7368,11 +7361,10 @@
       target: "@{worst_save}"
     });
     const delta = restSaveStressDelta(check);
-    getAttrs(["stress", "stress_min", "stress_max"], (attrs) => {
+    getAttrs(["stress", "stress_min"], (attrs) => {
       const stress = Number(attrs.stress);
       const min = Number(attrs.stress_min);
-      const max = Number(attrs.stress_max);
-      applyStressDelta(stress, delta, min, max);
+      applyStressDelta(stress, delta, min);
     });
   }
   async function rollDeathSave() {
