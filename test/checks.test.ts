@@ -12,6 +12,7 @@ import {
 } from "../src/ts/rules/rolls";
 import {
   applyStressDelta,
+  STRESS_MAX,
   buildSkillCatalog,
   buildSkillQuery,
   gradeAttack,
@@ -448,7 +449,7 @@ describe("applyStressDelta", () => {
     const mockSetAttrs = vi.fn();
     vi.stubGlobal("setAttrs", mockSetAttrs);
 
-    applyStressDelta(5, 1, 0, 10);
+    applyStressDelta(5, 1, 0);
 
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 6 });
   });
@@ -457,18 +458,18 @@ describe("applyStressDelta", () => {
     const mockSetAttrs = vi.fn();
     vi.stubGlobal("setAttrs", mockSetAttrs);
 
-    applyStressDelta(3, -5, 2, 10);
+    applyStressDelta(3, -5, 2);
 
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 2 });
   });
 
-  it("should clamp a gain at the given maximum", () => {
+  it("should clamp a gain at 1e's fixed Stress maximum", () => {
     const mockSetAttrs = vi.fn();
     vi.stubGlobal("setAttrs", mockSetAttrs);
 
-    applyStressDelta(9, 5, 0, 10);
+    applyStressDelta(STRESS_MAX - 1, 5, 0);
 
-    expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 10 });
+    expect(mockSetAttrs).toHaveBeenCalledWith({ stress: STRESS_MAX });
   });
 });
 
@@ -520,7 +521,7 @@ describe("restSaveStressDelta", () => {
 
     const mockSetAttrs = vi.fn();
     vi.stubGlobal("setAttrs", mockSetAttrs);
-    applyStressDelta(3, delta, 2, 20);
+    applyStressDelta(3, delta, 2);
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 2 });
   });
 });
