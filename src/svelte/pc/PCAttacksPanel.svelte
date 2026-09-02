@@ -32,8 +32,8 @@
     trailing={1}
   >
     <div class="pc-attack-name">
-      <Attribute field={attack_name} isLabelHidden />
       <ButtonAction action="attack" label="" />
+      <Attribute field={attack_name} isLabelHidden />
     </div>
 
     <Attribute field={attack_type} isLabelHidden />
@@ -92,11 +92,18 @@
 
     color: var(--ms-fg-inverse);
 
+    // #160: a d10 from Roll20's own dicefontd10 icon font (documented under
+    // "Icon Fonts" on the CSS Wizardry sheet-author wiki page, alongside
+    // Pictos), replacing the "\25CE" placeholder -- attacks roll d100 (two
+    // d10s). "k" is one of several die-face characters this font exposes;
+    // it is the one Roll20's own sheet authors recommend for reading as a
+    // plain d10 outline rather than a specific pip count.
     &::before {
-      content: "\25CE";
+      content: "k";
 
       font-size: var(--ms-text-md);
       line-height: 1;
+      font-family: "dicefontd10";
     }
 
     &:hover {
