@@ -339,6 +339,53 @@ describe("Ship Rules & Mechanics", () => {
 
       vi.unstubAllGlobals();
     });
+
+    // Mirrors the #110/#152 regression coverage on rollRestSave/rollAttack:
+    // the Battle Check's own startRoll must be reached synchronously off the
+    // click, before the getAttrs that reads Hull/MDMG for the follow-up.
+    it("should reach the Battle Check's startRoll before making any getAttrs call", async () => {
+      const calls: string[] = [];
+      type GetAttrsCallback = (response: Record<string, string>) => void;
+      const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
+        calls.push("getAttrs");
+        callback({
+          ship_hull: "0",
+          ship_mdmg: "1",
+          ship_mdmg_total: "3",
+        });
+      });
+      const mockStartRoll = vi.fn()
+        .mockImplementationOnce(() => {
+          calls.push("startRoll");
+          return Promise.resolve({
+            rollId: "check",
+            results: {
+              roll: { result: 90 },
+              roll2: { result: 90 },
+              target: { result: 50 },
+            },
+          });
+        })
+        .mockImplementationOnce(() => {
+          calls.push("startRoll");
+          return Promise.resolve({
+            rollId: "alert",
+            results: {},
+          });
+        });
+      vi.stubGlobal("getAttrs", mockGetAttrs);
+      vi.stubGlobal("startRoll", mockStartRoll);
+      vi.stubGlobal("finishRoll", vi.fn());
+      vi.stubGlobal("setAttrs", vi.fn());
+      stubTranslation();
+
+      await handleBattleCheck();
+      await flush();
+
+      expect(calls).toEqual(["startRoll", "getAttrs", "startRoll"]);
+
+      vi.unstubAllGlobals();
+    });
   });
 
   describe("shipFailureAlert", () => {

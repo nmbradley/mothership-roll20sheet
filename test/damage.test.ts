@@ -427,4 +427,68 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
       alert: "",
     });
   });
+
+  // #171: handleTakeDamage/handleTakeWound read state through a Roll20
+  // getAttrs callback and only then call startRoll, rather than reaching it
+  // straight off the click like every other handler. Roll20 keeps the
+  // character bound across its own callbacks -- the same reason
+  // recomputeWorstSave has always worked -- so startRoll firing from inside
+  // that callback, with no awaited promise in between, is the correct shape.
+  // Pinning the call order here, with no await/flush at all, catches a
+  // regression the same way the #110/#152 fixes did: a promise-wrapped
+  // getAttrs would push "startRoll" out to a later microtask instead of
+  // leaving it in this same synchronous call.
+  it("handleTakeDamage reaches startRoll from inside readDamageState's own getAttrs callback", () => {
+    const calls: string[] = [];
+    vi.stubGlobal("getAttrs", (_request: string[], callback: (response: Record<string, string>) => void) => {
+      calls.push("getAttrs");
+      callback({
+        health: "10",
+        health_max: "10",
+        wounds: "0",
+        wounds_max: "2",
+        armor_points: "0",
+        damage_reduction: "0",
+      });
+    });
+    const mockStartRoll = vi.fn(() => {
+      calls.push("startRoll");
+      return Promise.resolve({
+        rollId: "id",
+        results: {},
+      });
+    });
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("setAttrs", vi.fn());
+    vi.stubGlobal("finishRoll", vi.fn());
+
+    handleTakeDamage();
+
+    expect(calls).toEqual(["getAttrs", "startRoll"]);
+  });
+
+  it("handleTakeWound reaches startRoll from inside readWoundState's own getAttrs callback", () => {
+    const calls: string[] = [];
+    vi.stubGlobal("getAttrs", (_request: string[], callback: (response: Record<string, string>) => void) => {
+      calls.push("getAttrs");
+      callback({
+        wounds: "0",
+        wounds_max: "2",
+      });
+    });
+    const mockStartRoll = vi.fn(() => {
+      calls.push("startRoll");
+      return Promise.resolve({
+        rollId: "id",
+        results: {},
+      });
+    });
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("setAttrs", vi.fn());
+    vi.stubGlobal("finishRoll", vi.fn());
+
+    handleTakeWound();
+
+    expect(calls).toEqual(["getAttrs", "startRoll"]);
+  });
 });
