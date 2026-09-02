@@ -115,10 +115,14 @@ function equipmentRows(name: string): SheetAttributes {
     [`${row}_type`]: itemType(item),
   };
 
-  // Armor Points live on the row itself, like any other equipment (#112);
-  // the equipment section's own sheetworker sums them into the panel total.
+  // Armor Points and Damage Reduction live on the row itself, like any other
+  // equipment (#112); the equipment section's own sheetworker sums them into
+  // the panel total.
   if (item?.kind === "armor") {
     attrs[`${row}_armor_points`] = item.entry.points;
+    if (item.entry.reduction !== undefined) {
+      attrs[`${row}_damage_reduction`] = item.entry.reduction;
+    }
     return attrs;
   }
 

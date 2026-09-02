@@ -2,9 +2,25 @@ import {
   describe, it, expect, vi,
 } from "vitest";
 
+import { armor } from "../src/game/data/armor";
 import { DESTROYED_AP, handleDestroyArmor } from "../src/ts/rules/armor";
 
 describe("Armor", () => {
+  describe("armor data", () => {
+    it("carries Advanced Battle Dress's Damage Reduction from its printed description", () => {
+      const advancedBattleDress = armor.find((entry) => entry.name === "Advanced Battle Dress");
+      expect(advancedBattleDress?.reduction).toBe("3");
+    });
+
+    it("leaves reduction unset for armor whose description names no Damage Reduction", () => {
+      const withoutReduction = armor.filter((entry) => entry.name !== "Advanced Battle Dress");
+      expect(withoutReduction.length).toBeGreaterThan(0);
+      for (const entry of withoutReduction) {
+        expect(entry.reduction).toBeUndefined();
+      }
+    });
+  });
+
   describe("DESTROYED_AP", () => {
     it("is zero", () => {
       expect(DESTROYED_AP).toBe(0);
