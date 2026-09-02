@@ -18,12 +18,16 @@ type RepeatingSectionDetails = {
   list: string[];
 };
 
-type GetAttrsResponse = { [x: string]: string | number };
-
 type EventInfo = {
   sourceAttribute: string;
-  newValue: string;
-  previousValue: string;
+  /**
+   * Present on `change:` and `mancerchange:` events only. A `clicked:` event
+   * carries no value, so this is undefined there -- declaring it required
+   * would let a click handler read it without a warning.
+   */
+  newValue?: string;
+  /** Present on `change:` events only; see {@link EventInfo.newValue}. */
+  previousValue?: string;
   sourceType: string;
   triggerName: string;
   /** Present on repeating-section events: the row that raised it. */
@@ -86,7 +90,13 @@ declare function finishRoll(
 ): void;
 
 // --- TRANSLATION FUNCTIONS ---
-declare function getTranslationByKey(key: string | string[]): string;
+/**
+ * Roll20 returns `false` -- not a string, and not undefined -- when the key is
+ * missing from the loaded translation, which happens whenever translation.json
+ * on the campaign is older than the sheet asking for a key. Callers must
+ * narrow before touching string methods.
+ */
+declare function getTranslationByKey(key: string | string[]): string | false;
 
 declare function getTranslationLanguage(): string;
 
@@ -94,6 +104,8 @@ declare function getTranslationLanguage(): string;
 declare function setDefaultToken(settings: Record<string, unknown>): void;
 
 // --- COMPENDIUM FUNCTIONS ---
+// Unused by this sheet, so the response shape is taken from Roll20's docs
+// rather than verified against live behaviour -- narrow before trusting it.
 declare function getCompendiumPage(
   page: string,
   callback: (pageData: CompendiumResponse) => void,

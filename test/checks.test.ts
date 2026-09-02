@@ -54,14 +54,17 @@ describe("buildSkillCatalog", () => {
       {
         name: "Genetics",
         bonus: SKILL_BONUS.trained,
+        level: "trained",
       },
       {
         name: "Hacking",
         bonus: SKILL_BONUS.expert,
+        level: "expert",
       },
       {
         name: "Astrogation",
         bonus: SKILL_BONUS.master,
+        level: "master",
       },
     ]);
   });
@@ -71,6 +74,7 @@ describe("buildSkillCatalog", () => {
     expect(catalog).toEqual([{
       name: "Genetics",
       bonus: SKILL_BONUS.trained,
+      level: "trained",
     }]);
   });
 
@@ -90,7 +94,7 @@ describe("buildSkillQuery", () => {
     // before #5.
     translateWith({});
     expect(buildSkillQuery([])).toBe(
-      "?{Apply Skill?|None,0|Trained,10[Trained]|Expert,15[Expert]|Master,20[Master]}",
+      "?{Apply Skill?|None,0|Trained (+10),10[Trained]|Expert (+15),15[Expert]|Master (+20),20[Master]}",
     );
   });
 
@@ -105,15 +109,18 @@ describe("buildSkillQuery", () => {
       {
         name: "Genetics",
         bonus: SKILL_BONUS.trained,
+        level: "trained",
       },
       {
         name: "Hydroponics",
         bonus: SKILL_BONUS.expert,
+        level: "expert",
       },
     ]);
     expect(query).toBe(
-      "?{Apply Skill?|None,0|Genetics,10[Genetics]|Hydroponics,15[Hydroponics]"
-      + "|Trained,10[Trained]|Expert,15[Expert]|Master,20[Master]}",
+      "?{Apply Skill?|None,0|Trained: Genetics (+10),10[Genetics]"
+      + "|Expert: Hydroponics (+15),15[Hydroponics]"
+      + "|Trained (+10),10[Trained]|Expert (+15),15[Expert]|Master (+20),20[Master]}",
     );
   });
 
@@ -125,10 +132,11 @@ describe("buildSkillQuery", () => {
     const query = buildSkillQuery([{
       name: "Genetics",
       bonus: SKILL_BONUS.trained,
+      level: "trained",
     }]);
     expect(query).toBe(
-      "?{Compétence ?|Aucune,0|Genetics,10[Genetics]"
-      + "|Trained,10[Trained]|Expert,15[Expert]|Master,20[Master]}",
+      "?{Compétence ?|Aucune,0|Trained: Genetics (+10),10[Genetics]"
+      + "|Trained (+10),10[Trained]|Expert (+15),15[Expert]|Master (+20),20[Master]}",
     );
   });
 
@@ -140,8 +148,11 @@ describe("buildSkillQuery", () => {
     const query = buildSkillQuery([{
       name: "Gen|et,ics{}[]",
       bonus: SKILL_BONUS.trained,
+      level: "trained",
     }]);
-    expect(query).toBe("?{Apply Skill?|None,0|Genetics,10[Genetics]|Trained,10[Trained]|Expert,15[Expert]|Master,20[Master]}");
+    expect(query).toBe(
+      "?{Apply Skill?|None,0|Trained: Genetics (+10),10[Genetics]|Trained (+10),10[Trained]|Expert (+15),15[Expert]|Master (+20),20[Master]}",
+    );
   });
 });
 
@@ -179,7 +190,7 @@ describe("recomputeSkillQuery", () => {
     await recomputeSkillQuery();
 
     expect(mockSetAttrs).toHaveBeenCalledWith({
-      skill_query: "?{Apply Skill?|None,0|Genetics,10[Genetics]|Trained,10[Trained]|Expert,15[Expert]|Master,20[Master]}",
+      skill_query: "?{Apply Skill?|None,0|Trained: Genetics (+10),10[Genetics]|Trained (+10),10[Trained]|Expert (+15),15[Expert]|Master (+20),20[Master]}",
     });
   });
 
@@ -194,7 +205,7 @@ describe("recomputeSkillQuery", () => {
     await recomputeSkillQuery();
 
     expect(mockSetAttrs).toHaveBeenCalledWith({
-      skill_query: "?{Apply Skill?|None,0|Trained,10[Trained]|Expert,15[Expert]|Master,20[Master]}",
+      skill_query: "?{Apply Skill?|None,0|Trained (+10),10[Trained]|Expert (+15),15[Expert]|Master (+20),20[Master]}",
     });
   });
 });
@@ -1040,6 +1051,9 @@ describe("rollAttack", () => {
       name: "@{attack_name}",
       target: "@{combat}",
     }, "-row1");
+    // The Out of Ammo card is posted from inside the getAttrs callback, so it
+    // is still in flight when rollAttack itself resolves.
+    for (let i = 0; i < 5; i += 1) await Promise.resolve();
 
     expect(mockStartRoll).toHaveBeenCalledTimes(3);
     expect(mockFinishRoll).toHaveBeenLastCalledWith("empty", {

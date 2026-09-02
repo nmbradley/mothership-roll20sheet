@@ -38,6 +38,18 @@ import {
   handleRevealFuelBid,
 } from "../src/ts/rules/ships";
 
+/**
+ * Lets a fire-and-forget follow-up card settle.
+ *
+ * handleBattleCheck posts its alert from inside the getSectionIDs/getAttrs
+ * callback that reads the ship's Hull and MDMG, so it is still in flight when
+ * the handler itself resolves -- without this the roll lands after the test
+ * has unstubbed finishRoll, and surfaces as an unhandled rejection.
+ */
+async function flush(): Promise<void> {
+  for (let i = 0; i < 5; i += 1) await Promise.resolve();
+}
+
 /** Stands in for Roll20's translator, echoing every key untranslated. */
 function stubTranslation(): void {
   vi.stubGlobal("getTranslationByKey", (key: string) => key);
@@ -275,6 +287,7 @@ describe("Ship Rules & Mechanics", () => {
       await handleSystemsCheck();
       await handleThrustersCheck();
       await handleBattleCheck();
+      await flush();
 
       const formulas = mockStartRoll.mock.calls.map((call) => call[0] as string);
       const expressions = formulas.flatMap((formula) => formula.match(D100_EXPRESSION) ?? []);
@@ -316,6 +329,7 @@ describe("Ship Rules & Mechanics", () => {
       vi.stubGlobal("setAttrs", mockSetAttrs);
 
       await handleBattleCheck();
+      await flush();
 
       // Hull is already 0, so the 1 self-inflicted MDMG carries straight onto the track.
       expect(mockSetAttrs).toHaveBeenCalledWith({

@@ -6,6 +6,7 @@ import {
   SkillLevels, allSaves, allStats, type Stat,
 } from "#game/enums.js";
 import { titleCase } from "#game/text.js";
+import { translateOr } from "#rules/translation.js";
 
 import {
   attributeKey, charmancerData, resolveNumber, stepRows, stepValues,
@@ -59,9 +60,9 @@ function addClassCard(definition: ClassDef | undefined): void {
   const name = definition?.name ?? CUSTOM_CLASS;
 
   addRepeatingSection(CLASS_LIST, "class", (rowId: string) => {
-    const title = definition === undefined ? getTranslationByKey(CUSTOM_CLASS) : name;
+    const title = definition === undefined ? translateOr(CUSTOM_CLASS) : name;
     const description = definition?.desc
-      ?? getTranslationByKey("choose this option to enter your own information");
+      ?? translateOr("choose this option to enter your own information");
 
     setAttrs({ [`${rowId}_name`]: name });
     setCharmancerText({

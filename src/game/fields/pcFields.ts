@@ -293,7 +293,7 @@ export const skill_query = attribute({
   name: "skill_query",
   label: "Skill Query",
   control: Controls.Hidden,
-  value: "?{Apply Skill?|None,0|Trained,10[Trained]|Expert,15[Expert]|Master,20[Master]}",
+  value: "?{Apply Skill?|None,0|Trained (+10),10[Trained]|Expert (+15),15[Expert]|Master (+20),20[Master]}",
 });
 export const drop_category = attribute({
   name: "drop_category",

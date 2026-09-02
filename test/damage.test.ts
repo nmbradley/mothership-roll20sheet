@@ -14,6 +14,18 @@ import {
   type DamageState,
 } from "../src/ts/rules/damage";
 
+/**
+ * Lets the roll half of a handler run.
+ *
+ * The handlers read their state through a Roll20 callback and only then start
+ * the roll, so there is no promise for a test to await -- draining the
+ * microtask queue a few times lets the awaited startRoll/finishRoll chain
+ * inside settle.
+ */
+async function flush(): Promise<void> {
+  for (let i = 0; i < 5; i += 1) await Promise.resolve();
+}
+
 afterEach(() => {
   vi.unstubAllGlobals();
 });
@@ -280,7 +292,8 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
     vi.stubGlobal("setAttrs", mockSetAttrs);
     vi.stubGlobal("finishRoll", mockFinishRoll);
 
-    await handleTakeDamage();
+    handleTakeDamage();
+    await flush();
 
     const formula = mockStartRoll.mock.calls[0]?.[0] as string;
     expect(formula.match(/wound_roll_\d/g)).toHaveLength(2);
@@ -334,7 +347,8 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
     vi.stubGlobal("setAttrs", mockSetAttrs);
     vi.stubGlobal("finishRoll", vi.fn());
 
-    await handleTakeDamage();
+    handleTakeDamage();
+    await flush();
 
     expect(mockSetAttrs).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -370,7 +384,8 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
     vi.stubGlobal("setAttrs", vi.fn());
     vi.stubGlobal("finishRoll", mockFinishRoll);
 
-    await handleTakeDamage();
+    handleTakeDamage();
+    await flush();
 
     expect(mockFinishRoll).toHaveBeenCalledWith("id", expect.objectContaining({
       alert: MAX_WOUNDS_ALERT,
@@ -398,7 +413,8 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
     vi.stubGlobal("setAttrs", mockSetAttrs);
     vi.stubGlobal("finishRoll", mockFinishRoll);
 
-    await handleTakeWound();
+    handleTakeWound();
+    await flush();
 
     expect(mockSetAttrs).toHaveBeenCalledWith({
       wounds: 1,

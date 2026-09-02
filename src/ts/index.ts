@@ -110,14 +110,14 @@ const ARMOR_ROW_EVENTS = [
   "remove:repeating_equipment",
 ].join(" ");
 on(ARMOR_ROW_EVENTS, () => {
-  void recalculateArmorTotals();
+  recalculateArmorTotals();
 });
 
 // #127: armor_points and damage_reduction are never written until an Armor
 // row changes, so a sheet opened before that leaves both attributes
 // unwritten -- this seeds them from whatever equipment is already worn.
 on("sheet:opened", () => {
-  void recalculateArmorTotals();
+  recalculateArmorTotals();
 });
 
 // --- CHECKS ---
@@ -188,10 +188,17 @@ const SKILL_ROW_EVENTS = [
   "remove:repeating_master",
 ].join(" ");
 on(SKILL_ROW_EVENTS, () => {
-  void recomputeSkillQuery();
+  recomputeSkillQuery();
 });
 on("sheet:opened", () => {
-  void recomputeSkillQuery();
+  recomputeSkillQuery();
+});
+
+// Launching the Charactermancer from the settings page. A `back`-type button
+// only navigates between charmancer pages from inside a <charmancer> block;
+// reaching it from the sheet needs this.
+on("clicked:launch_charmancer", () => {
+  startCharactermancer("intro");
 });
 
 on("clicked:death_save", () => {
@@ -199,11 +206,11 @@ on("clicked:death_save", () => {
 });
 
 on("clicked:take_damage", () => {
-  void handleTakeDamage();
+  handleTakeDamage();
 });
 
 on("clicked:take_wound", () => {
-  void handleTakeWound();
+  handleTakeWound();
 });
 
 // Rolls made from a repeating row read that row's own attributes. The PC and
@@ -275,10 +282,10 @@ on("mancerchange:repeating_choicerow", (eventInfo) => {
   // Both skill and floating-bonus pickers are charactermancer "choice rows"
   // and share this one event; the field that changed tells them apart.
   if (eventInfo.sourceAttribute === "floatstat") {
-    applyFloatingBonus(eventInfo.newValue);
+    applyFloatingBonus(eventInfo.newValue ?? "");
     return;
   }
-  disableChosenSkill(eventInfo.newValue);
+  disableChosenSkill(eventInfo.newValue ?? "");
 });
 
 on("page:skills", () => {
@@ -295,7 +302,7 @@ on("page:equipment", () => {
   onLoadEquipment();
 });
 on("mancerchange:package", (eventInfo) => {
-  chooseEquipmentPackage(eventInfo.newValue);
+  chooseEquipmentPackage(eventInfo.newValue ?? "");
 });
 on("mancerroll:credits", (eventInfo) => {
   rollCredits(eventInfo.roll ?? []);

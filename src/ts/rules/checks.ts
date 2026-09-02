@@ -24,6 +24,7 @@ import {
   type Outcome,
 } from "./rolls";
 import { deathSaveEffect } from "./tables";
+import { translateOr } from "./translation";
 
 /**
  * Sheetworker entry points for rolling.
@@ -86,8 +87,13 @@ const MODIFIER_QUERY = "?{Modifier?|0}";
  * `?` is left alone: only `?{` opens a query, and dropping the brace is enough.
  */
 function queryText(key: string): string {
-  const translated = getTranslationByKey(key);
-  const cleaned = translated.replace(QUERY_SYNTAX, "").trim();
+  // getTranslationByKey returns `false` for a key the campaign's translation
+  // does not carry -- which is every new key until translation.json is
+  // re-uploaded. Calling .replace on that throws inside the sheetworker and
+  // takes the whole handler down with it, so the write it was building never
+  // happens. Fall through to the English rather than trusting the type.
+  const source = translateOr(key);
+  const cleaned = source.replace(QUERY_SYNTAX, "").trim();
   if (cleaned !== "") return cleaned;
 
   // A translation of nothing but syntax leaves the English standing.
@@ -103,6 +109,8 @@ export const NONE_LABEL = "None";
 export type SkillCatalogEntry = {
   name: string;
   bonus: number;
+  /** The tier the Skill sits in, e.g. "trained". Titled and translated for display. */
+  level: string;
 };
 
 /**
@@ -114,24 +122,39 @@ export function buildSkillCatalog(
   expert: readonly string[],
   master: readonly string[],
 ): SkillCatalogEntry[] {
-  const tiers: readonly [readonly string[], number][] = [
-    [trained, SKILL_BONUS.trained],
-    [expert, SKILL_BONUS.expert],
-    [master, SKILL_BONUS.master],
+  const tiers: readonly [readonly string[], number, string][] = [
+    [trained, SKILL_BONUS.trained, "trained"],
+    [expert, SKILL_BONUS.expert, "expert"],
+    [master, SKILL_BONUS.master, "master"],
   ];
 
   const catalog: SkillCatalogEntry[] = [];
-  for (const [names, bonus] of tiers) {
+  for (const [names, bonus, level] of tiers) {
     for (const name of names) {
       const trimmed = name.trim();
       if (trimmed === "") continue;
       catalog.push({
         name: trimmed,
         bonus,
+        level,
       });
     }
   }
   return catalog;
+}
+
+/**
+ * How one option reads in the dropdown: "Expert: Hyperdrives (+15)".
+ *
+ * The tier and the bonus both sit in the label because a Skill's name alone
+ * says nothing about what picking it is worth, and the same name can be
+ * written on more than one tier's rows.
+ */
+function skillOptionLabel(level: string, name: string, bonus: number): string {
+  const titled = titleCase(level);
+  const tier = queryText(titled);
+  const label = `${tier}: ${name} (+${String(bonus)})`;
+  return label;
 }
 
 /**
@@ -165,7 +188,8 @@ export function buildSkillQuery(catalog: readonly SkillCatalogEntry[]): string {
   for (const entry of catalog) {
     const safeName = sanitizeSkillName(entry.name);
     if (safeName === "") continue;
-    options.push(`${safeName},${String(entry.bonus)}[${safeName}]`);
+    const label = skillOptionLabel(entry.level, safeName, entry.bonus);
+    options.push(`${label},${String(entry.bonus)}[${safeName}]`);
   }
 
   options.push(...tierOptions());
@@ -197,9 +221,10 @@ function tierOptions(): string[] {
   for (const [level, bonus] of Object.entries(SKILL_BONUS)) {
     const name = titleCase(level);
     const translated = queryText(name);
-    const label = sanitizeSkillName(translated);
-    if (label === "") continue;
-    options.push(`${label},${String(bonus)}[${label}]`);
+    const tier = sanitizeSkillName(translated);
+    if (tier === "") continue;
+    const label = `${tier} (+${String(bonus)})`;
+    options.push(`${label},${String(bonus)}[${tier}]`);
   }
   return options;
 }
@@ -234,32 +259,40 @@ export function readSkillName(expression: string | undefined): string {
 }
 
 /** One repeating section's own Skill names, row order. */
-function readSkillNames(section: string): Promise<string[]> {
-  return new Promise((resolve) => {
-    getSectionIDs(section, (ids) => {
-      if (ids.length === 0) {
-        resolve([]);
-        return;
-      }
+function readSkillNames(section: string, done: (names: string[]) => void): void {
+  getSectionIDs(section, (ids) => {
+    if (ids.length === 0) {
+      done([]);
+      return;
+    }
 
-      const keys = ids.map((id) => `${section}_${id}_skill_name`);
-      getAttrs(keys, (attrs) => {
-        const names = keys.map((key) => attrs[key] ?? "");
-        resolve(names);
-      });
+    const keys = ids.map((id) => `${section}_${id}_skill_name`);
+    getAttrs(keys, (attrs) => {
+      const names = keys.map((key) => attrs[key] ?? "");
+      done(names);
     });
   });
 }
 
-/** Every Skill the character currently has, read fresh off the three rows. */
-async function readSkillCatalog(): Promise<SkillCatalogEntry[]> {
-  const [trained, expert, master] = await Promise.all([
-    readSkillNames("repeating_trained"),
-    readSkillNames("repeating_expert"),
-    readSkillNames("repeating_master"),
-  ]);
-  const catalog = buildSkillCatalog(trained, expert, master);
-  return catalog;
+/**
+ * Every Skill the character currently has, read fresh off the three rows.
+ *
+ * Read one tier at a time through Roll20's own callbacks rather than a
+ * Promise.all. Roll20 binds the active character only for the synchronous
+ * duration of an event handler, so a promise continuation resumes after that
+ * binding is gone and the setAttrs at the end of this chain fails with
+ * "Trying to do setAttrs when no character is active in sandbox" -- silently,
+ * and invisibly to a test suite that resolves the mocked APIs synchronously.
+ */
+function readSkillCatalog(done: (catalog: SkillCatalogEntry[]) => void): void {
+  readSkillNames("repeating_trained", (trained) => {
+    readSkillNames("repeating_expert", (expert) => {
+      readSkillNames("repeating_master", (master) => {
+        const catalog = buildSkillCatalog(trained, expert, master);
+        done(catalog);
+      });
+    });
+  });
 }
 
 /**
@@ -270,9 +303,11 @@ async function readSkillCatalog(): Promise<SkillCatalogEntry[]> {
  * same shape as recomputeWorstSave (#110), seeding a character saved before
  * this attribute existed.
  */
-export async function recomputeSkillQuery(): Promise<void> {
-  const catalog = await readSkillCatalog();
-  setAttrs({ skill_query: buildSkillQuery(catalog) });
+export function recomputeSkillQuery(): void {
+  readSkillCatalog((catalog) => {
+    const query = buildSkillQuery(catalog);
+    setAttrs({ skill_query: query });
+  });
 }
 
 /** Roll20 stores "0" for an unchecked box; anything else reads as on. */
@@ -509,23 +544,26 @@ export async function rollAttack(options: CheckOptions, rowId?: string): Promise
       "stress", "stress_min", "stress_max", "sheet_toggle",
       ...(shotsKey === undefined ? [] : [shotsKey]),
     ];
-    const attrs = await new Promise<Record<string, string>>((resolve) => {
-      getAttrs(keys, resolve);
-    });
 
-    if (grade.stressDelta !== 0 && !isNpcSheet(attrs.sheet_toggle)) {
-      const stress = Number(attrs.stress);
-      const min = Number(attrs.stress_min);
-      const max = Number(attrs.stress_max);
-      applyStressDelta(stress, grade.stressDelta, min, max);
-    }
+    // Roll20's own callback, not an awaited Promise wrapper: a promise
+    // continuation resumes after the handler has returned, once the sandbox
+    // has unbound the character, and the setAttrs below then fails with
+    // "Trying to do setAttrs when no character is active in sandbox".
+    getAttrs(keys, (attrs) => {
+      if (grade.stressDelta !== 0 && !isNpcSheet(attrs.sheet_toggle)) {
+        const stress = Number(attrs.stress);
+        const min = Number(attrs.stress_min);
+        const max = Number(attrs.stress_max);
+        applyStressDelta(stress, grade.stressDelta, min, max);
+      }
 
-    if (shotsKey !== undefined) {
+      if (shotsKey === undefined) return;
+
       const spent = spendAmmo(attrs[shotsKey] ?? "");
       setAttrs({ [shotsKey]: spent });
       const isEmpty = isOutOfAmmo(spent);
-      if (isEmpty) await postOutOfAmmoAlert(options.name ?? "");
-    }
+      if (isEmpty) void postOutOfAmmoAlert(options.name ?? "");
+    });
   }
 
   return check;

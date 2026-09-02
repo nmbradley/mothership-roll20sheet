@@ -238,34 +238,30 @@ function readDamageType(index: number): DamageType {
   return allDamageTypes[index] ?? DamageTypes.Blunt;
 }
 
-function readDamageState(): Promise<DamageState> {
-  return new Promise((resolve) => {
-    getAttrs(
-      ["health", "health_max", "wounds", "wounds_max", "armor_points", "damage_reduction"],
-      (attrs) => {
-        resolve({
-          health: Number(attrs.health) || 0,
-          healthMax: Number(attrs.health_max) || 0,
-          wounds: Number(attrs.wounds) || 0,
-          woundsMax: Number(attrs.wounds_max) || 0,
-          armorPoints: Number(attrs.armor_points) || 0,
-          damageReduction: Number(attrs.damage_reduction) || 0,
-        });
-      },
-    );
-  });
-}
-
-function readWoundState(): Promise<{
-  wounds: number;
-  woundsMax: number;
-}> {
-  return new Promise((resolve) => {
-    getAttrs(["wounds", "wounds_max"], (attrs) => {
-      resolve({
+function readDamageState(done: (state: DamageState) => void): void {
+  getAttrs(
+    ["health", "health_max", "wounds", "wounds_max", "armor_points", "damage_reduction"],
+    (attrs) => {
+      done({
+        health: Number(attrs.health) || 0,
+        healthMax: Number(attrs.health_max) || 0,
         wounds: Number(attrs.wounds) || 0,
         woundsMax: Number(attrs.wounds_max) || 0,
+        armorPoints: Number(attrs.armor_points) || 0,
+        damageReduction: Number(attrs.damage_reduction) || 0,
       });
+    },
+  );
+}
+
+function readWoundState(done: (state: {
+  wounds: number;
+  woundsMax: number;
+}) => void): void {
+  getAttrs(["wounds", "wounds_max"], (attrs) => {
+    done({
+      wounds: Number(attrs.wounds) || 0,
+      woundsMax: Number(attrs.wounds_max) || 0,
     });
   });
 }
@@ -300,9 +296,14 @@ function woundAfflictionRows(rolls: readonly WoundRollResult[]): Record<string, 
  * PC-only mechanic off the NPC sheet, which shares the health/wounds/armor_points
  * attributes (see pcFields.ts) but has no Take Damage button of its own.
  */
-export async function handleTakeDamage(): Promise<void> {
-  const state = await readDamageState();
+export function handleTakeDamage(): void {
+  readDamageState((state) => {
+    void rollTakeDamage(state);
+  });
+}
 
+/** The roll half of Take Damage, once the current state has been read. */
+async function rollTakeDamage(state: DamageState): Promise<void> {
   // As many wound-table dice as Wounds has headroom for: the cascade in
   // applyDamage can never trigger more than that, since each pass costs one.
   const capacity = Math.max(0, state.woundsMax - state.wounds);
@@ -331,19 +332,26 @@ export async function handleTakeDamage(): Promise<void> {
   // Armor is a function of the rows worn (#112), so a hit that breaks it
   // zeroes the worn Armor rows' own AP/DR rather than the pooled total --
   // the panel's totals fall out of that section's own recalculation.
-  const armorUpdates = outcome.armorDestroyed ? await destroyWornArmor() : {};
+  const writeOutcome = (armorUpdates: Record<string, number>): void => {
+    setAttrs({
+      health: outcome.health,
+      wounds: outcome.wounds,
+      ...armorUpdates,
+      ...woundAfflictionRows(outcome.woundRolls),
+    });
 
-  setAttrs({
-    health: outcome.health,
-    wounds: outcome.wounds,
-    ...armorUpdates,
-    ...woundAfflictionRows(outcome.woundRolls),
-  });
+    finishRoll(rollData.rollId, {
+      notes: damageNotes(outcome),
+      alert: outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : "",
+    });
+  };
 
-  finishRoll(rollData.rollId, {
-    notes: damageNotes(outcome),
-    alert: outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : "",
-  });
+  if (outcome.armorDestroyed) {
+    destroyWornArmor(writeOutcome);
+    return;
+  }
+
+  writeOutcome({});
 }
 
 /**
@@ -351,9 +359,17 @@ export async function handleTakeDamage(): Promise<void> {
  *
  * For attacks that deal a Wound directly, bypassing Health.
  */
-export async function handleTakeWound(): Promise<void> {
-  const state = await readWoundState();
+export function handleTakeWound(): void {
+  readWoundState((state) => {
+    void rollTakeWound(state);
+  });
+}
 
+/** The roll half of Take a Wound, once the current Wounds have been read. */
+async function rollTakeWound(state: {
+  wounds: number;
+  woundsMax: number;
+}): Promise<void> {
   const formula = [
     "&{template:ms}",
     `{{name=^{${TEMPLATE_PHRASES.TakeAWound}}}}`,
