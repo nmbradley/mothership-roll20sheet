@@ -208,6 +208,33 @@ describe("recomputeSkillQuery", () => {
       skill_query: "?{Apply Skill?|None,0|Trained (+10),10[Trained]|Expert (+15),15[Expert]|Master (+20),20[Master]}",
     });
   });
+
+  // #152 regression: recomputeSkillQuery used to chain the three section
+  // reads through a Promise-wrapped getSectionIDs/getAttrs, so its setAttrs
+  // ran after a microtask had unbound the character and failed silently.
+  // Asserting setAttrs already fired with no await at all -- not even one
+  // microtask's worth -- pins the whole chain to Roll20's own callbacks.
+  it("should reach setAttrs synchronously, with no promise between the three section reads and the write", () => {
+    translateWith({});
+    const calls: string[] = [];
+    vi.stubGlobal("getSectionIDs", (section: string, callback: (ids: string[]) => void) => {
+      calls.push(`getSectionIDs:${section}`);
+      callback([]);
+    });
+    const mockSetAttrs = vi.fn(() => {
+      calls.push("setAttrs");
+    });
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    recomputeSkillQuery();
+
+    expect(calls).toEqual([
+      "getSectionIDs:repeating_trained",
+      "getSectionIDs:repeating_expert",
+      "getSectionIDs:repeating_master",
+      "setAttrs",
+    ]);
+  });
 });
 
 describe("rollCheck", () => {

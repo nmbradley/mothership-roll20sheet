@@ -165,6 +165,35 @@ describe("Sheetworkers getSectionIDs / getAttrs integration", () => {
     expect(written).toHaveProperty("damage_reduction");
   });
 
+  // #152 regression: recalculateArmorTotals used to chain getSectionIDs and
+  // getAttrs through a Promise wrapper, so setAttrs ran after a microtask had
+  // unbound the character and failed silently -- which is why Damage
+  // Reduction read empty. Asserting setAttrs already fired with no await at
+  // all pins the whole read to Roll20's own callbacks.
+  it("reaches setAttrs synchronously, with no promise between the section read and the write", () => {
+    const calls: string[] = [];
+    vi.stubGlobal("getSectionIDs", (_section: string, callback: (ids: string[]) => void) => {
+      calls.push("getSectionIDs");
+      callback(["row1"]);
+    });
+    vi.stubGlobal("getAttrs", (_request: string[], callback: (response: Record<string, string>) => void) => {
+      calls.push("getAttrs");
+      callback({
+        repeating_equipment_row1_equipment_type: "Armor",
+        repeating_equipment_row1_equipment_armor_points: "5",
+        repeating_equipment_row1_equipment_damage_reduction: "0",
+      });
+    });
+    const mockSetAttrs = vi.fn(() => {
+      calls.push("setAttrs");
+    });
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    recalculateArmorTotals();
+
+    expect(calls).toEqual(["getSectionIDs", "getAttrs", "setAttrs"]);
+  });
+
   it("destroyWornArmor reads the current rows and returns the zeroing updates", async () => {
     vi.stubGlobal("getSectionIDs", (_section: string, callback: (ids: string[]) => void) => {
       callback(["row1"]);

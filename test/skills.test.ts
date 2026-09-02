@@ -207,5 +207,44 @@ describe("Military Training exception (#49)", () => {
       expect(mockSetAttrs).not.toHaveBeenCalled();
       vi.unstubAllGlobals();
     });
+
+    // Mirrors the #110/#152 regression coverage elsewhere: the Combat
+    // Check's own startRoll must be reached synchronously off the click,
+    // before the getAttrs the Combat/Stat bonus follow-up makes.
+    it("should reach startRoll before making any getAttrs call", async () => {
+      const calls: string[] = [];
+      vi.stubGlobal("generateRowID", () => "row1");
+      vi.stubGlobal("getTranslationByKey", (key: string) => key);
+      const mockStartRoll = vi.fn(() => {
+        calls.push("startRoll");
+        return Promise.resolve({
+          rollId: "id",
+          results: {
+            roll: { result: 25 },
+            roll2: { result: 25 },
+            edge: { result: 0 },
+            target: { result: 50 },
+            stat_choice: { result: 0 },
+          },
+        });
+      });
+      type GetAttrsCallback = (response: Record<string, string>) => void;
+      const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
+        calls.push("getAttrs");
+        callback({
+          combat: "40",
+          strength: "50",
+        });
+      });
+      vi.stubGlobal("startRoll", mockStartRoll);
+      vi.stubGlobal("finishRoll", vi.fn());
+      vi.stubGlobal("getAttrs", mockGetAttrs);
+      vi.stubGlobal("setAttrs", vi.fn());
+
+      await handleMilitaryTraining();
+
+      expect(calls).toEqual(["startRoll", "getAttrs"]);
+      vi.unstubAllGlobals();
+    });
   });
 });
