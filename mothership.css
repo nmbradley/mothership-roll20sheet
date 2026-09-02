@@ -1224,7 +1224,10 @@ body.sheet-darkmode
 .charsheet.charsheet.charsheet .pc-details__fields .button--action {
   grid-column: span 1;
   align-self: end;
+  border-color: var(--ms-accent);
   border-radius: var(--ms-radius-md);
+  background: var(--ms-accent);
+  color: var(--ms-fg-inverse);
 }
 .charsheet.charsheet.charsheet .pc-equipment-totals {
   display: grid;
@@ -1435,6 +1438,21 @@ body.sheet-darkmode
   justify-content: space-around;
   min-height: 2rem;
   font-size: var(--ms-text-sm);
+  color: var(--ms-fg-muted);
+}
+.charsheet.charsheet.charsheet .pc-status-card__stress-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--ms-space-sm);
+  align-items: center;
+}
+.charsheet.charsheet.charsheet
+  .pc-status-card__stress-row
+  .attribute__value--display {
+  min-width: 1.5em;
+  font-size: var(--ms-text-lg);
+  font-weight: 700;
+  text-align: center;
   color: var(--ms-fg-muted);
 }
 .charsheet.charsheet.charsheet .pc-status-actions {
