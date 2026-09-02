@@ -47,19 +47,19 @@
          so unlike those two, the bounds stay read-only. They still render
          (#154), so a player can see 2 is the floor rather than 0; the hidden
          twins keep seeding the actual attribute value checks.ts reads via
-         getAttrs. No steppers: the field opens like any other number field
-         to change it. -->
+         getAttrs. Only the Minimum is shown: the Maximum is a rule constant
+         nobody needs on the card, but applyStressDelta still clamps to it,
+         so stress_max stays rendered hidden below. No steppers: the field
+         opens like any other number field to change it. -->
     <div class="pc-status-card">
       <div class="pc-status-card__label" data-i18n={stress.i18nLabel}>{stress.label}</div>
       <div class="pc-status-card__stress-row">
         <DisplayValue field={stress_min} isLabelHidden />
         <Attribute field={stress} isLabelHidden />
-        <DisplayValue field={stress_max} isLabelHidden />
       </div>
       <div class="pc-status-card__sublabels">
         <span data-i18n="Minimum">Minimum</span>
         <span data-i18n="Current">Current</span>
-        <span data-i18n="Maximum">Maximum</span>
       </div>
       <Attribute field={stress_min} />
       <Attribute field={stress_max} />
@@ -184,6 +184,7 @@
 
   &__sublabels {
     display: flex;
+    gap: var(--ms-space-sm);
     align-items: center;
     justify-content: space-around;
 
@@ -198,7 +199,7 @@
   // does -- these two are read-only rule constants, not a per-character pair.
   &__stress-row {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr);
     gap: var(--ms-space-sm);
     align-items: center;
 
