@@ -4,6 +4,7 @@
   } from "#game/fields/pcFields.js";
   import { ship_npc } from "#game/fields/shipFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
+  import ButtonAction from "#svelte/components/ButtonAction.svelte";
   import Panel from "#svelte/components/Panel.svelte";
   import SettingsRow from "#svelte/components/SettingsRow.svelte";
 
@@ -78,18 +79,15 @@
   {/each}
 
   <!--
-    Roll20's charactermancer navigation: a `back`-type button whose value
-    names the page to jump to, usable from anywhere in the sheet, not
-    only from inside a <charmancer> block.
+    An action button, not a `back`-type one. `type="back"` is the
+    charactermancer's own page-to-page navigation and only binds inside a
+    <charmancer> block -- on the sheet itself it does nothing at all, which
+    is how this arrived silently broken. Launching from outside goes through
+    startCharactermancer() in the sheetworker instead.
   -->
-  <button
-    class="settings-sheet__charmancer-launch"
-    type="back"
-    value="intro"
-    data-i18n="Launch Charactermancer"
-  >
-    Launch Charactermancer
-  </button>
+  <div class="settings-sheet__charmancer-launch">
+    <ButtonAction action="launch_charmancer" label="Launch Charactermancer" />
+  </div>
 </div>
 
 <style lang="scss">

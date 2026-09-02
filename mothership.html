@@ -2531,14 +2531,16 @@
           </div>
         </section>
       </div>
-      <button
-        class="settings-sheet__charmancer-launch"
-        type="back"
-        value="intro"
-        data-i18n="Launch Charactermancer"
-      >
-        Launch Charactermancer
-      </button>
+      <div class="settings-sheet__charmancer-launch">
+        <button
+          class="button button--action"
+          type="action"
+          name="act_launch_charmancer"
+        >
+          <span class="button__label" data-i18n="Launch Charactermancer"
+            >Launch Charactermancer</span>
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -8717,6 +8719,9 @@ ${SHIP_PANIC_MESSAGE}`;
   });
   on("sheet:opened", () => {
     recomputeSkillQuery();
+  });
+  on("clicked:launch_charmancer", () => {
+    startCharactermancer("intro");
   });
   on("clicked:death_save", () => {
     void rollDeathSave();

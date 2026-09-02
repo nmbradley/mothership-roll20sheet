@@ -194,6 +194,13 @@ on("sheet:opened", () => {
   recomputeSkillQuery();
 });
 
+// Launching the Charactermancer from the settings page. A `back`-type button
+// only navigates between charmancer pages from inside a <charmancer> block;
+// reaching it from the sheet needs this.
+on("clicked:launch_charmancer", () => {
+  startCharactermancer("intro");
+});
+
 on("clicked:death_save", () => {
   void rollDeathSave();
 });
