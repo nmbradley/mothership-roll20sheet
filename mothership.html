@@ -2569,6 +2569,7 @@
     Expert: "expert",
     Master: "master"
   };
+  var allSkillLevels = Object.values(SkillLevels);
   var Skills = {
     Linguistics: "linguistics",
     Zoology: "zoology",
@@ -2885,6 +2886,11 @@
       desc: "Leadership, management, and authority."
     }
   };
+  var SKILL_COST = {
+    [SkillLevels.Trained]: 1,
+    [SkillLevels.Expert]: 2,
+    [SkillLevels.Master]: 3
+  };
   function skillKey(name) {
     const key = name.replaceAll(" ", "_");
     return key;
@@ -2926,6 +2932,17 @@
     return byKey;
   }
   var skillsByKey = buildSkillsByKey();
+  function prerequisiteChain(name) {
+    const chain = [name];
+    let current = skillsByKey[skillKey(name)];
+    while (current !== void 0) {
+      const next = current.prereq?.[0];
+      if (next === void 0) break;
+      chain.push(next);
+      current = skillsByKey[skillKey(next)];
+    }
+    return chain;
+  }
   var rangeBands = {
     [RangeBands.Adjacent]: {
       band: RangeBands.Adjacent,
@@ -3148,6 +3165,40 @@
   }
 
   // src/game/data/classes.ts
+  function totalSkillPoints(skills2) {
+    if (skills2.skillPoints !== void 0) return skills2.skillPoints;
+    let total = 0;
+    for (const [level, count] of Object.entries(skills2.requiredTiers ?? {})) {
+      total += SKILL_COST[level] * count;
+    }
+    return total;
+  }
+  function evaluateSkillBudget(skills2, purchasedByLevel) {
+    let spent = 0;
+    for (const level of allSkillLevels) {
+      spent += SKILL_COST[level] * purchasedByLevel[level];
+    }
+    const remaining = totalSkillPoints(skills2) - spent;
+    if (skills2.requiredTiers !== void 0) {
+      const requiredTiers = skills2.requiredTiers;
+      const locked = {};
+      for (const level of allSkillLevels) {
+        locked[level] = purchasedByLevel[level] >= (requiredTiers[level] ?? 0);
+      }
+      return {
+        remaining,
+        locked
+      };
+    }
+    return {
+      remaining,
+      locked: {
+        [SkillLevels.Trained]: remaining <= 0,
+        [SkillLevels.Expert]: remaining <= 1,
+        [SkillLevels.Master]: remaining <= 2
+      }
+    };
+  }
   var classes = {
     [Classes.Marine]: {
       name: Classes.Marine,
@@ -3217,8 +3268,10 @@
       maxWoundsBonus: 0,
       skills: {
         granted: [Skills.IndustrialEquipment, Skills.ZeroG],
-        // 1 Trained and 1 Expert.
-        skillPoints: 3
+        requiredTiers: {
+          [SkillLevels.Trained]: 1,
+          [SkillLevels.Expert]: 1
+        }
       },
       traumaResponse: "Once per session, you may take Advantage on a Panic Check."
     }
@@ -3259,7 +3312,8 @@
     "combat_mod",
     "skill_points",
     "stress_effect",
-    "skills"
+    "skills",
+    "required_tiers"
   ];
   function onLoadClass() {
     const data = charmancerData();
@@ -3325,7 +3379,7 @@
       const joined = names.join(", ");
       lines.push(joined);
     }
-    lines.push(`${definition.skills.skillPoints} Skill Points`);
+    lines.push(`${totalSkillPoints(definition.skills)} Skill Points`);
     return lines;
   }
   function describeBonuses(bonuses, total, collectiveNoun) {
@@ -3410,8 +3464,10 @@
     const granted = definition.skills.granted;
     attrs["skills"] = JSON.stringify(granted);
     text["t__skills"] = granted.join(", ");
-    attrs["skill_points"] = definition.skills.skillPoints;
-    text["t__skill_points"] = String(definition.skills.skillPoints);
+    attrs["required_tiers"] = JSON.stringify(definition.skills.requiredTiers ?? {});
+    const skillPoints = totalSkillPoints(definition.skills);
+    attrs["skill_points"] = skillPoints;
+    text["t__skill_points"] = String(skillPoints);
     setAttrs(attrs);
     setCharmancerText(text);
     offerSkillChoices(definition);
@@ -3494,11 +3550,6 @@
   }
 
   // src/ts/charactermancer/4-skills.ts
-  var SKILL_COST = {
-    [SkillLevels.Trained]: 1,
-    [SkillLevels.Expert]: 2,
-    [SkillLevels.Master]: 3
-  };
   var CLASS_SKILL = "class";
   function onLoadSkills() {
     resetClassSkills();
@@ -3546,11 +3597,24 @@
     for (const rowId of choiceRows) {
       const chosen = values[`${rowId}_skill`];
       if (chosen === void 0 || chosen === "choose") continue;
-      const lower = chosen.toLowerCase();
-      const key = lower.replaceAll(" ", "_");
-      keys.push(key);
+      const skillName = chosen.toLowerCase();
+      const chain = prerequisiteChain(skillName);
+      for (const name of chain) {
+        const key = skillKey(name);
+        keys.push(key);
+      }
     }
     return keys;
+  }
+  function classRequiredTiers() {
+    const data = charmancerData();
+    const raw = stepValues(data, Steps.Class)["required_tiers"];
+    const parsed = parseJSON(raw);
+    if (typeof parsed !== "object" || parsed === null) return void 0;
+    const entries = Object.entries(parsed).filter((entry) => typeof entry[1] === "number");
+    if (entries.length === 0) return void 0;
+    const requiredTiers = Object.fromEntries(entries);
+    return requiredTiers;
   }
   function recalculateSkillPoints() {
     const data = charmancerData();
@@ -3558,21 +3622,29 @@
     const budgetRaw = skills2["skillpoints_max"] ?? "0";
     const budget = Number.parseInt(budgetRaw, 10);
     const total = Number.isNaN(budget) ? 0 : budget;
-    let spent = 0;
+    const purchasedByLevel = {};
+    for (const level of allSkillLevels) purchasedByLevel[level] = 0;
     for (const [level, entries] of Object.entries(skillsByLevel)) {
-      const cost = SKILL_COST[level];
       for (const entry of entries) {
         const isOwned = skills2[entry.key] === "on";
         const isGranted = skills2[`${entry.key}_type`] === CLASS_SKILL;
-        if (isOwned && !isGranted) spent += cost;
+        if (isOwned && !isGranted) purchasedByLevel[level] += 1;
       }
     }
-    const remaining = total - spent;
+    const requiredTiers = classRequiredTiers();
+    const classSkills = requiredTiers === void 0 ? {
+      granted: [],
+      skillPoints: total
+    } : {
+      granted: [],
+      requiredTiers
+    };
+    const { remaining, locked } = evaluateSkillBudget(classSkills, purchasedByLevel);
     setAttrs({
       skillpoints: remaining,
-      trained_lock: remaining <= 0 ? "on" : "0",
-      expert_lock: remaining <= 1 ? "on" : "0",
-      master_lock: remaining <= 2 ? "on" : "0"
+      trained_lock: locked[SkillLevels.Trained] ? "on" : "0",
+      expert_lock: locked[SkillLevels.Expert] ? "on" : "0",
+      master_lock: locked[SkillLevels.Master] ? "on" : "0"
     });
     setCharmancerText({ t__skillpoints: `${remaining} / ${total}` });
   }

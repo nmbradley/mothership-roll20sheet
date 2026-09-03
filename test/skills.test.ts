@@ -6,7 +6,7 @@ import {
 } from "vitest";
 
 import {
-  skillsByLevel, skillKey, skills,
+  prerequisiteChain, skillsByLevel, skillKey, skills,
 } from "../src/game/constants";
 import { SkillLevels, Skills } from "../src/game/enums";
 import { Outcomes } from "../src/ts/rules/rolls";
@@ -66,6 +66,32 @@ describe("Skills grouped by level", () => {
       Skills.Ecology,
       Skills.WildernessSurvival,
     ]);
+  });
+});
+
+describe("prerequisiteChain (#180)", () => {
+  it("should resolve a Master skill down to its Expert and Trained prerequisite", () => {
+    // Sophontology <- Psychology <- (Linguistics, Zoology, Botany): the first
+    // listed prerequisite at each tier is the one concrete path granted.
+    expect(prerequisiteChain(Skills.Sophontology)).toEqual([
+      Skills.Sophontology,
+      Skills.Psychology,
+      Skills.Linguistics,
+    ]);
+  });
+
+  it("should follow the first prerequisite when a skill lists more than one", () => {
+    // Surgery lists two Expert prerequisites, and Pathology (the first) lists
+    // two Trained prerequisites of its own.
+    expect(prerequisiteChain(Skills.Surgery)).toEqual([
+      Skills.Surgery,
+      Skills.Pathology,
+      Skills.Zoology,
+    ]);
+  });
+
+  it("should stop at a skill with no prerequisite", () => {
+    expect(prerequisiteChain(Skills.Botany)).toEqual([Skills.Botany]);
   });
 });
 

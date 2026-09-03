@@ -1,6 +1,6 @@
 import { skillsByLevel } from "#game/constants.js";
 import {
-  classes, type ClassDef, type FloatingBonus,
+  classes, totalSkillPoints, type ClassDef, type FloatingBonus,
 } from "#game/data/classes.js";
 import {
   SkillLevels, allSaves, allStats, type Stat,
@@ -31,6 +31,7 @@ const CLASS_ATTRIBUTES = [
   "skill_points",
   "stress_effect",
   "skills",
+  "required_tiers",
 ] as const;
 
 /** Shows the chosen class, or the picker when nothing is chosen yet. */
@@ -121,7 +122,7 @@ function grantLines(definition: ClassDef): readonly string[] {
     lines.push(joined);
   }
 
-  lines.push(`${definition.skills.skillPoints} Skill Points`);
+  lines.push(`${totalSkillPoints(definition.skills)} Skill Points`);
   return lines;
 }
 
@@ -240,9 +241,11 @@ function applyClass(definition: ClassDef): void {
   const granted = definition.skills.granted;
   attrs["skills"] = JSON.stringify(granted);
   text["t__skills"] = granted.join(", ");
+  attrs["required_tiers"] = JSON.stringify(definition.skills.requiredTiers ?? {});
 
-  attrs["skill_points"] = definition.skills.skillPoints;
-  text["t__skill_points"] = String(definition.skills.skillPoints);
+  const skillPoints = totalSkillPoints(definition.skills);
+  attrs["skill_points"] = skillPoints;
+  text["t__skill_points"] = String(skillPoints);
 
   setAttrs(attrs);
   setCharmancerText(text);

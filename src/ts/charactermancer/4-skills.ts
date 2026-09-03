@@ -1,18 +1,16 @@
-import { skillsByKey, skillsByLevel } from "#game/constants.js";
-import { SkillLevels, type SkillLevel } from "#game/enums.js";
+import {
+  prerequisiteChain, skillKey, skillsByKey, skillsByLevel,
+} from "#game/constants.js";
+import { evaluateSkillBudget, type ClassSkills } from "#game/data/classes.js";
+import {
+  SkillLevels, allSkillLevels, type Skill, type SkillLevel,
+} from "#game/enums.js";
 import { translateOr } from "#rules/translation.js";
 
 import {
-  charmancerData, parseStringList, stepRows, stepValues,
+  charmancerData, parseJSON, parseStringList, stepRows, stepValues,
 } from "./helpers";
 import { Steps } from "./types";
-
-/** What one skill costs, by tier. */
-const SKILL_COST: Record<SkillLevel, number> = {
-  [SkillLevels.Trained]: 1,
-  [SkillLevels.Expert]: 2,
-  [SkillLevels.Master]: 3,
-};
 
 /** Marks a skill granted by the class rather than bought with points. */
 const CLASS_SKILL = "class";
@@ -79,11 +77,28 @@ function classGrantedSkills(): readonly string[] {
   for (const rowId of choiceRows) {
     const chosen = values[`${rowId}_skill`];
     if (chosen === undefined || chosen === "choose") continue;
-    const lower = chosen.toLowerCase();
-    const key = lower.replaceAll(" ", "_");
-    keys.push(key);
+    const skillName = chosen.toLowerCase() as Skill;
+    const chain = prerequisiteChain(skillName);
+    for (const name of chain) {
+      const key = skillKey(name);
+      keys.push(key);
+    }
   }
   return keys;
+}
+
+/** The class's required tier breakdown, or undefined for a free point budget. */
+function classRequiredTiers(): ClassSkills["requiredTiers"] {
+  const data = charmancerData();
+  const raw = stepValues(data, Steps.Class)["required_tiers"];
+  const parsed = parseJSON(raw);
+  if (typeof parsed !== "object" || parsed === null) return undefined;
+
+  const entries = Object.entries(parsed as Record<string, unknown>)
+    .filter((entry): entry is [string, number] => typeof entry[1] === "number");
+  if (entries.length === 0) return undefined;
+  const requiredTiers = Object.fromEntries(entries);
+  return requiredTiers;
 }
 
 /**
@@ -98,22 +113,33 @@ export function recalculateSkillPoints(): void {
   const budget = Number.parseInt(budgetRaw, 10);
   const total = Number.isNaN(budget) ? 0 : budget;
 
-  let spent = 0;
+  const purchasedByLevel = {} as Record<SkillLevel, number>;
+  for (const level of allSkillLevels) purchasedByLevel[level] = 0;
   for (const [level, entries] of Object.entries(skillsByLevel)) {
-    const cost = SKILL_COST[level as SkillLevel];
     for (const entry of entries) {
       const isOwned = skills[entry.key] === "on";
       const isGranted = skills[`${entry.key}_type`] === CLASS_SKILL;
-      if (isOwned && !isGranted) spent += cost;
+      if (isOwned && !isGranted) purchasedByLevel[level as SkillLevel] += 1;
     }
   }
 
-  const remaining = total - spent;
+  const requiredTiers = classRequiredTiers();
+  const classSkills: ClassSkills = requiredTiers === undefined
+    ? {
+        granted: [],
+        skillPoints: total,
+      }
+    : {
+        granted: [],
+        requiredTiers,
+      };
+  const { remaining, locked } = evaluateSkillBudget(classSkills, purchasedByLevel);
+
   setAttrs({
     skillpoints: remaining,
-    trained_lock: remaining <= 0 ? "on" : "0",
-    expert_lock: remaining <= 1 ? "on" : "0",
-    master_lock: remaining <= 2 ? "on" : "0",
+    trained_lock: locked[SkillLevels.Trained] ? "on" : "0",
+    expert_lock: locked[SkillLevels.Expert] ? "on" : "0",
+    master_lock: locked[SkillLevels.Master] ? "on" : "0",
   });
   setCharmancerText({ t__skillpoints: `${remaining} / ${total}` });
 }

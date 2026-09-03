@@ -1,11 +1,15 @@
+import { SKILL_COST } from "#game/constants.js";
 import {
+  allSkillLevels,
   Classes,
   Saves,
   Skills,
+  SkillLevels,
   Stats,
   type Class,
   type Save,
   type Skill,
+  type SkillLevel,
   type Stat,
 } from "#game/enums.js";
 
@@ -22,21 +26,87 @@ export type FloatingBonus = {
 /**
  * Skills a class grants outright, plus the budget it gives for choosing more.
  *
- * The book writes the bonus as tiers ("1 Expert Skill OR 2 Trained Skills"),
- * which the point costs already express: a Trained skill costs 1, an Expert 2
- * and a Master 3, so the Marine's 2 points buy either option. Storing points
- * rather than the printed wording keeps the either/or working without the data
- * having to enumerate every combination.
+ * Most classes choose freely across tiers: the book writes the bonus as tiers
+ * ("1 Expert Skill OR 2 Trained Skills"), which `skillPoints` already
+ * expresses -- a Trained skill costs 1, an Expert 2 and a Master 3, so the
+ * Marine's 2 points buy either option. Storing points rather than the printed
+ * wording keeps the either/or working without the data having to enumerate
+ * every combination.
  *
- * The Scientist is the odd one out: instead of named skills it takes a Master
- * skill together with the Expert and Trained skills that unlock it.
+ * The Teamster's "1 Trained AND 1 Expert" is not a budget -- it is a fixed
+ * pair, and a shared point total would also buy illegal combinations like 3
+ * Trained or 1 Master. `requiredTiers` states the exact count owed at each
+ * tier instead, with every unlisted tier off limits.
+ *
+ * The Scientist is the odd one out in a different way: instead of named
+ * skills it takes a Master skill together with the Expert and Trained skills
+ * that unlock it.
  */
 export type ClassSkills = {
   granted: readonly Skill[];
-  skillPoints: number;
+  /** A budget to spend freely across tiers, e.g. the Marine's "1 Expert, or 2 Trained". */
+  skillPoints?: number;
+  /** An exact count owed at each tier, e.g. the Teamster's "1 Trained and 1 Expert". */
+  requiredTiers?: Partial<Record<SkillLevel, number>>;
   /** Set where the class picks a Master skill and its whole prerequisite chain. */
   grantsMasterChain?: boolean;
 };
+
+/** The skill-point cost a class's grant represents, for display and budgeting. */
+export function totalSkillPoints(skills: ClassSkills): number {
+  if (skills.skillPoints !== undefined) return skills.skillPoints;
+
+  let total = 0;
+  for (const [level, count] of Object.entries(skills.requiredTiers ?? {})) {
+    total += SKILL_COST[level as SkillLevel] * count;
+  }
+  return total;
+}
+
+/**
+ * Which skill tiers remain purchasable, and how many points are left, given a
+ * class's skill budget and how many non-granted skills the player has bought
+ * at each tier so far.
+ *
+ * A free budget (`skillPoints`) locks a tier once there are not enough points
+ * left to afford it. A fixed budget (`requiredTiers`) locks a tier once its
+ * own count is met regardless of points spent elsewhere, and locks a tier the
+ * class does not list from the start.
+ */
+export function evaluateSkillBudget(
+  skills: ClassSkills,
+  purchasedByLevel: Readonly<Record<SkillLevel, number>>,
+): {
+  remaining: number;
+  locked: Record<SkillLevel, boolean>;
+} {
+  let spent = 0;
+  for (const level of allSkillLevels) {
+    spent += SKILL_COST[level] * purchasedByLevel[level];
+  }
+  const remaining = totalSkillPoints(skills) - spent;
+
+  if (skills.requiredTiers !== undefined) {
+    const requiredTiers = skills.requiredTiers;
+    const locked = {} as Record<SkillLevel, boolean>;
+    for (const level of allSkillLevels) {
+      locked[level] = purchasedByLevel[level] >= (requiredTiers[level] ?? 0);
+    }
+    return {
+      remaining,
+      locked,
+    };
+  }
+
+  return {
+    remaining,
+    locked: {
+      [SkillLevels.Trained]: remaining <= 0,
+      [SkillLevels.Expert]: remaining <= 1,
+      [SkillLevels.Master]: remaining <= 2,
+    },
+  };
+}
 
 export type ClassDef = {
   name: Class;
@@ -131,8 +201,10 @@ export const classes = {
     maxWoundsBonus: 0,
     skills: {
       granted: [Skills.IndustrialEquipment, Skills.ZeroG],
-      // 1 Trained and 1 Expert.
-      skillPoints: 3,
+      requiredTiers: {
+        [SkillLevels.Trained]: 1,
+        [SkillLevels.Expert]: 1,
+      },
     },
     traumaResponse: "Once per session, you may take Advantage on a Panic Check.",
   },
