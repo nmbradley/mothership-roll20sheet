@@ -187,7 +187,7 @@ body.sheet-darkmode
   --ms-text-xl: 1.25em;
   --ms-text-2xl: 2.15em;
   --ms-roll-w: 3.6em;
-  --ms-roll-h: 2.9em;
+  --ms-roll-h: var(--ms-roll-w);
 }
 .sheet-rolltemplate-ms .sheet-ms-result,
 .sheet-rolltemplate-ms-cm .sheet-ms-result {
@@ -246,7 +246,9 @@ body.sheet-darkmode
 .sheet-rolltemplate-ms-cm .sheet-ms-roll {
   display: grid;
   position: relative;
-  place-items: center;
+  grid-auto-rows: min-content;
+  align-content: center;
+  justify-items: center;
   border: var(--ms-border-width-thick) solid var(--ms-border);
   border-radius: var(--ms-radius-lg);
   box-sizing: border-box;
@@ -256,7 +258,6 @@ body.sheet-darkmode
 .sheet-rolltemplate-ms .sheet-ms-roll__roll2,
 .sheet-rolltemplate-ms-cm .sheet-ms-roll__roll,
 .sheet-rolltemplate-ms-cm .sheet-ms-roll__roll2 {
-  grid-area: 1/1;
   font-size: var(--ms-text-2xl);
   line-height: 1;
   font-weight: 700;
@@ -275,18 +276,16 @@ body.sheet-darkmode
 }
 .sheet-rolltemplate-ms .sheet-ms-roll--spent,
 .sheet-rolltemplate-ms-cm .sheet-ms-roll--spent {
-  position: absolute;
-  top: 0.1em;
-  right: 0.3em;
+  order: 2;
   font-size: var(--ms-text-xs);
+  line-height: 1;
   font-weight: 800;
   text-decoration: line-through;
   color: var(--ms-fg-muted);
 }
 .sheet-rolltemplate-ms .sheet-ms-roll--used,
 .sheet-rolltemplate-ms-cm .sheet-ms-roll--used {
-  box-shadow: 0 0 0 2px var(--ms-accent);
-  border-radius: var(--ms-radius-sm);
+  order: 1;
 }
 .sheet-rolltemplate-ms .sheet-ms-readout,
 .sheet-rolltemplate-ms-cm .sheet-ms-readout {
