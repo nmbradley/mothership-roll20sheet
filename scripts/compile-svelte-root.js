@@ -55,18 +55,114 @@ function stripHydrationMarkers(html) {
 }
 
 /**
- * Rejoins closing tags that Prettier split across lines.
+ * Puts every tag back on one line.
  *
- * At its default whitespace sensitivity Prettier emits `</label\n>` so that a
- * line break never becomes rendered whitespace. It is valid HTML -- a closing
- * tag may hold whitespace before its `>` -- but a parser scanning for the
- * literal `</label>` misses it, and every element after the split tag ends up
- * nested inside the one that should have closed. Whitespace inside a closing
- * tag is insignificant, so rejoining changes the markup for no one but a
- * lenient parser.
+ * Prettier wraps long tags across lines, so an element with several attributes
+ * comes out as `<charmancer\n  class="..."\n>`. That is valid HTML and every
+ * real parser accepts it -- but Roll20's sheet pipeline is not a real parser
+ * everywhere it looks, and anything scanning for a literal tag string misses
+ * the split form. It bit the closing tags first (an element after a split
+ * `</label\n>` ends up nested inside the one that should have closed), and
+ * opening tags carry the same risk.
+ *
+ * Whitespace between attributes is insignificant, and whitespace *inside* an
+ * attribute value is preserved here, so collapsing changes the rendered
+ * markup for nobody -- it only removes a shape a lenient parser can trip on.
+ *
+ * Written as a scanner rather than a regex because an attribute value may
+ * legitimately contain `<` or `>` -- the skill query is `?{Apply Skill?|...}`
+ * today, and a roll expression could hold either -- and a regex that ends a
+ * tag at the first `>` would truncate one.
  */
-function joinSplitClosingTags(html) {
-  return html.replace(/<\/([a-zA-Z][a-zA-Z0-9-]*)\s*\n\s*>/g, "</$1>");
+function collapseTags(html) {
+  let out = "";
+  let index = 0;
+
+  while (index < html.length) {
+    const open = html.indexOf("<", index);
+    if (open === -1) {
+      out += html.slice(index);
+      break;
+    }
+
+    out += html.slice(index, open);
+
+    // Comments are copied through untouched: their content is not markup and
+    // may hold anything, including quotes and angle brackets.
+    if (html.startsWith("<!--", open)) {
+      const end = html.indexOf("-->", open);
+      const stop = end === -1 ? html.length : end + 3;
+      out += html.slice(open, stop);
+      index = stop;
+      continue;
+    }
+
+    const close = findTagEnd(html, open);
+    if (close === -1) {
+      out += html.slice(open);
+      break;
+    }
+
+    out += collapseInsideTag(html.slice(open, close + 1));
+    index = close + 1;
+  }
+
+  return out;
+}
+
+/** The index of the `>` that ends the tag opening at `start`, quotes respected. */
+function findTagEnd(html, start) {
+  let quote = null;
+
+  for (let i = start + 1; i < html.length; i += 1) {
+    const char = html[i];
+    if (quote !== null) {
+      if (char === quote) quote = null;
+      continue;
+    }
+    if (char === "\"" || char === "'") {
+      quote = char;
+      continue;
+    }
+    if (char === ">") return i;
+  }
+
+  return -1;
+}
+
+/** One tag with every run of whitespace outside its attribute values collapsed. */
+function collapseInsideTag(tag) {
+  let out = "";
+  let quote = null;
+  let pendingSpace = false;
+
+  for (const char of tag) {
+    if (quote !== null) {
+      out += char;
+      if (char === quote) quote = null;
+      continue;
+    }
+
+    if (char === "\"" || char === "'") {
+      if (pendingSpace) out += " ";
+      pendingSpace = false;
+      quote = char;
+      out += char;
+      continue;
+    }
+
+    if (/\s/.test(char)) {
+      pendingSpace = out !== "<";
+      continue;
+    }
+
+    // A space before `>` or `/>` is what splits a tag in the first place.
+    if (pendingSpace && char !== ">" && char !== "/") out += " ";
+    pendingSpace = false;
+    out += char;
+  }
+
+  return out;
 }
 
 /** Renders one component tree to formatted static HTML. */
@@ -77,7 +173,7 @@ async function renderComponent(Component) {
   // Stripped before formatting so Prettier closes up the gaps they leave behind.
   const markup = stripHydrationMarkers(rawHtml);
   const formatted = await prettier.format(markup, { parser: "html" });
-  return joinSplitClosingTags(formatted).trimEnd();
+  return collapseTags(formatted).trimEnd();
 }
 
 const sheetMarkup = await renderComponent(Sheet);
