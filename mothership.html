@@ -5206,7 +5206,8 @@
     MilitaryTraining: "Military Training",
     TraumaResponse: "Trauma Response",
     AttackFailed: "Attack Failed: Gain 1 Stress",
-    OutOfAmmo: "Out of Ammo"
+    OutOfAmmo: "Out of Ammo",
+    StressOverflow: "Stress Overflow: Reduces Most Relevant Stat or Save by"
   };
   function panicWarning(check) {
     if (!check.triggersPanic) return "";
@@ -5700,10 +5701,25 @@
     return check;
   }
   var STRESS_MAX = 20;
+  function stressOverflow(current, delta) {
+    const next = current + delta;
+    if (next <= STRESS_MAX) return 0;
+    return next - STRESS_MAX;
+  }
+  async function postStressOverflowAlert(amount) {
+    const rollData = await startRoll(
+      "&{template:ms} {{character_name=@{character_name}}} {{alert=[[0]]}}"
+    );
+    finishRoll(rollData.rollId, {
+      alert: `${translated(TEMPLATE_PHRASES.StressOverflow)} ${amount}`
+    });
+  }
   function applyStressDelta(current, delta, min) {
     const floored = Math.max(min, current + delta);
     const next = Math.min(STRESS_MAX, floored);
     setAttrs({ stress: next });
+    const overflow = stressOverflow(current, delta);
+    if (overflow > 0) void postStressOverflowAlert(overflow);
   }
   function makePanicCheck(stress, rolls, edge = Edges.None) {
     const check = makeCheck({

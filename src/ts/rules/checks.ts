@@ -599,6 +599,35 @@ export async function rollNPCInitiative(): Promise<CheckResult> {
 export const STRESS_MAX = 20;
 
 /**
+ * How much a Stress gain overflows past STRESS_MAX, 0 when it doesn't (#182).
+ *
+ * The Player's Survival Guide says the excess above 20 instead reduces the
+ * most relevant Stat or Save -- but which one depends on the fiction, so
+ * applyStressDelta only detects the overflow here and leaves applying it to
+ * the table. Ignores min: that bound only ever pulls a reduction down, never
+ * pushes a gain over the top.
+ */
+export function stressOverflow(current: number, delta: number): number {
+  const next = current + delta;
+  if (next <= STRESS_MAX) return 0;
+  return next - STRESS_MAX;
+}
+
+/**
+ * Posts the chat card for a Stress overflow (#182): the same "announce, don't
+ * adjudicate" shape as ships.ts's postShipAlert, since which Stat or Save is
+ * "most relevant" is a call only the table can make.
+ */
+async function postStressOverflowAlert(amount: number): Promise<void> {
+  const rollData = await startRoll(
+    "&{template:ms} {{character_name=@{character_name}}} {{alert=[[0]]}}",
+  );
+  finishRoll(rollData.rollId, {
+    alert: `${translated(TEMPLATE_PHRASES.StressOverflow)} ${amount}`,
+  });
+}
+
+/**
  * Applies a Stress change and writes it back, clamped to the bounds.
  *
  * The minimum still travels with the call: it is a real attribute the card
@@ -607,12 +636,19 @@ export const STRESS_MAX = 20;
  * than costing an attribute read on every Stress write.
  *
  * This is the one place that writes Stress, so the several checks that grant
- * or reduce it (#47, #48, #51) agree on how the clamp works.
+ * or reduce it (#47, #48, #51) agree on how the clamp works -- and, per #182,
+ * on how an overflow past the maximum is announced rather than discarded.
+ * Stays a plain synchronous function like its callers expect: the overflow
+ * card is posted fire-and-forget, the same way ships.ts's callers invoke
+ * postShipAlert from inside a callback rather than awaiting it.
  */
 export function applyStressDelta(current: number, delta: number, min: number): void {
   const floored = Math.max(min, current + delta);
   const next = Math.min(STRESS_MAX, floored);
   setAttrs({ stress: next });
+
+  const overflow = stressOverflow(current, delta);
+  if (overflow > 0) void postStressOverflowAlert(overflow);
 }
 
 /**

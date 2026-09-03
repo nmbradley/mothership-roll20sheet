@@ -34,12 +34,25 @@ import {
   rollSaveCheck,
   skillQuery,
   spendAmmo,
+  stressOverflow,
   worstSave,
 } from "../src/ts/rules/checks";
 
 /** Stands in for Roll20's translator with a fixed table. */
 function translateWith(table: Record<string, string>): void {
   vi.stubGlobal("getTranslationByKey", (key: string) => table[key] ?? key);
+}
+
+/**
+ * Lets a fire-and-forget follow-up card settle.
+ *
+ * applyStressDelta posts its overflow card without being awaited (#182), so
+ * it is still in flight when the caller returns -- without this the roll
+ * lands after a test has unstubbed startRoll/finishRoll, and surfaces as an
+ * unhandled rejection.
+ */
+async function flush(): Promise<void> {
+  for (let i = 0; i < 5; i += 1) await Promise.resolve();
 }
 
 describe("skillQuery", () => {
@@ -440,6 +453,20 @@ describe("Initiative (#50)", () => {
   });
 });
 
+describe("stressOverflow (#182)", () => {
+  it("should report no overflow within the maximum", () => {
+    expect(stressOverflow(10, 5)).toBe(0);
+  });
+
+  it("should report no overflow landing exactly on the maximum", () => {
+    expect(stressOverflow(STRESS_MAX - 5, 5)).toBe(0);
+  });
+
+  it("should report the excess when a gain overflows by several points", () => {
+    expect(stressOverflow(STRESS_MAX - 1, 5)).toBe(4);
+  });
+});
+
 describe("applyStressDelta", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -463,13 +490,41 @@ describe("applyStressDelta", () => {
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 2 });
   });
 
-  it("should clamp a gain at 1e's fixed Stress maximum", () => {
+  it("should clamp a gain landing exactly on 1e's fixed Stress maximum, with no overflow card", async () => {
     const mockSetAttrs = vi.fn();
+    const mockStartRoll = vi.fn();
     vi.stubGlobal("setAttrs", mockSetAttrs);
+    vi.stubGlobal("startRoll", mockStartRoll);
 
-    applyStressDelta(STRESS_MAX - 1, 5, 0);
+    applyStressDelta(STRESS_MAX - 5, 5, 0);
+    await flush();
 
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: STRESS_MAX });
+    expect(mockStartRoll).not.toHaveBeenCalled();
+  });
+
+  // #182: the excess above STRESS_MAX is announced in chat rather than
+  // silently discarded -- which Stat or Save it reduces is a call only the
+  // table can make.
+  it("should clamp at the maximum and post an overflow card naming the excess", async () => {
+    const mockSetAttrs = vi.fn();
+    const mockFinishRoll = vi.fn();
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "overflow",
+      results: {},
+    });
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", mockFinishRoll);
+
+    applyStressDelta(STRESS_MAX - 1, 5, 0);
+    await flush();
+
+    expect(mockSetAttrs).toHaveBeenCalledWith({ stress: STRESS_MAX });
+    expect(mockStartRoll).toHaveBeenCalledTimes(1);
+    expect(mockFinishRoll).toHaveBeenCalledWith("overflow", {
+      alert: "^{Stress Overflow: Reduces Most Relevant Stat or Save by} 4",
+    });
   });
 });
 
