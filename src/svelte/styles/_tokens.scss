@@ -1,13 +1,15 @@
-// No @import here, deliberately.
+// Google Fonts, in Roll20's *legacy* CSS-1 import form -- not the CSS-2 rule
+// Google now hands you.
 //
-// Roll20's CSS sanitizer rejects an external @import outright -- it reports
-// "Potential CSS security violation; character sheet template styling thrown
-// out" and discards the stylesheet rather than skipping the one line. Its
-// forbidden list also covers `data:`, so inlining a face as a @font-face data
-// URI is not a way around it either.
+// Roll templates are parsed by the old sanitizer even on a CSE sheet, and it
+// rejects the modern form outright: "Potential CSS security violation;
+// character sheet template styling thrown out", discarding the stylesheet
+// rather than skipping the line. The rules are `css` not `css2`, families
+// joined by `|` rather than repeating `&family=`, and weights written bare.
 //
-// Archivo therefore has to come from the reader's machine or not at all, and
-// the stacks below fall back to Helvetica/Arial, which every platform has.
+// Variable axes are the casualty: this brings in Archivo's weights but not its
+// width axis, so the `font-stretch` the labels ask for has nothing to act on.
+@import url('https://fonts.googleapis.com/css?family=Archivo:400,700,800,900|IBM+Plex+Mono:400&display=swap');
 
 // Design tokens for the Mothership sheet.
 //
