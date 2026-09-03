@@ -2,7 +2,9 @@ import {
   describe, it, expect,
 } from "vitest";
 
+import { classes } from "../src/game/data/classes";
 import { rolledAttrs } from "../src/ts/charactermancer/2-stats";
+import { maxWounds } from "../src/ts/charactermancer/3-class";
 
 /** A minimal fake roll: only `result` matters to `rolledAttrs`. */
 function roll(result: number): RollResult {
@@ -51,10 +53,19 @@ describe("Charactermancer Stats Step (Mothership 1e)", () => {
       expect(attrs["health"]).toBeUndefined();
     });
 
-    it("should seed starting stress and wounds regardless of the roll", () => {
+    it("should seed starting stress regardless of the roll", () => {
       const attrs = rolledAttrs(FULL_ROLL);
       expect(attrs["stress"]).toBe(2);
-      expect(attrs["wounds"]).toBe(2);
+    });
+
+    it("should seed wounds at 0 -- Wounds counts up, so a fresh character is unwounded (#179)", () => {
+      const attrs = rolledAttrs(FULL_ROLL);
+      expect(attrs["wounds"]).toBe(0);
+    });
+
+    it("should leave a newly rolled character below its Wound maximum, not already Death Save away (#179)", () => {
+      const attrs = rolledAttrs(FULL_ROLL);
+      expect(attrs["wounds"]).toBeLessThan(maxWounds(classes.marine));
     });
 
     it("should not seed armor_points -- AP and DR are a function of armor worn (#112)", () => {

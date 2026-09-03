@@ -103,11 +103,16 @@ export const health = attribute({
   value: 78,
   max: 78,
 });
+// Wounds counts *up*: applyDamage gains one at 0 Health and calls for a Death
+// Save at `wounds >= wounds_max`. So a new character starts at 0 of a maximum
+// of 2, not 2 of 2 -- the latter is already one Wound from dying, and is what
+// every character not built through the charactermancer used to get (#179),
+// the NPC sheet included, since it shares these attributes (#90).
 export const wounds = attribute({
   name: "wounds",
   label: "Wounds",
   control: Controls.Number,
-  value: 2,
+  value: 0,
   max: 2,
 });
 export const armor_points = attribute({

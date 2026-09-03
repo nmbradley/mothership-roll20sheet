@@ -1,9 +1,21 @@
 import {
-  describe, it, expect,
+  describe, it, expect, vi,
 } from "vitest";
 
 import { classes } from "../src/game/data/classes";
-import { maxWounds, statModifiers } from "../src/ts/charactermancer/3-class";
+import {
+  applyClass, maxWounds, statModifiers,
+} from "../src/ts/charactermancer/3-class";
+
+/** Stubs the globals `applyClass` needs and returns the `setAttrs` spy. */
+function stubApplyClassGlobals(): ReturnType<typeof vi.fn> {
+  const mockSetAttrs = vi.fn();
+  vi.stubGlobal("getCharmancerData", () => ({}));
+  vi.stubGlobal("clearRepeatingSections", vi.fn());
+  vi.stubGlobal("setAttrs", mockSetAttrs);
+  vi.stubGlobal("setCharmancerText", vi.fn());
+  return mockSetAttrs;
+}
 
 describe("Charactermancer Class Step (Mothership 1e)", () => {
   describe("statModifiers", () => {
@@ -72,6 +84,34 @@ describe("Charactermancer Class Step (Mothership 1e)", () => {
 
     it("should add the Android's +1 wound bonus", () => {
       expect(maxWounds(classes.android)).toBe(3);
+    });
+  });
+
+  describe("applyClass", () => {
+    it("should write only the Wound maximum, leaving current Wounds untouched (#179)", () => {
+      const mockSetAttrs = stubApplyClassGlobals();
+
+      applyClass(classes.marine);
+
+      expect(mockSetAttrs).toHaveBeenCalledWith(expect.objectContaining({ wounds_max: 3 }));
+      const written = mockSetAttrs.mock.calls[0]?.[0] as Record<string, unknown>;
+      expect(written).not.toHaveProperty("wounds");
+
+      vi.unstubAllGlobals();
+    });
+
+    it("should update the maximum without resetting current Wounds when the class changes", () => {
+      const mockSetAttrs = stubApplyClassGlobals();
+
+      applyClass(classes.marine);
+      applyClass(classes.teamster);
+
+      expect(mockSetAttrs).toHaveBeenLastCalledWith(expect.objectContaining({ wounds_max: 2 }));
+      for (const call of mockSetAttrs.mock.calls) {
+        expect(call[0] as Record<string, unknown>).not.toHaveProperty("wounds");
+      }
+
+      vi.unstubAllGlobals();
     });
   });
 });
