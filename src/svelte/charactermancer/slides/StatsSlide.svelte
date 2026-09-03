@@ -70,3 +70,31 @@
     }}
   />
 </CharmancerSlide>
+
+<style lang="scss">
+.ms-cm-button--roll {
+  @extend %ms-btn-reset;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: var(--ms-border-width) solid var(--ms-border);
+  border-radius: var(--ms-radius-pill);
+  padding: var(--ms-space-md) var(--ms-space-xl);
+
+  background: var(--ms-inverse);
+  cursor: pointer;
+
+  font-size: var(--ms-text-lg);
+  font-family: var(--ms-font-header);
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--ms-fg-inverse);
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+</style>

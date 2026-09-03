@@ -33,3 +33,25 @@
 </CharmancerSlide>
 
 <CharmancerTopbar />
+
+<style lang="scss">
+.ms-cm-logo {
+  display: block;
+
+  margin: 0 auto var(--ms-space-lg);
+  width: 60%;
+
+  // The wordmark art is white on transparent, same asset PCHeader uses --
+  // the token flips it per theme instead of a permanent invert(1).
+  filter: var(--ms-logo-filter);
+}
+
+.ms-cm-welcometext {
+  font-size: var(--ms-text-md);
+  line-height: 1.5;
+  font-family: var(--ms-font-body);
+  font-weight: 400;
+  text-align: center;
+  color: inherit;
+}
+</style>

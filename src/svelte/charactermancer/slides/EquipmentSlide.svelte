@@ -73,3 +73,85 @@
     }}
   />
 </CharmancerSlide>
+
+<style lang="scss">
+.ms-cm-package,
+.ms-cm-credits,
+.ms-cm-trinket,
+.ms-cm-patch {
+  margin: var(--ms-space-sm) 0;
+  border-top: var(--ms-border-width) solid var(--ms-rule);
+  padding-top: var(--ms-space-sm);
+}
+
+.ms-cm-package__title,
+.ms-cm-credits__title,
+.ms-cm-trinket__title,
+.ms-cm-patch__title {
+  margin-bottom: var(--ms-space-sm);
+
+  font-size: var(--ms-text-xs);
+  font-family: var(--ms-font-header);
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--ms-fg-muted);
+}
+
+// The equipment package select, oddly named after the skill picker it was
+// copied from -- base select styling already applies, this only spaces it.
+.ms-cm-skill__select {
+  margin-bottom: var(--ms-space-sm);
+}
+
+.ms-cm-credits,
+.ms-cm-trinket,
+.ms-cm-patch {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--ms-space-sm) var(--ms-space-md);
+  align-items: center;
+}
+
+.ms-cm-credits__title,
+.ms-cm-trinket__title,
+.ms-cm-patch__title {
+  grid-column: 1 / -1;
+}
+
+.ms-cm-credits__roll,
+.ms-cm-trinket__roll,
+.ms-cm-patch__roll {
+  grid-row: span 2;
+}
+
+.ms-cm-credits__display,
+.ms-cm-trinket__display,
+.ms-cm-patch__display {
+  font-size: var(--ms-text-md);
+  color: var(--ms-fg);
+}
+
+// Injected by 5-equipment.ts once rolled -- an empty round button in the same
+// language as the sheet's own roll buttons.
+.ms-cm-creditsroll,
+.ms-cm-trinketroll,
+.ms-cm-patchroll {
+  @extend %ms-btn-reset;
+  @extend %ms-well-round;
+
+  background: var(--ms-inverse);
+  cursor: pointer;
+
+  color: var(--ms-fg-inverse);
+
+  &:hover {
+    opacity: 0.85;
+  }
+
+  &::before {
+    content: "🎲";
+
+    font-size: var(--ms-text-lg);
+  }
+}
+</style>

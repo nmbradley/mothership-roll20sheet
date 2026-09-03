@@ -114,3 +114,56 @@
     }}
   />
 </CharmancerSlide>
+
+<style lang="scss">
+.ms-cm-review {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ms-space-lg);
+  align-items: start;
+
+  margin-top: var(--ms-space-lg);
+}
+
+.ms-cm-classblock,
+.ms-cm-skillblock,
+.ms-cm-equipment {
+  h2 {
+    margin-bottom: var(--ms-space-md);
+
+    text-align: center;
+  }
+}
+
+.ms-cm-classblock {
+  margin-bottom: var(--ms-space-lg);
+}
+
+.ms-cm-classrow,
+.ms-cm-skrow,
+.ms-cm-eqrow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ms-space-md);
+
+  margin: var(--ms-space-sm) 0;
+  border-top: var(--ms-border-width) solid var(--ms-rule);
+  padding-top: var(--ms-space-sm);
+}
+
+.ms-cm-classrow__title,
+.ms-cm-skrow__title,
+.ms-cm-eqrow__title {
+  font-size: var(--ms-text-sm);
+  font-weight: 700;
+  color: var(--ms-fg-muted);
+}
+
+.ms-cm-classrow__display,
+.ms-cm-skrow__display,
+.ms-cm-eqrow__display {
+  font-size: var(--ms-text-sm);
+  text-align: right;
+  color: var(--ms-fg);
+}
+</style>
