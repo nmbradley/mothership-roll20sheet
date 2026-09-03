@@ -8,21 +8,27 @@
     <h2 class="sheet-ms-result__subtitle">{{character_name}}</h2>
     {{/character_name}}
 
+    {{#computed::skill}}
+    <div class="sheet-ms-result__skill">{{computed::skill}}</div>
+    {{/computed::skill}}
+
     {{#roll}}
     <div class="sheet-ms-roll">
-      <div class="sheet-ms-roll__roll">{{roll}}</div>
       {{#rollGreater() edge 0}}
-      <div class="sheet-ms-roll__roll2">{{roll2}}</div>
+      {{#rollTotal() computed::used 1}}
+      <div class="sheet-ms-roll__roll sheet-ms-roll--used">{{roll}}</div>
+      <div class="sheet-ms-roll__roll2 sheet-ms-roll--spent">{{roll2}}</div>
+      {{/rollTotal() computed::used 1}}
+      {{#rollTotal() computed::used 2}}
+      <div class="sheet-ms-roll__roll sheet-ms-roll--spent">{{roll}}</div>
+      <div class="sheet-ms-roll__roll2 sheet-ms-roll--used">{{roll2}}</div>
+      {{/rollTotal() computed::used 2}}
+      {{/rollGreater() edge 0}}
+      {{^rollGreater() edge 0}}
+      <div class="sheet-ms-roll__roll">{{roll}}</div>
       {{/rollGreater() edge 0}}
     </div>
     {{/roll}}
-
-    {{#counted}}
-    <div class="sheet-ms-readout">
-      <div class="sheet-ms-readout__label" data-i18n="Counted">Counted</div>
-      <div class="sheet-ms-readout__value">{{computed::counted}}</div>
-    </div>
-    {{/counted}}
 
     {{#target}}
     <div class="sheet-ms-readout">
@@ -30,13 +36,6 @@
       <div class="sheet-ms-readout__value">{{target}}</div>
     </div>
     {{/target}}
-
-    {{#skill}}
-    <div class="sheet-ms-readout">
-      <div class="sheet-ms-readout__label" data-i18n="Skill">Skill</div>
-      <div class="sheet-ms-readout__value">{{computed::skill}}</div>
-    </div>
-    {{/skill}}
 
     {{#damage}}
     <div class="sheet-ms-readout">
@@ -58,12 +57,12 @@
     <div class="sheet-ms-verdict sheet-ms-verdict--critical-failure">{{computed::result}}</div>
     {{/rollTotal() computed::rank 0}}
 
-    {{#notes}}
+    {{#computed::notes}}
     <div class="sheet-ms-notes">{{computed::notes}}</div>
-    {{/notes}}
+    {{/computed::notes}}
 
-    {{#alert}}
+    {{#computed::alert}}
     <div class="sheet-ms-alert">{{computed::alert}}</div>
-    {{/alert}}
+    {{/computed::alert}}
   </div>
 </rolltemplate>

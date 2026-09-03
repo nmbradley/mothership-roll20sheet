@@ -1,12 +1,12 @@
 import type { DeathEffect } from "#game/data/wounds.js";
 
 import {
-  Edges,
   Outcomes,
   isFailure,
   type CheckResult,
   type Outcome,
 } from "./rolls";
+import { translateOr } from "./translation";
 
 /**
  * Builds the two halves of a custom-parsed roll.
@@ -20,7 +20,7 @@ const TEMPLATE = "ms";
 
 /** Placeholders filled by finishRoll once the dice are graded. */
 export const COMPUTED = {
-  Counted: "counted",
+  Used: "used",
   Result: "result",
   Rank: "rank",
   Notes: "notes",
@@ -102,7 +102,7 @@ export function checkTemplate(options: CheckTemplateOptions): string {
     ["roll", `[[${rollDie}]]`],
     ["roll2", `[[${options.die}]]`],
     ["target", `[[${options.target}]]`],
-    [COMPUTED.Counted, "[[0]]"],
+    [COMPUTED.Used, "[[0]]"],
     [COMPUTED.Result, "[[0]]"],
     [COMPUTED.Rank, "[[0]]"],
     [COMPUTED.Skill, "[[0]]"],
@@ -121,23 +121,33 @@ export function checkTemplate(options: CheckTemplateOptions): string {
 export function checkComputed(
   check: CheckResult,
   skillName = "",
+  used = 1,
 ): Record<string, string | number> {
   const computed: Record<string, string | number> = {
-    [COMPUTED.Counted]: describeCounted(check),
-    [COMPUTED.Result]: translated(check.outcome),
+    // translateOr, not translated(): `^{...}` is resolved by Roll20 while it
+    // parses the roll macro, and a finishRoll value never goes through that
+    // pass -- sent as `^{Success}` the card printed the macro verbatim.
+    [COMPUTED.Result]: translateOr(check.outcome),
     [COMPUTED.Rank]: RANKS[check.outcome],
     [COMPUTED.Skill]: skillName,
+    [COMPUTED.Used]: used,
     [COMPUTED.Notes]: panicWarning(check),
   };
   return computed;
 }
 
-/** The die that counted, annotated with the edge that chose it. */
-function describeCounted(check: CheckResult): string {
-  if (check.edge === Edges.Advantage) return `${check.roll} [+]`;
-  if (check.edge === Edges.Disadvantage) return `${check.roll} [-]`;
-  const plain = String(check.roll);
-  return plain;
+/**
+ * Which of the two dice decided the check: 1 for the first, 2 for the second.
+ *
+ * Both are always rolled, because Advantage and Disadvantage need the pair,
+ * and the template shows them in the order they were rolled. It highlights
+ * whichever counted and fades the other, so it has to know the position --
+ * which CheckResult does not carry, only the two values. A tie resolves to
+ * the first, since either answer prints the same number.
+ */
+export function usedDie(rolls: readonly number[], counted: number): number {
+  const [first] = rolls;
+  return first === counted ? 1 : 2;
 }
 
 /**
@@ -180,7 +190,7 @@ export function panicTemplate(): string {
     ["roll", "[[1d20]]"],
     ["roll2", "[[1d20]]"],
     ["target", "[[@{stress}]]"],
-    [COMPUTED.Counted, "[[0]]"],
+    [COMPUTED.Used, "[[0]]"],
     [COMPUTED.Result, "[[0]]"],
     [COMPUTED.Rank, "[[0]]"],
     [COMPUTED.Notes, "[[0]]"],
@@ -195,14 +205,17 @@ export function panicTemplate(): string {
  * at it with `@{stress_effect}`, left in the template text for Roll20 itself
  * to resolve against the character rather than read here via getAttrs.
  */
-export function panicComputed(check: CheckResult): Record<string, string | number> {
+export function panicComputed(
+  check: CheckResult,
+  used = 1,
+): Record<string, string | number> {
   const hasPanicked = isFailure(check.outcome);
 
-  const survived = translated(TEMPLATE_PHRASES.KeptItTogether);
-  const panicked = translated(TEMPLATE_PHRASES.TraumaResponse);
+  const survived = translateOr(TEMPLATE_PHRASES.KeptItTogether);
+  const panicked = translateOr(TEMPLATE_PHRASES.TraumaResponse);
 
   const computed: Record<string, string | number> = {
-    [COMPUTED.Counted]: describeCounted(check),
+    [COMPUTED.Used]: used,
     [COMPUTED.Result]: hasPanicked ? panicked : survived,
     [COMPUTED.Rank]: RANKS[check.outcome],
     [COMPUTED.Notes]: hasPanicked ? "@{stress_effect}" : "",

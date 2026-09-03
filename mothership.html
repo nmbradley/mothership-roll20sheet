@@ -1321,21 +1321,27 @@
     <h2 class="sheet-ms-result__subtitle">{{character_name}}</h2>
     {{/character_name}}
 
+    {{#computed::skill}}
+    <div class="sheet-ms-result__skill">{{computed::skill}}</div>
+    {{/computed::skill}}
+
     {{#roll}}
     <div class="sheet-ms-roll">
-      <div class="sheet-ms-roll__roll">{{roll}}</div>
       {{#rollGreater() edge 0}}
-      <div class="sheet-ms-roll__roll2">{{roll2}}</div>
+      {{#rollTotal() computed::used 1}}
+      <div class="sheet-ms-roll__roll sheet-ms-roll--used">{{roll}}</div>
+      <div class="sheet-ms-roll__roll2 sheet-ms-roll--spent">{{roll2}}</div>
+      {{/rollTotal() computed::used 1}}
+      {{#rollTotal() computed::used 2}}
+      <div class="sheet-ms-roll__roll sheet-ms-roll--spent">{{roll}}</div>
+      <div class="sheet-ms-roll__roll2 sheet-ms-roll--used">{{roll2}}</div>
+      {{/rollTotal() computed::used 2}}
+      {{/rollGreater() edge 0}}
+      {{^rollGreater() edge 0}}
+      <div class="sheet-ms-roll__roll">{{roll}}</div>
       {{/rollGreater() edge 0}}
     </div>
     {{/roll}}
-
-    {{#counted}}
-    <div class="sheet-ms-readout">
-      <div class="sheet-ms-readout__label" data-i18n="Counted">Counted</div>
-      <div class="sheet-ms-readout__value">{{computed::counted}}</div>
-    </div>
-    {{/counted}}
 
     {{#target}}
     <div class="sheet-ms-readout">
@@ -1343,13 +1349,6 @@
       <div class="sheet-ms-readout__value">{{target}}</div>
     </div>
     {{/target}}
-
-    {{#skill}}
-    <div class="sheet-ms-readout">
-      <div class="sheet-ms-readout__label" data-i18n="Skill">Skill</div>
-      <div class="sheet-ms-readout__value">{{computed::skill}}</div>
-    </div>
-    {{/skill}}
 
     {{#damage}}
     <div class="sheet-ms-readout">
@@ -1371,13 +1370,13 @@
     <div class="sheet-ms-verdict sheet-ms-verdict--critical-failure">{{computed::result}}</div>
     {{/rollTotal() computed::rank 0}}
 
-    {{#notes}}
+    {{#computed::notes}}
     <div class="sheet-ms-notes">{{computed::notes}}</div>
-    {{/notes}}
+    {{/computed::notes}}
 
-    {{#alert}}
+    {{#computed::alert}}
     <div class="sheet-ms-alert">{{computed::alert}}</div>
-    {{/alert}}
+    {{/computed::alert}}
   </div>
 </rolltemplate>
 
@@ -3294,6 +3293,7 @@
 
   // src/ts/rules/translation.ts
   function translateOr(key) {
+    if (typeof getTranslationByKey !== "function") return key;
     const translated2 = getTranslationByKey(key);
     if (typeof translated2 === "string") return translated2;
     return key;
@@ -5156,7 +5156,7 @@
   // src/ts/rules/rollTemplate.ts
   var TEMPLATE = "ms";
   var COMPUTED = {
-    Counted: "counted",
+    Used: "used",
     Result: "result",
     Rank: "rank",
     Notes: "notes",
@@ -5189,7 +5189,7 @@
       ["roll", `[[${rollDie}]]`],
       ["roll2", `[[${options.die}]]`],
       ["target", `[[${options.target}]]`],
-      [COMPUTED.Counted, "[[0]]"],
+      [COMPUTED.Used, "[[0]]"],
       [COMPUTED.Result, "[[0]]"],
       [COMPUTED.Rank, "[[0]]"],
       [COMPUTED.Skill, "[[0]]"],
@@ -5197,21 +5197,22 @@
     ]);
     return template;
   }
-  function checkComputed(check, skillName = "") {
+  function checkComputed(check, skillName = "", used = 1) {
     const computed = {
-      [COMPUTED.Counted]: describeCounted(check),
-      [COMPUTED.Result]: translated(check.outcome),
+      // translateOr, not translated(): `^{...}` is resolved by Roll20 while it
+      // parses the roll macro, and a finishRoll value never goes through that
+      // pass -- sent as `^{Success}` the card printed the macro verbatim.
+      [COMPUTED.Result]: translateOr(check.outcome),
       [COMPUTED.Rank]: RANKS[check.outcome],
       [COMPUTED.Skill]: skillName,
+      [COMPUTED.Used]: used,
       [COMPUTED.Notes]: panicWarning(check)
     };
     return computed;
   }
-  function describeCounted(check) {
-    if (check.edge === Edges.Advantage) return `${check.roll} [+]`;
-    if (check.edge === Edges.Disadvantage) return `${check.roll} [-]`;
-    const plain = String(check.roll);
-    return plain;
+  function usedDie(rolls, counted) {
+    const [first] = rolls;
+    return first === counted ? 1 : 2;
   }
   var TEMPLATE_PHRASES = {
     PanicCheck: "Panic Check",
@@ -5242,19 +5243,19 @@
       ["roll", "[[1d20]]"],
       ["roll2", "[[1d20]]"],
       ["target", "[[@{stress}]]"],
-      [COMPUTED.Counted, "[[0]]"],
+      [COMPUTED.Used, "[[0]]"],
       [COMPUTED.Result, "[[0]]"],
       [COMPUTED.Rank, "[[0]]"],
       [COMPUTED.Notes, "[[0]]"]
     ]);
     return template;
   }
-  function panicComputed(check) {
+  function panicComputed(check, used = 1) {
     const hasPanicked = isFailure(check.outcome);
-    const survived = translated(TEMPLATE_PHRASES.KeptItTogether);
-    const panicked = translated(TEMPLATE_PHRASES.TraumaResponse);
+    const survived = translateOr(TEMPLATE_PHRASES.KeptItTogether);
+    const panicked = translateOr(TEMPLATE_PHRASES.TraumaResponse);
     const computed = {
-      [COMPUTED.Counted]: describeCounted(check),
+      [COMPUTED.Used]: used,
       [COMPUTED.Result]: hasPanicked ? panicked : survived,
       [COMPUTED.Rank]: RANKS[check.outcome],
       [COMPUTED.Notes]: hasPanicked ? "@{stress_effect}" : ""
@@ -5484,6 +5485,7 @@
   }
   var SKILL_PROMPT = "Apply Skill?";
   var NONE_LABEL = "None";
+  var UNSKILLED_LABEL = "Unskilled";
   function buildSkillCatalog(trained, expert, master) {
     const tiers = [
       [trained, SKILL_BONUS.trained, "trained"],
@@ -5627,8 +5629,11 @@
     };
     if (options.i18nKey !== void 0) request.i18nKey = options.i18nKey;
     const check = makeCheck(request);
-    const skillName = readSkillName(roll.results["target"]?.expression);
-    const computed = checkComputed(check, skillName);
+    const named = readSkillName(roll.results["target"]?.expression);
+    const wasOffered = options.bonus !== void 0;
+    const skillName = named !== "" ? named : wasOffered ? translateOr(UNSKILLED_LABEL) : "";
+    const used = usedDie(dice.rolls, check.roll);
+    const computed = checkComputed(check, skillName, used);
     finishRoll(roll.rollId, computed);
     return check;
   }
@@ -5758,7 +5763,8 @@
     const dice = readDice(roll.results);
     const stress = readTarget(roll.results);
     const check = makePanicCheck(stress, dice.rolls, dice.edge);
-    const computed = panicComputed(check);
+    const used = usedDie(dice.rolls, check.roll);
+    const computed = panicComputed(check, used);
     finishRoll(roll.rollId, computed);
   }
   function worstSave(sanity, fear, body) {

@@ -6,6 +6,7 @@ import {
 
 import {
   checkComputed,
+  usedDie,
   checkTemplate,
   panicComputed,
   panicTemplate,
@@ -71,7 +72,7 @@ describe("Roll Templates", () => {
         die: "1d100-1",
       });
       expect(template).toContain("{{result=[[0]]}}");
-      expect(template).toContain("{{counted=[[0]]}}");
+      expect(template).toContain("{{used=[[0]]}}");
       expect(template).toContain("{{notes=[[0]]}}");
       expect(template).toContain("{{skill=[[0]]}}");
     });
@@ -84,17 +85,30 @@ describe("Roll Templates", () => {
         target: 45,
         rolls: [30],
       });
-      expect(checkComputed(check).result).toBe("^{Success}");
+      expect(checkComputed(check).result).toBe("Success");
     });
 
-    it("should note the edge beside the die that counted", () => {
+    it("should report which of the two dice the template should highlight", () => {
+      // Advantage on a roll-under check keeps the lower die, which here is the
+      // second one -- so the card highlights that and fades the first.
       const check = makeCheck({
         name: "Body Save",
         target: 40,
         rolls: [70, 20],
         edge: Edges.Advantage,
       });
-      expect(checkComputed(check).counted).toBe("20 [+]");
+      expect(usedDie([70, 20], check.roll)).toBe(2);
+      expect(checkComputed(check, "", usedDie([70, 20], check.roll)).used).toBe(2);
+    });
+
+    it("should highlight the first die where it is the one that counted", () => {
+      const check = makeCheck({
+        name: "Body Save",
+        target: 40,
+        rolls: [20, 70],
+        edge: Edges.Advantage,
+      });
+      expect(usedDie([20, 70], check.roll)).toBe(1);
     });
 
     it("should warn that a critical failure forces a Panic Check", () => {
@@ -142,14 +156,14 @@ describe("Roll Templates", () => {
     it("should report keeping it together when the check passes", () => {
       const check = makePanicCheck(5, [12]);
       const computed = panicComputed(check);
-      expect(computed.result).toBe("^{Kept It Together}");
+      expect(computed.result).toBe("Kept It Together");
       expect(computed.notes).toBe("");
     });
 
     it("should point a failure at Trauma Response, not a rolled table entry", () => {
       const check = makePanicCheck(10, [3]);
       const computed = panicComputed(check);
-      expect(computed.result).toBe("^{Trauma Response}");
+      expect(computed.result).toBe("Trauma Response");
       expect(computed.notes).toBe("@{stress_effect}");
     });
   });
