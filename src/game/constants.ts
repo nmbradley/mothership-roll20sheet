@@ -373,23 +373,39 @@ function buildSkillsByKey(): Record<string, SkillEntry> {
 
 export const skillsByKey: Record<string, SkillEntry> = buildSkillsByKey();
 
+export type PrerequisiteStep = {
+  /** Skills granted without asking, walking down through single-option tiers. */
+  granted: readonly Skill[];
+  /** Options at the tier where a choice exists; empty once the chain ends. */
+  choice: readonly Skill[];
+};
+
 /**
- * A skill together with the prerequisites beneath it, root first: its first
- * Expert prerequisite, and that skill's first Trained prerequisite. A skill
- * lists every prerequisite that would unlock it -- owning any one is enough,
- * per the training rules -- so this follows the first-listed one to give one
- * concrete path down to a Trained skill.
+ * Walks the prerequisites beneath one skill, one tier at a time.
+ *
+ * A skill's `prereq` list is an OR -- owning any one satisfies it -- so a tier
+ * that lists more than one is a real choice for the player, and a tier with
+ * exactly one is granted without asking (a picker with one option is noise).
+ * `granted` collects every single-option tier the walk passes through automatically;
+ * `choice` is the options at the first tier reached that needs a decision, or
+ * empty once the chain has nothing left to grant.
+ *
+ * Call this again with whichever skill the player picks from `choice` to
+ * continue the walk one tier further.
  */
-export function prerequisiteChain(name: Skill): readonly Skill[] {
-  const chain: Skill[] = [name];
+export function prerequisiteChain(name: Skill): PrerequisiteStep {
+  const granted: Skill[] = [];
   let current: SkillEntry | undefined = skillsByKey[skillKey(name)];
-  while (current !== undefined) {
-    const next = current.prereq?.[0];
-    if (next === undefined) break;
-    chain.push(next);
-    current = skillsByKey[skillKey(next)];
+  for (;;) {
+    const options = current?.prereq ?? [];
+    const only = options.length === 1 ? options[0] : undefined;
+    if (only === undefined) return {
+      granted,
+      choice: options,
+    };
+    granted.push(only);
+    current = skillsByKey[skillKey(only)];
   }
-  return chain;
 }
 
 export type RangeBandDef = {

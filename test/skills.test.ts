@@ -69,29 +69,101 @@ describe("Skills grouped by level", () => {
   });
 });
 
-describe("prerequisiteChain (#180)", () => {
-  it("should resolve a Master skill down to its Expert and Trained prerequisite", () => {
-    // Sophontology <- Psychology <- (Linguistics, Zoology, Botany): the first
-    // listed prerequisite at each tier is the one concrete path granted.
-    expect(prerequisiteChain(Skills.Sophontology)).toEqual([
-      Skills.Sophontology,
-      Skills.Psychology,
-      Skills.Linguistics,
-    ]);
-  });
-
-  it("should follow the first prerequisite when a skill lists more than one", () => {
-    // Surgery lists two Expert prerequisites, and Pathology (the first) lists
-    // two Trained prerequisites of its own.
-    expect(prerequisiteChain(Skills.Surgery)).toEqual([
-      Skills.Surgery,
-      Skills.Pathology,
-      Skills.Zoology,
-    ]);
+describe("prerequisiteChain (#187)", () => {
+  it("should grant a single-option Expert prerequisite without a choice", () => {
+    // Sophontology <- Psychology: only one Expert prerequisite, so it is
+    // granted outright rather than offered as a picker.
+    expect(prerequisiteChain(Skills.Sophontology)).toEqual({
+      granted: [Skills.Psychology],
+      choice: [Skills.Linguistics, Skills.Zoology, Skills.Botany],
+    });
   });
 
   it("should stop at a skill with no prerequisite", () => {
-    expect(prerequisiteChain(Skills.Botany)).toEqual([Skills.Botany]);
+    expect(prerequisiteChain(Skills.Botany)).toEqual({
+      granted: [],
+      choice: [],
+    });
+  });
+
+  it("should offer nothing further once a chain bottoms out on a granted skill", () => {
+    // Sophontology's own Trained-tier choice, once made (Linguistics has no
+    // prerequisite of its own), ends the chain.
+    expect(prerequisiteChain(Skills.Linguistics)).toEqual({
+      granted: [],
+      choice: [],
+    });
+  });
+
+  describe("the four Masters with more than one Expert prerequisite", () => {
+    it("Surgery: Pathology or Field Medicine, neither grantable alone", () => {
+      expect(prerequisiteChain(Skills.Surgery)).toEqual({
+        granted: [],
+        choice: [Skills.Pathology, Skills.FieldMedicine],
+      });
+      // Whichever Expert skill is picked, its own Trained prerequisite is
+      // itself a choice between Zoology and Botany.
+      expect(prerequisiteChain(Skills.Pathology)).toEqual({
+        granted: [],
+        choice: [Skills.Zoology, Skills.Botany],
+      });
+      expect(prerequisiteChain(Skills.FieldMedicine)).toEqual({
+        granted: [],
+        choice: [Skills.Zoology, Skills.Botany],
+      });
+    });
+
+    it("Planetology: Ecology or Asteroid Mining", () => {
+      expect(prerequisiteChain(Skills.Planetology)).toEqual({
+        granted: [],
+        choice: [Skills.Ecology, Skills.AsteroidMining],
+      });
+      expect(prerequisiteChain(Skills.Ecology)).toEqual({
+        granted: [],
+        choice: [Skills.Botany, Skills.Geology],
+      });
+      expect(prerequisiteChain(Skills.AsteroidMining)).toEqual({
+        granted: [],
+        choice: [Skills.Geology, Skills.IndustrialEquipment],
+      });
+    });
+
+    it("Hyperspace: Piloting, Physics or Mysticism, each resolving differently", () => {
+      expect(prerequisiteChain(Skills.Hyperspace)).toEqual({
+        granted: [],
+        choice: [Skills.Piloting, Skills.Physics, Skills.Mysticism],
+      });
+      // Piloting and Physics each have exactly one Trained prerequisite, so
+      // both grant it outright with no further picker.
+      expect(prerequisiteChain(Skills.Piloting)).toEqual({
+        granted: [Skills.ZeroG],
+        choice: [],
+      });
+      expect(prerequisiteChain(Skills.Physics)).toEqual({
+        granted: [Skills.Mathematics],
+        choice: [],
+      });
+      // Mysticism instead offers a further 3-way choice at the Trained tier.
+      expect(prerequisiteChain(Skills.Mysticism)).toEqual({
+        granted: [],
+        choice: [Skills.Art, Skills.Archaeology, Skills.Theology],
+      });
+    });
+
+    it("Command: Piloting or Firearms", () => {
+      expect(prerequisiteChain(Skills.Command)).toEqual({
+        granted: [],
+        choice: [Skills.Piloting, Skills.Firearms],
+      });
+      expect(prerequisiteChain(Skills.Piloting)).toEqual({
+        granted: [Skills.ZeroG],
+        choice: [],
+      });
+      expect(prerequisiteChain(Skills.Firearms)).toEqual({
+        granted: [],
+        choice: [Skills.MilitaryTraining, Skills.Rimwise],
+      });
+    });
   });
 });
 

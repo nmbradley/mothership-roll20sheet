@@ -4,6 +4,7 @@ import { allSaves, allStats } from "#game/enums.js";
 import { addTopBar, refreshTopBar } from "./charactermancer/1-intro";
 import { onLoadStats, onRollStats } from "./charactermancer/2-stats";
 import {
+  advanceSkillChoice,
   applyFloatingBonus,
   disableChosenSkill,
   onLoadClass,
@@ -286,6 +287,7 @@ on("mancerchange:repeating_choicerow", (eventInfo) => {
     return;
   }
   disableChosenSkill(eventInfo.newValue ?? "");
+  advanceSkillChoice(eventInfo.sourceSection, eventInfo.newValue ?? "");
 });
 
 on("page:skills", () => {
