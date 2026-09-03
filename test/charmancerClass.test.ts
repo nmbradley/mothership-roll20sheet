@@ -3,8 +3,9 @@ import {
 } from "vitest";
 
 import { classes } from "../src/game/data/classes";
+import { Skills } from "../src/game/enums";
 import {
-  applyClass, maxWounds, statModifiers,
+  advanceSkillChoice, applyClass, maxWounds, statModifiers,
 } from "../src/ts/charactermancer/3-class";
 
 /** Stubs the globals `applyClass` needs and returns the `setAttrs` spy. */
@@ -111,6 +112,85 @@ describe("Charactermancer Class Step (Mothership 1e)", () => {
         expect(call[0] as Record<string, unknown>).not.toHaveProperty("wounds");
       }
 
+      vi.unstubAllGlobals();
+    });
+  });
+
+  describe("advanceSkillChoice (#187)", () => {
+    it("should do nothing when nothing was actually chosen yet", () => {
+      const mockGetRepeatingSections = vi.fn();
+      vi.stubGlobal("getRepeatingSections", mockGetRepeatingSections);
+
+      advanceSkillChoice("row1", "choose");
+      advanceSkillChoice(undefined, Skills.Hyperspace);
+
+      expect(mockGetRepeatingSections).not.toHaveBeenCalled();
+      vi.unstubAllGlobals();
+    });
+
+    it("should add a picker row when the chosen skill's own prerequisite is a choice", () => {
+      const mockAddRepeatingSection = vi.fn((
+        _section: string,
+        _data: string,
+        callback?: (rowId: string) => void,
+      ) => {
+        callback?.("row2");
+      });
+      const mockSetCharmancerOptions = vi.fn();
+      vi.stubGlobal("getRepeatingSections", (_section: string, callback: (details: { list: string[] }) => void) => {
+        callback({ list: ["row1"] });
+      });
+      vi.stubGlobal("removeRepeatingRow", vi.fn());
+      vi.stubGlobal("addRepeatingSection", mockAddRepeatingSection);
+      vi.stubGlobal("setCharmancerOptions", mockSetCharmancerOptions);
+
+      // Hyperspace's Expert prerequisites are Piloting, Physics or Mysticism --
+      // a real choice, so a picker row follows the Master pick.
+      advanceSkillChoice("row1", Skills.Hyperspace);
+
+      expect(mockAddRepeatingSection).toHaveBeenCalledWith(
+        "sheet-t__skill_choice",
+        "skillselection",
+        expect.any(Function),
+      );
+      expect(mockSetCharmancerOptions).toHaveBeenCalledWith(
+        "row2_skill",
+        [Skills.Piloting, Skills.Physics, Skills.Mysticism],
+      );
+      vi.unstubAllGlobals();
+    });
+
+    it("should add nothing further once the chosen skill grants its prerequisite outright", () => {
+      const mockAddRepeatingSection = vi.fn();
+      vi.stubGlobal("getRepeatingSections", (_section: string, callback: (details: { list: string[] }) => void) => {
+        callback({ list: ["row1", "row2"] });
+      });
+      vi.stubGlobal("removeRepeatingRow", vi.fn());
+      vi.stubGlobal("addRepeatingSection", mockAddRepeatingSection);
+      vi.stubGlobal("setCharmancerOptions", vi.fn());
+
+      // Piloting's only Trained prerequisite is Zero-G: nothing to ask.
+      advanceSkillChoice("row2", Skills.Piloting);
+
+      expect(mockAddRepeatingSection).not.toHaveBeenCalled();
+      vi.unstubAllGlobals();
+    });
+
+    it("should remove every row after the one that changed, invalidating stale downstream picks", () => {
+      const mockRemoveRepeatingRow = vi.fn();
+      vi.stubGlobal("getRepeatingSections", (_section: string, callback: (details: { list: string[] }) => void) => {
+        callback({ list: ["row1", "row2", "row3"] });
+      });
+      vi.stubGlobal("removeRepeatingRow", mockRemoveRepeatingRow);
+      vi.stubGlobal("addRepeatingSection", vi.fn());
+      vi.stubGlobal("setCharmancerOptions", vi.fn());
+
+      // Re-picking the Master row invalidates whatever the Expert and Trained
+      // tier rows below it had chosen.
+      advanceSkillChoice("row1", Skills.Command);
+
+      expect(mockRemoveRepeatingRow).toHaveBeenCalledWith("row2");
+      expect(mockRemoveRepeatingRow).toHaveBeenCalledWith("row3");
       vi.unstubAllGlobals();
     });
   });

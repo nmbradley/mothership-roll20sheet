@@ -65,7 +65,16 @@ function resetClassSkills(): void {
   });
 }
 
-/** Skills the class grants outright, plus any the player picked from a group. */
+/**
+ * Skills the class grants outright, plus any the player picked from a group.
+ *
+ * A Master-chain class (the Scientist) adds one choice row per tier it needs a
+ * decision at (see `offerSkillChoices`/`advanceSkillChoice` in 3-class.ts), so
+ * this walks every repeating row on the Class step: a row without a `_skill`
+ * value (the class list's own rows, or a choice row not yet reached) is
+ * skipped, and a row with one contributes the skill it names plus whatever
+ * `prerequisiteChain` grants beneath it without asking.
+ */
 function classGrantedSkills(): readonly string[] {
   const data = charmancerData();
   const values = stepValues(data, Steps.Class);
@@ -73,15 +82,17 @@ function classGrantedSkills(): readonly string[] {
   const granted = parseStringList(values["skills"]);
   const keys = granted.map((name) => name.replaceAll(" ", "_"));
 
-  const choiceRows = stepRows(data, Steps.Class).filter((id) => id.includes("choicerow"));
-  for (const rowId of choiceRows) {
+  for (const rowId of stepRows(data, Steps.Class)) {
     const chosen = values[`${rowId}_skill`];
-    if (chosen === undefined || chosen === "choose") continue;
+    if (chosen === undefined || chosen === "" || chosen === "choose") continue;
     const skillName = chosen.toLowerCase() as Skill;
-    const chain = prerequisiteChain(skillName);
-    for (const name of chain) {
-      const key = skillKey(name);
-      keys.push(key);
+    const key = skillKey(skillName);
+    keys.push(key);
+
+    const { granted: autoGranted } = prerequisiteChain(skillName);
+    for (const name of autoGranted) {
+      const autoKey = skillKey(name);
+      keys.push(autoKey);
     }
   }
   return keys;

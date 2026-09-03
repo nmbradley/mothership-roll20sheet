@@ -2933,15 +2933,18 @@
   }
   var skillsByKey = buildSkillsByKey();
   function prerequisiteChain(name) {
-    const chain = [name];
+    const granted = [];
     let current = skillsByKey[skillKey(name)];
-    while (current !== void 0) {
-      const next = current.prereq?.[0];
-      if (next === void 0) break;
-      chain.push(next);
-      current = skillsByKey[skillKey(next)];
+    for (; ; ) {
+      const options = current?.prereq ?? [];
+      const only = options.length === 1 ? options[0] : void 0;
+      if (only === void 0) return {
+        granted,
+        choice: options
+      };
+      granted.push(only);
+      current = skillsByKey[skillKey(only)];
     }
-    return chain;
   }
   var rangeBands = {
     [RangeBands.Adjacent]: {
@@ -3496,6 +3499,23 @@
       setCharmancerOptions(`${rowId}_skill`, options);
     });
   }
+  function advanceSkillChoice(rowId, chosen) {
+    if (rowId === void 0 || chosen === "" || chosen === "choose") return;
+    getRepeatingSections(SKILL_CHOICE_LIST, (details) => {
+      const index = details.list.indexOf(rowId);
+      if (index === -1) return;
+      for (const staleRow of details.list.slice(index + 1)) {
+        removeRepeatingRow(staleRow);
+      }
+      const skillName = chosen.toLowerCase();
+      const { choice } = prerequisiteChain(skillName);
+      if (choice.length <= 1) return;
+      const options = [...choice];
+      addRepeatingSection(SKILL_CHOICE_LIST, "skillselection", (nextRowId) => {
+        setCharmancerOptions(`${nextRowId}_skill`, options);
+      });
+    });
+  }
   function offerFloatingChoice(definition) {
     clearRepeatingSections(FLOATING_CHOICE_LIST);
     const floating = definition.floating;
@@ -3591,15 +3611,16 @@
     const values = stepValues(data, Steps.Class);
     const granted = parseStringList(values["skills"]);
     const keys = granted.map((name) => name.replaceAll(" ", "_"));
-    const choiceRows = stepRows(data, Steps.Class).filter((id) => id.includes("choicerow"));
-    for (const rowId of choiceRows) {
+    for (const rowId of stepRows(data, Steps.Class)) {
       const chosen = values[`${rowId}_skill`];
-      if (chosen === void 0 || chosen === "choose") continue;
+      if (chosen === void 0 || chosen === "" || chosen === "choose") continue;
       const skillName = chosen.toLowerCase();
-      const chain = prerequisiteChain(skillName);
-      for (const name of chain) {
-        const key = skillKey(name);
-        keys.push(key);
+      const key = skillKey(skillName);
+      keys.push(key);
+      const { granted: autoGranted } = prerequisiteChain(skillName);
+      for (const name of autoGranted) {
+        const autoKey = skillKey(name);
+        keys.push(autoKey);
       }
     }
     return keys;
@@ -7168,6 +7189,7 @@ ${SHIP_PANIC_MESSAGE}`;
       return;
     }
     disableChosenSkill(eventInfo.newValue ?? "");
+    advanceSkillChoice(eventInfo.sourceSection, eventInfo.newValue ?? "");
   });
   on("page:skills", () => {
     onLoadSkills();

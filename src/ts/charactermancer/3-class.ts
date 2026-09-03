@@ -1,9 +1,9 @@
-import { skillsByLevel } from "#game/constants.js";
+import { prerequisiteChain, skillsByLevel } from "#game/constants.js";
 import {
   classes, totalSkillPoints, type ClassDef, type FloatingBonus,
 } from "#game/data/classes.js";
 import {
-  SkillLevels, allSaves, allStats, type Stat,
+  SkillLevels, allSaves, allStats, type Skill, type Stat,
 } from "#game/enums.js";
 import { titleCase } from "#game/text.js";
 import { translateOr } from "#rules/translation.js";
@@ -278,8 +278,10 @@ export function maxWounds(definition: ClassDef): number {
 /**
  * Adds a picker row for a class that chooses a Master skill.
  *
- * Only the Scientist does this: it takes a Master skill outright, so the player
- * picks which one and its prerequisites come with it.
+ * Only the Scientist does this: it takes a Master skill outright, together
+ * with the Expert and Trained skills that unlock it. Picking the Master here
+ * may in turn need a picker of its own -- `advanceSkillChoice` adds one below
+ * this row once the player makes a choice, walking down one tier at a time.
  */
 function offerSkillChoices(definition: ClassDef): void {
   clearRepeatingSections(SKILL_CHOICE_LIST);
@@ -293,6 +295,38 @@ function offerSkillChoices(definition: ClassDef): void {
 
   addRepeatingSection(SKILL_CHOICE_LIST, "skillselection", (rowId: string) => {
     setCharmancerOptions(`${rowId}_skill`, options);
+  });
+}
+
+/**
+ * Extends the Master skill's picker chain as the player works down it.
+ *
+ * Any row after the one that just changed belongs to a branch the new pick
+ * invalidated, so it is removed. The newly chosen skill's own prerequisite is
+ * then walked with `prerequisiteChain`: a single prerequisite is granted
+ * without asking (handled later, when the Skills step totals the class's
+ * skills), and more than one is a real choice, so one more row is added for
+ * it. Nothing is added once the chain bottoms out.
+ */
+export function advanceSkillChoice(rowId: string | undefined, chosen: string): void {
+  if (rowId === undefined || chosen === "" || chosen === "choose") return;
+
+  getRepeatingSections(SKILL_CHOICE_LIST, (details) => {
+    const index = details.list.indexOf(rowId);
+    if (index === -1) return;
+
+    for (const staleRow of details.list.slice(index + 1)) {
+      removeRepeatingRow(staleRow);
+    }
+
+    const skillName = chosen.toLowerCase() as Skill;
+    const { choice } = prerequisiteChain(skillName);
+    if (choice.length <= 1) return;
+    const options = [...choice];
+
+    addRepeatingSection(SKILL_CHOICE_LIST, "skillselection", (nextRowId: string) => {
+      setCharmancerOptions(`${nextRowId}_skill`, options);
+    });
   });
 }
 
