@@ -13,3 +13,25 @@
   <div class="ms-cm-mainstat__value t__{stat}"></div>
   <slot />
 </div>
+
+<style lang="scss">
+.ms-cm-mainstat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ms-space-sm);
+  align-items: center;
+
+  &__title {
+    @extend %ms-caption;
+
+    color: var(--ms-fg);
+  }
+
+  &__value {
+    @extend %ms-well-round;
+
+    font-size: var(--ms-text-lg);
+    font-weight: 700;
+  }
+}
+</style>

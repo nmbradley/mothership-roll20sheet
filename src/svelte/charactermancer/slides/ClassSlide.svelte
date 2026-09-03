@@ -157,3 +157,89 @@
     }}
   />
 </CharmancerSlide>
+
+<style lang="scss">
+.ms-cm-classes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ms-space-md);
+  justify-content: center;
+
+  padding: var(--ms-space-sm);
+}
+
+.ms-cm-savegroup {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--ms-space-sm);
+
+  margin: var(--ms-space-md) 0;
+  border-top: var(--ms-border-width) solid var(--ms-rule);
+  padding-top: var(--ms-space-md);
+}
+
+.ms-cm-row {
+  margin: var(--ms-space-sm) 0;
+  border-top: var(--ms-border-width) solid var(--ms-rule);
+  padding-top: var(--ms-space-sm);
+
+  font-size: var(--ms-text-sm);
+
+  &__title {
+    margin-bottom: var(--ms-space-sm);
+
+    font-size: var(--ms-text-xs);
+    font-family: var(--ms-font-header);
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--ms-fg-muted);
+  }
+
+  &__label {
+    font-size: var(--ms-text-sm);
+    font-weight: 700;
+    color: var(--ms-fg);
+  }
+
+  // The custom-class inputs carry no type="text", so they miss the sheet's
+  // base input rule (which keys off [type="text"]) and need their own chrome.
+  &__input,
+  &__input--long {
+    margin-top: var(--ms-space-sm);
+    border: var(--ms-border-width) solid var(--ms-border);
+    border-radius: var(--ms-radius-sm);
+    width: 100%;
+    padding: var(--ms-space-sm) var(--ms-space-md);
+
+    background: var(--ms-surface);
+
+    font-size: var(--ms-text-md);
+    font-family: var(--ms-font-body);
+    color: var(--ms-fg);
+  }
+}
+
+.ms-cm-button--action {
+  @extend %ms-btn-reset;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: var(--ms-border-width) solid var(--ms-border);
+  border-radius: var(--ms-radius-sm);
+  padding: var(--ms-space-sm) var(--ms-space-lg);
+
+  background: var(--ms-inverse);
+  cursor: pointer;
+
+  font-family: var(--ms-font-header);
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--ms-fg-inverse);
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+</style>

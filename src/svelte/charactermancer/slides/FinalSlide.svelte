@@ -10,3 +10,22 @@
     </div>
   </div>
 </CharmancerSlide>
+
+<style lang="scss">
+.ms-cm-progressbar {
+  margin: var(--ms-space-xl) auto;
+  border: var(--ms-border-width-thick) solid var(--ms-border);
+  border-radius: var(--ms-radius-pill);
+  width: 80%;
+  padding: var(--ms-space-sm);
+
+  > div {
+    transition: width 200ms ease-in-out;
+
+    border-radius: var(--ms-radius-pill);
+    height: var(--ms-space-lg);
+
+    background: var(--ms-accent);
+  }
+}
+</style>

@@ -36,3 +36,47 @@
     </div>
   </div>
 </charmancer>
+
+<style lang="scss">
+.ms-cm-topstats {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: var(--ms-space-lg);
+  align-items: center;
+
+  margin-bottom: var(--ms-space-lg);
+  border-bottom: var(--ms-border-width) solid var(--ms-rule);
+  padding-bottom: var(--ms-space-lg);
+}
+
+// The Stats block and Review's abbreviated re-statement of it share one
+// treatment; the modifier never combines with the plain class, so this stays
+// a placeholder rather than a nested override.
+%ms-cm-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--ms-space-md);
+}
+
+.ms-cm-stats {
+  @extend %ms-cm-stats-grid;
+}
+
+.ms-cm-stats--main {
+  @extend %ms-cm-stats-grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.ms-cm-altstats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--ms-space-md);
+}
+
+// Sanity, Fear and Body: three saves, not four.
+.ms-cm-saves {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--ms-space-sm);
+}
+</style>

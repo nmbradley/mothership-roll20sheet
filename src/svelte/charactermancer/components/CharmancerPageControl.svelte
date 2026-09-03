@@ -36,3 +36,63 @@
     </button>
   {/if}
 </div>
+
+<style lang="scss">
+.ms-cm-pagecontrol {
+  display: grid;
+  position: sticky;
+  z-index: 1;
+  bottom: var(--ms-space-lg);
+  grid-template-columns: repeat(3, auto);
+  gap: var(--ms-space-md);
+  align-items: center;
+  justify-content: center;
+
+  margin: var(--ms-space-lg) auto 0;
+  border: var(--ms-border-width) solid var(--ms-border);
+  border-radius: var(--ms-radius-pill);
+  width: fit-content;
+  padding: var(--ms-space-sm) var(--ms-space-lg);
+
+  background: var(--ms-surface);
+}
+
+.ms-cm-pagecontrol__left,
+.ms-cm-pagecontrol__middle,
+.ms-cm-pagecontrol__right {
+  @extend %ms-btn-reset;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: var(--ms-border-width) solid var(--ms-border);
+  border-radius: var(--ms-radius-pill);
+  padding: var(--ms-space-sm) var(--ms-space-xl);
+
+  background: var(--ms-inverse);
+  cursor: pointer;
+
+  font-size: var(--ms-text-sm);
+  font-family: var(--ms-font-header);
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--ms-fg-inverse);
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+// Cancel sits outlined in the accent colour rather than filled, so it does
+// not read as equal in weight to moving forward or back.
+.ms-cm-pagecontrol__middle {
+  border-color: var(--ms-accent);
+
+  background: none;
+
+  color: var(--ms-accent);
+}
+</style>

@@ -12,7 +12,44 @@
 </charmancer>
 
 <style lang="scss">
+// The staging name field and the card's own selection checkbox: present for
+// the sheetworker, not for the eye. The card itself is the click target.
+.ms-cm-hide {
+  @extend %ms-visually-hidden;
+}
+
 .ms-cm-class {
+  display: block;
+
+  padding: var(--ms-space-md);
+
+  cursor: pointer;
+
+  color: var(--ms-fg-inverse);
+
+  &:hover .ms-cm-class__title {
+    color: var(--ms-accent);
+  }
+
+  &__title {
+    margin-bottom: var(--ms-space-sm);
+
+    font-size: var(--ms-text-lg);
+    font-family: var(--ms-font-header);
+    font-weight: 800;
+    text-align: center;
+    text-transform: uppercase;
+    color: inherit;
+  }
+
+  &__desc {
+    font-size: var(--ms-text-sm);
+    font-family: var(--ms-font-body);
+    font-weight: 400;
+    text-align: center;
+    color: inherit;
+  }
+
   &__grants {
     margin-top: var(--ms-space-md);
     border-top: var(--ms-border-width) solid var(--ms-border);
@@ -30,5 +67,18 @@
 
     list-style: none;
   }
+}
+
+// The chosen class's own title on the class-info panel -- a plain heading
+// rather than a card, so it never combines with .ms-cm-class__title above.
+.ms-cm-class__title--selected {
+  margin-bottom: var(--ms-space-md);
+
+  font-size: var(--ms-text-xl);
+  font-family: var(--ms-font-header);
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--ms-fg);
 }
 </style>

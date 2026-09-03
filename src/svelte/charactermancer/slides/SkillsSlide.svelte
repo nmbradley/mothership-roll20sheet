@@ -84,3 +84,127 @@
     }}
   />
 </CharmancerSlide>
+
+<style lang="scss">
+.ms-cm-skillpoints {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  grid-column: 1 / -1;
+
+  margin-bottom: var(--ms-space-md);
+  border-bottom: var(--ms-border-width) solid var(--ms-border);
+  padding: var(--ms-space-sm) 0 var(--ms-space-md);
+
+  background: inherit;
+
+  text-align: center;
+
+  &__label {
+    font-size: var(--ms-text-sm);
+    font-family: var(--ms-font-header);
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--ms-fg-muted);
+  }
+
+  &__value {
+    font-size: var(--ms-text-xl);
+    font-weight: 800;
+    color: inherit;
+  }
+}
+
+.ms-cm-skillcol--trained,
+.ms-cm-skillcol--expert,
+.ms-cm-skillcol--master {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ms-space-sm);
+}
+
+.ms-cm-skill {
+  position: relative;
+
+  &:hover .ms-cm-tooltip {
+    display: block;
+  }
+}
+
+.ms-cm-skill__wrapper {
+  @extend %ms-btn-reset;
+
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--ms-space-sm);
+  align-items: center;
+
+  border: var(--ms-border-width) solid var(--ms-rule);
+  border-radius: var(--ms-radius-sm);
+  width: 100%;
+  padding: var(--ms-space-sm) var(--ms-space-md);
+
+  background: var(--ms-sunken);
+  cursor: pointer;
+
+  text-align: left;
+  color: var(--ms-fg);
+
+  &:hover {
+    border-color: var(--ms-accent);
+  }
+}
+
+.ms-cm-skill__check {
+  border: var(--ms-border-width) solid var(--ms-border);
+  border-radius: var(--ms-radius-pill);
+  width: 1.1rem;
+  height: 1.1rem;
+
+  background: var(--ms-surface);
+}
+
+// The staging value lives on a hidden input beside the button, not on a
+// checkbox inside it, so the checkmark reads its sibling's value instead of
+// an :checked pseudo-class.
+.ms-cm-skill input[type="hidden"][value="on"] ~ * .ms-cm-skill__check {
+  background: var(--ms-accent);
+}
+
+.ms-cm-skill__name {
+  font-size: var(--ms-text-sm);
+  font-family: var(--ms-font-header);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.ms-cm-tooltip {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 100%;
+  left: 0;
+
+  margin-top: var(--ms-space-sm);
+  border-radius: var(--ms-radius-md);
+  min-width: 180px;
+  max-width: 280px;
+  padding: var(--ms-space-md);
+
+  background: var(--ms-inverse);
+
+  font-size: var(--ms-text-sm);
+  color: var(--ms-fg-inverse);
+
+  p {
+    margin: 0 0 var(--ms-space-sm);
+
+    font-family: var(--ms-font-body);
+    font-weight: 400;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+</style>
