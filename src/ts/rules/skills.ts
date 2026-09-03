@@ -8,6 +8,7 @@ import {
 } from "./checks";
 import {
   COMPUTED, TEMPLATE_PHRASES, checkComputed, checkTemplate,
+  notesFlag,
 } from "./rollTemplate";
 import {
   Outcomes, makeCheck, type Outcome,
@@ -232,6 +233,7 @@ export async function handleMilitaryTraining(): Promise<void> {
   finishRoll(rollData.rollId, {
     ...checkComputed(check),
     [COMPUTED.Notes]: evaluation.message,
+    [COMPUTED.HasNotes]: notesFlag(evaluation.message),
   });
 
   if (evaluation.killed) return;

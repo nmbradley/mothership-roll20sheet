@@ -309,7 +309,7 @@ describe("rollCheck", () => {
     }));
   });
 
-  it("should leave the Skill field blank once (none) leaves no annotation to decode", async () => {
+  it("should read Unskilled where a Skill was offered and declined", async () => {
     const mockStartRoll = vi.fn().mockResolvedValue({
       rollId: "id",
       results: {
@@ -330,6 +330,35 @@ describe("rollCheck", () => {
       name: "Strength Check",
       target: "@{strength}",
       bonus: skillQuery(),
+    });
+
+    // Declining the prompt is a real answer, and the card says so. A check
+    // that offered no prompt at all is the blank case, covered below.
+    expect(mockFinishRoll).toHaveBeenCalledWith("id", expect.objectContaining({
+      skill: "Unskilled",
+    }));
+  });
+
+  it("should leave the Skill blank where the check offered no prompt at all", async () => {
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        roll: { result: 30 },
+        roll2: { result: 80 },
+        edge: { result: 0 },
+        target: {
+          result: 35,
+          expression: "35 + 0",
+        },
+      },
+    });
+    const mockFinishRoll = vi.fn();
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", mockFinishRoll);
+
+    await rollCheck({
+      name: "Instinct Check",
+      target: "@{instinct}",
     });
 
     expect(mockFinishRoll).toHaveBeenCalledWith("id", expect.objectContaining({
@@ -734,6 +763,7 @@ describe("rollDeathSave", () => {
 
     expect(mockFinishRoll).toHaveBeenCalledWith("id", {
       notes: "You have died. Roll up a new character.",
+      hasnotes: 1,
     });
   });
 });
@@ -784,6 +814,7 @@ describe("rollPanicCheck", () => {
 
     expect(mockFinishRoll).toHaveBeenCalledWith("id", expect.objectContaining({
       notes: "@{stress_effect}",
+      hasnotes: 1,
     }));
   });
 
@@ -957,7 +988,7 @@ describe("rollAttack", () => {
     // The Check card itself (the first finishRoll call) already carries the
     // Panic warning via checkComputed -- rollAttack does not duplicate it.
     expect(mockFinishRoll.mock.calls[0][1]).toEqual(
-      expect.objectContaining({ notes: "^{Critical Failure: Make a Panic Check}" }),
+      expect.objectContaining({ notes: "Critical Failure: Make a Panic Check" }),
     );
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 4 });
   });

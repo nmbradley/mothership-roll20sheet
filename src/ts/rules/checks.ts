@@ -3,6 +3,7 @@ import { titleCase } from "#game/text.js";
 
 import {
   checkComputed,
+  usedDie,
   checkTemplate,
   deathSaveComputed,
   deathSaveTemplate,
@@ -104,6 +105,8 @@ function queryText(key: string): string {
 /** Prompt and option labels the skill query asks through. */
 export const SKILL_PROMPT = "Apply Skill?";
 export const NONE_LABEL = "None";
+/** Shown where a Skill prompt was offered and the player took none. */
+export const UNSKILLED_LABEL = "Unskilled";
 
 /** One Skill the character currently has, at whichever tier grants its bonus. */
 export type SkillCatalogEntry = {
@@ -419,8 +422,16 @@ export async function rollCheck(options: CheckOptions): Promise<CheckResult> {
   if (options.i18nKey !== undefined) request.i18nKey = options.i18nKey;
 
   const check = makeCheck(request);
-  const skillName = readSkillName(roll.results["target"]?.expression);
-  const computed = checkComputed(check, skillName);
+
+  // A check that offered no Skill prompt names no Skill; one that offered a
+  // prompt the player declined reads "Unskilled", which is a real answer
+  // rather than an absent one.
+  const named = readSkillName(roll.results["target"]?.expression);
+  const wasOffered = options.bonus !== undefined;
+  const skillName = named !== "" ? named : (wasOffered ? translateOr(UNSKILLED_LABEL) : "");
+
+  const used = usedDie(dice.rolls, check.roll);
+  const computed = checkComputed(check, skillName, used);
   finishRoll(roll.rollId, computed);
   return check;
 }
@@ -687,7 +698,8 @@ export async function rollPanicCheck(): Promise<void> {
 
   const stress = readTarget(roll.results);
   const check = makePanicCheck(stress, dice.rolls, dice.edge);
-  const computed = panicComputed(check);
+  const used = usedDie(dice.rolls, check.roll);
+  const computed = panicComputed(check, used);
   finishRoll(roll.rollId, computed);
 }
 

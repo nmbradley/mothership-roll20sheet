@@ -1321,21 +1321,27 @@
     <h2 class="sheet-ms-result__subtitle">{{character_name}}</h2>
     {{/character_name}}
 
+    {{#computed::skill}}
+    <div class="sheet-ms-result__skill">{{computed::skill}}</div>
+    {{/computed::skill}}
+
     {{#roll}}
     <div class="sheet-ms-roll">
-      <div class="sheet-ms-roll__roll">{{roll}}</div>
       {{#rollGreater() edge 0}}
-      <div class="sheet-ms-roll__roll2">{{roll2}}</div>
+      {{#rollTotal() computed::used 1}}
+      <div class="sheet-ms-roll__roll sheet-ms-roll--used">{{roll}}</div>
+      <div class="sheet-ms-roll__roll2 sheet-ms-roll--spent">{{roll2}}</div>
+      {{/rollTotal() computed::used 1}}
+      {{#rollTotal() computed::used 2}}
+      <div class="sheet-ms-roll__roll sheet-ms-roll--spent">{{roll}}</div>
+      <div class="sheet-ms-roll__roll2 sheet-ms-roll--used">{{roll2}}</div>
+      {{/rollTotal() computed::used 2}}
       {{/rollGreater() edge 0}}
+      {{#rollTotal() edge 0}}
+      <div class="sheet-ms-roll__roll">{{roll}}</div>
+      {{/rollTotal() edge 0}}
     </div>
     {{/roll}}
-
-    {{#counted}}
-    <div class="sheet-ms-readout">
-      <div class="sheet-ms-readout__label" data-i18n="Counted">Counted</div>
-      <div class="sheet-ms-readout__value">{{counted}}</div>
-    </div>
-    {{/counted}}
 
     {{#target}}
     <div class="sheet-ms-readout">
@@ -1344,13 +1350,6 @@
     </div>
     {{/target}}
 
-    {{#skill}}
-    <div class="sheet-ms-readout">
-      <div class="sheet-ms-readout__label" data-i18n="Skill">Skill</div>
-      <div class="sheet-ms-readout__value">{{skill}}</div>
-    </div>
-    {{/skill}}
-
     {{#damage}}
     <div class="sheet-ms-readout">
       <div class="sheet-ms-readout__label" data-i18n="Damage">Damage</div>
@@ -1358,26 +1357,26 @@
     </div>
     {{/damage}}
 
-    {{#rollTotal() rank 3}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--critical-success">{{result}}</div>
-    {{/rollTotal() rank 3}}
-    {{#rollTotal() rank 2}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--success">{{result}}</div>
-    {{/rollTotal() rank 2}}
-    {{#rollTotal() rank 1}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--failure">{{result}}</div>
-    {{/rollTotal() rank 1}}
-    {{#rollTotal() rank 0}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--critical-failure">{{result}}</div>
-    {{/rollTotal() rank 0}}
+    {{#rollTotal() computed::rank 3}}
+    <div class="sheet-ms-verdict sheet-ms-verdict--critical-success">{{computed::result}}</div>
+    {{/rollTotal() computed::rank 3}}
+    {{#rollTotal() computed::rank 2}}
+    <div class="sheet-ms-verdict sheet-ms-verdict--success">{{computed::result}}</div>
+    {{/rollTotal() computed::rank 2}}
+    {{#rollTotal() computed::rank 1}}
+    <div class="sheet-ms-verdict sheet-ms-verdict--failure">{{computed::result}}</div>
+    {{/rollTotal() computed::rank 1}}
+    {{#rollTotal() computed::rank 0}}
+    <div class="sheet-ms-verdict sheet-ms-verdict--critical-failure">{{computed::result}}</div>
+    {{/rollTotal() computed::rank 0}}
 
-    {{#notes}}
-    <div class="sheet-ms-notes">{{notes}}</div>
-    {{/notes}}
+    {{#rollTotal() computed::hasnotes 1}}
+    <div class="sheet-ms-notes">{{computed::notes}}</div>
+    {{/rollTotal() computed::hasnotes 1}}
 
-    {{#alert}}
-    <div class="sheet-ms-alert">{{alert}}</div>
-    {{/alert}}
+    {{#computed::alert}}
+    <div class="sheet-ms-alert">{{computed::alert}}</div>
+    {{/computed::alert}}
   </div>
 </rolltemplate>
 
@@ -3294,6 +3293,7 @@
 
   // src/ts/rules/translation.ts
   function translateOr(key) {
+    if (typeof getTranslationByKey !== "function") return key;
     const translated2 = getTranslationByKey(key);
     if (typeof translated2 === "string") return translated2;
     return key;
@@ -5156,7 +5156,8 @@
   // src/ts/rules/rollTemplate.ts
   var TEMPLATE = "ms";
   var COMPUTED = {
-    Counted: "counted",
+    Used: "used",
+    HasNotes: "hasnotes",
     Result: "result",
     Rank: "rank",
     Notes: "notes",
@@ -5170,6 +5171,15 @@
   };
   function translated(key) {
     return `^{${key}}`;
+  }
+  function notesFlag(notes) {
+    return String(notes ?? "").trim() === "" ? 0 : 1;
+  }
+  function withNotesFlag(computed) {
+    return {
+      ...computed,
+      [COMPUTED.HasNotes]: notesFlag(computed[COMPUTED.Notes])
+    };
   }
   function render(fields) {
     const parts = [`&{template:${TEMPLATE}}`];
@@ -5189,29 +5199,32 @@
       ["roll", `[[${rollDie}]]`],
       ["roll2", `[[${options.die}]]`],
       ["target", `[[${options.target}]]`],
-      [COMPUTED.Counted, "[[0]]"],
+      [COMPUTED.Used, "[[0]]"],
       [COMPUTED.Result, "[[0]]"],
       [COMPUTED.Rank, "[[0]]"],
       [COMPUTED.Skill, "[[0]]"],
-      [COMPUTED.Notes, "[[0]]"]
+      [COMPUTED.Notes, "[[0]]"],
+      [COMPUTED.HasNotes, "[[0]]"]
     ]);
     return template;
   }
-  function checkComputed(check, skillName = "") {
+  function checkComputed(check, skillName = "", used = 1) {
     const computed = {
-      [COMPUTED.Counted]: describeCounted(check),
-      [COMPUTED.Result]: translated(check.outcome),
+      // translateOr, not translated(): `^{...}` is resolved by Roll20 while it
+      // parses the roll macro, and a finishRoll value never goes through that
+      // pass -- sent as `^{Success}` the card printed the macro verbatim.
+      [COMPUTED.Result]: translateOr(check.outcome),
       [COMPUTED.Rank]: RANKS[check.outcome],
       [COMPUTED.Skill]: skillName,
+      [COMPUTED.Used]: used,
       [COMPUTED.Notes]: panicWarning(check)
     };
-    return computed;
+    const flagged = withNotesFlag(computed);
+    return flagged;
   }
-  function describeCounted(check) {
-    if (check.edge === Edges.Advantage) return `${check.roll} [+]`;
-    if (check.edge === Edges.Disadvantage) return `${check.roll} [-]`;
-    const plain = String(check.roll);
-    return plain;
+  function usedDie(rolls, counted) {
+    const [first] = rolls;
+    return first === counted ? 1 : 2;
   }
   var TEMPLATE_PHRASES = {
     PanicCheck: "Panic Check",
@@ -5232,7 +5245,7 @@
   };
   function panicWarning(check) {
     if (!check.triggersPanic) return "";
-    const warning = translated(TEMPLATE_PHRASES.PanicWarning);
+    const warning = translateOr(TEMPLATE_PHRASES.PanicWarning);
     return warning;
   }
   function panicTemplate() {
@@ -5242,31 +5255,34 @@
       ["roll", "[[1d20]]"],
       ["roll2", "[[1d20]]"],
       ["target", "[[@{stress}]]"],
-      [COMPUTED.Counted, "[[0]]"],
+      [COMPUTED.Used, "[[0]]"],
       [COMPUTED.Result, "[[0]]"],
       [COMPUTED.Rank, "[[0]]"],
-      [COMPUTED.Notes, "[[0]]"]
+      [COMPUTED.Notes, "[[0]]"],
+      [COMPUTED.HasNotes, "[[0]]"]
     ]);
     return template;
   }
-  function panicComputed(check) {
+  function panicComputed(check, used = 1) {
     const hasPanicked = isFailure(check.outcome);
-    const survived = translated(TEMPLATE_PHRASES.KeptItTogether);
-    const panicked = translated(TEMPLATE_PHRASES.TraumaResponse);
+    const survived = translateOr(TEMPLATE_PHRASES.KeptItTogether);
+    const panicked = translateOr(TEMPLATE_PHRASES.TraumaResponse);
     const computed = {
-      [COMPUTED.Counted]: describeCounted(check),
+      [COMPUTED.Used]: used,
       [COMPUTED.Result]: hasPanicked ? panicked : survived,
       [COMPUTED.Rank]: RANKS[check.outcome],
       [COMPUTED.Notes]: hasPanicked ? "@{stress_effect}" : ""
     };
-    return computed;
+    const flagged = withNotesFlag(computed);
+    return flagged;
   }
   function deathSaveTemplate() {
     const template = render([
       ["name", translated(TEMPLATE_PHRASES.DeathSave)],
       ["character_name", "@{character_name}"],
       ["roll", "[[1d10-1]]"],
-      [COMPUTED.Notes, "[[0]]"]
+      [COMPUTED.Notes, "[[0]]"],
+      [COMPUTED.HasNotes, "[[0]]"]
     ]);
     return template;
   }
@@ -5274,7 +5290,8 @@
     const computed = {
       [COMPUTED.Notes]: effect?.result ?? ""
     };
-    return computed;
+    const flagged = withNotesFlag(computed);
+    return flagged;
   }
 
   // src/ts/rules/armor.ts
@@ -5285,9 +5302,12 @@
       [`${row}_armor_points`]: DESTROYED_AP,
       [`${row}_damage_reduction`]: DESTROYED_AP
     });
-    const rollFormula = `&{template:ms} {{name=^{${TEMPLATE_PHRASES.ArmorDestroyed}}}} {{character_name=@{character_name}}} {{notes=[[0]]}}`;
+    const rollFormula = `&{template:ms} {{name=^{${TEMPLATE_PHRASES.ArmorDestroyed}}}} {{character_name=@{character_name}}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
     const rollData = await startRoll(rollFormula);
-    finishRoll(rollData.rollId, { notes: "" });
+    finishRoll(rollData.rollId, {
+      notes: "",
+      hasnotes: 0
+    });
   }
 
   // src/game/data/wounds.ts
@@ -5484,6 +5504,7 @@
   }
   var SKILL_PROMPT = "Apply Skill?";
   var NONE_LABEL = "None";
+  var UNSKILLED_LABEL = "Unskilled";
   function buildSkillCatalog(trained, expert, master) {
     const tiers = [
       [trained, SKILL_BONUS.trained, "trained"],
@@ -5627,8 +5648,11 @@
     };
     if (options.i18nKey !== void 0) request.i18nKey = options.i18nKey;
     const check = makeCheck(request);
-    const skillName = readSkillName(roll.results["target"]?.expression);
-    const computed = checkComputed(check, skillName);
+    const named = readSkillName(roll.results["target"]?.expression);
+    const wasOffered = options.bonus !== void 0;
+    const skillName = named !== "" ? named : wasOffered ? translateOr(UNSKILLED_LABEL) : "";
+    const used = usedDie(dice.rolls, check.roll);
+    const computed = checkComputed(check, skillName, used);
     finishRoll(roll.rollId, computed);
     return check;
   }
@@ -5758,7 +5782,8 @@
     const dice = readDice(roll.results);
     const stress = readTarget(roll.results);
     const check = makePanicCheck(stress, dice.rolls, dice.edge);
-    const computed = panicComputed(check);
+    const used = usedDie(dice.rolls, check.roll);
+    const computed = panicComputed(check, used);
     finishRoll(roll.rollId, computed);
   }
   function worstSave(sanity, fear, body) {
@@ -5940,7 +5965,8 @@
       "{{damage=[[?{Damage?|0}]]}}",
       `{{damage_type=[[${damageTypeQuery()}]]}}`,
       ...diceFields.map((field) => `{{${field}=[[1d10-1]]}}`),
-      "{{notes=[[0]]}}",
+      "{{notes=[[0]]}} {{hasnotes=[[0]]}}",
+      "{{hasnotes=[[0]]}}",
       "{{alert=[[0]]}}"
     ].join(" ");
     const rollData = await startRoll(formula);
@@ -5950,6 +5976,7 @@
     const damageType = readDamageType(typeEntry.result);
     const woundDice = diceFields.map((field) => rollData.results[field]?.result ?? 0);
     const outcome = applyDamage(damageEntry.result, state, damageType, woundDice);
+    const damageText = damageNotes(outcome);
     const writeOutcome = (armorUpdates) => {
       setAttrs({
         health: outcome.health,
@@ -5958,7 +5985,8 @@
         ...woundAfflictionRows(outcome.woundRolls)
       });
       finishRoll(rollData.rollId, {
-        notes: damageNotes(outcome),
+        notes: damageText,
+        hasnotes: notesFlag(damageText),
         alert: outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : ""
       });
     };
@@ -5980,7 +6008,8 @@
       "{{character_name=@{character_name}}}",
       `{{damage_type=[[${damageTypeQuery()}]]}}`,
       "{{roll=[[1d10-1]]}}",
-      "{{notes=[[0]]}}",
+      "{{notes=[[0]]}} {{hasnotes=[[0]]}}",
+      "{{hasnotes=[[0]]}}",
       "{{alert=[[0]]}}"
     ].join(" ");
     const rollData = await startRoll(formula);
@@ -5993,8 +6022,10 @@
       wounds: outcome.wounds,
       ...outcome.woundRoll === void 0 ? {} : woundAfflictionRows([outcome.woundRoll])
     });
+    const woundNote = outcome.woundRoll === void 0 ? "" : woundLine(outcome.woundRoll);
     finishRoll(rollData.rollId, {
-      notes: outcome.woundRoll === void 0 ? "" : woundLine(outcome.woundRoll),
+      notes: woundNote,
+      hasnotes: notesFlag(woundNote),
       alert: outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : ""
     });
   }
@@ -6655,7 +6686,7 @@ ${formatMaintenanceIssue(issue2, 2)}`
   }
   var MAINTENANCE_EDGE_QUERY = "?{Advantage/Disadvantage|Normal,1d100-1|Advantage,2d100kl1-1|Disadvantage,2d100kh1-1}";
   async function handleAnnualMaintenanceCheck() {
-    const rollFormula = `&{template:ms} {{name=Annual Maintenance Check}} {{character_name=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}}`;
+    const rollFormula = `&{template:ms} {{name=Annual Maintenance Check}} {{character_name=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
     const rollData = await startRoll(rollFormula);
     const rollEntry = rollData.results.roll;
     const targetEntry = rollData.results.target;
@@ -6675,11 +6706,12 @@ ${formatMaintenanceIssue(issue2, 2)}`
       maintRoll2
     );
     finishRoll(rollData.rollId, {
-      notes: evaluation.message
+      notes: evaluation.message,
+      hasnotes: notesFlag(evaluation.message)
     });
   }
   async function handleAfterBattleReport() {
-    const rollFormula = `&{template:ms} {{name=After Battle Report}} {{character_name=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}}`;
+    const rollFormula = `&{template:ms} {{name=After Battle Report}} {{character_name=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
     const rollData = await startRoll(rollFormula);
     const rollEntry = rollData.results.roll;
     const targetEntry = rollData.results.target;
@@ -6695,11 +6727,12 @@ ${formatMaintenanceIssue(issue2, 2)}`
       maint2Entry.result
     );
     finishRoll(rollData.rollId, {
-      notes: evaluation.message
+      notes: evaluation.message,
+      hasnotes: notesFlag(evaluation.message)
     });
   }
   async function handleBankruptcySave() {
-    const rollFormula = "&{template:ms} {{name=Bankruptcy Save}} {{character_name=@{character_name}}} {{roll=[[1d100-1]]}} {{target=[[@{ship_bankruptcy_save}+0]]}} {{notes=[[0]]}}";
+    const rollFormula = "&{template:ms} {{name=Bankruptcy Save}} {{character_name=@{character_name}}} {{roll=[[1d100-1]]}} {{target=[[@{ship_bankruptcy_save}+0]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
     const rollData = await startRoll(rollFormula);
     const rollEntry = rollData.results.roll;
     const targetEntry = rollData.results.target;
@@ -6708,7 +6741,8 @@ ${formatMaintenanceIssue(issue2, 2)}`
     const target = targetEntry.result;
     const evaluation = evaluateBankruptcySave(roll, target);
     finishRoll(rollData.rollId, {
-      notes: evaluation.message
+      notes: evaluation.message,
+      hasnotes: notesFlag(evaluation.message)
     });
   }
   var SHIP_STRESS_MESSAGE = "EVERYONE ON BOARD GAINS 1 STRESS";
@@ -6724,7 +6758,7 @@ ${SHIP_PANIC_MESSAGE}`;
     const notes = fields.notes ?? "";
     if (alert === "" && notes === "") return;
     const rollData = await startRoll(
-      "&{template:ms} {{character_name=@{character_name}}} {{alert=[[0]]}} {{notes=[[0]]}}"
+      "&{template:ms} {{character_name=@{character_name}}} {{alert=[[0]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}"
     );
     finishRoll(rollData.rollId, {
       alert,
@@ -6797,9 +6831,11 @@ ${SHIP_PANIC_MESSAGE}`;
         });
         notes.push(`Ship takes ${selfHit} MDMG.`);
       }
+      const noteText = notes.join("\n");
       void postShipAlert({
         alert: shipFailureAlert(result.outcome),
-        notes: notes.join("\n")
+        notes: noteText,
+        hasnotes: notesFlag(noteText)
       });
     });
   }
@@ -6836,14 +6872,15 @@ ${SHIP_PANIC_MESSAGE}`;
     };
   }
   async function handleMoraleCheck() {
-    const rollFormula = "&{template:ms} {{name=Morale Check}} {{character_name=@{character_name}}} {{roll=[[1d10]]}} {{target=[[@{ship_mdmg}]]}} {{notes=[[0]]}}";
+    const rollFormula = "&{template:ms} {{name=Morale Check}} {{character_name=@{character_name}}} {{roll=[[1d10]]}} {{target=[[@{ship_mdmg}]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
     const rollData = await startRoll(rollFormula);
     const rollEntry = rollData.results.roll;
     const targetEntry = rollData.results.target;
     if (rollEntry === void 0 || targetEntry === void 0) return;
     const evaluation = evaluateMoraleCheck(rollEntry.result, targetEntry.result);
     finishRoll(rollData.rollId, {
-      notes: evaluation.message
+      notes: evaluation.message,
+      hasnotes: notesFlag(evaluation.message)
     });
   }
   function getRandomUniqueIssues(count, table = maintenanceTable, randomFn = Math.random) {
@@ -6879,13 +6916,14 @@ ${SHIP_PANIC_MESSAGE}`;
     };
   }
   async function handleStartingCondition() {
-    const rollFormula = "&{template:ms} {{name=Starting Condition}} {{character_name=@{character_name}}} {{roll=[[1d5+1]]}} {{notes=[[0]]}}";
+    const rollFormula = "&{template:ms} {{name=Starting Condition}} {{character_name=@{character_name}}} {{roll=[[1d5+1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
     const rollData = await startRoll(rollFormula);
     const rollResult = rollData.results.roll;
     const count = rollResult ? rollResult.result : 2;
     const evaluation = evaluateStartingCondition(count);
     finishRoll(rollData.rollId, {
-      notes: evaluation.message
+      notes: evaluation.message,
+      hasnotes: notesFlag(evaluation.message)
     });
   }
   function evaluateFuelBid(fuel, bid) {
@@ -6903,7 +6941,7 @@ ${SHIP_PANIC_MESSAGE}`;
     };
   }
   async function handleRevealFuelBid() {
-    const rollFormula = "&{template:ms} {{name=Fuel Bid}} {{character_name=@{character_name}}} {{bid=[[@{ship_fuel_bid}]]}} {{fuel=[[@{ship_fuel}]]}} {{notes=[[0]]}}";
+    const rollFormula = "&{template:ms} {{name=Fuel Bid}} {{character_name=@{character_name}}} {{bid=[[@{ship_fuel_bid}]]}} {{fuel=[[@{ship_fuel}]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
     const rollData = await startRoll(rollFormula);
     const bidEntry = rollData.results.bid;
     const fuelEntry = rollData.results.fuel;
@@ -6916,7 +6954,8 @@ ${SHIP_PANIC_MESSAGE}`;
       });
     }
     finishRoll(rollData.rollId, {
-      notes: evaluation.message
+      notes: evaluation.message,
+      hasnotes: notesFlag(evaluation.message)
     });
   }
 
@@ -7015,7 +7054,8 @@ ${SHIP_PANIC_MESSAGE}`;
     const evaluation = evaluateMilitaryTraining(check.outcome);
     finishRoll(rollData.rollId, {
       ...checkComputed(check),
-      [COMPUTED.Notes]: evaluation.message
+      [COMPUTED.Notes]: evaluation.message,
+      [COMPUTED.HasNotes]: notesFlag(evaluation.message)
     });
     if (evaluation.killed) return;
     const reducedStat = readReducedStat(statEntry.result);

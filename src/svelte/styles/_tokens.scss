@@ -45,6 +45,14 @@ $roots: ".charsheet, .sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
   --ms-accent: #f36;
   --ms-enabled: #ffae00;
 
+  // A passed or failed roll, as a wash behind the verdict rather than the
+  // accent -- the accent is reserved for the critical outcomes, so the four
+  // results read as a scale rather than two pairs.
+  --ms-pass-wash: #dcf0e0;
+  --ms-pass-fg: #1d4a2a;
+  --ms-fail-wash: #fadcdf;
+  --ms-fail-fg: #6b1f28;
+
   // Line
   --ms-border: #333132;
   --ms-border-width: 3px;
@@ -106,6 +114,11 @@ body.sheet-darkmode :is(#{$roots}) {
   // Pure red and amber vibrate against a dark ground, so both lift a step.
   --ms-accent: #ff5a5a;
   --ms-enabled: #ffc23d;
+
+  --ms-pass-wash: #1d3324;
+  --ms-pass-fg: #8fd6a3;
+  --ms-fail-wash: #3a1f23;
+  --ms-fail-fg: #ffa8b0;
 
   --ms-border: #f2f2f2;
 

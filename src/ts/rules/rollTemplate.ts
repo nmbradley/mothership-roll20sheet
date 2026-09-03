@@ -1,12 +1,12 @@
 import type { DeathEffect } from "#game/data/wounds.js";
 
 import {
-  Edges,
   Outcomes,
   isFailure,
   type CheckResult,
   type Outcome,
 } from "./rolls";
+import { translateOr } from "./translation";
 
 /**
  * Builds the two halves of a custom-parsed roll.
@@ -20,7 +20,8 @@ const TEMPLATE = "ms";
 
 /** Placeholders filled by finishRoll once the dice are graded. */
 export const COMPUTED = {
-  Counted: "counted",
+  Used: "used",
+  HasNotes: "hasnotes",
   Result: "result",
   Rank: "rank",
   Notes: "notes",
@@ -48,6 +49,29 @@ const RANKS: Record<Outcome, number> = {
  */
 export function translated(key: string): string {
   return `^{${key}}`;
+}
+
+/**
+ * Whether the notes box has anything to show, as 1 or 0.
+ *
+ * A roll template section tests the *original* roll, not the computed value,
+ * and every computed field is declared as the placeholder `[[0]]` -- so
+ * `{{#computed::notes}}` is true even when the note is empty, and the box
+ * renders blank on every card. The template tests this flag with rollTotal()
+ * instead, which does read the computed value.
+ */
+export function notesFlag(notes: string | number | undefined): number {
+  return String(notes ?? "").trim() === "" ? 0 : 1;
+}
+
+/** Adds the notes flag to whatever a caller is about to hand finishRoll. */
+export function withNotesFlag(
+  computed: Record<string, string | number>,
+): Record<string, string | number> {
+  return {
+    ...computed,
+    [COMPUTED.HasNotes]: notesFlag(computed[COMPUTED.Notes]),
+  };
 }
 
 type Field = [key: string, value: string];
@@ -102,11 +126,12 @@ export function checkTemplate(options: CheckTemplateOptions): string {
     ["roll", `[[${rollDie}]]`],
     ["roll2", `[[${options.die}]]`],
     ["target", `[[${options.target}]]`],
-    [COMPUTED.Counted, "[[0]]"],
+    [COMPUTED.Used, "[[0]]"],
     [COMPUTED.Result, "[[0]]"],
     [COMPUTED.Rank, "[[0]]"],
     [COMPUTED.Skill, "[[0]]"],
     [COMPUTED.Notes, "[[0]]"],
+    [COMPUTED.HasNotes, "[[0]]"],
   ]);
   return template;
 }
@@ -121,23 +146,34 @@ export function checkTemplate(options: CheckTemplateOptions): string {
 export function checkComputed(
   check: CheckResult,
   skillName = "",
+  used = 1,
 ): Record<string, string | number> {
   const computed: Record<string, string | number> = {
-    [COMPUTED.Counted]: describeCounted(check),
-    [COMPUTED.Result]: translated(check.outcome),
+    // translateOr, not translated(): `^{...}` is resolved by Roll20 while it
+    // parses the roll macro, and a finishRoll value never goes through that
+    // pass -- sent as `^{Success}` the card printed the macro verbatim.
+    [COMPUTED.Result]: translateOr(check.outcome),
     [COMPUTED.Rank]: RANKS[check.outcome],
     [COMPUTED.Skill]: skillName,
+    [COMPUTED.Used]: used,
     [COMPUTED.Notes]: panicWarning(check),
   };
-  return computed;
+  const flagged = withNotesFlag(computed);
+  return flagged;
 }
 
-/** The die that counted, annotated with the edge that chose it. */
-function describeCounted(check: CheckResult): string {
-  if (check.edge === Edges.Advantage) return `${check.roll} [+]`;
-  if (check.edge === Edges.Disadvantage) return `${check.roll} [-]`;
-  const plain = String(check.roll);
-  return plain;
+/**
+ * Which of the two dice decided the check: 1 for the first, 2 for the second.
+ *
+ * Both are always rolled, because Advantage and Disadvantage need the pair,
+ * and the template shows them in the order they were rolled. It highlights
+ * whichever counted and fades the other, so it has to know the position --
+ * which CheckResult does not carry, only the two values. A tie resolves to
+ * the first, since either answer prints the same number.
+ */
+export function usedDie(rolls: readonly number[], counted: number): number {
+  const [first] = rolls;
+  return first === counted ? 1 : 2;
 }
 
 /**
@@ -168,7 +204,7 @@ export const TEMPLATE_PHRASES = {
 /** A Critical Failure on a check forces a Panic Check; say so in chat. */
 function panicWarning(check: CheckResult): string {
   if (!check.triggersPanic) return "";
-  const warning = translated(TEMPLATE_PHRASES.PanicWarning);
+  const warning = translateOr(TEMPLATE_PHRASES.PanicWarning);
   return warning;
 }
 
@@ -180,10 +216,11 @@ export function panicTemplate(): string {
     ["roll", "[[1d20]]"],
     ["roll2", "[[1d20]]"],
     ["target", "[[@{stress}]]"],
-    [COMPUTED.Counted, "[[0]]"],
+    [COMPUTED.Used, "[[0]]"],
     [COMPUTED.Result, "[[0]]"],
     [COMPUTED.Rank, "[[0]]"],
     [COMPUTED.Notes, "[[0]]"],
+    [COMPUTED.HasNotes, "[[0]]"],
   ]);
   return template;
 }
@@ -195,19 +232,23 @@ export function panicTemplate(): string {
  * at it with `@{stress_effect}`, left in the template text for Roll20 itself
  * to resolve against the character rather than read here via getAttrs.
  */
-export function panicComputed(check: CheckResult): Record<string, string | number> {
+export function panicComputed(
+  check: CheckResult,
+  used = 1,
+): Record<string, string | number> {
   const hasPanicked = isFailure(check.outcome);
 
-  const survived = translated(TEMPLATE_PHRASES.KeptItTogether);
-  const panicked = translated(TEMPLATE_PHRASES.TraumaResponse);
+  const survived = translateOr(TEMPLATE_PHRASES.KeptItTogether);
+  const panicked = translateOr(TEMPLATE_PHRASES.TraumaResponse);
 
   const computed: Record<string, string | number> = {
-    [COMPUTED.Counted]: describeCounted(check),
+    [COMPUTED.Used]: used,
     [COMPUTED.Result]: hasPanicked ? panicked : survived,
     [COMPUTED.Rank]: RANKS[check.outcome],
     [COMPUTED.Notes]: hasPanicked ? "@{stress_effect}" : "",
   };
-  return computed;
+  const flagged = withNotesFlag(computed);
+  return flagged;
 }
 
 /**
@@ -222,6 +263,7 @@ export function deathSaveTemplate(): string {
     ["character_name", "@{character_name}"],
     ["roll", "[[1d10-1]]"],
     [COMPUTED.Notes, "[[0]]"],
+    [COMPUTED.HasNotes, "[[0]]"],
   ]);
   return template;
 }
@@ -233,5 +275,6 @@ export function deathSaveComputed(
   const computed: Record<string, string | number> = {
     [COMPUTED.Notes]: effect?.result ?? "",
   };
-  return computed;
+  const flagged = withNotesFlag(computed);
+  return flagged;
 }

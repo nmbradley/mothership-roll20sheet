@@ -8,21 +8,27 @@
     <h2 class="sheet-ms-result__subtitle">{{character_name}}</h2>
     {{/character_name}}
 
+    {{#computed::skill}}
+    <div class="sheet-ms-result__skill">{{computed::skill}}</div>
+    {{/computed::skill}}
+
     {{#roll}}
     <div class="sheet-ms-roll">
-      <div class="sheet-ms-roll__roll">{{roll}}</div>
       {{#rollGreater() edge 0}}
-      <div class="sheet-ms-roll__roll2">{{roll2}}</div>
+      {{#rollTotal() computed::used 1}}
+      <div class="sheet-ms-roll__roll sheet-ms-roll--used">{{roll}}</div>
+      <div class="sheet-ms-roll__roll2 sheet-ms-roll--spent">{{roll2}}</div>
+      {{/rollTotal() computed::used 1}}
+      {{#rollTotal() computed::used 2}}
+      <div class="sheet-ms-roll__roll sheet-ms-roll--spent">{{roll}}</div>
+      <div class="sheet-ms-roll__roll2 sheet-ms-roll--used">{{roll2}}</div>
+      {{/rollTotal() computed::used 2}}
       {{/rollGreater() edge 0}}
+      {{#rollTotal() edge 0}}
+      <div class="sheet-ms-roll__roll">{{roll}}</div>
+      {{/rollTotal() edge 0}}
     </div>
     {{/roll}}
-
-    {{#counted}}
-    <div class="sheet-ms-readout">
-      <div class="sheet-ms-readout__label" data-i18n="Counted">Counted</div>
-      <div class="sheet-ms-readout__value">{{counted}}</div>
-    </div>
-    {{/counted}}
 
     {{#target}}
     <div class="sheet-ms-readout">
@@ -31,13 +37,6 @@
     </div>
     {{/target}}
 
-    {{#skill}}
-    <div class="sheet-ms-readout">
-      <div class="sheet-ms-readout__label" data-i18n="Skill">Skill</div>
-      <div class="sheet-ms-readout__value">{{skill}}</div>
-    </div>
-    {{/skill}}
-
     {{#damage}}
     <div class="sheet-ms-readout">
       <div class="sheet-ms-readout__label" data-i18n="Damage">Damage</div>
@@ -45,25 +44,25 @@
     </div>
     {{/damage}}
 
-    {{#rollTotal() rank 3}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--critical-success">{{result}}</div>
-    {{/rollTotal() rank 3}}
-    {{#rollTotal() rank 2}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--success">{{result}}</div>
-    {{/rollTotal() rank 2}}
-    {{#rollTotal() rank 1}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--failure">{{result}}</div>
-    {{/rollTotal() rank 1}}
-    {{#rollTotal() rank 0}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--critical-failure">{{result}}</div>
-    {{/rollTotal() rank 0}}
+    {{#rollTotal() computed::rank 3}}
+    <div class="sheet-ms-verdict sheet-ms-verdict--critical-success">{{computed::result}}</div>
+    {{/rollTotal() computed::rank 3}}
+    {{#rollTotal() computed::rank 2}}
+    <div class="sheet-ms-verdict sheet-ms-verdict--success">{{computed::result}}</div>
+    {{/rollTotal() computed::rank 2}}
+    {{#rollTotal() computed::rank 1}}
+    <div class="sheet-ms-verdict sheet-ms-verdict--failure">{{computed::result}}</div>
+    {{/rollTotal() computed::rank 1}}
+    {{#rollTotal() computed::rank 0}}
+    <div class="sheet-ms-verdict sheet-ms-verdict--critical-failure">{{computed::result}}</div>
+    {{/rollTotal() computed::rank 0}}
 
-    {{#notes}}
-    <div class="sheet-ms-notes">{{notes}}</div>
-    {{/notes}}
+    {{#rollTotal() computed::hasnotes 1}}
+    <div class="sheet-ms-notes">{{computed::notes}}</div>
+    {{/rollTotal() computed::hasnotes 1}}
 
-    {{#alert}}
-    <div class="sheet-ms-alert">{{alert}}</div>
-    {{/alert}}
+    {{#computed::alert}}
+    <div class="sheet-ms-alert">{{computed::alert}}</div>
+    {{/computed::alert}}
   </div>
 </rolltemplate>
