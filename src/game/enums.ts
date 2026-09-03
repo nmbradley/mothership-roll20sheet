@@ -73,6 +73,8 @@ export const SkillLevels = {
 } as const;
 export type SkillLevel = EntryOf<typeof SkillLevels>;
 export type SkillLevelsKey = KeyOf<typeof SkillLevels>;
+/** Every skill level, lightest first. */
+export const allSkillLevels: readonly SkillLevel[] = Object.values(SkillLevels);
 
 export const Skills = {
   Linguistics: "linguistics",

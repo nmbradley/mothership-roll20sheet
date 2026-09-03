@@ -308,6 +308,13 @@ export type SkillEntry = SkillDef & {
   unlocks: readonly Skill[];
 };
 
+/** What one skill costs to buy, by tier. */
+export const SKILL_COST: Record<SkillLevel, number> = {
+  [SkillLevels.Trained]: 1,
+  [SkillLevels.Expert]: 2,
+  [SkillLevels.Master]: 3,
+};
+
 export type SkillsByLevel = Record<SkillLevel, readonly SkillEntry[]>;
 
 /** Attribute-safe form of a skill name: spaces become underscores. */
@@ -365,6 +372,25 @@ function buildSkillsByKey(): Record<string, SkillEntry> {
 }
 
 export const skillsByKey: Record<string, SkillEntry> = buildSkillsByKey();
+
+/**
+ * A skill together with the prerequisites beneath it, root first: its first
+ * Expert prerequisite, and that skill's first Trained prerequisite. A skill
+ * lists every prerequisite that would unlock it -- owning any one is enough,
+ * per the training rules -- so this follows the first-listed one to give one
+ * concrete path down to a Trained skill.
+ */
+export function prerequisiteChain(name: Skill): readonly Skill[] {
+  const chain: Skill[] = [name];
+  let current: SkillEntry | undefined = skillsByKey[skillKey(name)];
+  while (current !== undefined) {
+    const next = current.prereq?.[0];
+    if (next === undefined) break;
+    chain.push(next);
+    current = skillsByKey[skillKey(next)];
+  }
+  return chain;
+}
 
 export type RangeBandDef = {
   band: RangeBand;
