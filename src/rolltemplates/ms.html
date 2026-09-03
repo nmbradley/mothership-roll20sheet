@@ -24,9 +24,9 @@
       <div class="sheet-ms-roll__roll2 sheet-ms-roll--used">{{roll2}}</div>
       {{/rollTotal() computed::used 2}}
       {{/rollGreater() edge 0}}
-      {{^rollGreater() edge 0}}
+      {{#rollTotal() edge 0}}
       <div class="sheet-ms-roll__roll">{{roll}}</div>
-      {{/rollGreater() edge 0}}
+      {{/rollTotal() edge 0}}
     </div>
     {{/roll}}
 
@@ -57,9 +57,9 @@
     <div class="sheet-ms-verdict sheet-ms-verdict--critical-failure">{{computed::result}}</div>
     {{/rollTotal() computed::rank 0}}
 
-    {{#computed::notes}}
+    {{#rollTotal() computed::hasnotes 1}}
     <div class="sheet-ms-notes">{{computed::notes}}</div>
-    {{/computed::notes}}
+    {{/rollTotal() computed::hasnotes 1}}
 
     {{#computed::alert}}
     <div class="sheet-ms-alert">{{computed::alert}}</div>

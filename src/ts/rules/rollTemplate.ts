@@ -21,6 +21,7 @@ const TEMPLATE = "ms";
 /** Placeholders filled by finishRoll once the dice are graded. */
 export const COMPUTED = {
   Used: "used",
+  HasNotes: "hasnotes",
   Result: "result",
   Rank: "rank",
   Notes: "notes",
@@ -48,6 +49,29 @@ const RANKS: Record<Outcome, number> = {
  */
 export function translated(key: string): string {
   return `^{${key}}`;
+}
+
+/**
+ * Whether the notes box has anything to show, as 1 or 0.
+ *
+ * A roll template section tests the *original* roll, not the computed value,
+ * and every computed field is declared as the placeholder `[[0]]` -- so
+ * `{{#computed::notes}}` is true even when the note is empty, and the box
+ * renders blank on every card. The template tests this flag with rollTotal()
+ * instead, which does read the computed value.
+ */
+export function notesFlag(notes: string | number | undefined): number {
+  return String(notes ?? "").trim() === "" ? 0 : 1;
+}
+
+/** Adds the notes flag to whatever a caller is about to hand finishRoll. */
+export function withNotesFlag(
+  computed: Record<string, string | number>,
+): Record<string, string | number> {
+  return {
+    ...computed,
+    [COMPUTED.HasNotes]: notesFlag(computed[COMPUTED.Notes]),
+  };
 }
 
 type Field = [key: string, value: string];
@@ -107,6 +131,7 @@ export function checkTemplate(options: CheckTemplateOptions): string {
     [COMPUTED.Rank, "[[0]]"],
     [COMPUTED.Skill, "[[0]]"],
     [COMPUTED.Notes, "[[0]]"],
+    [COMPUTED.HasNotes, "[[0]]"],
   ]);
   return template;
 }
@@ -133,7 +158,8 @@ export function checkComputed(
     [COMPUTED.Used]: used,
     [COMPUTED.Notes]: panicWarning(check),
   };
-  return computed;
+  const flagged = withNotesFlag(computed);
+  return flagged;
 }
 
 /**
@@ -178,7 +204,7 @@ export const TEMPLATE_PHRASES = {
 /** A Critical Failure on a check forces a Panic Check; say so in chat. */
 function panicWarning(check: CheckResult): string {
   if (!check.triggersPanic) return "";
-  const warning = translated(TEMPLATE_PHRASES.PanicWarning);
+  const warning = translateOr(TEMPLATE_PHRASES.PanicWarning);
   return warning;
 }
 
@@ -194,6 +220,7 @@ export function panicTemplate(): string {
     [COMPUTED.Result, "[[0]]"],
     [COMPUTED.Rank, "[[0]]"],
     [COMPUTED.Notes, "[[0]]"],
+    [COMPUTED.HasNotes, "[[0]]"],
   ]);
   return template;
 }
@@ -220,7 +247,8 @@ export function panicComputed(
     [COMPUTED.Rank]: RANKS[check.outcome],
     [COMPUTED.Notes]: hasPanicked ? "@{stress_effect}" : "",
   };
-  return computed;
+  const flagged = withNotesFlag(computed);
+  return flagged;
 }
 
 /**
@@ -235,6 +263,7 @@ export function deathSaveTemplate(): string {
     ["character_name", "@{character_name}"],
     ["roll", "[[1d10-1]]"],
     [COMPUTED.Notes, "[[0]]"],
+    [COMPUTED.HasNotes, "[[0]]"],
   ]);
   return template;
 }
@@ -246,5 +275,6 @@ export function deathSaveComputed(
   const computed: Record<string, string | number> = {
     [COMPUTED.Notes]: effect?.result ?? "",
   };
-  return computed;
+  const flagged = withNotesFlag(computed);
+  return flagged;
 }

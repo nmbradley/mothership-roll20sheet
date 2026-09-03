@@ -31,7 +31,10 @@ export async function handleDestroyArmor(rowId: string): Promise<void> {
   });
 
   const rollFormula =
-    `&{template:ms} {{name=^{${TEMPLATE_PHRASES.ArmorDestroyed}}}} {{character_name=@{character_name}}} {{notes=[[0]]}}`;
+    `&{template:ms} {{name=^{${TEMPLATE_PHRASES.ArmorDestroyed}}}} {{character_name=@{character_name}}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
   const rollData = await startRoll(rollFormula);
-  finishRoll(rollData.rollId, { notes: "" });
+  finishRoll(rollData.rollId, {
+    notes: "",
+    hasnotes: 0,
+  });
 }

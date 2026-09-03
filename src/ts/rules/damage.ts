@@ -5,7 +5,11 @@ import {
 import { titleCase } from "#game/text.js";
 
 import { destroyWornArmor } from "./equipment";
-import { TEMPLATE_PHRASES, translated } from "./rollTemplate";
+import {
+  TEMPLATE_PHRASES,
+  notesFlag,
+  translated,
+} from "./rollTemplate";
 import { woundEffect } from "./tables";
 
 /**
@@ -316,7 +320,8 @@ async function rollTakeDamage(state: DamageState): Promise<void> {
     "{{damage=[[?{Damage?|0}]]}}",
     `{{damage_type=[[${damageTypeQuery()}]]}}`,
     ...diceFields.map((field) => `{{${field}=[[1d10-1]]}}`),
-    "{{notes=[[0]]}}",
+    "{{notes=[[0]]}} {{hasnotes=[[0]]}}",
+    "{{hasnotes=[[0]]}}",
     "{{alert=[[0]]}}",
   ].join(" ");
 
@@ -332,6 +337,8 @@ async function rollTakeDamage(state: DamageState): Promise<void> {
   // Armor is a function of the rows worn (#112), so a hit that breaks it
   // zeroes the worn Armor rows' own AP/DR rather than the pooled total --
   // the panel's totals fall out of that section's own recalculation.
+  const damageText = damageNotes(outcome);
+
   const writeOutcome = (armorUpdates: Record<string, number>): void => {
     setAttrs({
       health: outcome.health,
@@ -341,7 +348,8 @@ async function rollTakeDamage(state: DamageState): Promise<void> {
     });
 
     finishRoll(rollData.rollId, {
-      notes: damageNotes(outcome),
+      notes: damageText,
+      hasnotes: notesFlag(damageText),
       alert: outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : "",
     });
   };
@@ -376,7 +384,8 @@ async function rollTakeWound(state: {
     "{{character_name=@{character_name}}}",
     `{{damage_type=[[${damageTypeQuery()}]]}}`,
     "{{roll=[[1d10-1]]}}",
-    "{{notes=[[0]]}}",
+    "{{notes=[[0]]}} {{hasnotes=[[0]]}}",
+    "{{hasnotes=[[0]]}}",
     "{{alert=[[0]]}}",
   ].join(" ");
 
@@ -393,8 +402,13 @@ async function rollTakeWound(state: {
     ...(outcome.woundRoll === undefined ? {} : woundAfflictionRows([outcome.woundRoll])),
   });
 
+  const woundNote = outcome.woundRoll === undefined
+    ? ""
+    : woundLine(outcome.woundRoll);
+
   finishRoll(rollData.rollId, {
-    notes: outcome.woundRoll === undefined ? "" : woundLine(outcome.woundRoll),
+    notes: woundNote,
+    hasnotes: notesFlag(woundNote),
     alert: outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : "",
   });
 }

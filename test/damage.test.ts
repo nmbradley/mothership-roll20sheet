@@ -307,6 +307,7 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
     });
     expect(mockFinishRoll).toHaveBeenCalledWith("id", {
       notes: "Major Injury: Snapped collarbone. [-] on Strength Checks.",
+      hasnotes: 1,
       alert: "",
     });
   });
@@ -424,6 +425,7 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
     });
     expect(mockFinishRoll).toHaveBeenCalledWith("id", {
       notes: "Flesh Wound: Bleeding +1.",
+      hasnotes: 1,
       alert: "",
     });
   });

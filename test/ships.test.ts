@@ -590,6 +590,7 @@ describe("Ship Rules & Mechanics", () => {
       });
       expect(mockFinishRoll).toHaveBeenCalledWith("id", {
         notes: "Fuel Bid Revealed: 4",
+        hasnotes: 1,
       });
     });
 

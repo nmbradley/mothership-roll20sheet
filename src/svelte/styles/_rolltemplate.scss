@@ -105,6 +105,7 @@
     grid-template-columns: repeat(4, 1fr);
     align-items: center;
 
+    margin-bottom: var(--ms-space-lg);
     box-sizing: border-box;
     width: 100%;
 
@@ -200,9 +201,9 @@
     }
 
     &--success {
-      background: var(--ms-sunken);
+      background: var(--ms-pass-wash);
 
-      color: var(--ms-fg);
+      color: var(--ms-pass-fg);
     }
 
     &--critical-success {
@@ -212,9 +213,9 @@
     }
 
     &--failure {
-      background: var(--ms-sunken);
+      background: var(--ms-fail-wash);
 
-      color: var(--ms-fg-muted);
+      color: var(--ms-fail-fg);
     }
 
     &--critical-failure {

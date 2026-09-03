@@ -14,6 +14,10 @@
   --ms-ghost: #b9b9b9;
   --ms-accent: #f36;
   --ms-enabled: #ffae00;
+  --ms-pass-wash: #dcf0e0;
+  --ms-pass-fg: #1d4a2a;
+  --ms-fail-wash: #fadcdf;
+  --ms-fail-fg: #6b1f28;
   --ms-border: #333132;
   --ms-border-width: 3px;
   --ms-border-width-thick: 4px;
@@ -52,6 +56,10 @@ body.sheet-darkmode
   --ms-ghost: #555;
   --ms-accent: #ff5a5a;
   --ms-enabled: #ffc23d;
+  --ms-pass-wash: #1d3324;
+  --ms-pass-fg: #8fd6a3;
+  --ms-fail-wash: #3a1f23;
+  --ms-fail-fg: #ffa8b0;
   --ms-border: #f2f2f2;
   --ms-logo-filter: none;
 }
@@ -258,6 +266,7 @@ body.sheet-darkmode
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   align-items: center;
+  margin-bottom: var(--ms-space-lg);
   box-sizing: border-box;
   width: 100%;
 }
@@ -347,8 +356,8 @@ body.sheet-darkmode
 }
 .sheet-rolltemplate-ms .sheet-ms-verdict--success,
 .sheet-rolltemplate-ms-cm .sheet-ms-verdict--success {
-  background: var(--ms-sunken);
-  color: var(--ms-fg);
+  background: var(--ms-pass-wash);
+  color: var(--ms-pass-fg);
 }
 .sheet-rolltemplate-ms .sheet-ms-verdict--critical-success,
 .sheet-rolltemplate-ms-cm .sheet-ms-verdict--critical-success {
@@ -357,8 +366,8 @@ body.sheet-darkmode
 }
 .sheet-rolltemplate-ms .sheet-ms-verdict--failure,
 .sheet-rolltemplate-ms-cm .sheet-ms-verdict--failure {
-  background: var(--ms-sunken);
-  color: var(--ms-fg-muted);
+  background: var(--ms-fail-wash);
+  color: var(--ms-fail-fg);
 }
 .sheet-rolltemplate-ms .sheet-ms-verdict--critical-failure,
 .sheet-rolltemplate-ms-cm .sheet-ms-verdict--critical-failure {

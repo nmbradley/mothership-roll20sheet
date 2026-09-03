@@ -763,6 +763,7 @@ describe("rollDeathSave", () => {
 
     expect(mockFinishRoll).toHaveBeenCalledWith("id", {
       notes: "You have died. Roll up a new character.",
+      hasnotes: 1,
     });
   });
 });
@@ -813,6 +814,7 @@ describe("rollPanicCheck", () => {
 
     expect(mockFinishRoll).toHaveBeenCalledWith("id", expect.objectContaining({
       notes: "@{stress_effect}",
+      hasnotes: 1,
     }));
   });
 
@@ -986,7 +988,7 @@ describe("rollAttack", () => {
     // The Check card itself (the first finishRoll call) already carries the
     // Panic warning via checkComputed -- rollAttack does not duplicate it.
     expect(mockFinishRoll.mock.calls[0][1]).toEqual(
-      expect.objectContaining({ notes: "^{Critical Failure: Make a Panic Check}" }),
+      expect.objectContaining({ notes: "Critical Failure: Make a Panic Check" }),
     );
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 4 });
   });

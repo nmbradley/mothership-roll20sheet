@@ -117,7 +117,7 @@ describe("Roll Templates", () => {
         target: 30,
         rolls: [55],
       });
-      expect(checkComputed(check).notes).toBe("^{Critical Failure: Make a Panic Check}");
+      expect(checkComputed(check).notes).toBe("Critical Failure: Make a Panic Check");
     });
 
     it("should leave the note empty on an ordinary failure", () => {
