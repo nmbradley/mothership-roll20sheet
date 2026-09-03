@@ -1272,111 +1272,111 @@
 </div>
 
 <rolltemplate class="sheet-rolltemplate-ms-cm">
-  <div class="ms-result">
+  <div class="sheet-ms-result">
     {{#title}}
-    <h1 class="ms-result__title">{{title}}</h1>
+    <h1 class="sheet-ms-result__title">{{title}}</h1>
     {{/title}}
 
     {{#strength}}
-    <h2 class="ms-result__subtitle" data-i18n="Strength">Strength</h2>
-    <div class="ms-roll"><div class="ms-roll__roll">{{strength}}</div></div>
+    <h2 class="sheet-ms-result__subtitle" data-i18n="Strength">Strength</h2>
+    <div class="sheet-ms-roll"><div class="sheet-ms-roll__roll">{{strength}}</div></div>
     {{/strength}}
 
     {{#speed}}
-    <h2 class="ms-result__subtitle" data-i18n="Speed">Speed</h2>
-    <div class="ms-roll"><div class="ms-roll__roll">{{speed}}</div></div>
+    <h2 class="sheet-ms-result__subtitle" data-i18n="Speed">Speed</h2>
+    <div class="sheet-ms-roll"><div class="sheet-ms-roll__roll">{{speed}}</div></div>
     {{/speed}}
 
     {{#intellect}}
-    <h2 class="ms-result__subtitle" data-i18n="Intellect">Intellect</h2>
-    <div class="ms-roll"><div class="ms-roll__roll">{{intellect}}</div></div>
+    <h2 class="sheet-ms-result__subtitle" data-i18n="Intellect">Intellect</h2>
+    <div class="sheet-ms-roll"><div class="sheet-ms-roll__roll">{{intellect}}</div></div>
     {{/intellect}}
 
     {{#combat}}
-    <h2 class="ms-result__subtitle" data-i18n="Combat">Combat</h2>
-    <div class="ms-roll"><div class="ms-roll__roll">{{combat}}</div></div>
+    <h2 class="sheet-ms-result__subtitle" data-i18n="Combat">Combat</h2>
+    <div class="sheet-ms-roll"><div class="sheet-ms-roll__roll">{{combat}}</div></div>
     {{/combat}}
 
     {{#credits}}
-    <h2 class="ms-result__subtitle" data-i18n="Starting Credits">Starting Credits</h2>
-    <div class="ms-roll"><div class="ms-roll__credits">{{credits}}</div></div>
+    <h2 class="sheet-ms-result__subtitle" data-i18n="Starting Credits">Starting Credits</h2>
+    <div class="sheet-ms-roll"><div class="sheet-ms-roll__credits">{{credits}}</div></div>
     {{/credits}}
 
     {{#selected}}
-    <div class="ms-readout">
-      <div class="ms-readout__label" data-i18n="Rolled">Rolled</div>
-      <div class="ms-readout__value">{{selected}}</div>
+    <div class="sheet-ms-readout">
+      <div class="sheet-ms-readout__label" data-i18n="Rolled">Rolled</div>
+      <div class="sheet-ms-readout__value">{{selected}}</div>
     </div>
     {{/selected}}
   </div>
 </rolltemplate>
 
 <rolltemplate class="sheet-rolltemplate-ms">
-  <div class="ms-result">
+  <div class="sheet-ms-result">
     {{#name}}
-    <h1 class="ms-result__title">{{name}}</h1>
+    <h1 class="sheet-ms-result__title">{{name}}</h1>
     {{/name}}
 
     {{#character_name}}
-    <h2 class="ms-result__subtitle">{{character_name}}</h2>
+    <h2 class="sheet-ms-result__subtitle">{{character_name}}</h2>
     {{/character_name}}
 
     {{#roll}}
-    <div class="ms-roll">
-      <div class="ms-roll__roll">{{roll}}</div>
+    <div class="sheet-ms-roll">
+      <div class="sheet-ms-roll__roll">{{roll}}</div>
       {{#rollGreater() edge 0}}
-      <div class="ms-roll__roll2">{{roll2}}</div>
+      <div class="sheet-ms-roll__roll2">{{roll2}}</div>
       {{/rollGreater() edge 0}}
     </div>
     {{/roll}}
 
     {{#counted}}
-    <div class="ms-readout">
-      <div class="ms-readout__label" data-i18n="Counted">Counted</div>
-      <div class="ms-readout__value">{{counted}}</div>
+    <div class="sheet-ms-readout">
+      <div class="sheet-ms-readout__label" data-i18n="Counted">Counted</div>
+      <div class="sheet-ms-readout__value">{{counted}}</div>
     </div>
     {{/counted}}
 
     {{#target}}
-    <div class="ms-readout">
-      <div class="ms-readout__label" data-i18n="Target">Target</div>
-      <div class="ms-readout__value">{{target}}</div>
+    <div class="sheet-ms-readout">
+      <div class="sheet-ms-readout__label" data-i18n="Target">Target</div>
+      <div class="sheet-ms-readout__value">{{target}}</div>
     </div>
     {{/target}}
 
     {{#skill}}
-    <div class="ms-readout">
-      <div class="ms-readout__label" data-i18n="Skill">Skill</div>
-      <div class="ms-readout__value">{{skill}}</div>
+    <div class="sheet-ms-readout">
+      <div class="sheet-ms-readout__label" data-i18n="Skill">Skill</div>
+      <div class="sheet-ms-readout__value">{{skill}}</div>
     </div>
     {{/skill}}
 
     {{#damage}}
-    <div class="ms-readout">
-      <div class="ms-readout__label" data-i18n="Damage">Damage</div>
-      <div class="ms-readout__value">{{damage}}</div>
+    <div class="sheet-ms-readout">
+      <div class="sheet-ms-readout__label" data-i18n="Damage">Damage</div>
+      <div class="sheet-ms-readout__value">{{damage}}</div>
     </div>
     {{/damage}}
 
     {{#rollTotal() rank 3}}
-    <div class="ms-verdict ms-verdict--critical-success">{{result}}</div>
+    <div class="sheet-ms-verdict sheet-ms-verdict--critical-success">{{result}}</div>
     {{/rollTotal() rank 3}}
     {{#rollTotal() rank 2}}
-    <div class="ms-verdict ms-verdict--success">{{result}}</div>
+    <div class="sheet-ms-verdict sheet-ms-verdict--success">{{result}}</div>
     {{/rollTotal() rank 2}}
     {{#rollTotal() rank 1}}
-    <div class="ms-verdict ms-verdict--failure">{{result}}</div>
+    <div class="sheet-ms-verdict sheet-ms-verdict--failure">{{result}}</div>
     {{/rollTotal() rank 1}}
     {{#rollTotal() rank 0}}
-    <div class="ms-verdict ms-verdict--critical-failure">{{result}}</div>
+    <div class="sheet-ms-verdict sheet-ms-verdict--critical-failure">{{result}}</div>
     {{/rollTotal() rank 0}}
 
     {{#notes}}
-    <div class="ms-notes">{{notes}}</div>
+    <div class="sheet-ms-notes">{{notes}}</div>
     {{/notes}}
 
     {{#alert}}
-    <div class="ms-alert">{{alert}}</div>
+    <div class="sheet-ms-alert">{{alert}}</div>
     {{/alert}}
   </div>
 </rolltemplate>
