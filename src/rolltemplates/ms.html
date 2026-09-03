@@ -1,16 +1,22 @@
 <rolltemplate class="sheet-rolltemplate-ms">
   <div class="sheet-ms-result">
-    {{#name}}
-    <h1 class="sheet-ms-result__title">{{name}}</h1>
-    {{/name}}
+    {{#title}}
+    <h1 class="sheet-ms-result__title">{{title}}</h1>
+    {{/title}}
 
-    {{#character_name}}
-    <h2 class="sheet-ms-result__subtitle">{{character_name}}</h2>
-    {{/character_name}}
+    {{#subtitle}}
+    <h2 class="sheet-ms-result__subtitle">{{subtitle}}</h2>
+    {{/subtitle}}
 
     {{#computed::skill}}
     <div class="sheet-ms-result__skill">{{computed::skill}}</div>
     {{/computed::skill}}
+
+    {{#credits}}
+    <div class="sheet-ms-roll">
+      <div class="sheet-ms-roll__credits">{{credits}}cr</div>
+    </div>
+    {{/credits}}
 
     {{#roll}}
     <div class="sheet-ms-roll">
@@ -45,16 +51,16 @@
     {{/damage}}
 
     {{#rollTotal() computed::rank 3}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--critical-success">{{computed::result}}</div>
+    <div class="sheet-ms-verdict sheet-ms-verdict--critical-success">{{computed::verdict}}</div>
     {{/rollTotal() computed::rank 3}}
     {{#rollTotal() computed::rank 2}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--success">{{computed::result}}</div>
+    <div class="sheet-ms-verdict sheet-ms-verdict--success">{{computed::verdict}}</div>
     {{/rollTotal() computed::rank 2}}
     {{#rollTotal() computed::rank 1}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--failure">{{computed::result}}</div>
+    <div class="sheet-ms-verdict sheet-ms-verdict--failure">{{computed::verdict}}</div>
     {{/rollTotal() computed::rank 1}}
     {{#rollTotal() computed::rank 0}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--critical-failure">{{computed::result}}</div>
+    <div class="sheet-ms-verdict sheet-ms-verdict--critical-failure">{{computed::verdict}}</div>
     {{/rollTotal() computed::rank 0}}
 
     {{#rollTotal() computed::hasnotes 1}}

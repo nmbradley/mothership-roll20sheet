@@ -22,7 +22,8 @@ const TEMPLATE = "ms";
 export const COMPUTED = {
   Used: "used",
   HasNotes: "hasnotes",
-  Result: "result",
+  Verdict: "verdict",
+  VerdictClass: "verdictclass",
   Rank: "rank",
   Notes: "notes",
   Skill: "skill",
@@ -39,6 +40,21 @@ const RANKS: Record<Outcome, number> = {
   [Outcomes.Failure]: 1,
   [Outcomes.Success]: 2,
   [Outcomes.CriticalSuccess]: 3,
+};
+
+/**
+ * The outcome's class suffix, e.g. "critical-success".
+ *
+ * Carried in the payload for the new field vocabulary, but the template
+ * itself still styles the verdict off the proven `{{#rollTotal() computed::rank
+ * N}}` blocks rather than interpolating this into a class name -- see
+ * `sheet-ms-verdict--{{verdictclass}}` in ms.html's history for why.
+ */
+const VERDICT_CLASSES: Record<Outcome, string> = {
+  [Outcomes.CriticalFailure]: "critical-failure",
+  [Outcomes.Failure]: "failure",
+  [Outcomes.Success]: "success",
+  [Outcomes.CriticalSuccess]: "critical-success",
 };
 
 /**
@@ -121,13 +137,14 @@ export function checkTemplate(options: CheckTemplateOptions): string {
   const rollDie = options.sendToTracker ? `${options.die} &{tracker}` : options.die;
 
   const template = render([
-    ["name", label],
-    ["character_name", "@{character_name}"],
+    ["title", label],
+    ["subtitle", "@{character_name}"],
     ["roll", `[[${rollDie}]]`],
     ["roll2", `[[${options.die}]]`],
     ["target", `[[${options.target}]]`],
     [COMPUTED.Used, "[[0]]"],
-    [COMPUTED.Result, "[[0]]"],
+    [COMPUTED.Verdict, "[[0]]"],
+    [COMPUTED.VerdictClass, "[[0]]"],
     [COMPUTED.Rank, "[[0]]"],
     [COMPUTED.Skill, "[[0]]"],
     [COMPUTED.Notes, "[[0]]"],
@@ -152,7 +169,8 @@ export function checkComputed(
     // translateOr, not translated(): `^{...}` is resolved by Roll20 while it
     // parses the roll macro, and a finishRoll value never goes through that
     // pass -- sent as `^{Success}` the card printed the macro verbatim.
-    [COMPUTED.Result]: translateOr(check.outcome),
+    [COMPUTED.Verdict]: translateOr(check.outcome),
+    [COMPUTED.VerdictClass]: VERDICT_CLASSES[check.outcome],
     [COMPUTED.Rank]: RANKS[check.outcome],
     [COMPUTED.Skill]: skillName,
     [COMPUTED.Used]: used,
@@ -211,13 +229,14 @@ function panicWarning(check: CheckResult): string {
 /** The template sent to startRoll for a Panic Check. */
 export function panicTemplate(): string {
   const template = render([
-    ["name", translated(TEMPLATE_PHRASES.PanicCheck)],
-    ["character_name", "@{character_name}"],
+    ["title", translated(TEMPLATE_PHRASES.PanicCheck)],
+    ["subtitle", "@{character_name}"],
     ["roll", "[[1d20]]"],
     ["roll2", "[[1d20]]"],
     ["target", "[[@{stress}]]"],
     [COMPUTED.Used, "[[0]]"],
-    [COMPUTED.Result, "[[0]]"],
+    [COMPUTED.Verdict, "[[0]]"],
+    [COMPUTED.VerdictClass, "[[0]]"],
     [COMPUTED.Rank, "[[0]]"],
     [COMPUTED.Notes, "[[0]]"],
     [COMPUTED.HasNotes, "[[0]]"],
@@ -243,7 +262,8 @@ export function panicComputed(
 
   const computed: Record<string, string | number> = {
     [COMPUTED.Used]: used,
-    [COMPUTED.Result]: hasPanicked ? panicked : survived,
+    [COMPUTED.Verdict]: hasPanicked ? panicked : survived,
+    [COMPUTED.VerdictClass]: VERDICT_CLASSES[check.outcome],
     [COMPUTED.Rank]: RANKS[check.outcome],
     [COMPUTED.Notes]: hasPanicked ? "@{stress_effect}" : "",
   };
@@ -259,8 +279,8 @@ export function panicComputed(
  */
 export function deathSaveTemplate(): string {
   const template = render([
-    ["name", translated(TEMPLATE_PHRASES.DeathSave)],
-    ["character_name", "@{character_name}"],
+    ["title", translated(TEMPLATE_PHRASES.DeathSave)],
+    ["subtitle", "@{character_name}"],
     ["roll", "[[1d10-1]]"],
     [COMPUTED.Notes, "[[0]]"],
     [COMPUTED.HasNotes, "[[0]]"],

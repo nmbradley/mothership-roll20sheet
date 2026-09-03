@@ -1313,17 +1313,23 @@
 
 <rolltemplate class="sheet-rolltemplate-ms">
   <div class="sheet-ms-result">
-    {{#name}}
-    <h1 class="sheet-ms-result__title">{{name}}</h1>
-    {{/name}}
+    {{#title}}
+    <h1 class="sheet-ms-result__title">{{title}}</h1>
+    {{/title}}
 
-    {{#character_name}}
-    <h2 class="sheet-ms-result__subtitle">{{character_name}}</h2>
-    {{/character_name}}
+    {{#subtitle}}
+    <h2 class="sheet-ms-result__subtitle">{{subtitle}}</h2>
+    {{/subtitle}}
 
     {{#computed::skill}}
     <div class="sheet-ms-result__skill">{{computed::skill}}</div>
     {{/computed::skill}}
+
+    {{#credits}}
+    <div class="sheet-ms-roll">
+      <div class="sheet-ms-roll__credits">{{credits}}cr</div>
+    </div>
+    {{/credits}}
 
     {{#roll}}
     <div class="sheet-ms-roll">
@@ -1358,16 +1364,16 @@
     {{/damage}}
 
     {{#rollTotal() computed::rank 3}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--critical-success">{{computed::result}}</div>
+    <div class="sheet-ms-verdict sheet-ms-verdict--critical-success">{{computed::verdict}}</div>
     {{/rollTotal() computed::rank 3}}
     {{#rollTotal() computed::rank 2}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--success">{{computed::result}}</div>
+    <div class="sheet-ms-verdict sheet-ms-verdict--success">{{computed::verdict}}</div>
     {{/rollTotal() computed::rank 2}}
     {{#rollTotal() computed::rank 1}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--failure">{{computed::result}}</div>
+    <div class="sheet-ms-verdict sheet-ms-verdict--failure">{{computed::verdict}}</div>
     {{/rollTotal() computed::rank 1}}
     {{#rollTotal() computed::rank 0}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--critical-failure">{{computed::result}}</div>
+    <div class="sheet-ms-verdict sheet-ms-verdict--critical-failure">{{computed::verdict}}</div>
     {{/rollTotal() computed::rank 0}}
 
     {{#rollTotal() computed::hasnotes 1}}
@@ -5158,7 +5164,8 @@
   var COMPUTED = {
     Used: "used",
     HasNotes: "hasnotes",
-    Result: "result",
+    Verdict: "verdict",
+    VerdictClass: "verdictclass",
     Rank: "rank",
     Notes: "notes",
     Skill: "skill"
@@ -5168,6 +5175,12 @@
     [Outcomes.Failure]: 1,
     [Outcomes.Success]: 2,
     [Outcomes.CriticalSuccess]: 3
+  };
+  var VERDICT_CLASSES = {
+    [Outcomes.CriticalFailure]: "critical-failure",
+    [Outcomes.Failure]: "failure",
+    [Outcomes.Success]: "success",
+    [Outcomes.CriticalSuccess]: "critical-success"
   };
   function translated(key) {
     return `^{${key}}`;
@@ -5194,13 +5207,14 @@
     const label = options.i18nKey === void 0 ? options.name ?? "" : translated(options.i18nKey);
     const rollDie = options.sendToTracker ? `${options.die} &{tracker}` : options.die;
     const template = render([
-      ["name", label],
-      ["character_name", "@{character_name}"],
+      ["title", label],
+      ["subtitle", "@{character_name}"],
       ["roll", `[[${rollDie}]]`],
       ["roll2", `[[${options.die}]]`],
       ["target", `[[${options.target}]]`],
       [COMPUTED.Used, "[[0]]"],
-      [COMPUTED.Result, "[[0]]"],
+      [COMPUTED.Verdict, "[[0]]"],
+      [COMPUTED.VerdictClass, "[[0]]"],
       [COMPUTED.Rank, "[[0]]"],
       [COMPUTED.Skill, "[[0]]"],
       [COMPUTED.Notes, "[[0]]"],
@@ -5213,7 +5227,8 @@
       // translateOr, not translated(): `^{...}` is resolved by Roll20 while it
       // parses the roll macro, and a finishRoll value never goes through that
       // pass -- sent as `^{Success}` the card printed the macro verbatim.
-      [COMPUTED.Result]: translateOr(check.outcome),
+      [COMPUTED.Verdict]: translateOr(check.outcome),
+      [COMPUTED.VerdictClass]: VERDICT_CLASSES[check.outcome],
       [COMPUTED.Rank]: RANKS[check.outcome],
       [COMPUTED.Skill]: skillName,
       [COMPUTED.Used]: used,
@@ -5250,13 +5265,14 @@
   }
   function panicTemplate() {
     const template = render([
-      ["name", translated(TEMPLATE_PHRASES.PanicCheck)],
-      ["character_name", "@{character_name}"],
+      ["title", translated(TEMPLATE_PHRASES.PanicCheck)],
+      ["subtitle", "@{character_name}"],
       ["roll", "[[1d20]]"],
       ["roll2", "[[1d20]]"],
       ["target", "[[@{stress}]]"],
       [COMPUTED.Used, "[[0]]"],
-      [COMPUTED.Result, "[[0]]"],
+      [COMPUTED.Verdict, "[[0]]"],
+      [COMPUTED.VerdictClass, "[[0]]"],
       [COMPUTED.Rank, "[[0]]"],
       [COMPUTED.Notes, "[[0]]"],
       [COMPUTED.HasNotes, "[[0]]"]
@@ -5269,7 +5285,8 @@
     const panicked = translateOr(TEMPLATE_PHRASES.TraumaResponse);
     const computed = {
       [COMPUTED.Used]: used,
-      [COMPUTED.Result]: hasPanicked ? panicked : survived,
+      [COMPUTED.Verdict]: hasPanicked ? panicked : survived,
+      [COMPUTED.VerdictClass]: VERDICT_CLASSES[check.outcome],
       [COMPUTED.Rank]: RANKS[check.outcome],
       [COMPUTED.Notes]: hasPanicked ? "@{stress_effect}" : ""
     };
@@ -5278,8 +5295,8 @@
   }
   function deathSaveTemplate() {
     const template = render([
-      ["name", translated(TEMPLATE_PHRASES.DeathSave)],
-      ["character_name", "@{character_name}"],
+      ["title", translated(TEMPLATE_PHRASES.DeathSave)],
+      ["subtitle", "@{character_name}"],
       ["roll", "[[1d10-1]]"],
       [COMPUTED.Notes, "[[0]]"],
       [COMPUTED.HasNotes, "[[0]]"]
@@ -5302,7 +5319,7 @@
       [`${row}_armor_points`]: DESTROYED_AP,
       [`${row}_damage_reduction`]: DESTROYED_AP
     });
-    const rollFormula = `&{template:ms} {{name=^{${TEMPLATE_PHRASES.ArmorDestroyed}}}} {{character_name=@{character_name}}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
+    const rollFormula = `&{template:ms} {{title=^{${TEMPLATE_PHRASES.ArmorDestroyed}}}} {{subtitle=@{character_name}}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
     const rollData = await startRoll(rollFormula);
     finishRoll(rollData.rollId, {
       notes: "",
@@ -5685,7 +5702,7 @@
   async function postAttackResult(showDamage) {
     const fields = [
       "&{template:ms}",
-      "{{character_name=@{character_name}}}",
+      "{{subtitle=@{character_name}}}",
       showDamage ? "{{damage=[[@{attack_damage}]]}}" : "",
       "{{alert=[[0]]}}"
     ].filter((field) => field !== "");
@@ -5696,7 +5713,7 @@
     });
   }
   async function postOutOfAmmoAlert(name) {
-    const template = `&{template:ms} {{name=${name}}} {{character_name=@{character_name}}} {{alert=[[0]]}}`;
+    const template = `&{template:ms} {{title=${name}}} {{subtitle=@{character_name}}} {{alert=[[0]]}}`;
     const rollData = await startRoll(template);
     finishRoll(rollData.rollId, { alert: translated(TEMPLATE_PHRASES.OutOfAmmo) });
   }
@@ -5753,7 +5770,7 @@
   }
   async function postStressOverflowAlert(amount) {
     const rollData = await startRoll(
-      "&{template:ms} {{character_name=@{character_name}}} {{alert=[[0]]}}"
+      "&{template:ms} {{subtitle=@{character_name}}} {{alert=[[0]]}}"
     );
     finishRoll(rollData.rollId, {
       alert: `${translated(TEMPLATE_PHRASES.StressOverflow)} ${amount}`
@@ -5960,8 +5977,8 @@
     const diceFields = Array.from({ length: capacity }, (_, index) => `wound_roll_${index}`);
     const formula = [
       "&{template:ms}",
-      `{{name=^{${TEMPLATE_PHRASES.TakeDamage}}}}`,
-      "{{character_name=@{character_name}}}",
+      `{{title=^{${TEMPLATE_PHRASES.TakeDamage}}}}`,
+      "{{subtitle=@{character_name}}}",
       "{{damage=[[?{Damage?|0}]]}}",
       `{{damage_type=[[${damageTypeQuery()}]]}}`,
       ...diceFields.map((field) => `{{${field}=[[1d10-1]]}}`),
@@ -6004,8 +6021,8 @@
   async function rollTakeWound(state) {
     const formula = [
       "&{template:ms}",
-      `{{name=^{${TEMPLATE_PHRASES.TakeAWound}}}}`,
-      "{{character_name=@{character_name}}}",
+      `{{title=^{${TEMPLATE_PHRASES.TakeAWound}}}}`,
+      "{{subtitle=@{character_name}}}",
       `{{damage_type=[[${damageTypeQuery()}]]}}`,
       "{{roll=[[1d10-1]]}}",
       "{{notes=[[0]]}} {{hasnotes=[[0]]}}",
@@ -6686,7 +6703,7 @@ ${formatMaintenanceIssue(issue2, 2)}`
   }
   var MAINTENANCE_EDGE_QUERY = "?{Advantage/Disadvantage|Normal,1d100-1|Advantage,2d100kl1-1|Disadvantage,2d100kh1-1}";
   async function handleAnnualMaintenanceCheck() {
-    const rollFormula = `&{template:ms} {{name=Annual Maintenance Check}} {{character_name=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
+    const rollFormula = `&{template:ms} {{title=Annual Maintenance Check}} {{subtitle=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
     const rollData = await startRoll(rollFormula);
     const rollEntry = rollData.results.roll;
     const targetEntry = rollData.results.target;
@@ -6711,7 +6728,7 @@ ${formatMaintenanceIssue(issue2, 2)}`
     });
   }
   async function handleAfterBattleReport() {
-    const rollFormula = `&{template:ms} {{name=After Battle Report}} {{character_name=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
+    const rollFormula = `&{template:ms} {{title=After Battle Report}} {{subtitle=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
     const rollData = await startRoll(rollFormula);
     const rollEntry = rollData.results.roll;
     const targetEntry = rollData.results.target;
@@ -6732,7 +6749,7 @@ ${formatMaintenanceIssue(issue2, 2)}`
     });
   }
   async function handleBankruptcySave() {
-    const rollFormula = "&{template:ms} {{name=Bankruptcy Save}} {{character_name=@{character_name}}} {{roll=[[1d100-1]]}} {{target=[[@{ship_bankruptcy_save}+0]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
+    const rollFormula = "&{template:ms} {{title=Bankruptcy Save}} {{subtitle=@{character_name}}} {{roll=[[1d100-1]]}} {{target=[[@{ship_bankruptcy_save}+0]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
     const rollData = await startRoll(rollFormula);
     const rollEntry = rollData.results.roll;
     const targetEntry = rollData.results.target;
@@ -6758,7 +6775,7 @@ ${SHIP_PANIC_MESSAGE}`;
     const notes = fields.notes ?? "";
     if (alert === "" && notes === "") return;
     const rollData = await startRoll(
-      "&{template:ms} {{character_name=@{character_name}}} {{alert=[[0]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}"
+      "&{template:ms} {{subtitle=@{character_name}}} {{alert=[[0]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}"
     );
     finishRoll(rollData.rollId, {
       alert,
@@ -6872,7 +6889,7 @@ ${SHIP_PANIC_MESSAGE}`;
     };
   }
   async function handleMoraleCheck() {
-    const rollFormula = "&{template:ms} {{name=Morale Check}} {{character_name=@{character_name}}} {{roll=[[1d10]]}} {{target=[[@{ship_mdmg}]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
+    const rollFormula = "&{template:ms} {{title=Morale Check}} {{subtitle=@{character_name}}} {{roll=[[1d10]]}} {{target=[[@{ship_mdmg}]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
     const rollData = await startRoll(rollFormula);
     const rollEntry = rollData.results.roll;
     const targetEntry = rollData.results.target;
@@ -6916,7 +6933,7 @@ ${SHIP_PANIC_MESSAGE}`;
     };
   }
   async function handleStartingCondition() {
-    const rollFormula = "&{template:ms} {{name=Starting Condition}} {{character_name=@{character_name}}} {{roll=[[1d5+1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
+    const rollFormula = "&{template:ms} {{title=Starting Condition}} {{subtitle=@{character_name}}} {{roll=[[1d5+1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
     const rollData = await startRoll(rollFormula);
     const rollResult = rollData.results.roll;
     const count = rollResult ? rollResult.result : 2;
@@ -6941,7 +6958,7 @@ ${SHIP_PANIC_MESSAGE}`;
     };
   }
   async function handleRevealFuelBid() {
-    const rollFormula = "&{template:ms} {{name=Fuel Bid}} {{character_name=@{character_name}}} {{bid=[[@{ship_fuel_bid}]]}} {{fuel=[[@{ship_fuel}]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
+    const rollFormula = "&{template:ms} {{title=Fuel Bid}} {{subtitle=@{character_name}}} {{bid=[[@{ship_fuel_bid}]]}} {{fuel=[[@{ship_fuel}]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
     const rollData = await startRoll(rollFormula);
     const bidEntry = rollData.results.bid;
     const fuelEntry = rollData.results.fuel;

@@ -53,7 +53,7 @@ describe("Roll Templates", () => {
         target: "@{strength}",
         die: "1d100-1",
       });
-      expect(template).toContain("{{name=^{Strength Check}}}");
+      expect(template).toContain("{{title=^{Strength Check}}}");
     });
 
     it("should leave a name from player data untranslated", () => {
@@ -62,7 +62,7 @@ describe("Roll Templates", () => {
         target: "@{combat}",
         die: "1d100-1",
       });
-      expect(template).toContain("{{name=Pulse Rifle}}");
+      expect(template).toContain("{{title=Pulse Rifle}}");
     });
 
     it("should leave computed fields as placeholders for finishRoll", () => {
@@ -71,7 +71,8 @@ describe("Roll Templates", () => {
         target: "@{body}",
         die: "1d100-1",
       });
-      expect(template).toContain("{{result=[[0]]}}");
+      expect(template).toContain("{{verdict=[[0]]}}");
+      expect(template).toContain("{{verdictclass=[[0]]}}");
       expect(template).toContain("{{used=[[0]]}}");
       expect(template).toContain("{{notes=[[0]]}}");
       expect(template).toContain("{{skill=[[0]]}}");
@@ -85,7 +86,16 @@ describe("Roll Templates", () => {
         target: 45,
         rolls: [30],
       });
-      expect(checkComputed(check).result).toBe("Success");
+      expect(checkComputed(check).verdict).toBe("Success");
+    });
+
+    it("should give the outcome a class suffix", () => {
+      const check = makeCheck({
+        name: "Strength Check",
+        target: 45,
+        rolls: [30],
+      });
+      expect(checkComputed(check).verdictclass).toBe("success");
     });
 
     it("should report which of the two dice the template should highlight", () => {
@@ -156,14 +166,14 @@ describe("Roll Templates", () => {
     it("should report keeping it together when the check passes", () => {
       const check = makePanicCheck(5, [12]);
       const computed = panicComputed(check);
-      expect(computed.result).toBe("Kept It Together");
+      expect(computed.verdict).toBe("Kept It Together");
       expect(computed.notes).toBe("");
     });
 
     it("should point a failure at Trauma Response, not a rolled table entry", () => {
       const check = makePanicCheck(10, [3]);
       const computed = panicComputed(check);
-      expect(computed.result).toBe("Trauma Response");
+      expect(computed.verdict).toBe("Trauma Response");
       expect(computed.notes).toBe("@{stress_effect}");
     });
   });

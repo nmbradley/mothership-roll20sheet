@@ -3,260 +3,456 @@
 // These render in the chat pane rather than inside .charsheet, so they cannot
 // rely on _base.scss for element defaults and restate what they need. The
 // tokens they read are declared on their own roots in _tokens.scss.
+//
+// Layout is an explicit grid, NOT wrapping flex, for the check card
+// (.sheet-rolltemplate-ms): every element is pinned to a named area so row
+// composition can never depend on how long a subtitle, skill name or roll
+// happens to be.
+//
+//   ┌──────────────────────────────┬──────────┐
+//   │ title (bleeds left)          │  roll    │
+//   ├──────────────────────────────┤  ┌────┐  │
+//   │ subtitle                     │  │ 40 │  │  <- dark target/damage footer
+//   ├──────────────────────────────┤  └────┘  │
+//   │ skill                        │          │
+//   ├──────────────────────────────┤          │
+//   │ verdict                      │          │
+//   ├──────────────────────────────┴──────────┤
+//   │ notes / alert (full width, ruled off)   │
+//   └─────────────────────────────────────────┘
+//
+// The roll + target/damage readout form ONE box of fixed size: both are
+// pinned to the same full-height area in column 2 and aligned to its top,
+// with the readout offset by exactly the roll's height. That keeps the box
+// identical whether or not the left column carries a skill, a verdict or
+// notes.
+//
+// The charactermancer card (.sheet-rolltemplate-ms-cm, ms-cm.html) reuses
+// every one of these class names but repeats subtitle+roll pairs down the
+// card rather than filling this one grid -- it gets its own, simpler
+// block-flow layout further down rather than sharing the grid, which would
+// stack every repeated roll box on top of the others in the same cell.
+//
+// Type scale is em-relative so the block rides the chat's own font size.
+$roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
 
-.sheet-rolltemplate-ms,
-.sheet-rolltemplate-ms-cm {
-  // A chat card sits in a narrow column beside everything else in the log, so
-  // it reads at half the sheet's type scale. Redefining the tokens rather than
-  // restating every font-size keeps the ratios between them intact.
-  --ms-text-xs: 6px;
-  --ms-text-sm: 7px;
-  --ms-text-md: 8px;
-  --ms-text-lg: 10px;
-  --ms-text-xl: 16px;
+#{$roots} {
+  // scale (em: follows chat font size instead of pinning px)
+  --ms-text-xs: 0.62em;
+  --ms-text-sm: 0.72em;
+  --ms-text-md: 0.85em;
+  --ms-text-lg: 1em;
+  --ms-text-xl: 1.25em;
+  --ms-text-2xl: 2.15em;
+
+  // the roll box: one size for every template
+  --ms-roll-w: 3.6em;
+  --ms-roll-h: 2.9em;
 
   .sheet-ms-result {
     border: var(--ms-border-width-thick) solid var(--ms-border);
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: var(--ms-radius-lg);
-    border-bottom-left-radius: var(--ms-radius-lg);
+    border-radius: 0 0 var(--ms-radius-lg) var(--ms-radius-lg);
     box-sizing: border-box;
-    padding: var(--ms-space-xl);
 
     background: var(--ms-surface);
 
     font-family: var(--ms-font-body);
     color: var(--ms-fg);
-
-    // The title bleeds into the panel's top-left corner, as on the printed sheet.
-    &__title {
-      margin: calc(var(--ms-space-xl) * -1) 0 0 calc(var(--ms-space-xl) * -1);
-      border-bottom-right-radius: var(--ms-radius-lg);
-      width: 90%;
-      padding: var(--ms-space-lg);
-
-      background: var(--ms-inverse);
-
-      font-size: var(--ms-text-xl);
-      line-height: 1;
-      font-family: var(--ms-font-header);
-      text-align: center;
-      text-transform: uppercase;
-      color: var(--ms-fg-inverse);
-    }
-
-    &__subtitle {
-      margin: 0;
-      padding: var(--ms-space-lg);
-
-      font-size: var(--ms-text-lg);
-      line-height: 1;
-      font-family: var(--ms-font-header);
-      font-weight: 400;
-      text-align: center;
-      text-transform: uppercase;
-    }
   }
 
-  // Roll20 styles inline roll results itself; strip it back to the sheet's look.
+  // --- header slab ----------------------------------------------------------
+  // Bleeds off the left edge so the single bottom-right notch reads as
+  // deliberate -- the same move the character sheet's dark panels make. Each
+  // root bleeds it by its own padding below, since the two layouts pad
+  // differently.
+  .sheet-ms-result__title {
+    border-radius: 0 0 var(--ms-radius-lg) 0;
+    box-sizing: border-box;
+    padding: var(--ms-space-md) var(--ms-space-lg);
+
+    background: var(--ms-inverse);
+
+    font-size: var(--ms-text-xl);
+    line-height: 1.05;
+    font-family: var(--ms-font-header);
+    text-align: center;
+    text-transform: uppercase;
+    color: var(--ms-fg-inverse);
+  }
+
+  // --- subtitle, then skill, each on its own line --------------------------
+  .sheet-ms-result__subtitle,
+  .sheet-ms-result__skill {
+    grid-column: 1;
+
+    min-width: 0;
+    padding: 0;
+
+    font-size: var(--ms-text-sm);
+    line-height: 1.1;
+    font-family: var(--ms-font-header);
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ms-fg);
+    overflow-wrap: anywhere;
+  }
+
+  .sheet-ms-result__subtitle {
+    grid-row: 2;
+
+    margin: 0 0 0.2em;
+  }
+
+  // the skill is the quieter of the two
+  .sheet-ms-result__skill {
+    grid-row: 3;
+
+    margin: 0 0 var(--ms-space-md);
+
+    font-size: var(--ms-text-xs);
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    color: var(--ms-fg-muted);
+  }
+
+  // --- roll: the counted result, at one size in every template -------------
+  .sheet-ms-roll {
+    display: grid;
+    position: relative;
+    place-items: center;
+
+    border: var(--ms-border-width-thick) solid var(--ms-border);
+    border-radius: var(--ms-radius-lg);
+    box-sizing: border-box;
+
+    background: var(--ms-surface);
+  }
+
+  .sheet-ms-roll__roll,
+  .sheet-ms-roll__roll2 {
+    grid-area: 1 / 1;
+
+    font-size: var(--ms-text-2xl);
+    line-height: 1;
+    font-weight: 700;
+    text-align: center;
+    color: var(--ms-fg);
+  }
+
+  .sheet-ms-roll__credits {
+    grid-area: 1 / 1;
+
+    font-size: var(--ms-text-md);
+    line-height: 1;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+    color: var(--ms-fg);
+  }
+
+  // Advantage / disadvantage: both dice are always rolled, because an edge
+  // needs the pair. Rather than splitting the box diagonally (which forces it
+  // to grow, and reads as a strike-through at chat size), the die that
+  // COUNTS stays exactly where a single die sits, and the discarded one is a
+  // struck-out annotation tucked into the corner.
+  //
+  // Which die is which is driven by the --used/--spent class the rules put
+  // on it (checkComputed's `used` flag), not by DOM position: roll and roll2
+  // are shown in the order they were actually thrown, since that order
+  // matters for auditing a roll, and either one can be the die that counted.
+  .sheet-ms-roll--spent {
+    position: absolute;
+    top: 0.1em;
+    right: 0.3em;
+
+    font-size: var(--ms-text-xs);
+    font-weight: 800;
+    text-decoration: line-through;
+    color: var(--ms-fg-muted);
+  }
+
+  // The die that counted gets a ring rather than sitting unmarked -- with the
+  // spent die shrunk into the corner it would already read as the answer, but
+  // an edge is exactly the roll a table double-checks.
+  .sheet-ms-roll--used {
+    box-shadow: 0 0 0 2px var(--ms-accent);
+    border-radius: var(--ms-radius-sm);
+  }
+
+  // --- target / damage: the dark footer of the roll box ---------------------
+  .sheet-ms-readout {
+    display: flex;
+    gap: var(--ms-space-md);
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 0 0 var(--ms-radius-lg) var(--ms-radius-lg);
+    box-sizing: border-box;
+
+    background: var(--ms-inverse);
+
+    font-size: var(--ms-text-lg);
+    color: var(--ms-fg-inverse);
+  }
+
+  // The word "Target"/"Damage" is replaced by a bullseye glyph. The ligature
+  // NAME is used rather than a codepoint, since the two Material families map
+  // the legacy private-use range differently. font-size: 0 hides the label
+  // text while leaving it in the DOM for screen readers and i18n.
+  .sheet-ms-readout__label {
+    flex: none;
+
+    font-size: 0;
+    line-height: 0;
+  }
+
+  .sheet-ms-readout__label::before {
+    content: "adjust";
+
+    display: block;
+
+    font-size: 0.95rem;
+    line-height: 1;
+    font-family: "Material Symbols Outlined", "Material Icons";
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--ms-fg-inverse);
+    font-feature-settings: "liga";
+    font-variation-settings: "wght" 600;
+  }
+
+  .sheet-ms-readout__value {
+    border: 0;
+    padding: 0;
+
+    font-size: var(--ms-text-md);
+    line-height: 1.15;
+    font-weight: 700;
+    text-align: center;
+    color: var(--ms-fg-inverse);
+  }
+
+  // --- verdict --------------------------------------------------------------
+  // The rules decide the verdict before it reaches chat (checkComputed's
+  // `rank`); ms.html's rank-based blocks pick the class below.
+  .sheet-ms-verdict {
+    grid-column: 1;
+
+    margin: 0;
+    border-radius: var(--ms-radius-md);
+    box-sizing: border-box;
+    padding: 0.3em var(--ms-space-md);
+
+    font-size: var(--ms-text-md);
+    line-height: 1.15;
+    font-family: var(--ms-font-header);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .sheet-ms-verdict--success {
+    background: var(--ms-pass-wash);
+
+    color: var(--ms-pass-fg);
+  }
+
+  .sheet-ms-verdict--failure {
+    background: var(--ms-fail-wash);
+
+    color: var(--ms-fail-fg);
+  }
+
+  .sheet-ms-verdict--critical-success {
+    background: var(--ms-crit-pass);
+
+    font-weight: 800;
+    color: var(--ms-fg-inverse);
+  }
+
+  .sheet-ms-verdict--critical-failure {
+    background: var(--ms-accent);
+
+    font-weight: 800;
+    color: var(--ms-fg-inverse);
+  }
+
+  // --- notes / alert: full width, ruled off --------------------------------
+  .sheet-ms-notes {
+    grid-column: 1 / -1;
+
+    margin: var(--ms-space-lg) 0 0;
+    border: 0;
+    border-top: var(--ms-border-width) solid var(--ms-border);
+    border-radius: 0;
+    box-sizing: border-box;
+    padding: var(--ms-space-lg) var(--ms-space-sm) 0;
+
+    background: transparent;
+
+    font-size: var(--ms-text-md);
+    line-height: 1.5;
+    white-space: pre-line;
+    color: var(--ms-fg);
+  }
+
+  .sheet-ms-alert {
+    grid-column: 1 / -1;
+
+    margin: var(--ms-space-md) 0 0;
+    border-radius: var(--ms-radius-md);
+    box-sizing: border-box;
+    padding: 0.35em var(--ms-space-md);
+
+    background: var(--ms-accent);
+
+    font-size: var(--ms-text-lg);
+    line-height: 1.25;
+    font-family: var(--ms-font-header);
+    font-weight: 800;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: pre-line;
+    color: var(--ms-fg-inverse);
+  }
+
+  // --- Roll20 inline-roll chrome removal -----------------------------------
   .inlinerollresult,
   .importantroll,
   .fullcrit,
   .fullfail {
     border: none;
+    padding: 0;
 
     background: transparent;
 
-    line-height: 1;
+    line-height: inherit;
     font-family: inherit;
   }
 
-  .fullcrit { color: darkgreen; }
-  .fullfail { color: darkred; }
+  .fullcrit { color: var(--ms-pass-fg, darkgreen); }
+  .fullfail { color: var(--ms-fail-fg, darkred); }
 
-  // The Skill claimed for the roll, sitting under the check's name rather than
-  // in a labelled readout: "Unskilled" is as much an answer as "Hyperdrives",
-  // and neither needs the word Skill in front of it to be understood.
-  .sheet-ms-result__skill {
-    margin-bottom: var(--ms-space-md);
-
-    font-size: var(--ms-text-sm);
-    font-family: var(--ms-font-header);
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--ms-fg-muted);
+  .sheet-ms-roll__credits {
+    .fullcrit,
+    .fullfail { color: var(--ms-fg); }
   }
 
-  // Both dice are always rolled, because an edge needs the pair. The one that
-  // decided the check is shown plainly; the other is faded rather than hidden,
-  // so the table can still see what was discarded.
-  .sheet-ms-roll--spent {
-    opacity: 0.35;
+  .sheet-ms-readout,
+  .sheet-ms-verdict,
+  .sheet-ms-alert {
+    .fullcrit,
+    .fullfail { color: inherit; }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// The check card: title/subtitle/skill/verdict/notes in a narrow left column,
+// one fixed-size roll+readout box pinned to the right for every card.
+// ---------------------------------------------------------------------------
+.sheet-rolltemplate-ms {
+  .sheet-ms-result {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--ms-roll-w);
+    grid-template-rows: auto auto auto auto; // title, subtitle, skill, verdict
+    row-gap: 0;
+    column-gap: var(--ms-space-xl);
+    align-items: start;
+
+    padding: 0 var(--ms-space-lg) var(--ms-space-lg);
   }
 
-  .sheet-ms-roll--used {
-    border-color: var(--ms-accent);
+  .sheet-ms-result__title {
+    grid-area: 1 / 1;
+
+    margin: 0 0 var(--ms-space-md) calc(var(--ms-space-lg) * -1);
+  }
+
+  // Both pinned to the same full-height area, aligned top; the readout is
+  // pushed down by exactly the roll's height so the two meet as one box.
+  .sheet-ms-roll,
+  .sheet-ms-readout {
+    grid-area: 1 / 2 / 5 / 3;
+    align-self: start;
+    justify-self: stretch;
+
+    width: var(--ms-roll-w);
   }
 
   .sheet-ms-roll {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    align-items: center;
+    margin-top: var(--ms-space-lg);
+    height: var(--ms-roll-h);
+    padding: 0 0.2em;
+  }
 
-    margin-bottom: var(--ms-space-lg);
-    box-sizing: border-box;
-    width: 100%;
-
-    &__roll,
-    &__roll2,
-    &__credits {
-      grid-column: span 2;
-
-      border: var(--ms-border-width-thick) solid var(--ms-border);
-      border-radius: var(--ms-radius-lg);
-      height: 2rem;
-
-      background: var(--ms-surface);
-
-      font-size: calc(var(--ms-text-xl) * 1.5);
-      line-height: 2rem;
-      text-align: center;
-      color: var(--ms-fg);
-    }
-
-    // A single roll centres; a pair joins into one pill.
-    &__roll {
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
-
-      &:only-child {
-        grid-column: 2 / span 2;
-
-        border-radius: var(--ms-radius-lg);
-      }
-    }
-
-    &__roll2 {
-      border-left: none;
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
-    }
-
-    &__credits {
-      grid-column: 2 / span 2;
-
-      .fullcrit,
-      .fullfail {
-        color: var(--ms-fg);
-      }
-    }
+  // opens its bottom edge only when a target/damage footer follows
+  .sheet-ms-roll:has(+ .sheet-ms-readout) {
+    border-bottom: 0;
+    border-radius: var(--ms-radius-lg) var(--ms-radius-lg) 0 0;
   }
 
   .sheet-ms-readout {
-    display: grid;
-    grid-template-columns: 1fr 6rem;
-    gap: calc(var(--ms-space-xl) * 2);
-    align-items: center;
-
-    border-radius: var(--ms-radius-lg);
-    padding: var(--ms-space-sm);
-
-    background: var(--ms-surface);
-
-    font-size: var(--ms-text-lg);
-    color: var(--ms-fg);
-
-    &__label {
-      font-family: var(--ms-font-header);
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-
-    &__value {
-      border: var(--ms-border-width) solid var(--ms-border);
-      border-radius: var(--ms-radius-md);
-      padding: var(--ms-space-sm);
-
-      font-weight: 700;
-      text-align: center;
-    }
+    margin-top: calc(var(--ms-roll-h) + var(--ms-space-lg));
+    padding: 0.15em var(--ms-space-md);
   }
 
-  // The rules decide the verdict before it reaches chat; rank picks the colour.
+  // The follow-up Damage card (postAttackResult) has no roll of its own --
+  // Damage stands alone rather than stacking under it, so it sits at the top
+  // of the box instead of the offset that assumes a roll came first.
+  .sheet-ms-result:not(:has(.sheet-ms-roll)) .sheet-ms-readout {
+    margin-top: var(--ms-space-lg);
+    border-radius: var(--ms-radius-lg);
+  }
+
   .sheet-ms-verdict {
-    margin-top: var(--ms-space-md);
-    border-radius: var(--ms-radius-md);
-    padding: var(--ms-space-md);
-
-    font-size: var(--ms-text-lg);
-    font-family: var(--ms-font-header);
-    text-align: center;
-    text-transform: uppercase;
-
-    &--critical-success,
-    &--critical-failure {
-      font-weight: 700;
-    }
-
-    &--success {
-      background: var(--ms-pass-wash);
-
-      color: var(--ms-pass-fg);
-    }
-
-    &--critical-success {
-      background: var(--ms-inverse);
-
-      color: var(--ms-fg-inverse);
-    }
-
-    &--failure {
-      background: var(--ms-fail-wash);
-
-      color: var(--ms-fail-fg);
-    }
-
-    &--critical-failure {
-      background: var(--ms-accent);
-
-      color: var(--ms-fg-inverse);
-    }
+    grid-row: 4;
   }
 
   .sheet-ms-notes {
-    margin-top: var(--ms-space-md);
-    border: var(--ms-border-width) solid var(--ms-border);
-    border-radius: var(--ms-radius-md);
-    box-sizing: border-box;
-    padding: var(--ms-space-lg);
-
-    background: var(--ms-surface);
-
-    font-size: var(--ms-text-md);
-    line-height: 1.4;
-    white-space: pre-line;
-    color: var(--ms-fg);
+    grid-row: 5;
   }
 
-  // A ship stat check's Stress/Panic warning (#59): Roll20 sheetworkers can't
-  // touch another character's sheet, so this has to be loud enough that the
-  // table applies it by hand instead of missing it in the notes box.
   .sheet-ms-alert {
-    margin-top: var(--ms-space-md);
-    border-radius: var(--ms-radius-md);
-    padding: var(--ms-space-lg);
+    grid-row: 6;
+  }
+}
 
-    background: var(--ms-accent);
+// ---------------------------------------------------------------------------
+// The charactermancer card: a stat rolled at a time, top to bottom -- no
+// shared roll+readout box, since several roll boxes repeat down the card.
+// ---------------------------------------------------------------------------
+.sheet-rolltemplate-ms-cm {
+  .sheet-ms-result {
+    padding: var(--ms-space-xl);
+  }
 
-    font-size: var(--ms-text-xl);
-    line-height: 1.3;
-    font-family: var(--ms-font-header);
-    font-weight: 700;
-    text-align: center;
-    text-transform: uppercase;
-    white-space: pre-line;
-    color: var(--ms-fg-inverse);
+  .sheet-ms-result__title {
+    margin: calc(var(--ms-space-xl) * -1) 0 var(--ms-space-lg) calc(var(--ms-space-xl) * -1);
+    width: 90%;
+  }
+
+  .sheet-ms-result__subtitle {
+    margin: var(--ms-space-md) 0 0.2em;
+  }
+
+  .sheet-ms-roll,
+  .sheet-ms-readout {
+    margin: 0 auto var(--ms-space-lg);
+    width: auto;
+    max-width: 60%;
+  }
+
+  .sheet-ms-roll {
+    height: auto;
+    padding: var(--ms-space-sm) var(--ms-space-lg);
+  }
+
+  .sheet-ms-readout {
+    border-radius: var(--ms-radius-lg);
+    padding: 0.15em var(--ms-space-md);
   }
 }
