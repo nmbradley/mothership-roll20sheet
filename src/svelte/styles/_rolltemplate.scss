@@ -6,7 +6,7 @@
 
 .sheet-rolltemplate-ms,
 .sheet-rolltemplate-ms-cm {
-  .ms-result {
+  .sheet-ms-result {
     border: var(--ms-border-width-thick) solid var(--ms-border);
     border-top-left-radius: 0;
     border-top-right-radius: 0;
@@ -66,7 +66,7 @@
   .fullcrit { color: darkgreen; }
   .fullfail { color: darkred; }
 
-  .ms-roll {
+  .sheet-ms-roll {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     align-items: center;
@@ -119,7 +119,7 @@
     }
   }
 
-  .ms-readout {
+  .sheet-ms-readout {
     display: grid;
     grid-template-columns: 1fr 6rem;
     gap: calc(var(--ms-space-xl) * 2);
@@ -150,7 +150,7 @@
   }
 
   // The rules decide the verdict before it reaches chat; rank picks the colour.
-  .ms-verdict {
+  .sheet-ms-verdict {
     margin-top: var(--ms-space-md);
     border-radius: var(--ms-radius-md);
     padding: var(--ms-space-md);
@@ -190,7 +190,7 @@
     }
   }
 
-  .ms-notes {
+  .sheet-ms-notes {
     margin-top: var(--ms-space-md);
     border: var(--ms-border-width) solid var(--ms-border);
     border-radius: var(--ms-radius-md);
@@ -208,7 +208,7 @@
   // A ship stat check's Stress/Panic warning (#59): Roll20 sheetworkers can't
   // touch another character's sheet, so this has to be loud enough that the
   // table applies it by hand instead of missing it in the notes box.
-  .ms-alert {
+  .sheet-ms-alert {
     margin-top: var(--ms-space-md);
     border-radius: var(--ms-radius-md);
     padding: var(--ms-space-lg);
