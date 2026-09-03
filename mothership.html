@@ -3108,7 +3108,7 @@
 
   // src/ts/charactermancer/2-stats.ts
   var STARTING_STRESS = 2;
-  var STARTING_WOUNDS = 2;
+  var STARTING_WOUNDS = 0;
   var ROLLED_FIELDS = [...allStats, ...allSaves];
   var HEALTH_ROLL_INDEX = ROLLED_FIELDS.length;
   function onLoadStats() {
@@ -3402,9 +3402,7 @@
     for (const stat of allStats) {
       attrs[`${stat}_mod`] = mods[stat];
     }
-    const wounds = maxWounds(definition);
-    attrs["wounds"] = wounds;
-    attrs["wounds_max"] = wounds;
+    attrs["wounds_max"] = maxWounds(definition);
     attrs["stress_effect"] = definition.traumaResponse;
     text["t__stress_effect"] = definition.traumaResponse;
     const granted = definition.skills.granted;

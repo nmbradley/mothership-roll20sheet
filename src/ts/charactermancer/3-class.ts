@@ -204,7 +204,8 @@ export function instanceClass(className: string): void {
   applyClass(definition);
 }
 
-function applyClass(definition: ClassDef): void {
+/** Loads a class's saves, modifiers, Wound maximum and skills onto the sheet. */
+export function applyClass(definition: ClassDef): void {
   const attrs: Record<string, string | number> = {};
   const text: Record<string, string> = {};
 
@@ -230,10 +231,9 @@ function applyClass(definition: ClassDef): void {
   }
 
   // 1e Max Wounds: the printed base plus the class's own bonus (#42); Health
-  // is not class-dependent in 1e, so nothing here touches it.
-  const wounds = maxWounds(definition);
-  attrs["wounds"] = wounds;
-  attrs["wounds_max"] = wounds;
+  // is not class-dependent in 1e, so nothing here touches it. Wounds counts up
+  // (#179), so only the max moves here -- current Wounds is untouched.
+  attrs["wounds_max"] = maxWounds(definition);
   attrs["stress_effect"] = definition.traumaResponse;
   text["t__stress_effect"] = definition.traumaResponse;
 

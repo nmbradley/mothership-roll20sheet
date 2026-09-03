@@ -3,9 +3,11 @@ import { allSaves, allStats } from "#game/enums.js";
 import { charmancerData, stepValues } from "./helpers";
 import { Steps } from "./types";
 
-/** Stress and wounds every character starts with, before class modifiers. */
+/** Stress every character starts with, before class modifiers. */
 const STARTING_STRESS = 2;
-const STARTING_WOUNDS = 2;
+
+/** Wounds counts up, not down (#179): a freshly rolled character is unwounded. */
+const STARTING_WOUNDS = 0;
 
 /** Every field the Stats step rolls in one pass, in the roll's template order. */
 const ROLLED_FIELDS = [...allStats, ...allSaves];
