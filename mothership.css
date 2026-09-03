@@ -249,10 +249,13 @@ body.sheet-darkmode
   grid-auto-rows: min-content;
   align-content: center;
   justify-items: center;
+  overflow: hidden;
   border: var(--ms-border-width-thick) solid var(--ms-border);
   border-radius: var(--ms-radius-lg);
   box-sizing: border-box;
+  min-height: 0;
   background: var(--ms-surface);
+  aspect-ratio: 1/1;
 }
 .sheet-rolltemplate-ms .sheet-ms-roll__roll,
 .sheet-rolltemplate-ms .sheet-ms-roll__roll2,
@@ -286,6 +289,14 @@ body.sheet-darkmode
 .sheet-rolltemplate-ms .sheet-ms-roll--used,
 .sheet-rolltemplate-ms-cm .sheet-ms-roll--used {
   order: 1;
+}
+.sheet-rolltemplate-ms
+  .sheet-ms-roll:has(.sheet-ms-roll--spent)
+  .sheet-ms-roll--used,
+.sheet-rolltemplate-ms-cm
+  .sheet-ms-roll:has(.sheet-ms-roll--spent)
+  .sheet-ms-roll--used {
+  font-size: var(--ms-text-xl);
 }
 .sheet-rolltemplate-ms .sheet-ms-readout,
 .sheet-rolltemplate-ms-cm .sheet-ms-readout {

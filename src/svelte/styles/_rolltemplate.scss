@@ -125,11 +125,21 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     align-content: center;
     justify-items: center;
 
+    overflow: hidden;
+
     border: var(--ms-border-width-thick) solid var(--ms-border);
     border-radius: var(--ms-radius-lg);
     box-sizing: border-box;
+    min-height: 0;
 
     background: var(--ms-surface);
+
+    // Square, and it has to be said twice. aspect-ratio states the intent;
+    // min-height: 0 is what actually enforces it, because this box is itself
+    // a grid item and a grid item's automatic minimum size is its content --
+    // which silently wins over an explicit height once the discarded die is
+    // stacked under the counted one.
+    aspect-ratio: 1 / 1;
   }
 
   .sheet-ms-roll__roll,
@@ -177,6 +187,13 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
   // and an accent outline read as an error state rather than an edge.
   .sheet-ms-roll--used {
     order: 1;
+  }
+
+  // With a discarded die stacked beneath it, the counted one steps down so the
+  // pair sits inside the square rather than being clipped by it. A lone die
+  // keeps the full size -- most rolls have no edge and should read large.
+  .sheet-ms-roll:has(.sheet-ms-roll--spent) .sheet-ms-roll--used {
+    font-size: var(--ms-text-xl);
   }
 
   // --- target / damage: the dark footer of the roll box ---------------------
