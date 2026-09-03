@@ -505,7 +505,7 @@ export function isOutOfAmmo(shots: string): boolean {
 async function postAttackResult(showDamage: boolean): Promise<void> {
   const fields = [
     "&{template:ms}",
-    "{{character_name=@{character_name}}}",
+    "{{subtitle=@{character_name}}}",
     showDamage ? "{{damage=[[@{attack_damage}]]}}" : "",
     "{{alert=[[0]]}}",
   ].filter((field) => field !== "");
@@ -520,7 +520,7 @@ async function postAttackResult(showDamage: boolean): Promise<void> {
 /** #14: a third, loud card once a tracked weapon's magazine runs dry. */
 async function postOutOfAmmoAlert(name: string): Promise<void> {
   const template =
-    `&{template:ms} {{name=${name}}} {{character_name=@{character_name}}} {{alert=[[0]]}}`;
+    `&{template:ms} {{title=${name}}} {{subtitle=@{character_name}}} {{alert=[[0]]}}`;
   const rollData = await startRoll(template);
   finishRoll(rollData.rollId, { alert: translated(TEMPLATE_PHRASES.OutOfAmmo) });
 }
@@ -631,7 +631,7 @@ export function stressOverflow(current: number, delta: number): number {
  */
 async function postStressOverflowAlert(amount: number): Promise<void> {
   const rollData = await startRoll(
-    "&{template:ms} {{character_name=@{character_name}}} {{alert=[[0]]}}",
+    "&{template:ms} {{subtitle=@{character_name}}} {{alert=[[0]]}}",
   );
   finishRoll(rollData.rollId, {
     alert: `${translated(TEMPLATE_PHRASES.StressOverflow)} ${amount}`,

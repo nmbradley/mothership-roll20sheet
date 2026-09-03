@@ -315,8 +315,8 @@ async function rollTakeDamage(state: DamageState): Promise<void> {
 
   const formula = [
     "&{template:ms}",
-    `{{name=^{${TEMPLATE_PHRASES.TakeDamage}}}}`,
-    "{{character_name=@{character_name}}}",
+    `{{title=^{${TEMPLATE_PHRASES.TakeDamage}}}}`,
+    "{{subtitle=@{character_name}}}",
     "{{damage=[[?{Damage?|0}]]}}",
     `{{damage_type=[[${damageTypeQuery()}]]}}`,
     ...diceFields.map((field) => `{{${field}=[[1d10-1]]}}`),
@@ -380,8 +380,8 @@ async function rollTakeWound(state: {
 }): Promise<void> {
   const formula = [
     "&{template:ms}",
-    `{{name=^{${TEMPLATE_PHRASES.TakeAWound}}}}`,
-    "{{character_name=@{character_name}}}",
+    `{{title=^{${TEMPLATE_PHRASES.TakeAWound}}}}`,
+    "{{subtitle=@{character_name}}}",
     `{{damage_type=[[${damageTypeQuery()}]]}}`,
     "{{roll=[[1d10-1]]}}",
     "{{notes=[[0]]}} {{hasnotes=[[0]]}}",

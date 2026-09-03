@@ -53,6 +53,10 @@ $roots: ".charsheet, .sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
   --ms-fail-wash: #fadcdf;
   --ms-fail-fg: #6b1f28;
 
+  // A Critical Success's own solid fill, one step bolder than the pass wash --
+  // the roll template's verdict box, not a sheet panel.
+  --ms-crit-pass: #14532d;
+
   // Line
   --ms-border: #333132;
   --ms-border-width: 3px;
@@ -119,6 +123,8 @@ body.sheet-darkmode :is(#{$roots}) {
   --ms-pass-fg: #8fd6a3;
   --ms-fail-wash: #3a1f23;
   --ms-fail-fg: #ffa8b0;
+
+  --ms-crit-pass: #1f8a4d;
 
   --ms-border: #f2f2f2;
 

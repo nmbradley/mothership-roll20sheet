@@ -211,7 +211,7 @@ export const MAINTENANCE_EDGE_QUERY =
  */
 export async function handleAnnualMaintenanceCheck(): Promise<void> {
   const rollFormula =
-    `&{template:ms} {{name=Annual Maintenance Check}} {{character_name=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
+    `&{template:ms} {{title=Annual Maintenance Check}} {{subtitle=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
   const rollData = await startRoll(rollFormula);
 
   const rollEntry = rollData.results.roll;
@@ -256,7 +256,7 @@ export async function handleAnnualMaintenanceCheck(): Promise<void> {
  */
 export async function handleAfterBattleReport(): Promise<void> {
   const rollFormula =
-    `&{template:ms} {{name=After Battle Report}} {{character_name=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
+    `&{template:ms} {{title=After Battle Report}} {{subtitle=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
   const rollData = await startRoll(rollFormula);
 
   const rollEntry = rollData.results.roll;
@@ -291,7 +291,7 @@ export async function handleAfterBattleReport(): Promise<void> {
  */
 export async function handleBankruptcySave(): Promise<void> {
   const rollFormula =
-    "&{template:ms} {{name=Bankruptcy Save}} {{character_name=@{character_name}}} {{roll=[[1d100-1]]}} {{target=[[@{ship_bankruptcy_save}+0]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
+    "&{template:ms} {{title=Bankruptcy Save}} {{subtitle=@{character_name}}} {{roll=[[1d100-1]]}} {{target=[[@{ship_bankruptcy_save}+0]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
   const rollData = await startRoll(rollFormula);
 
   const rollEntry = rollData.results.roll;
@@ -347,7 +347,7 @@ async function postShipAlert(fields: {
   if (alert === "" && notes === "") return;
 
   const rollData = await startRoll(
-    "&{template:ms} {{character_name=@{character_name}}} {{alert=[[0]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}",
+    "&{template:ms} {{subtitle=@{character_name}}} {{alert=[[0]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}",
   );
   finishRoll(rollData.rollId, {
     alert,
@@ -553,7 +553,7 @@ export function evaluateMoraleCheck(roll: number, mdmg: number): MoraleCheckResu
  */
 export async function handleMoraleCheck(): Promise<void> {
   const rollFormula =
-    "&{template:ms} {{name=Morale Check}} {{character_name=@{character_name}}} {{roll=[[1d10]]}} {{target=[[@{ship_mdmg}]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
+    "&{template:ms} {{title=Morale Check}} {{subtitle=@{character_name}}} {{roll=[[1d10]]}} {{target=[[@{ship_mdmg}]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
   const rollData = await startRoll(rollFormula);
 
   const rollEntry = rollData.results.roll;
@@ -633,7 +633,7 @@ export function evaluateStartingCondition(
  * Rolls the starting condition on the sheet and posts the resulting issues.
  */
 export async function handleStartingCondition(): Promise<void> {
-  const rollFormula = "&{template:ms} {{name=Starting Condition}} {{character_name=@{character_name}}} {{roll=[[1d5+1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
+  const rollFormula = "&{template:ms} {{title=Starting Condition}} {{subtitle=@{character_name}}} {{roll=[[1d5+1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
   const rollData = await startRoll(rollFormula);
   const rollResult = rollData.results.roll;
   const count = rollResult ? rollResult.result : 2;
@@ -682,7 +682,7 @@ export function evaluateFuelBid(fuel: number, bid: number): FuelBidResult {
  */
 export async function handleRevealFuelBid(): Promise<void> {
   const rollFormula =
-    "&{template:ms} {{name=Fuel Bid}} {{character_name=@{character_name}}} {{bid=[[@{ship_fuel_bid}]]}} {{fuel=[[@{ship_fuel}]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
+    "&{template:ms} {{title=Fuel Bid}} {{subtitle=@{character_name}}} {{bid=[[@{ship_fuel_bid}]]}} {{fuel=[[@{ship_fuel}]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
   const rollData = await startRoll(rollFormula);
 
   const bidEntry = rollData.results.bid;
