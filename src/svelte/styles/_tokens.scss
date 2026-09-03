@@ -1,6 +1,15 @@
-// Archivo carries a width axis, which the printed profile leans on heavily:
-// its labels are condensed (80-90%) while the wordmark sits near normal.
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400&display=swap");
+// Google Fonts, in Roll20's *legacy* CSS-1 import form -- not the CSS-2 rule
+// Google now hands you.
+//
+// Roll templates are parsed by the old sanitizer even on a CSE sheet, and it
+// rejects the modern form outright: "Potential CSS security violation;
+// character sheet template styling thrown out", discarding the stylesheet
+// rather than skipping the line. The rules are `css` not `css2`, families
+// joined by `|` rather than repeating `&family=`, and weights written bare.
+//
+// Variable axes are the casualty: this brings in Archivo's weights but not its
+// width axis, so the `font-stretch` the labels ask for has nothing to act on.
+@import url('https://fonts.googleapis.com/css?family=Archivo:400,700,800,900|IBM+Plex+Mono:400&display=swap');
 
 // Design tokens for the Mothership sheet.
 //

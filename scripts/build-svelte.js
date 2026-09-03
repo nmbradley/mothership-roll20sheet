@@ -82,6 +82,11 @@ function buildCss() {
   const result = sass.compileString(document, {
     style: "expanded",
     loadPaths: ["src/svelte/styles"],
+    // Sass emits `@charset "UTF-8"` ahead of everything else the moment the
+    // stylesheet holds a non-ASCII byte. Roll20's sanitizer has no reason to
+    // expect an at-rule there and the sheet is served UTF-8 regardless, so
+    // suppress it rather than hand the parser something to trip on.
+    charset: false,
   });
   return result.css;
 }
