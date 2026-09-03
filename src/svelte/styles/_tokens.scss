@@ -1,6 +1,13 @@
-// Archivo carries a width axis, which the printed profile leans on heavily:
-// its labels are condensed (80-90%) while the wordmark sits near normal.
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400&display=swap");
+// No @import here, deliberately.
+//
+// Roll20's CSS sanitizer rejects an external @import outright -- it reports
+// "Potential CSS security violation; character sheet template styling thrown
+// out" and discards the stylesheet rather than skipping the one line. Its
+// forbidden list also covers `data:`, so inlining a face as a @font-face data
+// URI is not a way around it either.
+//
+// Archivo therefore has to come from the reader's machine or not at all, and
+// the stacks below fall back to Helvetica/Arial, which every platform has.
 
 // Design tokens for the Mothership sheet.
 //
