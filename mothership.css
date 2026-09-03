@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css?family=Archivo:400,700,800,900|IBM+Plex+Mono:400&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Archivo:400,700,800,900|IBM+Plex+Mono:400|Material+Icons&display=swap");
 .charsheet,
 .sheet-rolltemplate-ms,
 .sheet-rolltemplate-ms-cm {
@@ -204,7 +204,7 @@ body.sheet-darkmode
   box-sizing: border-box;
   padding: var(--ms-space-md) var(--ms-space-lg);
   background: var(--ms-inverse);
-  font-size: var(--ms-text-xl);
+  font-size: var(--ms-text-lg);
   line-height: 1.05;
   font-family: var(--ms-font-header);
   text-align: center;

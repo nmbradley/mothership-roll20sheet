@@ -1321,9 +1321,9 @@
     <h2 class="sheet-ms-result__subtitle">{{subtitle}}</h2>
     {{/subtitle}}
 
-    {{#computed::skill}}
+    {{#rollTotal() computed::hasskill 1}}
     <div class="sheet-ms-result__skill">{{computed::skill}}</div>
-    {{/computed::skill}}
+    {{/rollTotal() computed::hasskill 1}}
 
     {{#credits}}
     <div class="sheet-ms-roll">
@@ -1363,18 +1363,18 @@
     </div>
     {{/damage}}
 
-    {{#rollTotal() computed::rank 3}}
+    {{#rollTotal() computed::rank 4}}
     <div class="sheet-ms-verdict sheet-ms-verdict--critical-success">{{computed::verdict}}</div>
+    {{/rollTotal() computed::rank 4}}
+    {{#rollTotal() computed::rank 3}}
+    <div class="sheet-ms-verdict sheet-ms-verdict--success">{{computed::verdict}}</div>
     {{/rollTotal() computed::rank 3}}
     {{#rollTotal() computed::rank 2}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--success">{{computed::verdict}}</div>
+    <div class="sheet-ms-verdict sheet-ms-verdict--failure">{{computed::verdict}}</div>
     {{/rollTotal() computed::rank 2}}
     {{#rollTotal() computed::rank 1}}
-    <div class="sheet-ms-verdict sheet-ms-verdict--failure">{{computed::verdict}}</div>
-    {{/rollTotal() computed::rank 1}}
-    {{#rollTotal() computed::rank 0}}
     <div class="sheet-ms-verdict sheet-ms-verdict--critical-failure">{{computed::verdict}}</div>
-    {{/rollTotal() computed::rank 0}}
+    {{/rollTotal() computed::rank 1}}
 
     {{#rollTotal() computed::hasnotes 1}}
     <div class="sheet-ms-notes">{{computed::notes}}</div>
@@ -5164,6 +5164,7 @@
   var COMPUTED = {
     Used: "used",
     HasNotes: "hasnotes",
+    HasSkill: "hasskill",
     Verdict: "verdict",
     VerdictClass: "verdictclass",
     Rank: "rank",
@@ -5171,10 +5172,10 @@
     Skill: "skill"
   };
   var RANKS = {
-    [Outcomes.CriticalFailure]: 0,
-    [Outcomes.Failure]: 1,
-    [Outcomes.Success]: 2,
-    [Outcomes.CriticalSuccess]: 3
+    [Outcomes.CriticalFailure]: 1,
+    [Outcomes.Failure]: 2,
+    [Outcomes.Success]: 3,
+    [Outcomes.CriticalSuccess]: 4
   };
   var VERDICT_CLASSES = {
     [Outcomes.CriticalFailure]: "critical-failure",
@@ -5217,6 +5218,7 @@
       [COMPUTED.VerdictClass, "[[0]]"],
       [COMPUTED.Rank, "[[0]]"],
       [COMPUTED.Skill, "[[0]]"],
+      [COMPUTED.HasSkill, "[[0]]"],
       [COMPUTED.Notes, "[[0]]"],
       [COMPUTED.HasNotes, "[[0]]"]
     ]);
@@ -5231,6 +5233,7 @@
       [COMPUTED.VerdictClass]: VERDICT_CLASSES[check.outcome],
       [COMPUTED.Rank]: RANKS[check.outcome],
       [COMPUTED.Skill]: skillName,
+      [COMPUTED.HasSkill]: notesFlag(skillName),
       [COMPUTED.Used]: used,
       [COMPUTED.Notes]: panicWarning(check)
     };

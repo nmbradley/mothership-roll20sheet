@@ -22,6 +22,7 @@ const TEMPLATE = "ms";
 export const COMPUTED = {
   Used: "used",
   HasNotes: "hasnotes",
+  HasSkill: "hasskill",
   Verdict: "verdict",
   VerdictClass: "verdictclass",
   Rank: "rank",
@@ -35,11 +36,15 @@ export const COMPUTED = {
  * Roll templates cannot compare text, but `rollTotal()` compares a roll to a
  * number, which is how a critical gets its own treatment in chat.
  */
+// Ranked from 1, not 0. A card that sets no rank at all -- an alert, a
+// damage roll, an armour-destroyed notice -- leaves the placeholder reading 0,
+// and a verdict block testing `rank 0` would match it and print an empty
+// pill. Starting at 1 means "no rank" matches nothing.
 const RANKS: Record<Outcome, number> = {
-  [Outcomes.CriticalFailure]: 0,
-  [Outcomes.Failure]: 1,
-  [Outcomes.Success]: 2,
-  [Outcomes.CriticalSuccess]: 3,
+  [Outcomes.CriticalFailure]: 1,
+  [Outcomes.Failure]: 2,
+  [Outcomes.Success]: 3,
+  [Outcomes.CriticalSuccess]: 4,
 };
 
 /**
@@ -147,6 +152,7 @@ export function checkTemplate(options: CheckTemplateOptions): string {
     [COMPUTED.VerdictClass, "[[0]]"],
     [COMPUTED.Rank, "[[0]]"],
     [COMPUTED.Skill, "[[0]]"],
+    [COMPUTED.HasSkill, "[[0]]"],
     [COMPUTED.Notes, "[[0]]"],
     [COMPUTED.HasNotes, "[[0]]"],
   ]);
@@ -173,6 +179,7 @@ export function checkComputed(
     [COMPUTED.VerdictClass]: VERDICT_CLASSES[check.outcome],
     [COMPUTED.Rank]: RANKS[check.outcome],
     [COMPUTED.Skill]: skillName,
+    [COMPUTED.HasSkill]: notesFlag(skillName),
     [COMPUTED.Used]: used,
     [COMPUTED.Notes]: panicWarning(check),
   };
