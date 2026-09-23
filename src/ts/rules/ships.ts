@@ -168,7 +168,7 @@ export const MAINTENANCE_EDGE_QUERY =
 /** Roll20 Sheetworker: rolls an Annual Maintenance Check and posts its consequences. */
 export async function handleAnnualMaintenanceCheck(): Promise<void> {
   const rollFormula =
-    `&{template:ms} {{title=Annual Maintenance Check}} {{subtitle=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
+    `&{template:ms} {{title=Annual Maintenance Check}} {{subtitle=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{edge=[[0]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
   const rollData = await startRoll(rollFormula);
 
   const rollEntry = rollData.results.roll;
@@ -206,7 +206,7 @@ export async function handleAnnualMaintenanceCheck(): Promise<void> {
 /** Roll20 Sheetworker: rolls an After Battle Report and posts its maintenance issues. */
 export async function handleAfterBattleReport(): Promise<void> {
   const rollFormula =
-    `&{template:ms} {{title=After Battle Report}} {{subtitle=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
+    `&{template:ms} {{title=After Battle Report}} {{subtitle=@{character_name}}} {{roll=[[${MAINTENANCE_EDGE_QUERY}]]}} {{edge=[[0]]}} {{target=[[@{ship_systems}+?{Skill Bonus|0}]]}} {{maint_roll1=[[1d100-1]]}} {{maint_roll2=[[1d100-1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}`;
   const rollData = await startRoll(rollFormula);
 
   const rollEntry = rollData.results.roll;
@@ -239,7 +239,7 @@ export async function handleAfterBattleReport(): Promise<void> {
 /** Roll20 Sheetworker: rolls a Bankruptcy Save. */
 export async function handleBankruptcySave(): Promise<void> {
   const rollFormula =
-    "&{template:ms} {{title=Bankruptcy Save}} {{subtitle=@{character_name}}} {{roll=[[1d100-1]]}} {{target=[[@{ship_bankruptcy_save}+0]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
+    "&{template:ms} {{title=Bankruptcy Save}} {{subtitle=@{character_name}}} {{roll=[[1d100-1]]}} {{edge=[[0]]}} {{target=[[@{ship_bankruptcy_save}+0]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
   const rollData = await startRoll(rollFormula);
 
   const rollEntry = rollData.results.roll;
@@ -280,11 +280,14 @@ async function postShipAlert(fields: {
   if (alert === "" && notes === "") return;
 
   const rollData = await startRoll(
-    "&{template:ms} {{subtitle=@{character_name}}} {{alert=[[0]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}",
+    "&{template:ms} {{subtitle=@{character_name}}} {{alert=[[0]]}} {{hasalert=[[0]]}} "
+    + "{{notes=[[0]]}} {{hasnotes=[[0]]}}",
   );
   finishRoll(rollData.rollId, {
     alert,
+    hasalert: notesFlag(alert),
     notes,
+    hasnotes: fields.hasnotes ?? 0,
   });
 }
 
@@ -443,7 +446,7 @@ export function evaluateMoraleCheck(roll: number, mdmg: number): MoraleCheckResu
 /** Roll20 Sheetworker: rolls an NPC ship's Morale Check. */
 export async function handleMoraleCheck(): Promise<void> {
   const rollFormula =
-    "&{template:ms} {{title=Morale Check}} {{subtitle=@{character_name}}} {{roll=[[1d10]]}} {{target=[[@{ship_mdmg}]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
+    "&{template:ms} {{title=Morale Check}} {{subtitle=@{character_name}}} {{roll=[[1d10]]}} {{edge=[[0]]}} {{target=[[@{ship_mdmg}]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
   const rollData = await startRoll(rollFormula);
 
   const rollEntry = rollData.results.roll;
@@ -514,7 +517,7 @@ export function evaluateStartingCondition(
 
 /** Rolls the starting condition on the sheet and posts the resulting issues. */
 export async function handleStartingCondition(): Promise<void> {
-  const rollFormula = "&{template:ms} {{title=Starting Condition}} {{subtitle=@{character_name}}} {{roll=[[1d5+1]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
+  const rollFormula = "&{template:ms} {{title=Starting Condition}} {{subtitle=@{character_name}}} {{roll=[[1d5+1]]}} {{edge=[[0]]}} {{notes=[[0]]}} {{hasnotes=[[0]]}}";
   const rollData = await startRoll(rollFormula);
   const rollResult = rollData.results.roll;
   const count = rollResult ? rollResult.result : 2;

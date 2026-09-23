@@ -282,6 +282,8 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
 
     const formula = mockStartRoll.mock.calls[0]?.[0] as string;
     expect(formula.match(/wound_roll_\d/g)).toHaveLength(2);
+    expect(formula.match(/hasnotes=\[\[0\]\]/g)).toHaveLength(1);
+    expect(formula).toContain("{{hasalert=[[0]]}}");
 
     expect(mockSetAttrs).toHaveBeenCalledWith({
       health: 5,
@@ -294,6 +296,7 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
       notes: "Major Injury: Snapped collarbone. [-] on Strength Checks.",
       hasnotes: 1,
       alert: "",
+      hasalert: 0,
     });
   });
 
@@ -375,6 +378,7 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
 
     expect(mockFinishRoll).toHaveBeenCalledWith("id", expect.objectContaining({
       alert: MAX_WOUNDS_ALERT,
+      hasalert: 1,
     }));
   });
 
@@ -402,6 +406,9 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
     handleTakeWound();
     await flush();
 
+    const formula = mockStartRoll.mock.calls[0]?.[0] as string;
+    expect(formula).toContain("{{edge=[[0]]}}");
+
     expect(mockSetAttrs).toHaveBeenCalledWith({
       wounds: 1,
       repeating_afflictions_row2_affliction_name: "Flesh Wound (Gunshot)",
@@ -412,6 +419,7 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
       notes: "Flesh Wound: Bleeding +1.",
       hasnotes: 1,
       alert: "",
+      hasalert: 0,
     });
   });
 

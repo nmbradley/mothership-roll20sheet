@@ -307,8 +307,9 @@ describe("Ship Rules & Mechanics", () => {
           results: {},
         });
       const mockSetAttrs = vi.fn();
+      const mockFinishRoll = vi.fn();
       vi.stubGlobal("startRoll", mockStartRoll);
-      vi.stubGlobal("finishRoll", vi.fn());
+      vi.stubGlobal("finishRoll", mockFinishRoll);
       stubTranslation();
       vi.stubGlobal("getAttrs", (_request: string[], callback: (response: Record<string, string>) => void) => {
         callback({
@@ -326,6 +327,10 @@ describe("Ship Rules & Mechanics", () => {
         ship_hull: 0,
         ship_mdmg: 2,
       });
+      expect(mockFinishRoll).toHaveBeenLastCalledWith("alert", expect.objectContaining({
+        alert: SHIP_STRESS_MESSAGE,
+        hasalert: 1,
+      }));
 
       vi.unstubAllGlobals();
     });

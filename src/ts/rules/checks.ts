@@ -7,10 +7,10 @@ import {
   checkTemplate,
   deathSaveComputed,
   deathSaveTemplate,
+  notesFlag,
   panicComputed,
   panicTemplate,
   TEMPLATE_PHRASES,
-  translated,
 } from "./rollTemplate";
 import {
   Comparisons,
@@ -357,21 +357,28 @@ async function postAttackResult(showDamage: boolean): Promise<void> {
     "{{subtitle=@{character_name}}}",
     showDamage ? "{{damage=[[@{attack_damage}]]}}" : "",
     "{{alert=[[0]]}}",
+    "{{hasalert=[[0]]}}",
   ].filter((field) => field !== "");
 
   const template = fields.join(" ");
   const rollData = await startRoll(template);
+  const alert = showDamage ? "" : translateOr(TEMPLATE_PHRASES.AttackFailed);
   finishRoll(rollData.rollId, {
-    alert: showDamage ? "" : translated(TEMPLATE_PHRASES.AttackFailed),
+    alert,
+    hasalert: notesFlag(alert),
   });
 }
 
 /** #14: a third, loud card once a tracked weapon's magazine runs dry. */
 async function postOutOfAmmoAlert(name: string): Promise<void> {
-  const template =
-    `&{template:ms} {{title=${name}}} {{subtitle=@{character_name}}} {{alert=[[0]]}}`;
+  const template = `&{template:ms} {{title=${name}}} {{subtitle=@{character_name}}} `
+    + "{{alert=[[0]]}} {{hasalert=[[0]]}}";
   const rollData = await startRoll(template);
-  finishRoll(rollData.rollId, { alert: translated(TEMPLATE_PHRASES.OutOfAmmo) });
+  const alert = translateOr(TEMPLATE_PHRASES.OutOfAmmo);
+  finishRoll(rollData.rollId, {
+    alert,
+    hasalert: notesFlag(alert),
+  });
 }
 
 /** Rolls a weapon attack: a Combat Check plus Damage, the miss Stress, and ammo spend. */
@@ -443,10 +450,12 @@ export function stressOverflow(current: number, delta: number): number {
 /** Posts the chat card announcing a Stress overflow for the table to adjudicate. */
 async function postStressOverflowAlert(amount: number): Promise<void> {
   const rollData = await startRoll(
-    "&{template:ms} {{subtitle=@{character_name}}} {{alert=[[0]]}}",
+    "&{template:ms} {{subtitle=@{character_name}}} {{alert=[[0]]}} {{hasalert=[[0]]}}",
   );
+  const alert = `${translateOr(TEMPLATE_PHRASES.StressOverflow)} ${amount}`;
   finishRoll(rollData.rollId, {
-    alert: `${translated(TEMPLATE_PHRASES.StressOverflow)} ${amount}`,
+    alert,
+    hasalert: notesFlag(alert),
   });
 }
 

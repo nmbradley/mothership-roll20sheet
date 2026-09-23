@@ -206,6 +206,7 @@ export function deathSaveTemplate(): string {
     ["title", translated(TEMPLATE_PHRASES.DeathSave)],
     ["subtitle", "@{character_name}"],
     ["roll", "[[1d10-1]]"],
+    ["edge", "[[0]]"],
     [COMPUTED.Notes, "[[0]]"],
     [COMPUTED.HasNotes, "[[0]]"],
   ]);

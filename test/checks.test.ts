@@ -529,7 +529,8 @@ describe("applyStressDelta", () => {
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: STRESS_MAX });
     expect(mockStartRoll).toHaveBeenCalledTimes(1);
     expect(mockFinishRoll).toHaveBeenCalledWith("overflow", {
-      alert: "^{Stress Overflow: Reduces Most Relevant Stat or Save by} 4",
+      alert: "Stress Overflow: Reduces Most Relevant Stat or Save by 4",
+      hasalert: 1,
     });
   });
 });
@@ -871,7 +872,10 @@ describe("rollAttack", () => {
 
     const followUpFormula = mockStartRoll.mock.calls[1][0] as string;
     expect(followUpFormula).toContain("{{damage=[[@{attack_damage}]]}}");
-    expect(mockFinishRoll).toHaveBeenLastCalledWith("damage", { alert: "" });
+    expect(mockFinishRoll).toHaveBeenLastCalledWith("damage", {
+      alert: "",
+      hasalert: 0,
+    });
     expect(mockGetAttrs).not.toHaveBeenCalled();
   });
 
@@ -913,7 +917,8 @@ describe("rollAttack", () => {
     const followUpFormula = mockStartRoll.mock.calls[1][0] as string;
     expect(followUpFormula).not.toContain("damage");
     expect(mockFinishRoll).toHaveBeenLastCalledWith("miss", {
-      alert: "^{Attack Failed: Gain 1 Stress}",
+      alert: "Attack Failed: Gain 1 Stress",
+      hasalert: 1,
     });
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 4 });
   });
@@ -1129,7 +1134,8 @@ describe("rollAttack", () => {
 
     expect(mockStartRoll).toHaveBeenCalledTimes(3);
     expect(mockFinishRoll).toHaveBeenLastCalledWith("empty", {
-      alert: "^{Out of Ammo}",
+      alert: "Out of Ammo",
+      hasalert: 1,
     });
   });
 
