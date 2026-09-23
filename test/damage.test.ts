@@ -295,6 +295,7 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
     expect(mockFinishRoll).toHaveBeenCalledWith("id", {
       notes: "Major Injury: Snapped collarbone. [-] on Strength Checks.",
       hasnotes: 1,
+      hasdamage: 1,
       alert: "",
       hasalert: 0,
     });

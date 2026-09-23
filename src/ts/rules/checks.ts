@@ -5,12 +5,14 @@ import {
   checkComputed,
   usedDie,
   checkTemplate,
+  COMPUTED,
   deathSaveComputed,
   deathSaveTemplate,
   notesFlag,
   panicComputed,
   panicTemplate,
   TEMPLATE_PHRASES,
+  type AttackDetail,
 } from "./rollTemplate";
 import {
   Comparisons,
@@ -272,6 +274,8 @@ export type CheckOptions = {
   bonus?: string;
   /** Also sends the roll to Roll20's Turn Tracker (#50's Initiative rolls). */
   sendToTracker?: boolean;
+  /** The weapon row's own detail, for an attack rolled off a repeating row. */
+  attack?: AttackDetail;
 };
 
 /** Rolls a stat check, save or attack and returns the graded result. */
@@ -282,6 +286,7 @@ export async function rollCheck(options: CheckOptions): Promise<CheckResult> {
     ...(options.name === undefined ? {} : { name: options.name }),
     ...(options.i18nKey === undefined ? {} : { i18nKey: options.i18nKey }),
     ...(options.sendToTracker ? { sendToTracker: true } : {}),
+    ...(options.attack === undefined ? {} : { attack: options.attack }),
   };
 
   const template = `${checkTemplate(templateOptions)} {{edge=[[${EDGE_QUERY}]]}}`;
@@ -304,6 +309,9 @@ export async function rollCheck(options: CheckOptions): Promise<CheckResult> {
 
   const used = usedDie(dice.rolls, check.roll);
   const computed = checkComputed(check, skillName, used);
+  if (options.attack !== undefined) {
+    computed[COMPUTED.HasDamage] = gradeAttack(check.outcome).showDamage ? 1 : 0;
+  }
   finishRoll(roll.rollId, computed);
   return check;
 }
@@ -350,19 +358,12 @@ export function isOutOfAmmo(shots: string): boolean {
   return parseShots(shots) === 0;
 }
 
-/** Posts the second half of an attack: its Damage on a hit, or a miss notice. */
-async function postAttackResult(showDamage: boolean): Promise<void> {
-  const fields = [
-    "&{template:ms}",
-    "{{subtitle=@{character_name}}}",
-    showDamage ? "{{damage=[[@{attack_damage}]]}}" : "",
-    "{{alert=[[0]]}}",
-    "{{hasalert=[[0]]}}",
-  ].filter((field) => field !== "");
-
-  const template = fields.join(" ");
+/** Says what a missed attack costs, since the Stress is applied without asking. */
+async function postAttackFailed(): Promise<void> {
+  const template =
+    "&{template:ms} {{subtitle=@{character_name}}} {{alert=[[0]]}} {{hasalert=[[0]]}}";
   const rollData = await startRoll(template);
-  const alert = showDamage ? "" : translateOr(TEMPLATE_PHRASES.AttackFailed);
+  const alert = translateOr(TEMPLATE_PHRASES.AttackFailed);
   finishRoll(rollData.rollId, {
     alert,
     hasalert: notesFlag(alert),
@@ -381,39 +382,137 @@ async function postOutOfAmmoAlert(name: string): Promise<void> {
   });
 }
 
-/** Rolls a weapon attack: a Combat Check plus Damage, the miss Stress, and ammo spend. */
-export async function rollAttack(options: CheckOptions, rowId?: string): Promise<CheckResult> {
-  const check = await rollCheck(options);
+/** The fields one weapon row hands its attack, read off the row rather than guessed. */
+export type AttackRow = {
+  name: string;
+  bonus: string;
+  damage: string;
+  type: string;
+  shots: string;
+};
+
+const BLANK_ROW: AttackRow = {
+  name: "",
+  bonus: "",
+  damage: "",
+  type: "",
+  shots: "",
+};
+
+const ATTACK_ROW_FIELDS = ["name", "bonus", "damage", "type", "shots"] as const;
+
+/** What every attribute on one weapon row is named after. */
+function attackRowPrefix(rowId: string): string {
+  return `repeating_attacks_${rowId}_attack_`;
+}
+
+/** The row id a repeating click came from, off `sourceSection` or the trigger name. */
+export function clickedRowId(eventInfo: EventInfo): string | undefined {
+  const section = eventInfo.sourceSection ?? "";
+  if (section !== "") return section;
+
+  for (const source of [eventInfo.triggerName, eventInfo.sourceAttribute]) {
+    const match = /_(-[-A-Za-z0-9]+|\d+)_/.exec(source);
+    if (match?.[1] !== undefined) return match[1];
+  }
+  return undefined;
+}
+
+/** Reads one weapon row, so its macro carries literals rather than unscoped `@{...}`. */
+export function readAttackRow(rowId: string, done: (row: AttackRow) => void): void {
+  const prefix = attackRowPrefix(rowId);
+  const keys = ATTACK_ROW_FIELDS.map((field) => `${prefix}${field}`);
+
+  getAttrs(keys, (attrs) => {
+    done({
+      name: attrs[`${prefix}name`] ?? "",
+      bonus: attrs[`${prefix}bonus`] ?? "",
+      damage: attrs[`${prefix}damage`] ?? "",
+      type: attrs[`${prefix}type`] ?? "",
+      shots: attrs[`${prefix}shots`] ?? "",
+    });
+  });
+}
+
+/** A weapon's own bonus as a term the target expression can add, 0 when it reads as nothing. */
+export function attackBonus(raw: string): string {
+  const trimmed = raw.trim();
+  const parsed = Number(trimmed);
+  if (!Number.isFinite(parsed)) return "0";
+  const term = String(parsed);
+  return term;
+}
+
+const AMMO_LABEL = "Ammo";
+
+/** The line naming what the weapon is and what its magazine has left. */
+export function weaponLine(type: string, ammo: string): string {
+  const parts: string[] = [];
+
+  const weaponType = type.trim();
+  if (weaponType !== "") parts.push(weaponType);
+
+  const remaining = ammo.trim();
+  if (remaining !== "") parts.push(`${translateOr(AMMO_LABEL)}: ${remaining}`);
+
+  const line = parts.join(" · ");
+  return line;
+}
+
+/** Writes the magazine back, and says so loudly once it reads empty (#14). */
+function spendRowAmmo(rowId: string, remaining: string, name: string): void {
+  const shotsKey = `${attackRowPrefix(rowId)}shots`;
+  setAttrs({ [shotsKey]: remaining });
+
+  const isEmpty = isOutOfAmmo(remaining);
+  if (isEmpty) void postOutOfAmmoAlert(name);
+}
+
+/** A missed attack costs 1 Stress, which the NPC sheet has nowhere to put. */
+function applyMissStress(delta: number): void {
+  getAttrs(["stress", "stress_min", "sheet_toggle"], (attrs) => {
+    const isNpc = isNpcSheet(attrs.sheet_toggle);
+    if (isNpc) return;
+
+    const stress = Number(attrs.stress);
+    const min = Number(attrs.stress_min);
+    applyStressDelta(stress, delta, min);
+  });
+}
+
+/** Rolls a weapon attack: a Combat Check carrying its Damage, the miss Stress, and ammo spend. */
+export async function rollAttack(row: AttackRow, rowId?: string): Promise<CheckResult> {
+  const remaining = spendAmmo(row.shots);
+
+  const check = await rollCheck({
+    name: row.name,
+    target: `@{combat}+${attackBonus(row.bonus)}+@{attack_modifier}`,
+    bonus: skillQuery(),
+    attack: {
+      damage: row.damage,
+      weapon: weaponLine(row.type, remaining),
+    },
+  });
   const grade = gradeAttack(check.outcome);
 
-  await postAttackResult(grade.showDamage);
-
-  const shotsKey = rowId === undefined ? undefined : `repeating_attacks_${rowId}_attack_shots`;
-  const shouldReadAttrs = grade.stressDelta !== 0 || shotsKey !== undefined;
-
-  if (shouldReadAttrs) {
-    const keys = [
-      "stress", "stress_min", "sheet_toggle",
-      ...(shotsKey === undefined ? [] : [shotsKey]),
-    ];
-
-    getAttrs(keys, (attrs) => {
-      if (grade.stressDelta !== 0 && !isNpcSheet(attrs.sheet_toggle)) {
-        const stress = Number(attrs.stress);
-        const min = Number(attrs.stress_min);
-        applyStressDelta(stress, grade.stressDelta, min);
-      }
-
-      if (shotsKey === undefined) return;
-
-      const spent = spendAmmo(attrs[shotsKey] ?? "");
-      setAttrs({ [shotsKey]: spent });
-      const isEmpty = isOutOfAmmo(spent);
-      if (isEmpty) void postOutOfAmmoAlert(options.name ?? "");
-    });
-  }
+  if (rowId !== undefined) spendRowAmmo(rowId, remaining, row.name);
+  if (grade.stressDelta !== 0) applyMissStress(grade.stressDelta);
+  if (!grade.showDamage) void postAttackFailed();
 
   return check;
+}
+
+/** Roll20 Sheetworker: rolls the attack of whichever weapon row was clicked. */
+export function handleAttackClick(eventInfo: EventInfo): void {
+  const rowId = clickedRowId(eventInfo);
+  if (rowId === undefined) {
+    void rollAttack(BLANK_ROW);
+    return;
+  }
+
+  readAttackRow(rowId, (row) => {
+    void rollAttack(row, rowId);
+  });
 }
 
 /** Rolls Initiative for a PC: a Speed Check that also lands in the Turn Tracker. */

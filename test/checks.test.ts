@@ -13,9 +13,12 @@ import {
 import {
   applyStressDelta,
   STRESS_MAX,
+  attackBonus,
   buildSkillCatalog,
   buildSkillQuery,
+  clickedRowId,
   gradeAttack,
+  handleAttackClick,
   isNpcSheet,
   isOutOfAmmo,
   isSaveSkillSelectEnabled,
@@ -35,7 +38,9 @@ import {
   skillQuery,
   spendAmmo,
   stressOverflow,
+  weaponLine,
   worstSave,
+  type AttackRow,
 } from "../src/ts/rules/checks";
 
 /** Stands in for Roll20's translator with a fixed table. */
@@ -839,83 +844,274 @@ describe("gradeAttack (#51)", () => {
   });
 });
 
+/** The eventInfo Roll20 hands a click on a weapon row's attack button. */
+function attackClick(overrides: Record<string, string> = {}): EventInfo {
+  return {
+    sourceAttribute: "repeating_attacks_-N1a2B3c_attack",
+    sourceType: "player",
+    triggerName: "clicked:repeating_attacks_-N1a2B3c_attack",
+    ...overrides,
+  };
+}
+
+/** One weapon row, as the sheetworker reads it back off the sheet. */
+function attackRow(overrides: Partial<AttackRow> = {}): AttackRow {
+  return {
+    name: "Pulse Rifle",
+    bonus: "10",
+    damage: "1d10",
+    type: "Ranged",
+    shots: "",
+    ...overrides,
+  };
+}
+
+/** A started check whose two dice both land on the same result. */
+function checkRoll(result: number): Record<string, unknown> {
+  return {
+    rollId: "check",
+    results: {
+      roll: { result },
+      roll2: { result },
+      edge: { result: 0 },
+      target: { result: 45 },
+    },
+  };
+}
+
+const HIT = 20;
+const MISS = 91;
+
+/** Answers every getAttrs with one fixed table. */
+function stubAttrs(attrs: Record<string, string>): void {
+  type GetAttrsCallback = (response: Record<string, string>) => void;
+  const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
+    callback(attrs);
+  });
+  vi.stubGlobal("getAttrs", mockGetAttrs);
+}
+
+describe("clickedRowId", () => {
+  it("should take the row straight off sourceSection where Roll20 supplies it", () => {
+    const eventInfo = attackClick({ sourceSection: "-fromSection" });
+    expect(clickedRowId(eventInfo)).toBe("-fromSection");
+  });
+
+  it("should parse the row out of triggerName where sourceSection is missing", () => {
+    expect(clickedRowId(attackClick())).toBe("-N1a2B3c");
+  });
+
+  it("should fall back to sourceAttribute where the trigger names no row", () => {
+    const eventInfo = attackClick({ triggerName: "clicked:attack" });
+    expect(clickedRowId(eventInfo)).toBe("-N1a2B3c");
+  });
+
+  it("should read a legacy numeric row id too", () => {
+    const eventInfo = attackClick({
+      sourceAttribute: "repeating_attacks_0_attack",
+      triggerName: "clicked:repeating_attacks_0_attack",
+    });
+    expect(clickedRowId(eventInfo)).toBe("0");
+  });
+
+  it("should answer undefined for a click that names no row at all", () => {
+    const eventInfo = attackClick({
+      sourceAttribute: "death_save",
+      triggerName: "clicked:death_save",
+    });
+    expect(clickedRowId(eventInfo)).toBeUndefined();
+  });
+});
+
+describe("attackBonus", () => {
+  it("should carry the row's own bonus through as a term the target can add", () => {
+    expect(attackBonus("10")).toBe("10");
+  });
+
+  it("should read a blank bonus as 0, so the target expression still parses", () => {
+    expect(attackBonus("")).toBe("0");
+  });
+
+  it("should read a signed bonus as a plain number", () => {
+    expect(attackBonus("+5")).toBe("5");
+  });
+
+  it("should read anything non-numeric as 0 rather than break the roll", () => {
+    expect(attackBonus("big")).toBe("0");
+  });
+});
+
+describe("weaponLine", () => {
+  it("should name the weapon's type and what its magazine has left", () => {
+    expect(weaponLine("Ranged", "4")).toBe("Ranged · Ammo: 4");
+  });
+
+  it("should leave out the ammo of a weapon that tracks none", () => {
+    expect(weaponLine("Melee", "")).toBe("Melee");
+  });
+
+  it("should be blank for a row that names neither", () => {
+    expect(weaponLine("", "")).toBe("");
+  });
+});
+
+describe("handleAttackClick", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("should read the clicked row's own fields before it rolls anything", async () => {
+    const calls: string[] = [];
+    type GetAttrsCallback = (response: Record<string, string>) => void;
+    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
+      calls.push("getAttrs");
+      callback({ "repeating_attacks_-N1a2B3c_attack_name": "Pulse Rifle" });
+    });
+    const mockStartRoll = vi.fn(() => {
+      calls.push("startRoll");
+      return Promise.resolve(checkRoll(HIT));
+    });
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+    vi.stubGlobal("setAttrs", vi.fn());
+
+    handleAttackClick(attackClick());
+    await flush();
+
+    expect(mockGetAttrs).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        "repeating_attacks_-N1a2B3c_attack_name",
+        "repeating_attacks_-N1a2B3c_attack_bonus",
+        "repeating_attacks_-N1a2B3c_attack_damage",
+        "repeating_attacks_-N1a2B3c_attack_type",
+        "repeating_attacks_-N1a2B3c_attack_shots",
+      ]),
+      expect.any(Function),
+    );
+    expect(calls).toEqual(["getAttrs", "startRoll"]);
+  });
+
+  it("should build the macro out of the row's own values, never an unscoped reference", async () => {
+    stubAttrs({
+      "repeating_attacks_-N1a2B3c_attack_name": "Pulse Rifle",
+      "repeating_attacks_-N1a2B3c_attack_bonus": "10",
+      "repeating_attacks_-N1a2B3c_attack_damage": "1d10",
+      "repeating_attacks_-N1a2B3c_attack_type": "Ranged",
+      "repeating_attacks_-N1a2B3c_attack_shots": "5",
+    });
+    const mockStartRoll = vi.fn().mockResolvedValue(checkRoll(HIT));
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+    vi.stubGlobal("setAttrs", vi.fn());
+
+    handleAttackClick(attackClick());
+    await flush();
+
+    const formula = mockStartRoll.mock.calls[0][0] as string;
+    expect(formula).toContain("{{title=Pulse Rifle}}");
+    expect(formula).toContain("{{target=[[@{combat}+10+@{attack_modifier}");
+    expect(formula).toContain("{{damage=[[1d10]]}}");
+    expect(formula).toContain("{{weapon=Ranged · Ammo: 4}}");
+    expect(formula).not.toContain("@{attack_name}");
+    expect(formula).not.toContain("@{attack_bonus}");
+  });
+
+  it("should still roll a bare Combat Check where the click names no row", async () => {
+    const mockGetAttrs = vi.fn();
+    const mockStartRoll = vi.fn().mockResolvedValue(checkRoll(HIT));
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+    vi.stubGlobal("setAttrs", vi.fn());
+
+    handleAttackClick(attackClick({
+      sourceAttribute: "attack",
+      triggerName: "clicked:attack",
+    }));
+    await flush();
+
+    expect(mockGetAttrs).not.toHaveBeenCalled();
+    const formula = mockStartRoll.mock.calls[0][0] as string;
+    expect(formula).toContain("{{target=[[@{combat}+0+@{attack_modifier}");
+  });
+});
+
 describe("rollAttack", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it("should roll the row's own Damage as a second card on a hit", async () => {
-    const mockStartRoll = vi.fn()
-      .mockResolvedValueOnce({
-        rollId: "check",
-        results: {
-          roll: { result: 20 },
-          roll2: { result: 80 },
-          edge: { result: 0 },
-          target: { result: 45 },
-        },
-      })
-      .mockResolvedValueOnce({
-        rollId: "damage",
-        results: {},
-      });
+  it("should roll the row's own Damage on the check card itself, not a second card", async () => {
+    const mockStartRoll = vi.fn().mockResolvedValue(checkRoll(HIT));
     const mockFinishRoll = vi.fn();
     const mockGetAttrs = vi.fn();
     vi.stubGlobal("startRoll", mockStartRoll);
     vi.stubGlobal("finishRoll", mockFinishRoll);
     vi.stubGlobal("getAttrs", mockGetAttrs);
 
-    await rollAttack({
-      name: "@{attack_name}",
-      target: "@{combat}",
-    });
+    await rollAttack(attackRow());
 
-    const followUpFormula = mockStartRoll.mock.calls[1][0] as string;
-    expect(followUpFormula).toContain("{{damage=[[@{attack_damage}]]}}");
-    expect(mockFinishRoll).toHaveBeenLastCalledWith("damage", {
-      alert: "",
-      hasalert: 0,
-    });
+    const formula = mockStartRoll.mock.calls[0][0] as string;
+    expect(mockStartRoll).toHaveBeenCalledTimes(1);
+    expect(formula).toContain("{{damage=[[1d10]]}}");
+    expect(mockFinishRoll).toHaveBeenCalledWith("check", expect.objectContaining({
+      hasdamage: 1,
+    }));
     expect(mockGetAttrs).not.toHaveBeenCalled();
   });
 
-  it("should withhold Damage and gain 1 Stress automatically on a miss", async () => {
+  it("should hide the Damage it rolled once the check reads as a miss", async () => {
+    const mockStartRoll = vi.fn().mockResolvedValue(checkRoll(MISS));
+    const mockFinishRoll = vi.fn();
+    stubAttrs({
+      stress: "3",
+      stress_min: "0",
+    });
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", mockFinishRoll);
+    vi.stubGlobal("setAttrs", vi.fn());
+
+    await rollAttack(attackRow());
+
+    expect(mockFinishRoll).toHaveBeenCalledWith("check", expect.objectContaining({
+      hasdamage: 0,
+    }));
+  });
+
+  it("should leave the Damage readout out of a row that names no Damage", async () => {
+    const mockStartRoll = vi.fn().mockResolvedValue(checkRoll(HIT));
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+    vi.stubGlobal("getAttrs", vi.fn());
+
+    await rollAttack(attackRow({ damage: "" }));
+
+    const formula = mockStartRoll.mock.calls[0][0] as string;
+    expect(formula).not.toContain("{{damage=");
+    expect(formula).not.toContain("{{hasdamage=");
+  });
+
+  it("should say the attack failed and gain 1 Stress automatically on a miss", async () => {
     const mockStartRoll = vi.fn()
-      .mockResolvedValueOnce({
-        rollId: "check",
-        results: {
-          roll: { result: 91 },
-          roll2: { result: 91 },
-          edge: { result: 0 },
-          target: { result: 45 },
-        },
-      })
+      .mockResolvedValueOnce(checkRoll(MISS))
       .mockResolvedValueOnce({
         rollId: "miss",
         results: {},
       });
     const mockFinishRoll = vi.fn();
-    type GetAttrsCallback = (response: Record<string, string>) => void;
-    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
-      callback({
-        stress: "3",
-        stress_min: "0",
-        stress_max: "10",
-      });
+    stubAttrs({
+      stress: "3",
+      stress_min: "0",
     });
     const mockSetAttrs = vi.fn();
     vi.stubGlobal("startRoll", mockStartRoll);
     vi.stubGlobal("finishRoll", mockFinishRoll);
-    vi.stubGlobal("getAttrs", mockGetAttrs);
     vi.stubGlobal("setAttrs", mockSetAttrs);
 
-    await rollAttack({
-      name: "@{attack_name}",
-      target: "@{combat}",
-    });
+    await rollAttack(attackRow());
+    await flush();
 
-    const followUpFormula = mockStartRoll.mock.calls[1][0] as string;
-    expect(followUpFormula).not.toContain("damage");
     expect(mockFinishRoll).toHaveBeenLastCalledWith("miss", {
       alert: "Attack Failed: Gain 1 Stress",
       hasalert: 1,
@@ -923,40 +1119,24 @@ describe("rollAttack", () => {
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 4 });
   });
 
-  it("should still gain Stress on a Critical Failure, on top of the Panic warning the Check card already carries", async () => {
+  it("should still gain Stress on a Critical Failure, on top of the Panic warning the Check card carries", async () => {
     const mockStartRoll = vi.fn()
-      .mockResolvedValueOnce({
-        rollId: "check",
-        results: {
-          roll: { result: 99 },
-          roll2: { result: 99 },
-          edge: { result: 0 },
-          target: { result: 45 },
-        },
-      })
+      .mockResolvedValueOnce(checkRoll(99))
       .mockResolvedValueOnce({
         rollId: "miss",
         results: {},
       });
     const mockFinishRoll = vi.fn();
-    type GetAttrsCallback = (response: Record<string, string>) => void;
-    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
-      callback({
-        stress: "3",
-        stress_min: "0",
-        stress_max: "10",
-      });
+    stubAttrs({
+      stress: "3",
+      stress_min: "0",
     });
     const mockSetAttrs = vi.fn();
     vi.stubGlobal("startRoll", mockStartRoll);
     vi.stubGlobal("finishRoll", mockFinishRoll);
-    vi.stubGlobal("getAttrs", mockGetAttrs);
     vi.stubGlobal("setAttrs", mockSetAttrs);
 
-    await rollAttack({
-      name: "@{attack_name}",
-      target: "@{combat}",
-    });
+    await rollAttack(attackRow());
 
     expect(mockFinishRoll.mock.calls[0][1]).toEqual(
       expect.objectContaining({ notes: "Critical Failure: Make a Panic Check" }),
@@ -964,128 +1144,40 @@ describe("rollAttack", () => {
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 4 });
   });
 
-  it("should reach the Check's startRoll before making any getAttrs call", async () => {
-    const calls: string[] = [];
-    type GetAttrsCallback = (response: Record<string, string>) => void;
-    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
-      calls.push("getAttrs");
-      callback({
-        stress: "3",
-        stress_min: "0",
-        stress_max: "10",
-      });
-    });
-    const mockStartRoll = vi.fn()
-      .mockImplementationOnce(() => {
-        calls.push("startRoll");
-        return Promise.resolve({
-          rollId: "check",
-          results: {
-            roll: { result: 91 },
-            roll2: { result: 91 },
-            edge: { result: 0 },
-            target: { result: 45 },
-          },
-        });
-      })
-      .mockImplementationOnce(() => {
-        calls.push("startRoll");
-        return Promise.resolve({
-          rollId: "miss",
-          results: {},
-        });
-      });
-    vi.stubGlobal("getAttrs", mockGetAttrs);
-    vi.stubGlobal("startRoll", mockStartRoll);
-    vi.stubGlobal("finishRoll", vi.fn());
-    vi.stubGlobal("setAttrs", vi.fn());
-
-    await rollAttack({
-      name: "@{attack_name}",
-      target: "@{combat}",
-    });
-
-    expect(calls).toEqual(["startRoll", "startRoll", "getAttrs"]);
-  });
-
   it("should not grant Stress on a miss for an NPC", async () => {
     const mockStartRoll = vi.fn()
-      .mockResolvedValueOnce({
-        rollId: "check",
-        results: {
-          roll: { result: 91 },
-          roll2: { result: 91 },
-          edge: { result: 0 },
-          target: { result: 45 },
-        },
-      })
+      .mockResolvedValueOnce(checkRoll(MISS))
       .mockResolvedValueOnce({
         rollId: "miss",
         results: {},
       });
-    type GetAttrsCallback = (response: Record<string, string>) => void;
-    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
-      callback({
-        stress: "3",
-        stress_min: "0",
-        stress_max: "10",
-        sheet_toggle: "npc",
-      });
+    stubAttrs({
+      stress: "3",
+      stress_min: "0",
+      sheet_toggle: "npc",
     });
     const mockSetAttrs = vi.fn();
     vi.stubGlobal("startRoll", mockStartRoll);
     vi.stubGlobal("finishRoll", vi.fn());
-    vi.stubGlobal("getAttrs", mockGetAttrs);
     vi.stubGlobal("setAttrs", mockSetAttrs);
 
-    await rollAttack({
-      name: "@{attack_name}",
-      target: "@{combat}",
-    });
+    await rollAttack(attackRow());
 
     expect(mockSetAttrs).not.toHaveBeenCalled();
   });
 
-  it("should spend one shot from the row's ammo on a hit, given a rowId", async () => {
-    const mockStartRoll = vi.fn()
-      .mockResolvedValueOnce({
-        rollId: "check",
-        results: {
-          roll: { result: 20 },
-          roll2: { result: 80 },
-          edge: { result: 0 },
-          target: { result: 45 },
-        },
-      })
-      .mockResolvedValueOnce({
-        rollId: "damage",
-        results: {},
-      });
-    type GetAttrsCallback = (response: Record<string, string>) => void;
-    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
-      callback({
-        "stress": "3",
-        "stress_min": "0",
-        "stress_max": "10",
-        "sheet_toggle": "pc",
-        "repeating_attacks_-row1_attack_shots": "5",
-      });
-    });
+  it("should spend one shot from the row's ammo and show what is left", async () => {
+    const mockStartRoll = vi.fn().mockResolvedValue(checkRoll(HIT));
     const mockSetAttrs = vi.fn();
     vi.stubGlobal("startRoll", mockStartRoll);
     vi.stubGlobal("finishRoll", vi.fn());
-    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("getAttrs", vi.fn());
     vi.stubGlobal("setAttrs", mockSetAttrs);
 
-    await rollAttack({
-      name: "@{attack_name}",
-      target: "@{combat}",
-    }, "-row1");
+    await rollAttack(attackRow({ shots: "5" }), "-row1");
 
-    expect(mockGetAttrs).toHaveBeenCalledWith(
-      expect.arrayContaining(["repeating_attacks_-row1_attack_shots"]),
-      expect.any(Function),
-    );
+    const formula = mockStartRoll.mock.calls[0][0] as string;
+    expect(formula).toContain("{{weapon=Ranged · Ammo: 4}}");
     expect(mockSetAttrs).toHaveBeenCalledWith({
       "repeating_attacks_-row1_attack_shots": "4",
     });
@@ -1093,46 +1185,21 @@ describe("rollAttack", () => {
 
   it("should post a loud Out of Ammo card once a tracked weapon's magazine empties", async () => {
     const mockStartRoll = vi.fn()
-      .mockResolvedValueOnce({
-        rollId: "check",
-        results: {
-          roll: { result: 20 },
-          roll2: { result: 80 },
-          edge: { result: 0 },
-          target: { result: 45 },
-        },
-      })
-      .mockResolvedValueOnce({
-        rollId: "damage",
-        results: {},
-      })
+      .mockResolvedValueOnce(checkRoll(HIT))
       .mockResolvedValueOnce({
         rollId: "empty",
         results: {},
       });
-    type GetAttrsCallback = (response: Record<string, string>) => void;
-    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
-      callback({
-        "stress": "3",
-        "stress_min": "0",
-        "stress_max": "10",
-        "sheet_toggle": "pc",
-        "repeating_attacks_-row1_attack_shots": "1",
-      });
-    });
     const mockFinishRoll = vi.fn();
     vi.stubGlobal("startRoll", mockStartRoll);
     vi.stubGlobal("finishRoll", mockFinishRoll);
-    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("getAttrs", vi.fn());
     vi.stubGlobal("setAttrs", vi.fn());
 
-    await rollAttack({
-      name: "@{attack_name}",
-      target: "@{combat}",
-    }, "-row1");
-    for (let i = 0; i < 5; i += 1) await Promise.resolve();
+    await rollAttack(attackRow({ shots: "1" }), "-row1");
+    await flush();
 
-    expect(mockStartRoll).toHaveBeenCalledTimes(3);
+    expect(mockStartRoll).toHaveBeenCalledTimes(2);
     expect(mockFinishRoll).toHaveBeenLastCalledWith("empty", {
       alert: "Out of Ammo",
       hasalert: 1,
@@ -1140,45 +1207,19 @@ describe("rollAttack", () => {
   });
 
   it("should leave an untracked (e.g. infinite) weapon's ammo untouched", async () => {
-    const mockStartRoll = vi.fn()
-      .mockResolvedValueOnce({
-        rollId: "check",
-        results: {
-          roll: { result: 20 },
-          roll2: { result: 80 },
-          edge: { result: 0 },
-          target: { result: 45 },
-        },
-      })
-      .mockResolvedValueOnce({
-        rollId: "damage",
-        results: {},
-      });
-    type GetAttrsCallback = (response: Record<string, string>) => void;
-    const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
-      callback({
-        "stress": "3",
-        "stress_min": "0",
-        "stress_max": "10",
-        "sheet_toggle": "pc",
-        "repeating_attacks_-row1_attack_shots": "∞",
-      });
-    });
+    const mockStartRoll = vi.fn().mockResolvedValue(checkRoll(HIT));
     const mockSetAttrs = vi.fn();
     vi.stubGlobal("startRoll", mockStartRoll);
     vi.stubGlobal("finishRoll", vi.fn());
-    vi.stubGlobal("getAttrs", mockGetAttrs);
+    vi.stubGlobal("getAttrs", vi.fn());
     vi.stubGlobal("setAttrs", mockSetAttrs);
 
-    await rollAttack({
-      name: "@{attack_name}",
-      target: "@{combat}",
-    }, "-row1");
+    await rollAttack(attackRow({ shots: "∞" }), "-row1");
 
     expect(mockSetAttrs).toHaveBeenCalledWith({
       "repeating_attacks_-row1_attack_shots": "∞",
     });
-    expect(mockStartRoll).toHaveBeenCalledTimes(2);
+    expect(mockStartRoll).toHaveBeenCalledTimes(1);
   });
 });
 

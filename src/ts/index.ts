@@ -28,9 +28,9 @@ import { destroyedArmorRowId, handleDestroyArmor } from "./rules/armor";
 import {
   CHECK_ATTRIBUTES,
   checkKey,
+  handleAttackClick,
   recomputeSkillQuery,
   recomputeWorstSave,
-  rollAttack,
   rollCheck,
   rollDeathSave,
   rollNPCInitiative,
@@ -178,11 +178,7 @@ on("clicked:take_wound", () => {
 });
 
 on("clicked:repeating_attacks:attack", (eventInfo) => {
-  void rollAttack({
-    name: "@{attack_name}",
-    target: "@{combat}+@{attack_bonus}+@{attack_modifier}",
-    bonus: skillQuery(),
-  }, eventInfo.sourceSection);
+  handleAttackClick(eventInfo);
 });
 
 on("clicked:repeating_npctraits:npc-trait", () => {
