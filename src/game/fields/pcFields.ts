@@ -61,8 +61,8 @@ export const stress = attribute({
 export const stress_min = attribute({
   name: "stress_min",
   label: "Stress Minimum",
-  control: Controls.Hidden,
-  value: "2",
+  control: Controls.Number,
+  value: 2,
 });
 export const stress_panic = attribute({
   name: "stress_panic",
@@ -80,8 +80,8 @@ export const health = attribute({
   name: "health",
   label: "Health",
   control: Controls.Number,
-  value: 78,
-  max: 78,
+  value: 10,
+  max: 10,
 });
 export const wounds = attribute({
   name: "wounds",

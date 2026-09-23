@@ -2,6 +2,7 @@
   import type { NumberAttribute } from "#game/fields/_factories.js";
 
   export let field: NumberAttribute;
+  export let maxField: NumberAttribute | undefined;
   export let isLabelHidden = false;
   const {
     label,
@@ -11,6 +12,8 @@
     max,
     placeholder,
   } = field;
+  const maxName = maxField?.name ?? `${name}_max`;
+  const maxValue = maxField?.value ?? max;
 
   const wrapperClass = {
     "attribute": true,
@@ -47,8 +50,8 @@
     <input
       class={inputClass}
       type="number"
-      name="attr_{name}_max"
-      value={max}
+      name="attr_{maxName}"
+      value={maxValue}
       {placeholder} />
   </div>
 </div>
