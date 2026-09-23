@@ -142,6 +142,22 @@ function itemNotes(item: Item | undefined): string {
   return item.entry.description;
 }
 
+/** A weapon's catalog shots as a magazine loaded full, or blank where it goes untracked. */
+export function magazine(shots: string): {
+  current: string;
+  max: string;
+} {
+  const trimmed = shots.trim();
+  if (!/^\d+$/.test(trimmed)) return {
+    current: "",
+    max: "",
+  };
+  return {
+    current: trimmed,
+    max: trimmed,
+  };
+}
+
 /** The attack row a weapon in the equipment list implies. */
 function attackRow(
   weapon: Weapon,
@@ -150,6 +166,7 @@ function attackRow(
 ): SheetAttributes {
   const row = `repeating_attacks_${attackId}_attack`;
   const isMelee = weapon.range === RangeBands.Adjacent;
+  const shots = magazine(weapon.shots);
 
   return {
     [`${row}_linkedid`]: equipmentId,
@@ -160,7 +177,8 @@ function attackRow(
     [`${row}_settings`]: "0",
     [`${row}_range`]: weapon.range,
     [`${row}_type`]: isMelee ? "Melee" : "Ranged",
-    [`${row}_shots`]: weapon.shots,
+    [`${row}_shots`]: shots.current,
+    [`${row}_shots_max`]: shots.max,
     [`${row}_anti_armor`]: weapon.antiArmor ? "1" : "0",
   };
 }

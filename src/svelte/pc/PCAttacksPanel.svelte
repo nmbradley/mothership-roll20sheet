@@ -11,6 +11,8 @@
     attack_range,
     attack_settings,
     attack_shots,
+    attack_shots_mirror,
+    attack_shots_max_mirror,
     attack_type,
     pcAttacks,
   } from "#game/fields/pcFields.js";
@@ -23,6 +25,9 @@
 
   /** Bonus, Crit Damage, Shots and Ammo read as one row of four equal columns. */
   const stats = [attack_bonus, attack_crit_damage, attack_shots, attack_ammunition];
+
+  /** Ten always-rendered boxes; CSS shows as many as the row's max, filled to its current. */
+  const pips = Array.from({ length: 10 }, (unused, index) => index);
 </script>
 
 <Panel title="Weapons" corner="large">
@@ -49,6 +54,8 @@
       </SettingsRow>
 
       <Attribute field={attack_anti_armor} />
+      <Attribute field={attack_shots_mirror} />
+      <Attribute field={attack_shots_max_mirror} />
 
       <div class="pc-attack-stats">
         {#each stats as field (field.name)}
@@ -62,6 +69,19 @@
         <Attribute field={attack_notes} isLabelHidden />
       </SettingsRow>
     </SettingsDrawer>
+
+    <div class="pc-attack-ammo">
+      <div class="pc-attack-ammo__pips">
+        {#each pips as pip (pip)}
+          <span class="pc-attack-ammo__pip"></span>
+        {/each}
+      </div>
+      <span class="pc-attack-ammo__numeral">
+        <span name="attr_attack_shots"></span>
+        <span class="pc-attack-ammo__numeral-sep">/</span>
+        <span name="attr_attack_shots_max"></span>
+      </span>
+    </div>
   </RepeatingSection>
 </Panel>
 
@@ -113,7 +133,59 @@
   gap: var(--ms-space-md);
 }
 
+.pc-attack-ammo {
+  display: flex;
+  grid-column: 1 / -1;
+  gap: var(--ms-space-sm);
+  align-items: center;
+
+  &__pips {
+    display: none;
+    gap: var(--ms-space-sm);
+  }
+
+  &__pip {
+    border: var(--ms-border-width) solid var(--ms-border);
+    border-radius: var(--ms-radius-sm);
+    width: 14px;
+    height: 14px;
+
+    background: none;
+  }
+
+  &__numeral {
+    display: flex;
+    gap: var(--ms-space-sm);
+
+    font-size: var(--ms-text-sm);
+    font-weight: 700;
+  }
+}
+
 .repeating:has(.pc-attack-name) .repeating__heading {
   padding-left: calc(var(--ms-border-width) + var(--ms-space-md));
+}
+
+@for $max from 1 through 10 {
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="#{$max}"]) {
+    .pc-attack-ammo__pips {
+      display: flex;
+    }
+
+    .pc-attack-ammo__numeral {
+      display: none;
+    }
+
+    .pc-attack-ammo__pip:nth-child(n + #{$max + 1}) {
+      display: none;
+    }
+  }
+}
+
+@for $current from 1 through 10 {
+  .repeating__row:has(input[name="attr_attack_shots"][value="#{$current}"])
+    .pc-attack-ammo__pip:nth-child(-n + #{$current}) {
+    background: var(--ms-fg);
+  }
 }
 </style>

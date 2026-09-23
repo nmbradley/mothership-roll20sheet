@@ -42,6 +42,20 @@ describe("pcFields", () => {
     expect(pcAttacks.attributes.attack_name.name).toBe("attack_name");
   });
 
+  it("exports a per-row Shots current/max pair on attacks, untracked by default", () => {
+    expect(pcAttacks.attributes.attack_shots.name).toBe("attack_shots");
+    expect(pcAttacks.attributes.attack_shots.control).toBe("number");
+    expect(pcAttacks.attributes.attack_shots.value).toBe(0);
+    expect(pcAttacks.attributes.attack_shots.max).toBe(0);
+  });
+
+  it("exports hidden mirrors sharing Shots' current and max attribute names", () => {
+    expect(pcAttacks.attributes.attack_shots_mirror.name).toBe("attack_shots");
+    expect(pcAttacks.attributes.attack_shots_mirror.control).toBe("hidden");
+    expect(pcAttacks.attributes.attack_shots_max_mirror.name).toBe("attack_shots_max");
+    expect(pcAttacks.attributes.attack_shots_max_mirror.control).toBe("hidden");
+  });
+
   it("exports a per-row Anti-Armor toggle on attacks, unchecked by default", () => {
     expect(pcAttacks.attributes.attack_anti_armor.name).toBe("attack_anti_armor");
     expect(pcAttacks.attributes.attack_anti_armor.control).toBe("checkbox");

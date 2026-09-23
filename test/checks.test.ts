@@ -1316,6 +1316,7 @@ function attackRow(overrides: Partial<AttackRow> = {}): AttackRow {
     damage: "1d10",
     type: "Ranged",
     shots: "",
+    shotsMax: "",
     ...overrides,
   };
 }
@@ -1453,6 +1454,7 @@ describe("handleAttackClick", () => {
         "repeating_attacks_-N1a2B3c_attack_damage",
         "repeating_attacks_-N1a2B3c_attack_type",
         "repeating_attacks_-N1a2B3c_attack_shots",
+        "repeating_attacks_-N1a2B3c_attack_shots_max",
         "repeating_attacks_-N1a2B3c_attack_anti_armor",
       ]),
       expect.any(Function),
@@ -1467,6 +1469,7 @@ describe("handleAttackClick", () => {
       "repeating_attacks_-N1a2B3c_attack_damage": "1d10",
       "repeating_attacks_-N1a2B3c_attack_type": "Ranged",
       "repeating_attacks_-N1a2B3c_attack_shots": "5",
+      "repeating_attacks_-N1a2B3c_attack_shots_max": "5",
     });
     const mockStartRoll = vi.fn().mockResolvedValue(checkRoll(HIT));
     vi.stubGlobal("startRoll", mockStartRoll);
@@ -1683,7 +1686,10 @@ describe("rollAttack", () => {
     vi.stubGlobal("getAttrs", vi.fn());
     vi.stubGlobal("setAttrs", mockSetAttrs);
 
-    await rollAttack(attackRow({ shots: "5" }), "-row1");
+    await rollAttack(attackRow({
+      shots: "5",
+      shotsMax: "5",
+    }), "-row1");
 
     const formula = mockStartRoll.mock.calls[0][0] as string;
     expect(formula).toContain("{{weapon=Ranged · Ammo: 4}}");
@@ -1705,7 +1711,10 @@ describe("rollAttack", () => {
     vi.stubGlobal("getAttrs", vi.fn());
     vi.stubGlobal("setAttrs", vi.fn());
 
-    await rollAttack(attackRow({ shots: "1" }), "-row1");
+    await rollAttack(attackRow({
+      shots: "1",
+      shotsMax: "6",
+    }), "-row1");
     await flush();
 
     expect(mockStartRoll).toHaveBeenCalledTimes(2);
@@ -1715,7 +1724,7 @@ describe("rollAttack", () => {
     });
   });
 
-  it("should leave an untracked (e.g. infinite) weapon's ammo untouched", async () => {
+  it("should leave an untracked weapon's ammo untouched and never report it empty", async () => {
     const mockStartRoll = vi.fn().mockResolvedValue(checkRoll(HIT));
     const mockSetAttrs = vi.fn();
     vi.stubGlobal("startRoll", mockStartRoll);
@@ -1723,10 +1732,13 @@ describe("rollAttack", () => {
     vi.stubGlobal("getAttrs", vi.fn());
     vi.stubGlobal("setAttrs", mockSetAttrs);
 
-    await rollAttack(attackRow({ shots: "∞" }), "-row1");
+    await rollAttack(attackRow({
+      shots: "0",
+      shotsMax: "",
+    }), "-row1");
 
     expect(mockSetAttrs).toHaveBeenCalledWith({
-      "repeating_attacks_-row1_attack_shots": "∞",
+      "repeating_attacks_-row1_attack_shots": "0",
     });
     expect(mockStartRoll).toHaveBeenCalledTimes(1);
   });
@@ -1744,37 +1756,41 @@ describe("isNpcSheet (#147)", () => {
   });
 });
 
-describe("spendAmmo (#14)", () => {
+describe("spendAmmo (#14, #226)", () => {
   it("should spend one shot from a plain magazine count", () => {
-    expect(spendAmmo("5")).toBe("4");
+    expect(spendAmmo("5", "5")).toBe("4");
   });
 
   it("should floor at 0 rather than go negative", () => {
-    expect(spendAmmo("0")).toBe("0");
+    expect(spendAmmo("0", "5")).toBe("0");
   });
 
   it("should tolerate surrounding whitespace", () => {
-    expect(spendAmmo(" 3 ")).toBe("2");
+    expect(spendAmmo(" 3 ", "5")).toBe("2");
   });
 
-  it("should leave an untracked value untouched", () => {
-    expect(spendAmmo("∞")).toBe("∞");
-    expect(spendAmmo("")).toBe("");
-    expect(spendAmmo("many")).toBe("many");
+  it("should leave a weapon with a blank max untouched, however many shots it reads", () => {
+    expect(spendAmmo("3", "")).toBe("3");
+    expect(spendAmmo("", "")).toBe("");
+  });
+
+  it("should leave a weapon with a zero or non-numeric max untouched", () => {
+    expect(spendAmmo("3", "0")).toBe("3");
+    expect(spendAmmo("3", "N/A")).toBe("3");
   });
 });
 
-describe("isOutOfAmmo (#14)", () => {
+describe("isOutOfAmmo (#14, #226)", () => {
   it("should read a tracked magazine at 0 as out", () => {
-    expect(isOutOfAmmo("0")).toBe(true);
+    expect(isOutOfAmmo("0", "5")).toBe(true);
   });
 
   it("should read a tracked magazine above 0 as not out", () => {
-    expect(isOutOfAmmo("3")).toBe(false);
+    expect(isOutOfAmmo("3", "5")).toBe(false);
   });
 
-  it("should read an untracked value as not out", () => {
-    expect(isOutOfAmmo("∞")).toBe(false);
-    expect(isOutOfAmmo("")).toBe(false);
+  it("should read a weapon with a blank max as never out, however many shots it reads", () => {
+    expect(isOutOfAmmo("0", "")).toBe(false);
+    expect(isOutOfAmmo("", "")).toBe(false);
   });
 });

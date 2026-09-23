@@ -392,9 +392,18 @@ export const attack_bonus = attribute({
 export const attack_shots = attribute({
   name: "attack_shots",
   label: "Shots",
-  control: Controls.Text,
-  value: "",
+  control: Controls.Number,
+  value: 0,
+  max: 0,
 });
+export const attack_shots_mirror = cssMirror(attack_shots);
+const attack_shots_max = attribute({
+  name: "attack_shots_max",
+  label: "Max Shots",
+  control: Controls.Number,
+  value: 0,
+});
+export const attack_shots_max_mirror = cssMirror(attack_shots_max);
 export const attack_notes = attribute({
   name: "attack_notes",
   label: "Notes",
@@ -442,6 +451,8 @@ export const pcAttacks = section({
     attack_damage,
     attack_ammunition,
     attack_shots,
+    attack_shots_mirror,
+    attack_shots_max_mirror,
     attack_bonus,
     attack_notes,
     attack_crit_damage,

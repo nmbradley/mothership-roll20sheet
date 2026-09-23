@@ -533,6 +533,8 @@
                       <label class="attribute__label attribute__label--checkbox" for="attr_attack_anti_armor" data-i18n="Anti-Armor">Anti-Armor</label>
                       <input class="attribute__input attribute__input--checkbox" type="checkbox" name="attr_attack_anti_armor" value="1"/>
                     </div>
+                    <input class="attribute__input attribute__input--hidden" type="hidden" name="attr_attack_shots" value="0"/>
+                    <input class="attribute__input attribute__input--hidden" type="hidden" name="attr_attack_shots_max" value="0"/>
                     <div class="pc-attack-stats">
                       <div class="settings__row">
                         <span class="settings__label" data-i18n="Bonus">Bonus</span>
@@ -548,8 +550,12 @@
                       </div>
                       <div class="settings__row">
                         <span class="settings__label" data-i18n="Shots">Shots</span>
-                        <div class="attribute attribute--text attribute--attack_shots">
-                          <input class="attribute__input attribute__input--text" type="text" name="attr_attack_shots" value="" spellcheck="false"/>
+                        <div class="attribute attribute--number-max attribute--attack_shots">
+                          <div class="attribute__minmax-wrapper">
+                            <input class="attribute__input attribute__input--number" type="number" name="attr_attack_shots" value="0"/>
+                            <span class="attribute__separator">/</span>
+                            <input class="attribute__input attribute__input--number" type="number" name="attr_attack_shots_max" value="0"/>
+                          </div>
                         </div>
                       </div>
                       <div class="settings__row">
@@ -565,6 +571,14 @@
                         <textarea class="attribute__input attribute__input--textarea" name="attr_attack_notes" spellcheck="false"></textarea>
                       </div>
                     </div>
+                  </div>
+                  <div class="pc-attack-ammo">
+                    <div class="pc-attack-ammo__pips">
+                      <span class="pc-attack-ammo__pip"></span><span class="pc-attack-ammo__pip"></span><span class="pc-attack-ammo__pip"></span><span class="pc-attack-ammo__pip"></span><span class="pc-attack-ammo__pip"></span><span class="pc-attack-ammo__pip"></span><span class="pc-attack-ammo__pip"></span><span class="pc-attack-ammo__pip"></span><span class="pc-attack-ammo__pip"></span><span class="pc-attack-ammo__pip"></span>
+                    </div>
+                    <span class="pc-attack-ammo__numeral"><span name="attr_attack_shots"></span>
+                      <span class="pc-attack-ammo__numeral-sep">/</span>
+                      <span name="attr_attack_shots_max"></span></span>
                   </div>
                 </div>
               </fieldset>
@@ -1092,6 +1106,8 @@
                       <label class="attribute__label attribute__label--checkbox" for="attr_attack_anti_armor" data-i18n="Anti-Armor">Anti-Armor</label>
                       <input class="attribute__input attribute__input--checkbox" type="checkbox" name="attr_attack_anti_armor" value="1"/>
                     </div>
+                    <input class="attribute__input attribute__input--hidden" type="hidden" name="attr_attack_shots" value="0"/>
+                    <input class="attribute__input attribute__input--hidden" type="hidden" name="attr_attack_shots_max" value="0"/>
                     <div class="npc-attack-pair">
                       <div class="settings__row">
                         <span class="settings__label" data-i18n="Range">Range</span>
@@ -1136,8 +1152,12 @@
                     <div class="npc-attack-pair">
                       <div class="settings__row">
                         <span class="settings__label" data-i18n="Shots">Shots</span>
-                        <div class="attribute attribute--text attribute--attack_shots">
-                          <input class="attribute__input attribute__input--text" type="text" name="attr_attack_shots" value="" spellcheck="false"/>
+                        <div class="attribute attribute--number-max attribute--attack_shots">
+                          <div class="attribute__minmax-wrapper">
+                            <input class="attribute__input attribute__input--number" type="number" name="attr_attack_shots" value="0"/>
+                            <span class="attribute__separator">/</span>
+                            <input class="attribute__input attribute__input--number" type="number" name="attr_attack_shots_max" value="0"/>
+                          </div>
                         </div>
                       </div>
                       <div class="settings__row">
@@ -1153,6 +1173,14 @@
                         <textarea class="attribute__input attribute__input--textarea" name="attr_attack_notes" spellcheck="false"></textarea>
                       </div>
                     </div>
+                  </div>
+                  <div class="npc-attack-ammo">
+                    <div class="npc-attack-ammo__pips">
+                      <span class="npc-attack-ammo__pip"></span><span class="npc-attack-ammo__pip"></span><span class="npc-attack-ammo__pip"></span><span class="npc-attack-ammo__pip"></span><span class="npc-attack-ammo__pip"></span><span class="npc-attack-ammo__pip"></span><span class="npc-attack-ammo__pip"></span><span class="npc-attack-ammo__pip"></span><span class="npc-attack-ammo__pip"></span><span class="npc-attack-ammo__pip"></span>
+                    </div>
+                    <span class="npc-attack-ammo__numeral"><span name="attr_attack_shots"></span>
+                      <span class="npc-attack-ammo__numeral-sep">/</span>
+                      <span name="attr_attack_shots_max"></span></span>
                   </div>
                 </div>
               </fieldset>
@@ -5420,9 +5448,21 @@ ${traumaResponseLine()}`;
     if (item.kind === "weapon") return item.entry.special;
     return item.entry.description;
   }
+  function magazine(shots) {
+    const trimmed = shots.trim();
+    if (!/^\d+$/.test(trimmed)) return {
+      current: "",
+      max: ""
+    };
+    return {
+      current: trimmed,
+      max: trimmed
+    };
+  }
   function attackRow(weapon, attackId, equipmentId) {
     const row = `repeating_attacks_${attackId}_attack`;
     const isMelee = weapon.range === RangeBands.Adjacent;
+    const shots = magazine(weapon.shots);
     return {
       [`${row}_linkedid`]: equipmentId,
       [`${row}_name`]: weapon.name,
@@ -5432,7 +5472,8 @@ ${traumaResponseLine()}`;
       [`${row}_settings`]: "0",
       [`${row}_range`]: weapon.range,
       [`${row}_type`]: isMelee ? "Melee" : "Ranged",
-      [`${row}_shots`]: weapon.shots,
+      [`${row}_shots`]: shots.current,
+      [`${row}_shots_max`]: shots.max,
       [`${row}_anti_armor`]: weapon.antiArmor ? "1" : "0"
     };
   }
@@ -5944,21 +5985,27 @@ ${traumaResponseLine()}`;
   function isNpcSheet(sheetToggle) {
     return sheetToggle === "npc";
   }
-  function parseShots(shots) {
-    const trimmed = shots.trim();
+  function parseMax(max) {
+    const trimmed = max.trim();
     if (!/^\d+$/.test(trimmed)) return void 0;
     const parsed = Number(trimmed);
-    return parsed;
+    return parsed > 0 ? parsed : void 0;
   }
-  function spendAmmo(shots) {
-    const current = parseShots(shots);
-    if (current === void 0) return shots;
-    const remaining = Math.max(0, current - 1);
+  function parseShots(current, max) {
+    if (parseMax(max) === void 0) return void 0;
+    const trimmed = current.trim();
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+  function spendAmmo(current, max) {
+    const shots = parseShots(current, max);
+    if (shots === void 0) return current;
+    const remaining = Math.max(0, shots - 1);
     const spent = String(remaining);
     return spent;
   }
-  function isOutOfAmmo(shots) {
-    return parseShots(shots) === 0;
+  function isOutOfAmmo(current, max) {
+    return parseShots(current, max) === 0;
   }
   async function postOutOfAmmoAlert(name) {
     const template = `&{template:ms} {{title=${name}}} {{subtitle=@{character_name}}} {{alert=[[0]]}} {{hasalert=[[0]]}}`;
@@ -5975,9 +6022,18 @@ ${traumaResponseLine()}`;
     damage: "",
     type: "",
     shots: "",
+    shotsMax: "",
     antiArmor: false
   };
-  var ATTACK_ROW_FIELDS = ["name", "bonus", "damage", "type", "shots", "anti_armor"];
+  var ATTACK_ROW_FIELDS = [
+    "name",
+    "bonus",
+    "damage",
+    "type",
+    "shots",
+    "shots_max",
+    "anti_armor"
+  ];
   function attackRowPrefix(rowId) {
     return `repeating_attacks_${rowId}_attack_`;
   }
@@ -6000,6 +6056,7 @@ ${traumaResponseLine()}`;
         damage: attrs[`${prefix}damage`] ?? "",
         type: attrs[`${prefix}type`] ?? "",
         shots: attrs[`${prefix}shots`] ?? "",
+        shotsMax: attrs[`${prefix}shots_max`] ?? "",
         antiArmor: attrs[`${prefix}anti_armor`] === "1"
       });
     });
@@ -6021,10 +6078,10 @@ ${traumaResponseLine()}`;
     const line = parts.join(" \xB7 ");
     return line;
   }
-  function spendRowAmmo(rowId, remaining, name) {
+  function spendRowAmmo(rowId, remaining, max, name) {
     const shotsKey = `${attackRowPrefix(rowId)}shots`;
     setAttrs({ [shotsKey]: remaining });
-    const isEmpty = isOutOfAmmo(remaining);
+    const isEmpty = isOutOfAmmo(remaining, max);
     if (isEmpty) void postOutOfAmmoAlert(name);
   }
   function applyCheckGrade(grade) {
@@ -6039,7 +6096,7 @@ ${traumaResponseLine()}`;
     });
   }
   async function rollAttack(row, rowId) {
-    const remaining = spendAmmo(row.shots);
+    const remaining = spendAmmo(row.shots, row.shotsMax);
     const check = await rollCheck({
       name: row.name,
       target: `@{combat}+${attackBonus(row.bonus)}+@{attack_modifier}`,
@@ -6050,7 +6107,7 @@ ${traumaResponseLine()}`;
         antiArmor: row.antiArmor
       }
     });
-    if (rowId !== void 0) spendRowAmmo(rowId, remaining, row.name);
+    if (rowId !== void 0) spendRowAmmo(rowId, remaining, row.shotsMax, row.name);
     return check;
   }
   function handleAttackClick(eventInfo) {
