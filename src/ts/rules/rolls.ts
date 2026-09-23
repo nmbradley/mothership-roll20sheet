@@ -46,9 +46,14 @@ export function isDoubles(roll: number): boolean {
   return tens === ones;
 }
 
-/** Combines the two situational flags, which cancel each other out. */
-export function resolveEdge(hasAdvantage: boolean, hasDisadvantage: boolean): Edge {
-  if (hasAdvantage === hasDisadvantage) return Edges.None;
+/** Combines the situational flags, which cancel each other out (§19.1). */
+export function resolveEdge(
+  hasAdvantage: boolean,
+  hasDisadvantage: boolean,
+  hasStandingDisadvantage = false,
+): Edge {
+  const isDisadvantaged = hasDisadvantage || hasStandingDisadvantage;
+  if (hasAdvantage === isDisadvantaged) return Edges.None;
   return hasAdvantage ? Edges.Advantage : Edges.Disadvantage;
 }
 

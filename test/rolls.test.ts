@@ -43,6 +43,18 @@ describe("Roll Rules (Mothership 1e)", () => {
       expect(resolveEdge(true, false)).toBe(Edges.Advantage);
       expect(resolveEdge(false, true)).toBe(Edges.Disadvantage);
     });
+
+    it("folds a standing Disadvantage (Cryosickness, 32.3) in on a Normal pick", () => {
+      expect(resolveEdge(false, false, true)).toBe(Edges.Disadvantage);
+    });
+
+    it("cancels a standing Disadvantage against a chosen Advantage", () => {
+      expect(resolveEdge(true, false, true)).toBe(Edges.None);
+    });
+
+    it("keeps a chosen Disadvantage once a standing Disadvantage already applies", () => {
+      expect(resolveEdge(false, true, true)).toBe(Edges.Disadvantage);
+    });
   });
 
   describe("selectRoll", () => {

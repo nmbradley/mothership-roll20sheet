@@ -181,6 +181,9 @@ export const TEMPLATE_PHRASES = {
   StressOverflow: "Stress Overflow: Reduces Most Relevant Stat or Save by",
   StressGained: "Stress Gained",
   PanicForced: "Critical Failure: Panic Check",
+  ApplyBleeding: "Apply Bleeding",
+  RadiationExposure: "Radiation Exposure",
+  RadiationRoundPenalty: "Acute Radiation Exposure: -1 to All Stats and Saves This Round",
 } as const;
 
 /** What the check cost its roller, said on the card rather than left to happen quietly. */

@@ -70,6 +70,8 @@ const QUERY_SYNTAX = /[|,{}]/g;
 
 /** Asked once as a roll query, so the player answers in place. */
 export const EDGE_QUERY = "?{Advantage/Disadvantage|Normal,0|Advantage,1|Disadvantage,2}";
+/** Carries the standing Cryosickness toggle into a roll, read back by readDice. */
+const CRYOSICK_FIELD = "{{cryosick=[[@{cryosick}]]}}";
 const MODIFIER_QUERY = "?{Modifier?|0}";
 
 /** A translation with the characters a roll query treats as syntax removed. */
@@ -246,18 +248,19 @@ export type RolledDice = {
   edge: Edge;
 };
 
-/** Reads the two dice and the edge back off a started roll. */
+/** Reads the two dice, the edge and standing Cryosickness back off a started roll. */
 export function readDice(results: RollResults): RolledDice {
   const first = results["roll"]?.result ?? 0;
   const second = results["roll2"]?.result ?? first;
   const answer = results["edge"]?.result ?? EDGE_NORMAL;
+  const isCryosick = (results["cryosick"]?.result ?? 0) !== 0;
 
   const hasAdvantage = answer === EDGE_ADVANTAGE;
   const hasDisadvantage = answer !== EDGE_NORMAL && !hasAdvantage;
 
   return {
     rolls: [first, second],
-    edge: resolveEdge(hasAdvantage, hasDisadvantage),
+    edge: resolveEdge(hasAdvantage, hasDisadvantage, isCryosick),
   };
 }
 
@@ -297,7 +300,7 @@ export async function rollCheck(options: CheckOptions): Promise<CheckResult> {
     ...(options.attack === undefined ? {} : { attack: options.attack }),
   };
 
-  const template = `${checkTemplate(templateOptions)} {{edge=[[${EDGE_QUERY}]]}}`;
+  const template = `${checkTemplate(templateOptions)} {{edge=[[${EDGE_QUERY}]]}} ${CRYOSICK_FIELD}`;
   const roll = await startRoll(template);
   const dice = readDice(roll.results);
 
@@ -599,7 +602,7 @@ export function panicConditionRow(effect: PanicEffect): Record<string, string> {
 
 /** Rolls a Panic Check, reading a failure off the Panic Table alongside the Trauma Response. */
 export async function rollPanicCheck(stress?: number): Promise<void> {
-  const template = `${panicTemplate(stress)} {{edge=[[${EDGE_QUERY}]]}}`;
+  const template = `${panicTemplate(stress)} {{edge=[[${EDGE_QUERY}]]}} ${CRYOSICK_FIELD}`;
   const roll = await startRoll(template);
   const dice = readDice(roll.results);
 

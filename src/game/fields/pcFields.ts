@@ -264,6 +264,45 @@ export const attack_modifier = attribute({
   value: 0,
 });
 
+export const bleeding = attribute({
+  name: "bleeding",
+  label: "Bleeding",
+  control: Controls.Number,
+  value: 0,
+});
+export const radiation_level = attribute({
+  name: "radiation_level",
+  label: "Radiation Level",
+  control: Controls.Select,
+  options: [
+    {
+      value: "trace",
+      label: "1 - Trace",
+    },
+    {
+      value: "acute",
+      label: "2 - Acute",
+    },
+    {
+      value: "lethal",
+      label: "3 - Lethal",
+    },
+  ],
+  value: "trace",
+});
+export const radiation_penalty_rounds = attribute({
+  name: "radiation_penalty_rounds",
+  label: "Radiation Penalty Rounds",
+  control: Controls.Hidden,
+  value: "0",
+});
+export const cryosick = attribute({
+  name: "cryosick",
+  label: "Cryosick",
+  control: Controls.Checkbox,
+  checkedValue: 1,
+});
+
 export const pcAttributes = {
   character_name,
   class: class_,
@@ -306,6 +345,10 @@ export const pcAttributes = {
   drop_data,
   drop_content,
   attack_modifier,
+  bleeding,
+  radiation_level,
+  radiation_penalty_rounds,
+  cryosick,
 } as const;
 
 export const attack_name = attribute({
