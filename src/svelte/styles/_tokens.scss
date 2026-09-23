@@ -1,68 +1,34 @@
-// Google Fonts, in Roll20's *legacy* CSS-1 import form -- not the CSS-2 rule
-// Google now hands you.
-//
-// Roll templates are parsed by the old sanitizer even on a CSE sheet, and it
-// rejects the modern form outright: "Potential CSS security violation;
-// character sheet template styling thrown out", discarding the stylesheet
-// rather than skipping the line. The rules are `css` not `css2`, families
-// joined by `|` rather than repeating `&family=`, and weights written bare.
-//
-// Variable axes are the casualty: this brings in Archivo's weights but not its
-// width axis, so the `font-stretch` the labels ask for has nothing to act on.
 @import url('https://fonts.googleapis.com/css?family=Archivo:400,700,800,900|IBM+Plex+Mono:400|Material+Icons&display=swap');
 
-// Design tokens for the Mothership sheet.
-//
-// Every value the components draw with lives here as a custom property, so dark
-// mode is a matter of redefining names rather than restating rules. Components
-// reference these without fallbacks: the token is always defined, and a fallback
-// would quietly win whenever dark mode tried to override it.
-//
-// Roll templates render in the chat pane, outside .charsheet, so they need the
-// tokens declared on their own roots or every var() there resolves to nothing.
 $roots: ".charsheet, .sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
 
 #{$roots} {
-  // Ink. Sampled from the printed profile: its black is a warm near-black,
-  // not #000, and the muted grey is light enough to read as a hint.
   --ms-fg: #333132;
   --ms-fg-muted: #9e9e9e;
   --ms-fg-inverse: #fff;
 
-  // Ground. The printed profile uses three panel treatments: outlined white,
-  // a pale blue-grey tint, and solid ink with knocked-out type.
   --ms-bg: #fff;
   --ms-surface: #fff;
   --ms-sunken: #f1f1f1;
   --ms-raised: #d6d9db;
   --ms-inverse: #333132;
 
-  // Writing lines, and the dashed placeholder around the wordmark.
   --ms-rule: #f1f1f1;
   --ms-ghost: #b9b9b9;
 
-  // Signal
   --ms-accent: #f36;
   --ms-enabled: #ffae00;
 
-  // A passed or failed roll, as a wash behind the verdict rather than the
-  // accent -- the accent is reserved for the critical outcomes, so the four
-  // results read as a scale rather than two pairs.
   --ms-pass-wash: #dcf0e0;
   --ms-pass-fg: #1d4a2a;
   --ms-fail-wash: #fadcdf;
   --ms-fail-fg: #6b1f28;
 
-  // A Critical Success's own solid fill, one step bolder than the pass wash --
-  // the roll template's verdict box, not a sheet panel.
   --ms-crit-pass: #14532d;
 
-  // Line
   --ms-border: #333132;
   --ms-border-width: 3px;
   --ms-border-width-thick: 4px;
-  // The wordmark art is white on transparent, so it needs inverting to sit on
-  // a light ground and none at all once the sheet goes dark.
   --ms-logo-filter: invert(1);
 
   --ms-radius-sm: 4px;
@@ -70,36 +36,25 @@ $roots: ".charsheet, .sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
   --ms-radius-lg: 10px;
   --ms-radius-pill: 100vmax;
 
-  // Space
-  // px, like the type ladder: rem here would track the host page's root too.
   --ms-space-sm: 4px;
   --ms-space-md: 8px;
   --ms-space-lg: 12px;
   --ms-space-xl: 20px;
 
-  // Type
-  // One family throughout, as the printed profile does; the width and weight
-  // axes carry the difference between a heading and a caption.
   --ms-font-header: "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --ms-font-body: "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --ms-font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
-  // Set in px, not rem. rem resolves against the host page's root font size,
-  // which the sheet does not control: if Roll20 reduces it, the whole ladder
-  // shrinks with it. px keeps these sizes meaning what they say.
   --ms-text-xs: 11px;
   --ms-text-sm: 13px;
   --ms-text-md: 16px;
   --ms-text-lg: 20px;
   --ms-text-xl: 32px;
 
-  // Width axis. The printed labels are noticeably condensed.
   --ms-stretch-label: 86%;
   --ms-stretch-stat: 80%;
 }
 
-// Roll20 sets this class on <body> when the user turns on dark mode. Only the
-// palette moves; every metric and typeface above still applies.
 body.sheet-darkmode :is(#{$roots}) {
   --ms-fg: #f2f2f2;
   --ms-fg-muted: #9a9a9a;
@@ -111,11 +66,9 @@ body.sheet-darkmode :is(#{$roots}) {
   --ms-raised: #3d3d3d;
   --ms-inverse: #f2f2f2;
 
-  // Writing lines lift off the ground rather than sitting below it.
   --ms-rule: #333;
   --ms-ghost: #555;
 
-  // Pure red and amber vibrate against a dark ground, so both lift a step.
   --ms-accent: #ff5a5a;
   --ms-enabled: #ffc23d;
 
@@ -128,6 +81,5 @@ body.sheet-darkmode :is(#{$roots}) {
 
   --ms-border: #f2f2f2;
 
-  // The wordmark is already white; on a dark ground it needs no inversion.
   --ms-logo-filter: none;
 }

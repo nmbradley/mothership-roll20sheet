@@ -99,8 +99,6 @@ describe("Roll Templates", () => {
     });
 
     it("should report which of the two dice the template should highlight", () => {
-      // Advantage on a roll-under check keeps the lower die, which here is the
-      // second one -- so the card highlights that and fades the first.
       const check = makeCheck({
         name: "Body Save",
         target: 40,

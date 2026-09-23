@@ -34,21 +34,17 @@
     <label
       class={labelClass}
       for="attr_{name}"
-      data-i18n={i18nLabel}
-    >{ label }</label>
+      data-i18n={i18nLabel}>{label}</label>
   {/if}
   <textarea
     class={inputClass}
     name="attr_{name}"
     {placeholder}
     data-i18n-placeholder={i18nPlaceholder}
-    spellcheck="false"
-  >{value}</textarea>
+    spellcheck="false">{value}</textarea>
 </div>
 
 <style lang="scss">
-// The label stacks above rather than sitting beside, so the field can use the
-// full width of whatever holds it.
 .attribute--textarea {
   grid-template-columns: minmax(0, 1fr);
   align-items: stretch;

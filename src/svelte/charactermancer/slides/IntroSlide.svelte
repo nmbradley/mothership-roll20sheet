@@ -15,8 +15,7 @@
         class="ms-cm-logo"
         src={logoUrl}
         data-i18n-title="Mothership Logo"
-        alt="Mothership Logo"
-      />
+        alt="Mothership Logo" />
       <p class="ms-cm-welcometext" data-i18n="charmancer-step1"></p>
     </div>
   </div>
@@ -28,8 +27,7 @@
     right={{
       action: "stats",
       text: "Next",
-    }}
-  />
+    }} />
 </CharmancerSlide>
 
 <CharmancerTopbar />
@@ -41,8 +39,6 @@
   margin: 0 auto var(--ms-space-lg);
   width: 60%;
 
-  // The wordmark art is white on transparent, same asset PCHeader uses --
-  // the token flips it per theme instead of a permanent invert(1).
   filter: var(--ms-logo-filter);
 }
 

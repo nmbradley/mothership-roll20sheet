@@ -12,8 +12,6 @@
   /** Off for a single-field section, where the one heading only repeats the label. */
   export let hasHeadings: boolean = true;
 
-  // The fieldset class is read from the section rather than written by hand:
-  // a stale literal here silently points rows at another section's storage.
   $: grid = `grid-template-columns: ${columns}`;
   $: spacers = Array.from({ length: trailing }, (unused, index) => index);
 </script>
@@ -33,7 +31,7 @@
   <fieldset class={section.name}>
     <div class="repeating__row" style={grid}>
       {#if $$slots.default}
-        <slot />
+        <slot></slot>
       {:else}
         {#each fields as field (field.name)}
           <Attribute {field} isLabelHidden />
@@ -70,14 +68,10 @@
     border-bottom: var(--ms-border-width) solid var(--ms-rule);
     padding-bottom: var(--ms-space-sm);
 
-    // Rows hold bare controls, so the wrapper grid each one brings collapses to
-    // a single column here rather than reserving a label gutter.
     .attribute {
       grid-template-columns: 1fr;
     }
 
-    // The printed sheet writes entries onto a rule rather than boxing them.
-    // These stay buttons so the sheetworker still rolls them.
     .button--action {
       justify-content: flex-start;
 
@@ -94,13 +88,6 @@
     }
   }
 
-  // --- Roll20's own markup -------------------------------------------------
-  //
-  // Roll20 builds the row container and the add / modify / delete controls
-  // itself and ships them with Bootstrap chrome. The official Mothership sheet
-  // restyles them rather than living with it; this is the same treatment in
-  // this sheet's tokens. The row template Roll20 hides inline is untouched.
-
   .repcontainer {
     display: grid;
     gap: var(--ms-space-sm);
@@ -115,8 +102,6 @@
 
     background-color: transparent;
 
-    // The label is dropped to nothing and replaced by the glyph below, so the
-    // controls read as icons rather than grey buttons.
     button {
       margin: 0;
       box-shadow: none;
@@ -129,9 +114,6 @@
       font-size: 0;
       line-height: 1;
 
-      // Sized as a whole box rather than glyph-plus-padding: the sheet is
-      // border-box, so 1em with 0.35em of padding leaves the glyph nowhere to
-      // sit and it spills out of the ring.
       &::before {
         display: flex;
         align-items: center;
@@ -167,11 +149,7 @@
     }
   }
 
-  // Delete and reorder. Roll20 reveals these only in modify mode, so no display
-  // is declared here -- doing so pins them open on every row.
   .itemcontrol {
-    // No display declared, and the glyph is centred with line-height instead:
-    // any display value here would override Roll20 hiding these between edits.
     .repcontrol_del,
     .repcontrol_move {
       margin: 0;
@@ -194,9 +172,6 @@
       font-size: 0;
       color: var(--ms-fg-inverse);
 
-      // Zeroing the label above hides Roll20's raw text; this glyph replaces
-      // it the same way add/edit's does, still centred by the parent's
-      // inherited line-height/text-align rather than flex.
       &::before {
         content: "#";
 

@@ -7,10 +7,7 @@ import {
   type StepValues,
 } from "./types";
 
-/**
- * Steps that can carry a stat value, earliest first. A later step overrides an
- * earlier one, so the class's Strength beats the rolled Strength.
- */
+/** Steps that can carry a stat value, earliest first; a later step overrides an earlier one. */
 const VALUE_STEPS: readonly Step[] = [Steps.Stats, Steps.Class, Steps.Skills, Steps.Equipment];
 
 /** The charactermancer's data, narrowed to the shape the slides expect. */
@@ -31,12 +28,7 @@ export function stepRows(data: CharmancerData, step: Step): readonly string[] {
   return rows ?? [];
 }
 
-/**
- * The value for a key from the latest step that set it.
- *
- * This replaces the nested conditionals the slides used to repeat: rather than
- * probing each step in turn at every call site, the precedence lives here once.
- */
+/** The value for a key from the latest step that set it. */
 export function resolveValue(data: CharmancerData, key: string): string | undefined {
   let found: string | undefined;
   for (const step of VALUE_STEPS) {
@@ -54,12 +46,7 @@ export function resolveNumber(data: CharmancerData, key: string, fallback = 0): 
   return Number.isNaN(parsed) ? fallback : parsed;
 }
 
-/**
- * Every tracked stat resolved to its base plus modifier.
- *
- * Returns a fully populated record so callers can render it directly: a stat the
- * player has not reached yet is null rather than missing.
- */
+/** Every tracked stat resolved to its base plus modifier, null where not yet determined. */
 export function statTotals(data: CharmancerData): StatTotals {
   const totals = {} as StatTotals;
   for (const stat of TrackedStats) {
@@ -99,10 +86,7 @@ export function parseStringList(raw: string | undefined): readonly string[] {
   return strings;
 }
 
-/**
- * Renders an equipment list, where an entry is either a bare name or a
- * [name, quantity] pair.
- */
+/** Renders an equipment list of bare names or [name, quantity] pairs. */
 export function describeItems(items: readonly (string | [string, string])[]): string {
   const described = items.map((item) => (Array.isArray(item) ? `${item[0]} (${item[1]})` : item));
   const joined = described.join(", ");

@@ -33,21 +33,18 @@
     <label
       class={labelClass}
       for="attr_{name}"
-      data-i18n={i18nLabel}
-    >{ label }</label>
+      data-i18n={i18nLabel}>{label}</label>
   {/if}
   <input
     class={inputClass}
     type="checkbox"
     name="attr_{name}"
     value={checkedValue}
-    checked={isChecked}
-    />
+    checked={isChecked} />
 </div>
 
 <style lang="scss">
 .attribute--checkbox {
-  // No text to sit on a baseline, so this one centres.
   align-items: center;
 
   .attribute__input[type="checkbox"] {
@@ -67,7 +64,6 @@
 
     appearance: none;
 
-    // The knob. Sized off the track so the two stay in proportion.
     &::after {
       content: "";
 

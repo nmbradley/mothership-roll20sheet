@@ -1,5 +1,3 @@
-// `all` has to be declared first: it resets every property after it,
-// box-sizing included. The ordering rule wants it last, so it is off here.
 /* stylelint-disable order/properties-order */
 .charactersheet.charactersheet {
 
@@ -39,18 +37,6 @@
   scrollbar-color: #90A4AE #CFD8DC;
 }
 
-// The rule above only resets the root. Roll20 styles the elements themselves --
-// `h2 { line-height: 36px }` in its base.css, among others -- and an ancestor
-// cannot undo a declaration aimed at a descendant: an inherited value only
-// applies where the element has none of its own. So the elements the sheet
-// draws are reset here as well.
-//
-// `display` is reverted rather than left unset, which would resolve to `inline`
-// and collapse every heading and paragraph.
-//
-// Deliberately narrow. Controls are left out because _base.scss states their
-// treatment, and Roll20's repeating machinery -- .repcontainer, .repcontrol,
-// .itemcontrol, and the row template it hides inline -- is left alone entirely.
 .charactersheet.charactersheet :is(h1, h2, h3, h4, h5, h6, p, ul, ol, li, dl, dt, dd, blockquote, figure) {
   all: unset;
 

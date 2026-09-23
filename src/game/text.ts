@@ -1,9 +1,4 @@
-/**
- * Presentation helpers for game terms.
- *
- * Enum values are stored lowercase so they match attribute names and
- * translation keys; these turn them into display text.
- */
+/** Presentation helpers turning stored game terms into display text. */
 
 /** Capitalises each word: "hand-to-hand combat" becomes "Hand-to-hand Combat". */
 export function titleCase(value: string): string {

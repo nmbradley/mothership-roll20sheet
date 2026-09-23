@@ -6,9 +6,6 @@
   import CharmancerSlide from "#svelte/charactermancer/components/CharmancerSlide.svelte";
   import CharmancerStat from "#svelte/charactermancer/components/CharmancerStat.svelte";
 
-  // Plain string: Roll20's braces need no escaping outside markup.
-  // Health rolls last, after every stat and save (#42): 2-stats.ts reads it
-  // off the end of the same eventInfo.roll array by position.
   const statRoll = "{{template:ms-cm}} {{title=stats roll}} {{strength=[[2d10+25]]}}"
     + " {{speed=[[2d10+25]]}} {{intellect=[[2d10+25]]}} {{combat=[[2d10+25]]}}"
     + " {{sanity=[[2d10+10]]}} {{fear=[[2d10+10]]}} {{body=[[2d10+10]]}}"
@@ -49,8 +46,7 @@
           data-i18n="Roll Stats"
           name="roll_stats"
           type="roll"
-          value={statRoll}
-        >Roll Stats</button>
+          value={statRoll}>Roll Stats</button>
       </div>
     </div>
   </div>
@@ -67,8 +63,7 @@
     right={{
       action: "class",
       text: "Next",
-    }}
-  />
+    }} />
 </CharmancerSlide>
 
 <style lang="scss">

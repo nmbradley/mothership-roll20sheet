@@ -12,7 +12,7 @@
     {#if title}
       <Header {title} />
     {/if}
-    <slot />
+    <slot></slot>
   </Frame>
 </section>
 

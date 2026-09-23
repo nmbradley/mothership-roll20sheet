@@ -22,16 +22,12 @@ export const pronouns = attribute({
   control: Controls.Text,
   value: "",
 });
-// Written by incrementHighScore in rules/stats.ts, which had no field to match.
 export const high_score = attribute({
   name: "high_score",
   label: "High Score",
   control: Controls.Text,
   value: "",
 });
-// #55: superseded by the pcAfflictions repeating section below, kept declared
-// rather than removed so a character saved before the change still legally
-// stores this value, as shiploadout was kept on the ship sheet.
 export const conditions = attribute({
   name: "conditions",
   label: "Conditions",
@@ -62,40 +58,24 @@ export const stress = attribute({
   control: Controls.Number,
   value: 2,
 });
-// 1e's Stress minimum (#42): a fixed rule constant rather than a
-// per-character pair like Health and Wounds, so the card shows it read-only.
-// The maximum needs no attribute at all -- it is the same 20 for everyone and
-// lives as STRESS_MAX in checks.ts.
 export const stress_min = attribute({
   name: "stress_min",
   label: "Stress Minimum",
   control: Controls.Hidden,
   value: "2",
 });
-// #132: superseded by stress_effect below -- 1e has no generic Panic effect
-// to jot down, a failure instead triggers the class's Trauma Response -- kept
-// declared rather than removed so a character saved before the change still
-// legally stores this value, as conditions was kept above.
 export const stress_panic = attribute({
   name: "stress_panic",
   label: "Stress & Panic",
   control: Controls.Text,
   value: "",
 });
-// The class's Trauma Response (#132): written by the charactermancer's Class
-// step (3-class.ts) from the chosen class's traumaResponse, and read by a
-// failed Panic Check via `@{stress_effect}` in the roll template itself
-// rather than a getAttrs call. Left editable rather than a read-only display,
-// like class_ below, since a custom class types its own.
 export const stress_effect = attribute({
   name: "stress_effect",
   label: "Trauma Response",
   control: Controls.Textarea,
   value: "",
 });
-// health, wounds and armor_points model an NPC exactly the same way -- a
-// Contractor promoted to a PC keeps its stats -- so the NPC sheet reads and
-// writes these attributes too rather than declaring its own.
 export const health = attribute({
   name: "health",
   label: "Health",
@@ -103,11 +83,6 @@ export const health = attribute({
   value: 78,
   max: 78,
 });
-// Wounds counts *up*: applyDamage gains one at 0 Health and calls for a Death
-// Save at `wounds >= wounds_max`. So a new character starts at 0 of a maximum
-// of 2, not 2 of 2 -- the latter is already one Wound from dying, and is what
-// every character not built through the charactermancer used to get (#179),
-// the NPC sheet included, since it shares these attributes (#90).
 export const wounds = attribute({
   name: "wounds",
   label: "Wounds",
@@ -121,8 +96,6 @@ export const armor_points = attribute({
   control: Controls.Number,
   value: 0,
 });
-// 1e heavy armor (e.g. Advanced Battle Dress) also grants flat Damage
-// Reduction, subtracted from a hit before AP is checked against it.
 export const damage_reduction = attribute({
   name: "damage_reduction",
   label: "Damage Reduction",
@@ -147,7 +120,6 @@ export const intellect = attribute({
   control: Controls.Number,
   value: 0,
 });
-// Also the NPC sheet's Combat stat -- see the note by health above.
 export const combat = attribute({
   name: "combat",
   label: "Combat",
@@ -172,10 +144,6 @@ export const body = attribute({
   control: Controls.Number,
   value: 0,
 });
-// #110: the lowest (worst) of the three Saves, maintained by
-// recomputeWorstSave in checks.ts rather than computed inline, so
-// rollRestSave can target it with a plain @{...} reference and reach
-// startRoll synchronously.
 export const worst_save = attribute({
   name: "worst_save",
   label: "Worst Save",
@@ -232,28 +200,19 @@ export const sheet_toggle_select = attribute({
   ],
   value: "pc",
 });
-// The settings page offers the picker above; this hidden twin is what
-// Sheet.svelte's CSS actually switches the views on.
 export const sheet_toggle = cssMirror(sheet_toggle_select);
-// Layered on top of sheet_toggle rather than a fourth value of it: sheet_toggle
-// records which sheet the character is, and overwriting it to open Settings
-// would destroy the state the back button needs to restore.
 export const settings_open = attribute({
   name: "settings_open",
   label: "Settings Open",
   control: Controls.Checkbox,
   checkedValue: "on",
 });
-// #50: gates the NPC sheet's Initiative button as well as the PC one, since
-// both live in the same settings drawer pattern and share this attribute.
 export const speed_initiative = attribute({
   name: "speed_initiative",
   label: "Speed Check Initiative",
   control: Controls.Checkbox,
   checkedValue: "on",
 });
-// #9: on by default, matching the Skill prompt's existing behaviour on Saves;
-// a Keeper who wants it gone unchecks this rather than opting in to lose it.
 export const save_skill_select = attribute({
   name: "save_skill_select",
   label: "Skill Select for Saves",
@@ -267,18 +226,6 @@ export const sheet_skill_toggles = attribute({
   control: Controls.Hidden,
   value: "",
 });
-// #5: the Skill dropdown offering the character's own Trained/Expert/Master
-// rows by name, rebuilt by recomputeSkillQuery in checks.ts whenever those
-// rows change, so a skilled check's startRoll can reference it directly and
-// stay synchronous -- the same shape as worst_save (#110).
-// #5: the Skill dropdown a check's target expression points at, kept in step
-// with the character's own Trained/Expert/Master rows by recomputeSkillQuery.
-//
-// The default is not empty. Until that sheetworker first runs -- a character
-// made before this attribute existed, opened but not yet touched -- a check
-// would otherwise resolve `@{combat}+` and fail to parse. This seeds the same
-// query a character with no Skills at all gets, so the roll works from the
-// first click. A test asserts it stays identical to buildSkillQuery([]).
 export const skill_query = attribute({
   name: "skill_query",
   label: "Skill Query",
@@ -310,10 +257,6 @@ export const drop_content = attribute({
   value: "",
 });
 
-// #6: a sheet-wide bonus added to every attack (e.g. a standing Marine +5),
-// set once on the settings page rather than retyped through the ad hoc
-// Modifier query on every roll. Kept next to the attack row fields below so
-// a concurrent edit elsewhere in this file conflicts trivially.
 export const attack_modifier = attribute({
   name: "attack_modifier",
   label: "Global Attack Modifier",
@@ -365,9 +308,6 @@ export const pcAttributes = {
   attack_modifier,
 } as const;
 
-// This section and its fields are shared verbatim with the NPC sheet: an
-// NPC's attack row has no field the PC row lacks except attack_linkedid,
-// which an NPC row simply never populates.
 export const attack_name = attribute({
   name: "attack_name",
   label: "Weapon",
@@ -400,9 +340,6 @@ export const attack_ammunition = attribute({
   control: Controls.Text,
   value: "",
 });
-// #6: applied automatically to this weapon's attack roll via @{attack_bonus}
-// in the click handler (index.ts), the same resolve-to-current-row trick
-// attack_damage already relies on.
 export const attack_bonus = attribute({
   name: "attack_bonus",
   label: "Bonus",
@@ -477,13 +414,7 @@ export const equipment_type = attribute({
   options: ["Gear", "Weapon", "Ammunition", "Armor"],
   value: "Gear",
 });
-// Lets PCEquipmentPanel gate its Armor-only fields on the row's own type.
 export const equipment_type_mirror = cssMirror(equipment_type);
-// Per-item Armor Points and Damage Reduction (#112): AP and DR are a
-// function of the armor worn, not a value the character owns independently,
-// so these live on the row and a sheetworker sums Armor-type rows into the
-// panel's totals. Reintroduces #53's equipment_armor_bonus properly typed
-// and split into AP/DR, rather than reverting to it.
 export const equipment_armor_points = attribute({
   name: "equipment_armor_points",
   label: "Armor Points",
@@ -529,9 +460,6 @@ export const pcEquipment = section({
   } as const,
 });
 
-// Lasting Conditions from a failed Panic Check and lingering Injuries from
-// Wounds, tracked as rows rather than the flat conditions textarea above:
-// each one needs its own mechanical penalty on record, not just a name.
 export const affliction_name = attribute({
   name: "affliction_name",
   label: "Name",
@@ -544,8 +472,6 @@ export const affliction_effect = attribute({
   control: Controls.Textarea,
   value: "",
 });
-// Marks a Condition or Injury as currently being treated, e.g. by a Doctor,
-// rather than still an open penalty.
 export const affliction_treated = attribute({
   name: "affliction_treated",
   label: "Treated",

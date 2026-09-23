@@ -57,8 +57,6 @@ import {
 import { handleMilitaryTraining } from "./rules/skills";
 import { incrementHighScore } from "./rules/stats";
 
-// --- SHIP ---
-
 on("clicked:increment_score", incrementHighScore);
 on("clicked:starting_condition", () => {
   void handleStartingCondition();
@@ -89,21 +87,12 @@ on("clicked:reveal_bid", () => {
   void handleRevealFuelBid();
 });
 
-// --- ARMOR ---
-
-// Destroy lives on the equipment row now (#112): it zeroes the clicked row's
-// own AP/DR rather than a panel-level total, so the sourceSection the click
-// raised on says which row.
 on("clicked:repeating_equipment:destroy_armor", (eventInfo) => {
   const rowId = eventInfo.sourceSection;
   if (rowId === undefined) return;
   void handleDestroyArmor(rowId);
 });
 
-// AP and DR are summed from the equipment rows rather than owned by the
-// character (#112); this recalculates the totals on every edit, add and
-// remove -- add and edit share the row's own change events, since a newly
-// added row's fields fire the same change: events as an edited one.
 const ARMOR_ROW_EVENTS = [
   "change:repeating_equipment:equipment_type",
   "change:repeating_equipment:equipment_armor_points",
@@ -114,20 +103,10 @@ on(ARMOR_ROW_EVENTS, () => {
   recalculateArmorTotals();
 });
 
-// #127: armor_points and damage_reduction are never written until an Armor
-// row changes, so a sheet opened before that leaves both attributes
-// unwritten -- this seeds them from whatever equipment is already worn.
 on("sheet:opened", () => {
   recalculateArmorTotals();
 });
 
-// --- CHECKS ---
-
-// Training raises a character's own Stat and Save checks. Instinct has no PC
-// equivalent, so it keeps the plain modifier. Combat is trainable for a PC but
-// not an NPC; the merged handler (#90) now asks an NPC the same Skill query
-// too, but answering Untrained costs nothing, so this is left shared rather
-// than branched on sheet_toggle.
 const SKILLED_CHECKS: readonly string[] = [...allStats, ...allSaves];
 
 for (const attribute of CHECK_ATTRIBUTES) {
@@ -135,8 +114,6 @@ for (const attribute of CHECK_ATTRIBUTES) {
   const isSave = (allSaves as readonly string[]).includes(attribute);
 
   on(`clicked:check-${attribute}`, () => {
-    // #9: a Save's Skill prompt is a Keeper toggle read at click time, so it
-    // cannot be baked in below the way every other skilled check's is.
     if (isSave) {
       rollSaveCheck(attribute);
       return;
@@ -149,10 +126,6 @@ for (const attribute of CHECK_ATTRIBUTES) {
   });
 }
 
-// #50: the optional rule where a Speed/Instinct Check also sets Initiative.
-// Two buttons rather than one shared action: the PC and NPC sheets target
-// different attributes, and a Roll20 button click cannot branch on which
-// sheet is active before the handler runs.
 on("clicked:pc-initiative", () => {
   void rollPCInitiative();
 });
@@ -164,10 +137,6 @@ on("clicked:panic", () => {
   void rollPanicCheck();
 });
 
-// #110: worst_save is a hidden mirror of whichever Save reads lowest, kept in
-// step here rather than read inline by rollRestSave, so its startRoll can
-// fire synchronously off the click. sheet:opened seeds it for a character
-// saved before this attribute existed.
 on("change:sanity change:fear change:body", recomputeWorstSave);
 on("sheet:opened", recomputeWorstSave);
 
@@ -175,11 +144,6 @@ on("clicked:rest_save", () => {
   void rollRestSave();
 });
 
-// #5: skill_query is a hidden mirror of the character's own Trained, Expert
-// and Master rows, kept in step here rather than read inline by a skilled
-// check's click handler, so skillQuery()'s reference to it can reach
-// startRoll synchronously (#110). sheet:opened seeds it for a character
-// saved before this attribute existed.
 const SKILL_ROW_EVENTS = [
   "change:repeating_trained:skill_name",
   "change:repeating_expert:skill_name",
@@ -195,9 +159,6 @@ on("sheet:opened", () => {
   recomputeSkillQuery();
 });
 
-// Launching the Charactermancer from the settings page. A `back`-type button
-// only navigates between charmancer pages from inside a <charmancer> block;
-// reaching it from the sheet needs this.
 on("clicked:launch_charmancer", () => {
   startCharactermancer("intro");
 });
@@ -214,14 +175,6 @@ on("clicked:take_wound", () => {
   handleTakeWound();
 });
 
-// Rolls made from a repeating row read that row's own attributes. The PC and
-// NPC attack rows share repeating_attacks (#90), so one handler covers both.
-// #13: the Skill/situational bonus query is baked in here, same as every
-// other skilled check in the loop above. #6: the row's own attack_bonus and
-// the sheet-wide attack_modifier are added the same way -- @{...} references
-// resolved by Roll20 itself, so the roll still fires synchronously (#110).
-// The row id (eventInfo.sourceSection) is passed through for #14's ammo
-// tracking, which needs the fully-qualified attribute name to read/write it.
 on("clicked:repeating_attacks:attack", (eventInfo) => {
   void rollAttack({
     name: "@{attack_name}",
@@ -237,13 +190,9 @@ on("clicked:repeating_npctraits:npc-trait", () => {
   });
 });
 
-// #49: the Military Training exception -- 6 years, free, its own Combat
-// Check rather than a Skill Training purchase.
 on("clicked:military_training", () => {
   void handleMilitaryTraining();
 });
-
-// --- CHARACTERMANCER ---
 
 /** Slides that carry the running stat topbar. */
 const TOPBAR_SLIDES = ["intro", "stats", "class", "skills", "equipment"] as const;
@@ -254,7 +203,6 @@ for (const slide of TOPBAR_SLIDES) {
   });
 }
 
-// A stat can change on any slide, so the topbar listens to all of them.
 for (const stat of TrackedStats) {
   on(`mancerchange:${stat} mancerchange:${stat}_mod`, () => {
     refreshTopBar();
@@ -280,8 +228,6 @@ on("clicked:reselectc", () => {
   reselectClass();
 });
 on("mancerchange:repeating_choicerow", (eventInfo) => {
-  // Both skill and floating-bonus pickers are charactermancer "choice rows"
-  // and share this one event; the field that changed tells them apart.
   if (eventInfo.sourceAttribute === "floatstat") {
     applyFloatingBonus(eventInfo.newValue ?? "");
     return;

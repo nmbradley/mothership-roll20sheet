@@ -12,17 +12,13 @@
   import RepeatingSection from "#svelte/components/RepeatingSection.svelte";
 </script>
 
-<!-- #58 section 8, Status / Ship Manifest. Supersedes the old shiploadout
-     repeating list: 1e tracks Cargo as a capacity number, not a free-text
-     item log, and equipment installed on the ship is the Upgrades list below. -->
 <section class="ship-manifest-panel">
   <Panel title="Upgrades">
     <Attribute field={ship_upgrades} />
     <RepeatingSection
       section={shipUpgrades}
       fields={[ship_upgrade_name]}
-      columns="1fr"
-    />
+      columns="1fr" />
   </Panel>
 
   <Panel title="Ship Manifest">

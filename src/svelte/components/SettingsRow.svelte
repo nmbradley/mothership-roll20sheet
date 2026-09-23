@@ -8,7 +8,7 @@
 
 <div class="settings__row" class:settings__row--full={isFullWidth}>
   <span class="settings__label" data-i18n={field.i18nLabel}>{field.label}</span>
-  <slot />
+  <slot></slot>
 </div>
 
 <style lang="scss">

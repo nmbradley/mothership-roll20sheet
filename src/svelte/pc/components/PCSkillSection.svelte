@@ -9,18 +9,17 @@
   export let level: string;
   export let section: Section;
 
-  // The key is the display text, so both are read from one expression.
   $: title = titleCase(level);
 </script>
 
-<!--
-  A skill is just its name: the section it sits in is its tier, and the roll is
-  made from the Stat or Save it applies to rather than from the skill itself.
--->
 <div class="pc-skills-section">
   <h3 class="pc-skills-section__title" data-i18n={title}>{title}</h3>
 
-  <RepeatingSection {section} fields={[skill_name]} columns="1fr" hasHeadings={false}>
+  <RepeatingSection
+    {section}
+    fields={[skill_name]}
+    columns="1fr"
+    hasHeadings={false}>
     <Attribute field={skill_name} isLabelHidden />
   </RepeatingSection>
 </div>
@@ -39,17 +38,11 @@
     text-transform: uppercase;
   }
 
-  // A skill is a single field, so it needs no rule under it to separate it from
-  // the columns that are no longer there.
   .repeating__row {
     border-bottom: none;
     padding-bottom: 0;
   }
 
-  // The printed sheet writes skills onto a line rather than boxing them, so the
-  // input's default chrome is stripped to a single faint rule -- the same
-  // --ms-rule token .repeating__row separators use, at 1px rather than the 3px
-  // --ms-border-width so it reads as a line, not a bar.
   .attribute__input {
     border: none;
     border-bottom: 1px solid var(--ms-rule);

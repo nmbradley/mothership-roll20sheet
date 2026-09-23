@@ -9,12 +9,16 @@
 </script>
 
 {#if type === "roll"}
-  <ButtonRoll {action} {label} {value} {...$$restProps}>
-    <slot />
+  <ButtonRoll
+    {action}
+    {label}
+    {value}
+    {...$$restProps}>
+    <slot></slot>
   </ButtonRoll>
 {:else}
   <ButtonAction {action} {label} {...$$restProps}>
-    <slot />
+    <slot></slot>
   </ButtonAction>
 {/if}
 

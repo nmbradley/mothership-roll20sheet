@@ -7,10 +7,6 @@ import {
   type RowAttributeName,
 } from "./_factories";
 
-// Transponder
-// Ship attributes keep the `ship_` prefix deliberately: PC and NPC share one
-// unprefixed "creature" namespace (their fields are near-identical), while a
-// ship overlaps a creature almost nowhere and gets its own namespace instead.
 export const ship_name = attribute({
   name: "ship_name",
   label: "Ship Name",
@@ -23,8 +19,6 @@ export const ship_captain = attribute({
   control: Controls.Text,
   value: "",
 });
-// Make, Model, Jump, Class & Type merged into one field per #58; replaces the
-// old standalone ship_type/ship_class attributes.
 export const ship_transponder = attribute({
   name: "ship_transponder",
   label: "Make, Model, Jump, Class, & Type",
@@ -32,7 +26,6 @@ export const ship_transponder = attribute({
   value: "",
 });
 
-// Stats & Saves
 export const ship_systems = attribute({
   name: "ship_systems",
   label: "Systems",
@@ -58,7 +51,6 @@ export const ship_bankruptcy_save = attribute({
   value: 21,
 });
 
-// Engines
 export const ship_fuel = attribute({
   name: "ship_fuel",
   label: "Fuel",
@@ -66,8 +58,6 @@ export const ship_fuel = attribute({
   value: 0,
   max: 0,
 });
-// Movement-phase bid, named to match the #60 macro/sheetworker (act_reveal_bid
-// reads and resets attr_ship_fuel_bid directly).
 export const ship_fuel_bid = attribute({
   name: "ship_fuel_bid",
   label: "Fuel Bid",
@@ -81,7 +71,6 @@ export const ship_warp_cores = attribute({
   value: 0,
 });
 
-// Survival
 export const ship_o2 = attribute({
   name: "ship_o2",
   label: "O2 Remaining",
@@ -101,7 +90,6 @@ export const ship_escape_pods = attribute({
   value: 0,
 });
 
-// Weapons
 export const ship_weapons_base = attribute({
   name: "ship_weapons_base",
   label: "Weapons Base",
@@ -134,12 +122,6 @@ export const ship_hardpoints = attribute({
   max: 0,
 });
 
-// MegaDamage & Hull
-// The 0-9 MDMG track has no dedicated radio control yet (`Controls` in
-// _factories.ts only backs plain inputs). #61/#86 can render this number as a
-// bubble track in CSS/Svelte without a new control; adding a real `radio`
-// control plus AttributeRadio.svelte is only worth it if that later turns out
-// not to be enough.
 export const ship_mdmg = attribute({
   name: "ship_mdmg",
   label: "MDMG",
@@ -153,7 +135,6 @@ export const ship_hull = attribute({
   value: 0,
 });
 
-// Crew
 export const ship_crew = attribute({
   name: "ship_crew",
   label: "Crew",
@@ -162,7 +143,6 @@ export const ship_crew = attribute({
   max: 0,
 });
 
-// Status / Manifest
 export const ship_upgrades = attribute({
   name: "ship_upgrades",
   label: "Upgrades",
@@ -192,9 +172,6 @@ export const ship_major_repairs = attribute({
   max: 0,
 });
 
-// Settings
-// Named ship_npc, not npc_ship: every other ship attribute is ship_-prefixed,
-// and this keeps it out of the NPC sheet's own (unprefixed) namespace too.
 export const ship_npc = attribute({
   name: "ship_npc",
   label: "NPC Ship",
@@ -233,7 +210,6 @@ export const shipAttributes = {
 
 export type ShipAttributeNames = keyof typeof shipAttributes;
 
-// Repeating section fields: Weapons
 export const ship_weapon_name = attribute({
   name: "ship_weapon_name",
   label: "Weapon Name",
@@ -270,7 +246,6 @@ export const shipWeapons = section({
   } as const,
 });
 
-// Repeating section fields: Crew
 export const ship_crew_name = attribute({
   name: "ship_crew_name",
   label: "Name",
@@ -292,7 +267,6 @@ export const shipCrew = section({
   } as const,
 });
 
-// Repeating section fields: Loadout
 export const ship_loadout_item = attribute({
   name: "ship_loadout_item",
   label: "Item",
@@ -314,7 +288,6 @@ export const shipLoadout = section({
   } as const,
 });
 
-// Repeating section fields: Upgrades
 export const ship_upgrade_name = attribute({
   name: "ship_upgrade_name",
   label: "Upgrade",

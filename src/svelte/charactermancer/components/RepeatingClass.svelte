@@ -3,7 +3,6 @@
   <label class="ms-cm-class">
     <input class="ms-cm-hide" name="comp_selected" type="checkbox" />
 
-    <!-- Title, blurb and grants are all filled by setCharmancerText. -->
     <!-- svelte-ignore a11y_missing_content -->
     <h2 class="ms-cm-class__title t__title"></h2>
     <div class="ms-cm-class__desc t__desc"></div>
@@ -12,8 +11,6 @@
 </charmancer>
 
 <style lang="scss">
-// The staging name field and the card's own selection checkbox: present for
-// the sheetworker, not for the eye. The card itself is the click target.
 .ms-cm-hide {
   @extend %ms-visually-hidden;
 }
@@ -60,7 +57,6 @@
     text-transform: uppercase;
   }
 
-  // The list itself is injected by the sheetworker.
   &__grantlist {
     margin: 0;
     padding: 0;
@@ -69,8 +65,6 @@
   }
 }
 
-// The chosen class's own title on the class-info panel -- a plain heading
-// rather than a card, so it never combines with .ms-cm-class__title above.
 .ms-cm-class__title--selected {
   margin-bottom: var(--ms-space-md);
 

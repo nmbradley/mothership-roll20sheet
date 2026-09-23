@@ -5,14 +5,12 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import * as esbuild from "esbuild";
 import esbuildSvelte from "esbuild-svelte";
-// Named import resolves to `undefined` under Vitest's CJS interop for this
-// package (works fine in build-svelte.js, which runs under plain Node ESM).
 import sveltePreprocess from "svelte-preprocess";
 import {
   describe, it, expect,
 } from "vitest";
 
-import { stripStyles } from "../scripts/collect-styles.js";
+import { stripStyles } from "../scripts/build-scss.js";
 import {
   shipAttributes,
   shipCrew,
@@ -24,13 +22,7 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SHIP_SHEET = path.resolve(__dirname, "../src/svelte/ShipSheet.svelte");
 
-/**
- * Renders `ShipSheet.svelte` to static HTML the same way `build-svelte.js`
- * does: bundle through esbuild-svelte with the SCSS blocks stripped, then run
- * the bundle's `svelte/server` render. Vitest has no Svelte transform of its
- * own, so this is the only way to get real rendered markup rather than
- * inspecting component source by hand.
- */
+/** Renders `ShipSheet.svelte` to static HTML the way `build-svelte.js` does. */
 async function renderShipSheet(): Promise<string> {
   const entry = `
     import { render } from "svelte/server";
@@ -64,10 +56,6 @@ async function renderShipSheet(): Promise<string> {
     throw new Error("esbuild produced no output for the ship sheet render entry");
   }
 
-  // Imported from `dist/` (gitignored) rather than the OS temp dir: Node
-  // resolves the bundle's bare `svelte/server` import by walking up from the
-  // importing file looking for node_modules, and the OS temp dir sits outside
-  // that walk.
   const distDir = path.resolve(__dirname, "../dist");
   fs.mkdirSync(distDir, { recursive: true });
   const tempFile = path.join(distDir, `.ship-sheet-render-${process.pid}-${Date.now()}.mjs`);
@@ -86,7 +74,7 @@ function renderedAttributeNames(html: string): Set<string> {
   return new Set(matches.map((match) => match[1]));
 }
 
-/** `name` plus its companion `name_max`, for attributes {@link attribute} seeded with `max`. */
+/** `name` plus its companion `name_max`, for attributes seeded with `max`. */
 function withMaxCompanion(field: {
   name: string;
   max?: number;
@@ -94,21 +82,6 @@ function withMaxCompanion(field: {
   return field.max === undefined ? [field.name] : [field.name, `${field.name}_max`];
 }
 
-// Every attr_* name the whole ship sheet may legitimately render: shipAttributes'
-// companion _max inputs plus every repeating section's row fields.
-// `shipLoadout` stays in this allowed set even though no panel renders it any
-// more (#87 supersedes it with `ship_cargo` + `shipUpgrades`) -- #84 declared
-// and tested it, and any `repeating_shiploadout` rows already saved on a
-// character sheet are still legal storage, just no longer shown. The
-// ship_npc setting is declared here but not required to be rendered yet --
-// that's #92's panel. This set only bounds what's *allowed*, drift-checking
-// is done against the fields the sheet actually owns, in `ownedAttributeNames`
-// below.
-
-// Controls the ship sheet renders but does not own. The settings drawer is
-// shared across all three sheets and declares its toggle in pcFields, so it is
-// legitimately not a ship attribute -- without this the drift check reads a
-// shared control as ship-sheet drift.
 const sharedControlNames = ["settings_toggle"];
 
 const validAttributeNames = new Set([
@@ -120,8 +93,6 @@ const validAttributeNames = new Set([
   ...sharedControlNames,
 ]);
 
-// Every field the ship sheet renders: #58 sections 1-6 (#85/#86) plus 7 and 8
-// (#87, Crew and Status/Ship Manifest). ship_npc is #92's and excluded.
 const ownedAttributeNames = new Set([
   ...[
     shipAttributes.ship_name,

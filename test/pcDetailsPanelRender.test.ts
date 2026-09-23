@@ -4,25 +4,17 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import * as esbuild from "esbuild";
 import esbuildSvelte from "esbuild-svelte";
-// Named import resolves to `undefined` under Vitest's CJS interop for this
-// package (works fine in build-svelte.js, which runs under plain Node ESM).
 import sveltePreprocess from "svelte-preprocess";
 import {
   describe, it, expect,
 } from "vitest";
 
-import { stripStyles } from "../scripts/collect-styles.js";
+import { stripStyles } from "../scripts/build-scss.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PC_DETAILS_PANEL = path.resolve(__dirname, "../src/svelte/pc/PCDetailsPanel.svelte");
 
-/**
- * Renders `PCDetailsPanel.svelte` to static HTML the same way `build-svelte.js`
- * does: bundle through esbuild-svelte with the SCSS blocks stripped, then run
- * the bundle's `svelte/server` render. Vitest has no Svelte transform of its
- * own, so this is the only way to get real rendered markup rather than
- * inspecting component source by hand.
- */
+/** Renders `PCDetailsPanel.svelte` to static HTML the way `build-svelte.js` does. */
 async function renderPCDetailsPanel(): Promise<string> {
   const entry = `
     import { render } from "svelte/server";
@@ -56,10 +48,6 @@ async function renderPCDetailsPanel(): Promise<string> {
     throw new Error("esbuild produced no output for the PC details panel render entry");
   }
 
-  // Imported from `dist/` (gitignored) rather than the OS temp dir: Node
-  // resolves the bundle's bare `svelte/server` import by walking up from the
-  // importing file looking for node_modules, and the OS temp dir sits outside
-  // that walk.
   const distDir = path.resolve(__dirname, "../dist");
   fs.mkdirSync(distDir, { recursive: true });
   const tempFile = path.join(distDir, `.pc-details-panel-render-${process.pid}-${Date.now()}.mjs`);

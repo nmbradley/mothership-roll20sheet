@@ -1,43 +1,6 @@
-// Roll template styling.
-//
-// These render in the chat pane rather than inside .charsheet, so they cannot
-// rely on _base.scss for element defaults and restate what they need. The
-// tokens they read are declared on their own roots in _tokens.scss.
-//
-// Layout is an explicit grid, NOT wrapping flex, for the check card
-// (.sheet-rolltemplate-ms): every element is pinned to a named area so row
-// composition can never depend on how long a subtitle, skill name or roll
-// happens to be.
-//
-//   ┌──────────────────────────────┬──────────┐
-//   │ title (bleeds left)          │  roll    │
-//   ├──────────────────────────────┤  ┌────┐  │
-//   │ subtitle                     │  │ 40 │  │  <- dark target/damage footer
-//   ├──────────────────────────────┤  └────┘  │
-//   │ skill                        │          │
-//   ├──────────────────────────────┤          │
-//   │ verdict                      │          │
-//   ├──────────────────────────────┴──────────┤
-//   │ notes / alert (full width, ruled off)   │
-//   └─────────────────────────────────────────┘
-//
-// The roll + target/damage readout form ONE box of fixed size: both are
-// pinned to the same full-height area in column 2 and aligned to its top,
-// with the readout offset by exactly the roll's height. That keeps the box
-// identical whether or not the left column carries a skill, a verdict or
-// notes.
-//
-// The charactermancer card (.sheet-rolltemplate-ms-cm, ms-cm.html) reuses
-// every one of these class names but repeats subtitle+roll pairs down the
-// card rather than filling this one grid -- it gets its own, simpler
-// block-flow layout further down rather than sharing the grid, which would
-// stack every repeated roll box on top of the others in the same cell.
-//
-// Type scale is em-relative so the block rides the chat's own font size.
 $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
 
 #{$roots} {
-  // scale (em: follows chat font size instead of pinning px)
   --ms-text-xs: 0.62em;
   --ms-text-sm: 0.72em;
   --ms-text-md: 0.85em;
@@ -45,7 +8,6 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
   --ms-text-xl: 1.25em;
   --ms-text-2xl: 2.15em;
 
-  // the roll box: one size for every template
   --ms-roll-w: 3.6em;
   --ms-roll-h: var(--ms-roll-w); // square: the footer offset reads this
 
@@ -60,11 +22,6 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     color: var(--ms-fg);
   }
 
-  // --- header slab ----------------------------------------------------------
-  // Bleeds off the left edge so the single bottom-right notch reads as
-  // deliberate -- the same move the character sheet's dark panels make. Each
-  // root bleeds it by its own padding below, since the two layouts pad
-  // differently.
   .sheet-ms-result__title {
     border-radius: 0 0 var(--ms-radius-lg) 0;
     box-sizing: border-box;
@@ -80,7 +37,6 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     color: var(--ms-fg-inverse);
   }
 
-  // --- subtitle, then skill, each on its own line --------------------------
   .sheet-ms-result__subtitle,
   .sheet-ms-result__skill {
     grid-column: 1;
@@ -105,7 +61,6 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     margin: 0 0 0.2em;
   }
 
-  // the skill is the quieter of the two
   .sheet-ms-result__skill {
     grid-row: 3;
 
@@ -117,7 +72,6 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     color: var(--ms-fg-muted);
   }
 
-  // --- roll: the counted result, at one size in every template -------------
   .sheet-ms-roll {
     display: grid;
     position: relative;
@@ -162,16 +116,6 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     color: var(--ms-fg);
   }
 
-  // Advantage / disadvantage: both dice are always rolled, because an edge
-  // needs the pair. Rather than splitting the box diagonally (which forces it
-  // to grow, and reads as a strike-through at chat size), the die that
-  // COUNTS stays exactly where a single die sits, and the discarded one is a
-  // struck-out annotation tucked into the corner.
-  //
-  // Which die is which is driven by the --used/--spent class the rules put
-  // on it (checkComputed's `used` flag), not by DOM position: roll and roll2
-  // are shown in the order they were actually thrown, since that order
-  // matters for auditing a roll, and either one can be the die that counted.
   .sheet-ms-roll--spent {
     order: 2;
 
@@ -182,9 +126,6 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     color: var(--ms-fg-muted);
   }
 
-  // The counted die sits where a single die would; the struck-out one below it
-  // is annotation. No ring -- the strike-through already says which is which,
-  // and an accent outline read as an error state rather than an edge.
   .sheet-ms-roll--used {
     order: 1;
   }
@@ -196,7 +137,6 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     font-size: var(--ms-text-xl);
   }
 
-  // --- target / damage: the dark footer of the roll box ---------------------
   .sheet-ms-readout {
     display: flex;
     gap: var(--ms-space-md);
@@ -212,10 +152,6 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     color: var(--ms-fg-inverse);
   }
 
-  // The word "Target"/"Damage" is replaced by a bullseye glyph. The ligature
-  // NAME is used rather than a codepoint, since the two Material families map
-  // the legacy private-use range differently. font-size: 0 hides the label
-  // text while leaving it in the DOM for screen readers and i18n.
   .sheet-ms-readout__label {
     flex: none;
 
@@ -250,9 +186,6 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     color: var(--ms-fg-inverse);
   }
 
-  // --- verdict --------------------------------------------------------------
-  // The rules decide the verdict before it reaches chat (checkComputed's
-  // `rank`); ms.html's rank-based blocks pick the class below.
   .sheet-ms-verdict {
     grid-column: 1;
 
@@ -295,7 +228,6 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     color: var(--ms-fg-inverse);
   }
 
-  // --- notes / alert: full width, ruled off --------------------------------
   .sheet-ms-notes {
     grid-column: 1 / -1;
 
@@ -335,7 +267,6 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     color: var(--ms-fg-inverse);
   }
 
-  // --- Roll20 inline-roll chrome removal -----------------------------------
   .inlinerollresult,
   .importantroll,
   .fullcrit,
@@ -365,15 +296,11 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
   }
 }
 
-// ---------------------------------------------------------------------------
-// The check card: title/subtitle/skill/verdict/notes in a narrow left column,
-// one fixed-size roll+readout box pinned to the right for every card.
-// ---------------------------------------------------------------------------
 .sheet-rolltemplate-ms {
   .sheet-ms-result {
     display: grid;
     grid-template-columns: minmax(0, 1fr) var(--ms-roll-w);
-    grid-template-rows: auto auto auto auto; // title, subtitle, skill, verdict
+    grid-template-rows: auto auto auto auto;
     row-gap: 0;
     column-gap: var(--ms-space-xl);
     align-items: start;
@@ -387,8 +314,6 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     margin: 0 0 var(--ms-space-md) calc(var(--ms-space-lg) * -1);
   }
 
-  // Both pinned to the same full-height area, aligned top; the readout is
-  // pushed down by exactly the roll's height so the two meet as one box.
   .sheet-ms-roll,
   .sheet-ms-readout {
     grid-area: 1 / 2 / 5 / 3;
@@ -404,7 +329,6 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     padding: 0 0.2em;
   }
 
-  // opens its bottom edge only when a target/damage footer follows
   .sheet-ms-roll:has(+ .sheet-ms-readout) {
     border-bottom: 0;
     border-radius: var(--ms-radius-lg) var(--ms-radius-lg) 0 0;
@@ -415,9 +339,6 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     padding: 0.15em var(--ms-space-md);
   }
 
-  // The follow-up Damage card (postAttackResult) has no roll of its own --
-  // Damage stands alone rather than stacking under it, so it sits at the top
-  // of the box instead of the offset that assumes a roll came first.
   .sheet-ms-result:not(:has(.sheet-ms-roll)) .sheet-ms-readout {
     margin-top: var(--ms-space-lg);
     border-radius: var(--ms-radius-lg);
@@ -436,10 +357,6 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
   }
 }
 
-// ---------------------------------------------------------------------------
-// The charactermancer card: a stat rolled at a time, top to bottom -- no
-// shared roll+readout box, since several roll boxes repeat down the card.
-// ---------------------------------------------------------------------------
 .sheet-rolltemplate-ms-cm {
   .sheet-ms-result {
     padding: var(--ms-space-xl);

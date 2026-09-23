@@ -23,9 +23,6 @@
   ];
 </script>
 
-<!-- #58 section 2, Stats & Saves. Saves & Defenses and Hull moved out: 1e
-     ships have no armor save, Bankruptcy Save now lives with the operations
-     grouping in ShipOperationsPanel, and Hull moved to ShipMegadamagePanel. -->
 <section class="ship-stats-panel">
   <Panel title="Ship Stats (1e)">
     <div class="ship-stats-panel__checks">

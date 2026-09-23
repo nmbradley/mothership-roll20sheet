@@ -22,8 +22,6 @@
   font-stretch: var(--ms-stretch-label);
 }
 
-// The class slide's guide spans both panel columns instead of sitting inside
-// one, so the two never appear on the same element -- each is a complete rule.
 .ms-cm-guidetext,
 .ms-cm-guidetext--span2 {
   margin: 0 0 var(--ms-space-md);

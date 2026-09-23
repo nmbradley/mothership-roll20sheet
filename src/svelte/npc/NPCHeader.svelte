@@ -11,7 +11,6 @@
   <Frame mode="dark" corner="medium">
     <div class="npc-header__content">
       <div class="npc-header__top">
-        <!-- Opens Settings; see settings_open in pcFields.ts and Sheet.svelte. -->
         <label for="attr_settings_open" class="npc-header__logo-link">
           <img src={logoUrl} alt="Mothership" class="npc-header__logo" />
         </label>
@@ -44,8 +43,6 @@
       cursor: pointer;
     }
 
-    // White art on a dark panel needs no inversion -- see PCHeader's
-    // light-panel logo, which is the case --ms-logo-filter actually covers.
     &__logo {
       width: auto;
       max-height: 1.5rem;

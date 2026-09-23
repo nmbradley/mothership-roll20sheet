@@ -1,10 +1,6 @@
 import type { EntryOf } from "#game/enums.js";
 
-/**
- * Mothership 1e resolves almost everything by rolling a d100 and trying to get
- * under a target. This module covers that, the handful of rolls that go the
- * other way, and the tables a failure sends you to.
- */
+/** Grading d100 rolls against a target, and the tables a failure sends you to. */
 
 export const Outcomes = {
   CriticalSuccess: "Critical Success",
@@ -14,10 +10,7 @@ export const Outcomes = {
 } as const;
 export type Outcome = EntryOf<typeof Outcomes>;
 
-/**
- * Situational advantage. Both at once cancel out, so this is one value rather
- * than a pair of flags.
- */
+/** Situational advantage, as one value since Advantage and Disadvantage cancel out. */
 export const Edges = {
   Advantage: "advantage",
   Disadvantage: "disadvantage",
@@ -25,13 +18,7 @@ export const Edges = {
 } as const;
 export type Edge = EntryOf<typeof Edges>;
 
-/**
- * Which direction a roll has to go.
- *
- * Stat Checks, Saves and attacks roll under their target; a Panic Check rolls
- * over current Stress. The direction decides both success and, under an edge,
- * which of the two dice counts.
- */
+/** Which direction a roll has to go: under its target, or over it. */
 export const Comparisons = {
   RollUnder: "under",
   RollOver: "over",
@@ -49,19 +36,10 @@ export const SKILL_BONUS = {
 const ALWAYS_CRITICAL_SUCCESS = 0;
 const ALWAYS_CRITICAL_FAILURE = 99;
 
-/**
- * A roll-under check fails outright once the d100 reads 90 or over, whatever
- * the target says -- 99 is still caught by ALWAYS_CRITICAL_FAILURE above, so
- * this only needs to turn the rest of the 90s into a plain failure.
- */
+/** The reading at which a roll-under check fails whatever its target says. */
 const AUTO_FAIL_THRESHOLD = 90;
 
-/**
- * Doubles on a d100: 00, 11, 22 and so on.
- *
- * Doubles are what make a roll critical, in whichever direction it already
- * went.
- */
+/** Whether a d100 shows doubles (00, 11, 22 and so on), which makes a roll critical. */
 export function isDoubles(roll: number): boolean {
   const tens = Math.floor(roll / 10);
   const ones = roll % 10;
@@ -74,12 +52,7 @@ export function resolveEdge(hasAdvantage: boolean, hasDisadvantage: boolean): Ed
   return hasAdvantage ? Edges.Advantage : Edges.Disadvantage;
 }
 
-/**
- * Picks the die that counts.
- *
- * "Take the best result" depends on which way the roll goes: the lowest die is
- * best when rolling under, the highest when rolling over.
- */
+/** Picks the die that counts: lowest when rolling under, highest when rolling over. */
 export function selectRoll(
   rolls: readonly number[],
   edge: Edge,
@@ -98,15 +71,7 @@ export function selectRoll(
   return isLowBetter ? high : low;
 }
 
-/**
- * Grades a roll against its target.
- *
- * A roll of 00 is always a Critical Success and 99 always a Critical Failure,
- * whatever the target says. Rolling under also auto-fails on 90-98: the 1e
- * rules treat the 90s as the dice turning on you regardless of target. This
- * does not apply rolling over, since the only roll-over check is the Panic
- * Die, which is a d20 and never reads that high.
- */
+/** Grades a roll against its target, including the readings that ignore it. */
 export function outcomeOf(roll: number, target: number, comparison: Comparison): Outcome {
   if (roll === ALWAYS_CRITICAL_SUCCESS) return Outcomes.CriticalSuccess;
   if (roll === ALWAYS_CRITICAL_FAILURE) return Outcomes.CriticalFailure;
@@ -134,11 +99,7 @@ export function isFailure(outcome: Outcome): boolean {
 export type CheckRequest = {
   /** Display name, e.g. "Strength Check" or "Body Save". */
   name: string;
-  /**
-   * Translation key for the name. Fixed vocabulary like "strength check" has
-   * one; a name taken from an attribute, such as a weapon's, must not, since
-   * player data is never translated.
-   */
+  /** Translation key for the name; absent when the name comes from player data. */
   i18nKey?: string;
   /** The number to beat, before any skill bonus. */
   target: number;
@@ -164,19 +125,11 @@ export type CheckResult = {
   edge: Edge;
   comparison: Comparison;
   outcome: Outcome;
-  /**
-   * A Critical Failure on a Stat Check or Save forces a Panic Check. Rolling
-   * over does not, so a failed Panic Check cannot cascade into another.
-   */
+  /** Whether a Critical Failure on this check forces a Panic Check. */
   triggersPanic: boolean;
 };
 
-/**
- * Resolves any roll-under check: Stat Checks, Saves and attacks alike.
- *
- * They differ only in what supplies the target, so the caller works that out
- * and this decides what the dice mean.
- */
+/** Resolves any roll-under check: Stat Checks, Saves and attacks alike. */
 export function makeCheck(request: CheckRequest): CheckResult {
   const edge = request.edge ?? Edges.None;
   const comparison = request.comparison ?? Comparisons.RollUnder;
@@ -221,12 +174,7 @@ function discardedRoll(
   return first === counted ? second : first;
 }
 
-/**
- * Grades a single roll-under check.
- *
- * A shorthand for the common case of one die, no edge and no bonuses, which is
- * how the ship checks resolve.
- */
+/** Grades a single roll-under check of one die, with no edge and no bonuses. */
 export function evaluateRoll(roll: number, target: number): Outcome {
   const outcome = outcomeOf(roll, target, Comparisons.RollUnder);
   return outcome;

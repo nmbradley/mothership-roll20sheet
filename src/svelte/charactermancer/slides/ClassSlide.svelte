@@ -79,14 +79,12 @@
           class="ms-cm-button--action"
           data-i18n="Reselect Class"
           name="act_reselectc"
-          type="action"
-        >Reselect Class</button>
+          type="action">Reselect Class</button>
       </div>
     </div>
 
     <div class="ms-cm-panel">
       <div class="choice presetclass">
-        <!-- Filled by setCharmancerText once a class is chosen. -->
         <!-- svelte-ignore a11y_missing_content -->
         <h3 class="ms-cm-class__title--selected t__cname"></h3>
         <div class="ms-cm-savegroup">
@@ -104,7 +102,6 @@
         {/each}
         <input name="comp_health" type="hidden" />
 
-        <!-- Only Android and Scientist have a floating bonus; empty otherwise. -->
         <div class="ms-cm-row">
           <div class="ms-cm-row__title" data-i18n="Stat Adjustment"></div>
           <div class="t__floating_choice"></div>
@@ -154,8 +151,7 @@
     right={{
       action: "skills",
       text: "Next",
-    }}
-  />
+    }} />
 </CharmancerSlide>
 
 <style lang="scss">
@@ -201,8 +197,6 @@
     color: var(--ms-fg);
   }
 
-  // The custom-class inputs carry no type="text", so they miss the sheet's
-  // base input rule (which keys off [type="text"]) and need their own chrome.
   &__input,
   &__input--long {
     margin-top: var(--ms-space-sm);

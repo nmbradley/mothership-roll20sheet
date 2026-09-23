@@ -19,12 +19,7 @@ export function onLoadEquipment(): void {
   restoreChosenEquipment();
 }
 
-/**
- * Offers the loadouts for the chosen class.
- *
- * Loadouts are per class in the rules, so an unchosen class leaves only the
- * custom and no-loadout options rather than every class's kit at once.
- */
+/** Offers the chosen class's loadouts, plus the custom and no-loadout options. */
 function offerLoadouts(): void {
   const options = [...loadoutNames(), CUSTOM_PACKAGE, NO_LOADOUT];
   setCharmancerOptions("package", options);
@@ -57,12 +52,7 @@ function chosenLoadouts(): readonly LoadoutOption[] {
   return loadouts[key as Class];
 }
 
-/**
- * The starting-credits multiplier for a package choice.
- *
- * Forgoing a loadout trades it for 2d10x100 credits instead of the usual
- * 2d10x10.
- */
+/** The starting-credits multiplier for a package choice: 100 without a loadout, else 10. */
 export function creditsMultiplier(choice: string): number {
   return choice === NO_LOADOUT ? 100 : 10;
 }
@@ -111,12 +101,7 @@ function buildCreditsRoll(multiplier: number): void {
   });
 }
 
-/**
- * Builds a roll button for a d100 table.
- *
- * Each entry is passed to the roll template as an option, so the template can
- * show the rolled result without a second lookup.
- */
+/** Builds a roll button for a d100 table, passing every entry to the roll template. */
 function buildTableRoll(name: string, entries: readonly string[], target: string): void {
   const options: string[] = [];
   for (let index = 0; index < entries.length; index += 1) {

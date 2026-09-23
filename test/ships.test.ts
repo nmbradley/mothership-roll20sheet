@@ -38,14 +38,7 @@ import {
   handleRevealFuelBid,
 } from "../src/ts/rules/ships";
 
-/**
- * Lets a fire-and-forget follow-up card settle.
- *
- * handleBattleCheck posts its alert from inside the getSectionIDs/getAttrs
- * callback that reads the ship's Hull and MDMG, so it is still in flight when
- * the handler itself resolves -- without this the roll lands after the test
- * has unstubbed finishRoll, and surfaces as an unhandled rejection.
- */
+/** Lets a fire-and-forget follow-up card settle. */
 async function flush(): Promise<void> {
   for (let i = 0; i < 5; i += 1) await Promise.resolve();
 }
@@ -301,7 +294,6 @@ describe("Ship Rules & Mechanics", () => {
 
     it("should apply the Hull rule and write MDMG on a failed Battle Check", async () => {
       const mockStartRoll = vi.fn()
-        // The Battle Check roll itself: 90 auto-fails regardless of target.
         .mockResolvedValueOnce({
           rollId: "check",
           results: {
@@ -310,7 +302,6 @@ describe("Ship Rules & Mechanics", () => {
             target: { result: 50 },
           },
         })
-        // The follow-up alert/notes broadcast.
         .mockResolvedValueOnce({
           rollId: "alert",
           results: {},
@@ -331,7 +322,6 @@ describe("Ship Rules & Mechanics", () => {
       await handleBattleCheck();
       await flush();
 
-      // Hull is already 0, so the 1 self-inflicted MDMG carries straight onto the track.
       expect(mockSetAttrs).toHaveBeenCalledWith({
         ship_hull: 0,
         ship_mdmg: 2,
@@ -340,9 +330,6 @@ describe("Ship Rules & Mechanics", () => {
       vi.unstubAllGlobals();
     });
 
-    // Mirrors the #110/#152 regression coverage on rollRestSave/rollAttack:
-    // the Battle Check's own startRoll must be reached synchronously off the
-    // click, before the getAttrs that reads Hull/MDMG for the follow-up.
     it("should reach the Battle Check's startRoll before making any getAttrs call", async () => {
       const calls: string[] = [];
       type GetAttrsCallback = (response: Record<string, string>) => void;

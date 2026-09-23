@@ -30,10 +30,7 @@ export function onLoadStats(): void {
   setCharmancerText(updates);
 }
 
-/**
- * The attributes one stats-and-saves roll writes: the rolled stats and saves
- * themselves, plus the vitals that follow from Strength alone.
- */
+/** The stats and saves one roll writes, plus the vitals that follow from Strength. */
 export function rolledAttrs(rolls: readonly RollResult[]): Record<string, string | number> {
   const attrs: Record<string, string | number> = {};
   for (const [index, field] of ROLLED_FIELDS.entries()) {
@@ -42,7 +39,6 @@ export function rolledAttrs(rolls: readonly RollResult[]): Record<string, string
     attrs[field] = roll.result;
   }
 
-  // 1e Max Health: its own 1d10+10 roll, independent of Strength (#42).
   const healthRoll = rolls[HEALTH_ROLL_INDEX];
   if (healthRoll !== undefined) attrs["health"] = healthRoll.result;
   attrs["stress"] = STARTING_STRESS;

@@ -323,13 +323,8 @@ export function skillKey(name: Skill): string {
   return key;
 }
 
-/**
- * Groups skills by tier and inverts `prereq` into `unlocks`, which is the
- * direction the charactermancer and the skills panel read them in.
- */
+/** Groups skills by tier and inverts `prereq` into `unlocks`. */
 function buildSkillsByLevel(): SkillsByLevel {
-  // Widened to SkillDef: the const assertion gives a literal union in which
-  // entries without a prereq lack the property entirely.
   const allSkills: readonly SkillDef[] = Object.values(skills);
 
   const unlockedBy = new Map<Skill, Skill[]>();
@@ -380,19 +375,7 @@ export type PrerequisiteStep = {
   choice: readonly Skill[];
 };
 
-/**
- * Walks the prerequisites beneath one skill, one tier at a time.
- *
- * A skill's `prereq` list is an OR -- owning any one satisfies it -- so a tier
- * that lists more than one is a real choice for the player, and a tier with
- * exactly one is granted without asking (a picker with one option is noise).
- * `granted` collects every single-option tier the walk passes through automatically;
- * `choice` is the options at the first tier reached that needs a decision, or
- * empty once the chain has nothing left to grant.
- *
- * Call this again with whichever skill the player picks from `choice` to
- * continue the walk one tier further.
- */
+/** Walks one tier down a skill's prerequisites, granting single options and offering choices. */
 export function prerequisiteChain(name: Skill): PrerequisiteStep {
   const granted: Skill[] = [];
   let current: SkillEntry | undefined = skillsByKey[skillKey(name)];

@@ -44,16 +44,14 @@
     <label
       class={labelClass}
       for="attr_{name}"
-      data-i18n={i18nLabel}
-    >{ label }</label>
+      data-i18n={i18nLabel}>{label}</label>
   {/if}
   <input
     class={inputClass}
     type="number"
     name="attr_{name}"
     {value}
-    {placeholder}
-    />
+    {placeholder} />
 </div>
 
 <style lang="scss">
@@ -63,7 +61,6 @@
     gap: var(--ms-space-sm);
   }
 
-  // The circular wells on the stats and saves blocks: value above, name below.
   &--round {
     .attribute__input[type="number"] {
       @extend %ms-well-round;
@@ -76,8 +73,6 @@
       font-weight: 700;
       aspect-ratio: 1;
 
-      // A ring centres its value, so the width _base.scss holds for the
-      // spinners would push the number off-centre. Here they go entirely.
       &::-webkit-inner-spin-button,
       &::-webkit-outer-spin-button {
         -webkit-appearance: none;

@@ -34,8 +34,7 @@
     <label
       class={labelClass}
       for="attr_{name}"
-      data-i18n={i18nLabel}
-    >{ label }</label>
+      data-i18n={i18nLabel}>{label}</label>
   {/if}
   <input
     class={inputClass}
@@ -44,6 +43,5 @@
     {value}
     {placeholder}
     data-i18n-placeholder={i18nPlaceholder}
-    spellcheck="false"
-    />
+    spellcheck="false" />
 </div>

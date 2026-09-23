@@ -10,12 +10,6 @@
 </script>
 
 <div class="npc-sheet">
-  <!--
-    speed_initiative's own control now lives on the settings page, outside
-    .npc-sheet. This mirrors it here, hidden, so NPCStatsPanel's
-    :has(input[name="attr_speed_initiative"]:checked) still finds a copy
-    inside .npc-sheet to query -- Roll20 keeps every same-named input in step.
-  -->
   <div class="npc-sheet__state">
     <Attribute field={speed_initiative} isLabelHidden />
   </div>

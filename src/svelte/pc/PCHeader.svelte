@@ -7,7 +7,6 @@
 
 <Frame mode="light" corner="large">
   <div class="pc-masthead">
-    <!-- Opens Settings; see settings_open in pcFields.ts and Sheet.svelte. -->
     <label for="attr_settings_open" class="pc-masthead__logo-link">
       <img src={logoUrl} alt="Mothership" class="pc-masthead__logo" />
     </label>
@@ -33,7 +32,6 @@
     max-width: 100%;
     max-height: 3.5rem;
 
-    // White art on a white panel is invisible; the token flips it per theme.
     filter: var(--ms-logo-filter);
   }
 }

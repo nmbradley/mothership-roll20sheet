@@ -1,11 +1,6 @@
 import type { EntryOf } from "#game/enums";
 
-/**
- * Control types backed by an `attr_`-prefixed input.
- *
- * Roll20 also supports `radio`, `range`, and attribute-backed `<span>`s for
- * read-only display. They are absent here because no component renders them yet.
- */
+/** Control types backed by an `attr_`-prefixed input. */
 export const Controls = {
   Text: "text",
   Textarea: "textarea",
@@ -92,10 +87,7 @@ export type Attribute<TName extends string = string> =
   | SelectAttribute<TName>
   | CheckboxAttribute<TName>;
 
-/**
- * Words Roll20's security filter rejects anywhere in sheet code, including
- * attribute and class names.
- */
+/** Words Roll20's security filter rejects anywhere in sheet code. */
 const FORBIDDEN_WORDS = [
   "data:",
   "eval",
@@ -137,32 +129,19 @@ function assertSectionName(name: string): void {
   assertAllowed(name, "Repeating section name");
 }
 
-/**
- * Translation keys in this sheet are the display text itself, verbatim.
- *
- * Transforming the text was a steady source of bugs: a key that does not match
- * what the element shows lets two different labels collide on one entry, and
- * the sheet then renders one under the other's text. Keeping them identical
- * makes that impossible to express.
- */
+/** A translation key, which in this sheet is the display text itself, verbatim. */
 export function i18nKey(text: string): string {
   return text;
 }
 
-/**
- * Builds an attribute for a Roll20 sheet, usable standalone or as a member of a
- * repeating section. The control determines which fields are required, so no
- * type or default is ever inferred.
- */
+/** Builds an attribute for a Roll20 sheet, standalone or as a repeating-section member. */
 export function attribute<TName extends string>(args: TextArgs<TName>): TextAttribute<TName>;
 export function attribute<TName extends string>(args: NumberArgs<TName>): NumberAttribute<TName>;
 export function attribute<TName extends string>(args: SelectArgs<TName>): SelectAttribute<TName>;
 export function attribute<TName extends string>(
   args: CheckboxArgs<TName>,
 ): CheckboxAttribute<TName>;
-/**
- * Implementation signature; callers resolve to one of the overloads above.
- */
+/** Implementation signature; callers resolve to one of the overloads above. */
 export function attribute<TName extends string>(
   args: AttributeArgs<TName>,
 ): Attribute<TName> {
@@ -183,25 +162,7 @@ export function attribute<TName extends string>(
   return localized;
 }
 
-/**
- * A hidden twin of an existing attribute, for CSS to read.
- *
- * Conditional visibility on this sheet is CSS-driven, because a sheet runs no
- * JS outside its sheetworkers, so a selector has to match the current value as
- * an HTML attribute. A `<select>` never exposes one: its selection lives on
- * the chosen `<option>`, so `[value="x"]` matches nothing however the player
- * sets it. A `<textarea>` has the same problem, its content sitting between
- * the tags rather than in an attribute.
- *
- * Rendering this twin alongside the real control gives those selectors
- * something to bite on. Both carry the same `name`, so Roll20 treats them as
- * one attribute and keeps them in step; only the hidden one carries a `value`
- * attribute a selector can match.
- *
- * Render it inside whichever element the `:has()` is anchored on. Every row of
- * a repeating section emits the same `name`, so an unanchored selector lets
- * one row's value gate every row.
- */
+/** A hidden twin of an attribute carrying its value as an HTML attribute for CSS. */
 export function cssMirror<TName extends string>(
   source: Attribute<TName>,
 ): TextAttribute<TName> {
@@ -238,10 +199,7 @@ export type Section<
   attributes: TAttributes;
 };
 
-/**
- * Wraps attributes into a Roll20 repeating section, prefixing the name with
- * "repeating_" and stamping it onto each member so callers never repeat it.
- */
+/** Wraps attributes into a Roll20 repeating section, stamping the section name onto each. */
 export function section<
   TName extends string,
   TAttributes extends Record<string, Attribute>,

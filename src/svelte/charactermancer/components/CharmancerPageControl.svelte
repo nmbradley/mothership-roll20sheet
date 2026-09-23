@@ -13,7 +13,11 @@
 
 <div class="ms-cm-pagecontrol">
   {#if left?.text}
-    <button class="ms-cm-pagecontrol__left" data-i18n={left.text} type="back" value={left.action}>
+    <button
+      class="ms-cm-pagecontrol__left"
+      data-i18n={left.text}
+      type="back"
+      value={left.action}>
       {left.text}
     </button>
   {/if}
@@ -25,13 +29,11 @@
   {/if}
 
   {#if right?.text}
-    <!-- The final step commits the character rather than navigating. -->
     <button
       class="ms-cm-pagecontrol__right"
       data-i18n={right.text}
       type={right.action === "finish" ? "finish" : "back"}
-      value={right.action === "finish" ? "newcharacter" : right.action}
-    >
+      value={right.action === "finish" ? "newcharacter" : right.action}>
       {right.text}
     </button>
   {/if}
@@ -86,8 +88,6 @@
   }
 }
 
-// Cancel sits outlined in the accent colour rather than filled, so it does
-// not read as equal in weight to moving forward or back.
 .ms-cm-pagecontrol__middle {
   border-color: var(--ms-accent);
 

@@ -1,14 +1,3 @@
-// Element-level defaults for the sheet.
-//
-// Every control on the sheet shares one treatment, so it is set once here on the
-// elements rather than extended into each component. This is the single largest
-// saving in the compiled file: one rule instead of one per component.
-//
-// Emitted inside the tripled root selector, so these are already scoped to the
-// sheet and already outrank Roll20's defaults.
-// `all: unset` in _unset.scss resolves display to `inline` on this element,
-// since display is not inherited. Nothing else re-declares it, and an inline
-// sheet root collapses the whole layout -- so it is stated here.
 display: block;
 
 box-sizing: border-box;
@@ -26,10 +15,6 @@ color: var(--ms-fg);
   box-sizing: inherit;
 }
 
-// Roll20's base.css sets heading metrics in px -- 36px of line-height on an
-// h2, plus its own margins -- which is what opens the gaps under every panel
-// title. `all: unset` on the sheet root never reaches these, so they state
-// their own.
 h1,
 h2,
 h3,
@@ -60,8 +45,6 @@ textarea {
 
   background: var(--ms-surface);
 
-  // Fields read larger than the labels beside them, as the printed sheet sets
-  // them -- its inputs are 6.7pt against 4.1pt labels.
   font-size: var(--ms-text-md);
   font-family: var(--ms-font-body);
   color: var(--ms-fg);
@@ -71,13 +54,6 @@ textarea {
   resize: vertical;
 }
 
-// The spinners crowd a narrow numeric well, so they only show on hover -- but
-// they are faded rather than removed. Toggling `display` re-flows the field and
-// shoves the value sideways the moment the pointer arrives; opacity does not
-// affect layout, so the number stays exactly where it was.
-//
-// Firefox gives no way to hold the space without also drawing the control, so
-// there they stay hidden and the field simply never shifts.
 input[type="number"] {
   -moz-appearance: textfield;
 

@@ -1,10 +1,10 @@
 <script lang="ts">
-    export let mode = "light"; // "light" | "light-grey" | "mid-grey" | "dark"
-    export let corner = "medium"; // "small" | "medium" | "large"
+  export let mode = "light";
+  export let corner = "medium";
 </script>
 
 <div class="frame frame--mode-{mode} frame--corner-{corner}">
-    <slot />
+  <slot></slot>
 </div>
 
 <style lang="scss">
@@ -15,9 +15,6 @@
   &--corner-medium { border-radius: var(--ms-radius-md); }
   &--corner-large { border-radius: var(--ms-radius-lg); }
 
-  // The printed profile stacks three panel treatments: outlined white, a pale
-  // blue-grey tint carrying no border at all, and solid ink with knocked-out
-  // type. Only the outlined one is ruled.
   &--mode-light {
     border: var(--ms-border-width-thick) solid var(--ms-border);
 

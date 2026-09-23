@@ -29,8 +29,7 @@
     section={pcEquipment}
     fields={[equipment_name, equipment_type]}
     columns="1fr 100px auto"
-    trailing={1}
-  >
+    trailing={1}>
     <Attribute field={equipment_name} isLabelHidden />
     <Attribute field={equipment_type} isLabelHidden />
 
@@ -39,11 +38,6 @@
         <Attribute field={equipment_notes} isLabelHidden />
       </SettingsRow>
 
-      <!--
-        Hidden mirror of equipment_type -- see its declaration in pcFields.ts.
-        Placed inside the drawer so :has() below can gate the Armor-only
-        fields on this row's own copy rather than any other row's.
-      -->
       <Attribute field={equipment_type_mirror} />
 
       <div class="pc-equipment-armor">
@@ -89,9 +83,6 @@
   &__well {
     border: var(--ms-border-width-thick) solid var(--ms-border);
     border-radius: var(--ms-radius-lg);
-    // #127: DisplayValue's span stays empty until Roll20 has an attribute
-    // value to fill it with, which can be true on first render -- this floor
-    // keeps the well from collapsing to a line while that's the case.
     min-height: calc(var(--ms-text-xl) + var(--ms-space-md) * 2);
     padding: var(--ms-space-md) var(--ms-space-lg);
 
@@ -100,13 +91,6 @@
       align-items: stretch;
     }
 
-    // Two classes deep so Roll20's own `.charsheet input[type=...]` sizing does
-    // not put a second border inside the pill. AP and DR are read-only
-    // derived totals (a plain <span>, see DisplayValue); Credits stays an
-    // editable input. Both are headline numbers, so both share the scale --
-    // and #158: Credits' base `input[type="text"]` rule (src/svelte/styles/
-    // _base.scss) still adds its own padding on top of this well's, which the
-    // span never had, so it has to be zeroed here for the two boxes to match.
     .attribute .attribute__input,
     .attribute__value--display {
       display: block;
@@ -124,22 +108,12 @@
   }
 }
 
-// AP and DR only make sense on armour, so they -- and the button that
-// destroys this item -- stay hidden until the row's own equipment_type_mirror
-// says so. `:has()` reaches into the drawer's slotted content rather than
-// relying on sibling order, the same trick PCStatsPanel uses for the
-// sheet-wide speed_initiative gate.
 .pc-equipment-armor {
   display: none;
   gap: var(--ms-space-lg);
   align-items: center;
   justify-content: space-between;
 
-  // The label reads above the circle rather than below it, and the circle
-  // centres under it. align-items has to be reset: the base .attribute grid
-  // is built for a label beside a control and sets `baseline`, which sizes
-  // the track off the text baseline instead of the box and drops the circle
-  // out of its row (see Attribute.svelte).
   .attribute--round {
     align-items: stretch;
     justify-items: center;
@@ -162,9 +136,6 @@
     }
   }
 
-  // A destructive action, so it borrows the same accent fill as
-  // RepeatingSection's own row-delete control rather than reading as plain
-  // text.
   .button--action {
     align-self: center;
 

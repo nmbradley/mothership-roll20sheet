@@ -29,8 +29,7 @@
     section={pcAttacks}
     fields={[attack_name, attack_type, attack_damage]}
     columns="2fr 1fr 1fr auto"
-    trailing={1}
-  >
+    trailing={1}>
     <div class="pc-attack-name">
       <ButtonAction action="attack" label="" />
       <Attribute field={attack_name} isLabelHidden />
@@ -75,10 +74,6 @@
     min-width: 0;
   }
 
-  // RepeatingSection strips the row button's chrome, which suited it when the
-  // weapon's own name was the button. Now the name is an input and this is a
-  // separate roll trigger, so it takes its fill back -- without this it
-  // inherits the base button's knocked-out text over no background at all.
   .button--action {
     flex: 0 0 auto;
     justify-content: center;
@@ -92,12 +87,6 @@
 
     color: var(--ms-fg-inverse);
 
-    // #160: a d10 from Roll20's own dicefontd10 icon font (documented under
-    // "Icon Fonts" on the CSS Wizardry sheet-author wiki page, alongside
-    // Pictos), replacing the "\25CE" placeholder -- attacks roll d100 (two
-    // d10s). "k" is one of several die-face characters this font exposes;
-    // it is the one Roll20's own sheet authors recommend for reading as a
-    // plain d10 outline rather than a specific pip count.
     &::before {
       content: "k";
 
@@ -121,11 +110,6 @@
   gap: var(--ms-space-md);
 }
 
-// The heading row sits flush with the column edge, but every input beneath it
-// is inset by its own border and padding -- so "WEAPON / TYPE / DAMAGE" reads
-// left of the fields it labels. `.pc-attack-name` only ever renders here, so
-// `:has()` scopes the fix to this section's own heading row rather than every
-// RepeatingSection's (repeating_attacks is shared with the NPC sheet, #90).
 .repeating:has(.pc-attack-name) .repeating__heading {
   padding-left: calc(var(--ms-border-width) + var(--ms-space-md));
 }

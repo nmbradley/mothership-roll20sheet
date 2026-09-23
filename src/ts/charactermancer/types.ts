@@ -1,10 +1,4 @@
-/**
- * Shapes for the data Roll20's charactermancer hands back.
- *
- * `getCharmancerData()` is declared as `Record<string, unknown>`, which is what
- * drove the long optional-chains this module used to be written in. Everything
- * here narrows that once so the slides can read plain values.
- */
+/** Shapes for the data Roll20's charactermancer hands back. */
 
 /** Charactermancer steps, in the order the player completes them. */
 export const Steps = {
@@ -27,11 +21,7 @@ export type StepData = {
 
 export type CharmancerData = Partial<Record<Step, StepData>>;
 
-/**
- * Stats carried across every step and shown on the topbar and review.
- * `armor` is set by the class; the rest come from the stats-and-saves roll,
- * with the class's stat and save modifiers layered on top.
- */
+/** Stats carried across every step and shown on the topbar and review. */
 export const TrackedStats = [
   "strength",
   "speed",
@@ -47,8 +37,5 @@ export const TrackedStats = [
 ] as const;
 export type TrackedStat = (typeof TrackedStats)[number];
 
-/**
- * Every tracked stat resolved to a number, or null where the player has not got
- * far enough to determine it. Always fully populated, so callers never probe.
- */
+/** Every tracked stat resolved to a number, or null where not yet determined. */
 export type StatTotals = Record<TrackedStat, number | null>;

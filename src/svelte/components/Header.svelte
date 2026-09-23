@@ -1,5 +1,5 @@
 <script lang="ts">
-    export let title;
+  export let title;
 </script>
 
 <h2 class="header header--section" data-i18n={title}>{title}</h2>
@@ -8,7 +8,6 @@
 .header {
   margin: 0;
 
-  // Inherited, not set: a title inside the dark panel has to invert with it.
   color: inherit;
 
   &--section {

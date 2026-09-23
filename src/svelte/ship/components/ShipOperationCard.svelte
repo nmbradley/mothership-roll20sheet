@@ -5,13 +5,10 @@
   export let label: string;
 </script>
 
-<!-- The rules text is useful reference but shouldn't outweigh the button that
-     actually drives the roll, so it renders as smaller supporting text below
-     a full-width button rather than a paragraph inside its own bordered box. -->
 <div class="ship-operation-card">
   <Button {action} {label} />
   <p class="ship-operation-card__desc">
-    <slot />
+    <slot></slot>
   </p>
 </div>
 

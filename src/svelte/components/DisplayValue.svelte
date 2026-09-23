@@ -30,11 +30,9 @@
     <label
       class={labelClass}
       for="attr_{name}"
-      data-i18n={i18nLabel}
-    >{ label }</label>
+      data-i18n={i18nLabel}>{label}</label>
   {/if}
   <span
     class={valueClass}
-    name="attr_{name}"
-  ></span>
+    name="attr_{name}"></span>
 </div>
