@@ -2065,6 +2065,16 @@ body.sheet-darkmode
   .pc-equipment-armor {
   display: flex;
 }
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_equipment_destroyed"][value="1"])
+  .attribute--equipment_name::before {
+  content: "broken_image";
+  margin-right: var(--ms-space-sm);
+  font-family: "Material Symbols Outlined", "Material Icons";
+  font-weight: 400;
+  color: var(--ms-accent);
+  font-feature-settings: "liga";
+}
 .charsheet.charsheet.charsheet .pc-masthead {
   display: flex;
   align-items: center;

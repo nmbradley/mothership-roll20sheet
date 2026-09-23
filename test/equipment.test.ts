@@ -15,19 +15,23 @@ afterEach(() => {
 });
 
 describe("sumArmor", () => {
-  it("sums AP and DR across every Armor-type row", () => {
+  it("sums AP and DR across every equipped, undestroyed Armor-type row", () => {
     const rows: EquipmentRow[] = [
       {
         id: "row1",
         type: "Armor",
         armorPoints: 3,
         damageReduction: 0,
+        equipped: true,
+        destroyed: false,
       },
       {
         id: "row2",
         type: "Armor",
         armorPoints: 10,
         damageReduction: 3,
+        equipped: true,
+        destroyed: false,
       },
     ];
     expect(sumArmor(rows)).toEqual({
@@ -43,12 +47,16 @@ describe("sumArmor", () => {
         type: "Weapon",
         armorPoints: 99,
         damageReduction: 99,
+        equipped: true,
+        destroyed: false,
       },
       {
         id: "row2",
         type: "Gear",
         armorPoints: 99,
         damageReduction: 99,
+        equipped: true,
+        destroyed: false,
       },
     ];
     expect(sumArmor(rows)).toEqual({
@@ -63,6 +71,57 @@ describe("sumArmor", () => {
       damageReduction: 0,
     });
   });
+
+  it("excludes an unequipped row's AP and DR, even undestroyed", () => {
+    const rows: EquipmentRow[] = [
+      {
+        id: "row1",
+        type: "Armor",
+        armorPoints: 5,
+        damageReduction: 3,
+        equipped: false,
+        destroyed: false,
+      },
+    ];
+    expect(sumArmor(rows)).toEqual({
+      armorPoints: 0,
+      damageReduction: 0,
+    });
+  });
+
+  it("excludes a destroyed row's AP but keeps its DR, while equipped", () => {
+    const rows: EquipmentRow[] = [
+      {
+        id: "row1",
+        type: "Armor",
+        armorPoints: 5,
+        damageReduction: 3,
+        equipped: true,
+        destroyed: true,
+      },
+    ];
+    expect(sumArmor(rows)).toEqual({
+      armorPoints: 0,
+      damageReduction: 3,
+    });
+  });
+
+  it("excludes both AP and DR from a row that is unequipped and destroyed", () => {
+    const rows: EquipmentRow[] = [
+      {
+        id: "row1",
+        type: "Armor",
+        armorPoints: 5,
+        damageReduction: 3,
+        equipped: false,
+        destroyed: true,
+      },
+    ];
+    expect(sumArmor(rows)).toEqual({
+      armorPoints: 0,
+      damageReduction: 0,
+    });
+  });
 });
 
 describe("destroyedArmorUpdates", () => {
@@ -73,6 +132,8 @@ describe("destroyedArmorUpdates", () => {
         type: "Armor",
         armorPoints: 5,
         damageReduction: 3,
+        equipped: true,
+        destroyed: false,
       },
     ];
     expect(destroyedArmorUpdates(rows)).toEqual({
@@ -88,6 +149,8 @@ describe("destroyedArmorUpdates", () => {
         type: "Weapon",
         armorPoints: 0,
         damageReduction: 0,
+        equipped: true,
+        destroyed: false,
       },
     ];
     expect(destroyedArmorUpdates(rows)).toEqual({});
@@ -100,6 +163,8 @@ describe("destroyedArmorUpdates", () => {
         type: "Armor",
         armorPoints: 0,
         damageReduction: 0,
+        equipped: true,
+        destroyed: false,
       },
     ];
     expect(destroyedArmorUpdates(rows)).toEqual({});
@@ -129,6 +194,76 @@ describe("Sheetworkers getSectionIDs / getAttrs integration", () => {
     expect(mockSetAttrs).toHaveBeenCalledWith({
       armor_points: 5,
       damage_reduction: 0,
+    });
+  });
+
+  it("recalculateArmorTotals keeps DR but drops AP for a destroyed, equipped row", async () => {
+    vi.stubGlobal("getSectionIDs", (_section: string, callback: (ids: string[]) => void) => {
+      callback(["row1"]);
+    });
+    vi.stubGlobal("getAttrs", (_request: string[], callback: (response: Record<string, string>) => void) => {
+      callback({
+        repeating_equipment_row1_equipment_type: "Armor",
+        repeating_equipment_row1_equipment_armor_points: "5",
+        repeating_equipment_row1_equipment_damage_reduction: "3",
+        repeating_equipment_row1_equipment_equipped: "1",
+        repeating_equipment_row1_equipment_destroyed: "1",
+      });
+    });
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    await recalculateArmorTotals();
+
+    expect(mockSetAttrs).toHaveBeenCalledWith({
+      armor_points: 0,
+      damage_reduction: 3,
+    });
+  });
+
+  it("recalculateArmorTotals drops both AP and DR for an unequipped row", async () => {
+    vi.stubGlobal("getSectionIDs", (_section: string, callback: (ids: string[]) => void) => {
+      callback(["row1"]);
+    });
+    vi.stubGlobal("getAttrs", (_request: string[], callback: (response: Record<string, string>) => void) => {
+      callback({
+        repeating_equipment_row1_equipment_type: "Armor",
+        repeating_equipment_row1_equipment_armor_points: "5",
+        repeating_equipment_row1_equipment_damage_reduction: "3",
+        repeating_equipment_row1_equipment_equipped: "0",
+        repeating_equipment_row1_equipment_destroyed: "0",
+      });
+    });
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    await recalculateArmorTotals();
+
+    expect(mockSetAttrs).toHaveBeenCalledWith({
+      armor_points: 0,
+      damage_reduction: 0,
+    });
+  });
+
+  it("recalculateArmorTotals treats a row with no equipped attribute yet as equipped (#216)", async () => {
+    vi.stubGlobal("getSectionIDs", (_section: string, callback: (ids: string[]) => void) => {
+      callback(["row1"]);
+    });
+    vi.stubGlobal("getAttrs", (_request: string[], callback: (response: Record<string, string>) => void) => {
+      callback({
+        repeating_equipment_row1_equipment_type: "Armor",
+        repeating_equipment_row1_equipment_armor_points: "5",
+        repeating_equipment_row1_equipment_damage_reduction: "3",
+      });
+    });
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    await recalculateArmorTotals();
+
+    expect(mockSetAttrs).toHaveBeenCalledWith({
+      armor_points: 5,
+      damage_reduction: 3,
     });
   });
 
