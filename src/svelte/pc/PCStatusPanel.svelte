@@ -12,42 +12,47 @@
     wounds,
   } from "#game/fields/pcFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
+  import AttributeNumberMax from "#svelte/components/AttributeNumberMax.svelte";
   import ButtonAction from "#svelte/components/ButtonAction.svelte";
-  import DisplayValue from "#svelte/components/DisplayValue.svelte";
   import Panel from "#svelte/components/Panel.svelte";
   import RepeatingSection from "#svelte/components/RepeatingSection.svelte";
   import SettingsDrawer from "#svelte/components/SettingsDrawer.svelte";
   import SettingsRow from "#svelte/components/SettingsRow.svelte";
 
-  /** Health and Wounds are tracked as a current/maximum pair. */
-  const ranged = [health, wounds];
+  /** Health, Wounds and Stress are all tracked as current/bound pairs. */
+  const ranged = [
+    {
+      field: health,
+      maxField: undefined,
+      subLabels: ["Current", "Maximum"],
+    },
+    {
+      field: wounds,
+      maxField: undefined,
+      subLabels: ["Current", "Maximum"],
+    },
+    {
+      field: stress,
+      maxField: stress_min,
+      subLabels: ["Current", "Minimum"],
+    },
+  ];
 </script>
 
 <Panel title="Status Report" corner="large">
   <div class="pc-status-grid">
-    {#each ranged as vital (vital.name)}
+    {#each ranged as vital (vital.field.name)}
       <div class="pc-status-card">
-        <div class="pc-status-card__label" data-i18n={vital.i18nLabel}>{vital.label}</div>
-        <Attribute field={vital} isLabelHidden />
+        <div class="pc-status-card__label" data-i18n={vital.field.i18nLabel}>
+          {vital.field.label}
+        </div>
+        <AttributeNumberMax field={vital.field} maxField={vital.maxField} isLabelHidden />
         <div class="pc-status-card__sublabels">
-          <span data-i18n="Current">Current</span>
-          <span data-i18n="Maximum">Maximum</span>
+          <span data-i18n={vital.subLabels[0]}>{vital.subLabels[0]}</span>
+          <span data-i18n={vital.subLabels[1]}>{vital.subLabels[1]}</span>
         </div>
       </div>
     {/each}
-
-    <div class="pc-status-card">
-      <div class="pc-status-card__label" data-i18n={stress.i18nLabel}>{stress.label}</div>
-      <div class="pc-status-card__stress-row">
-        <DisplayValue field={stress_min} isLabelHidden />
-        <Attribute field={stress} isLabelHidden />
-      </div>
-      <div class="pc-status-card__sublabels">
-        <span data-i18n="Minimum">Minimum</span>
-        <span data-i18n="Current">Current</span>
-      </div>
-      <Attribute field={stress_min} />
-    </div>
   </div>
 
   <div class="pc-status-notes">
@@ -104,8 +109,8 @@
 <style lang="scss">
 .pc-status-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 0.75fr;
-  gap: var(--ms-space-lg);
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--ms-space-sm);
   align-items: start;
 }
 
@@ -148,22 +153,6 @@
 
     font-size: var(--ms-text-sm);
     color: var(--ms-fg-muted);
-  }
-
-  &__stress-row {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: var(--ms-space-sm);
-    align-items: center;
-
-    .attribute__value--display {
-      min-width: 1.5em;
-
-      font-size: var(--ms-text-lg);
-      font-weight: 700;
-      text-align: center;
-      color: var(--ms-fg-muted);
-    }
   }
 }
 
