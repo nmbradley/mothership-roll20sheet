@@ -1,8 +1,11 @@
+import type { PanicEffect } from "#game/data/panic.js";
 import type { DeathEffect } from "#game/data/wounds.js";
 
 import {
+  NO_CONSEQUENCES,
   Outcomes,
   isFailure,
+  type CheckGrade,
   type CheckResult,
   type Outcome,
 } from "./rolls";
@@ -140,6 +143,7 @@ export function checkComputed(
   check: CheckResult,
   skillName = "",
   used = 1,
+  grade: CheckGrade = NO_CONSEQUENCES,
 ): Record<string, string | number> {
   const computed: Record<string, string | number> = {
     [COMPUTED.Verdict]: translateOr(check.outcome),
@@ -148,7 +152,7 @@ export function checkComputed(
     [COMPUTED.Skill]: skillName,
     [COMPUTED.HasSkill]: notesFlag(skillName),
     [COMPUTED.Used]: used,
-    [COMPUTED.Notes]: panicWarning(check),
+    [COMPUTED.Notes]: consequenceNotes(grade),
   };
   const flagged = withNotesFlag(computed);
   return flagged;
@@ -164,7 +168,6 @@ export function usedDie(rolls: readonly number[], counted: number): number {
 export const TEMPLATE_PHRASES = {
   PanicCheck: "Panic Check",
   KeptItTogether: "Kept It Together",
-  PanicWarning: "Critical Failure: Make a Panic Check",
   RestSave: "Rest Save",
   DeathSave: "Death Save",
   ArmorDestroyed: "Armor Destroyed",
@@ -174,26 +177,36 @@ export const TEMPLATE_PHRASES = {
   ArmorAbsorbed: "Absorbed by Armor",
   MilitaryTraining: "Military Training",
   TraumaResponse: "Trauma Response",
-  AttackFailed: "Attack Failed: Gain 1 Stress",
   OutOfAmmo: "Out of Ammo",
   StressOverflow: "Stress Overflow: Reduces Most Relevant Stat or Save by",
+  StressGained: "Stress Gained",
+  PanicForced: "Critical Failure: Panic Check",
 } as const;
 
-/** A Critical Failure on a check forces a Panic Check; say so in chat. */
-function panicWarning(check: CheckResult): string {
-  if (!check.triggersPanic) return "";
-  const warning = translateOr(TEMPLATE_PHRASES.PanicWarning);
-  return warning;
+/** What the check cost its roller, said on the card rather than left to happen quietly. */
+function consequenceNotes(grade: CheckGrade): string {
+  const lines: string[] = [];
+  if (grade.stressDelta > 0) {
+    const label = translateOr(TEMPLATE_PHRASES.StressGained);
+    lines.push(`${label}: ${String(grade.stressDelta)}`);
+  }
+  if (grade.panics) {
+    const forced = translateOr(TEMPLATE_PHRASES.PanicForced);
+    lines.push(forced);
+  }
+  const notes = lines.join("\n");
+  return notes;
 }
 
-/** The template sent to startRoll for a Panic Check. */
-export function panicTemplate(): string {
+/** The template sent to startRoll for a Panic Check, against a Stress already counted. */
+export function panicTemplate(stress?: number): string {
+  const target = stress === undefined ? "@{stress}" : String(stress);
   const template = render([
     ["title", translated(TEMPLATE_PHRASES.PanicCheck)],
     ["subtitle", "@{character_name}"],
     ["roll", "[[1d20]]"],
     ["roll2", "[[1d20]]"],
-    ["target", "[[@{stress}]]"],
+    ["target", `[[${target}]]`],
     [COMPUTED.Used, "[[0]]"],
     [COMPUTED.Verdict, "[[0]]"],
     [COMPUTED.VerdictClass, "[[0]]"],
@@ -204,22 +217,31 @@ export function panicTemplate(): string {
   return template;
 }
 
-/** The values finishRoll substitutes into a Panic Check. */
+/** The Trauma Response line, which fires alongside the Panic Table result rather than instead. */
+function traumaResponseLine(): string {
+  return `${translateOr(TEMPLATE_PHRASES.TraumaResponse)}: @{stress_effect}`;
+}
+
+/** The values finishRoll substitutes into a Panic Check, read off the Panic Table. */
 export function panicComputed(
   check: CheckResult,
   used = 1,
+  effect?: PanicEffect,
 ): Record<string, string | number> {
   const hasPanicked = isFailure(check.outcome);
 
   const survived = translateOr(TEMPLATE_PHRASES.KeptItTogether);
-  const panicked = translateOr(TEMPLATE_PHRASES.TraumaResponse);
+  const panicked = effect?.name ?? translateOr(TEMPLATE_PHRASES.TraumaResponse);
+  const notes = effect === undefined
+    ? traumaResponseLine()
+    : `${effect.effect}\n${traumaResponseLine()}`;
 
   const computed: Record<string, string | number> = {
     [COMPUTED.Used]: used,
     [COMPUTED.Verdict]: hasPanicked ? panicked : survived,
     [COMPUTED.VerdictClass]: VERDICT_CLASSES[check.outcome],
     [COMPUTED.Rank]: RANKS[check.outcome],
-    [COMPUTED.Notes]: hasPanicked ? "@{stress_effect}" : "",
+    [COMPUTED.Notes]: hasPanicked ? notes : "",
   };
   const flagged = withNotesFlag(computed);
   return flagged;

@@ -174,6 +174,34 @@ function discardedRoll(
   return first === counted ? second : first;
 }
 
+/** What a graded check costs the character who rolled it. */
+export type CheckGrade = {
+  stressDelta: number;
+  panics: boolean;
+};
+
+/** A check whose Stress and Panic fall on somebody else, as a Ship's crew bear its checks. */
+export const NO_CONSEQUENCES: CheckGrade = {
+  stressDelta: 0,
+  panics: false,
+};
+
+/** 18.1 and 18.2: a failed Stat Check or Save gains 1 Stress. */
+function failureStress(check: CheckResult): number {
+  return isFailure(check.outcome) ? 1 : 0;
+}
+
+/** Grades a check into the Stress a failure costs and the Panic a Critical Failure forces. */
+export function gradeCheck(
+  check: CheckResult,
+  stress: (check: CheckResult) => number = failureStress,
+): CheckGrade {
+  return {
+    stressDelta: stress(check),
+    panics: check.triggersPanic,
+  };
+}
+
 /** Grades a single roll-under check of one die, with no edge and no bonuses. */
 export function evaluateRoll(roll: number, target: number): Outcome {
   const outcome = outcomeOf(roll, target, Comparisons.RollUnder);

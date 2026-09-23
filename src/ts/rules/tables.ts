@@ -1,3 +1,4 @@
+import { panicTable, type PanicEffect } from "#game/data/panic.js";
 import {
   deathTable, woundsTable, type DeathEffect, type WoundEffect,
 } from "#game/data/wounds.js";
@@ -81,5 +82,18 @@ export const WOUNDS_TABLE: RollTable<WoundEffect> = {
 /** Looks a d10 result up on the Wounds Table. */
 export function woundEffect(roll: number): WoundEffect | undefined {
   const result = rollOnTable(WOUNDS_TABLE, roll);
+  return result?.entry;
+}
+
+/** The Panic Table, indexed by a single d20 result (1-20). */
+export const PANIC_TABLE: RollTable<PanicEffect> = {
+  name: "Panic",
+  entries: panicTable,
+  rollOf: (entry) => entry.roll,
+};
+
+/** Looks a d20 result up on the Panic Table. */
+export function panicEffect(roll: number): PanicEffect | undefined {
+  const result = rollOnTable(PANIC_TABLE, roll);
   return result?.entry;
 }
