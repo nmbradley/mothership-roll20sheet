@@ -1,3 +1,4 @@
+import type { PanicEffect } from "#game/data/panic.js";
 import { allSaves, allStats } from "#game/enums.js";
 import { titleCase } from "#game/text.js";
 
@@ -17,16 +18,19 @@ import {
 import {
   Comparisons,
   Edges,
+  gradeCheck,
   isFailure,
   makeCheck,
+  NO_CONSEQUENCES,
   resolveEdge,
   SKILL_BONUS,
+  type CheckGrade,
   type CheckRequest,
   type CheckResult,
   type Edge,
   type Outcome,
 } from "./rolls";
-import { deathSaveEffect } from "./tables";
+import { deathSaveEffect, panicEffect } from "./tables";
 import { translateOr } from "./translation";
 
 /** Sheetworker entry points for rolling: the dice go out, the rules grade them. */
@@ -276,6 +280,10 @@ export type CheckOptions = {
   sendToTracker?: boolean;
   /** The weapon row's own detail, for an attack rolled off a repeating row. */
   attack?: AttackDetail;
+  /** Rolled by the Ship, whose crew bear the Stress and Panic the card announces for them. */
+  ship?: boolean;
+  /** The check's own Stress rule, where a failure does not simply cost the flat 1 (20.2). */
+  stress?: (check: CheckResult) => number;
 };
 
 /** Rolls a stat check, save or attack and returns the graded result. */
@@ -308,27 +316,24 @@ export async function rollCheck(options: CheckOptions): Promise<CheckResult> {
   const skillName = named !== "" ? named : (wasOffered ? translateOr(UNSKILLED_LABEL) : "");
 
   const used = usedDie(dice.rolls, check.roll);
-  const computed = checkComputed(check, skillName, used);
+  const grade = options.ship === true ? NO_CONSEQUENCES : gradeCheck(check, options.stress);
+  const computed = checkComputed(check, skillName, used, grade);
   if (options.attack !== undefined) {
     computed[COMPUTED.HasDamage] = gradeAttack(check.outcome).showDamage ? 1 : 0;
   }
   finishRoll(roll.rollId, computed);
+  applyCheckGrade(grade);
   return check;
 }
 
-/** What an attack's outcome costs beyond the card: a Damage roll, or 1 Stress on a miss. */
+/** What an attack's outcome costs beyond the card: a Damage roll only where it hit. */
 export type AttackGrade = {
   showDamage: boolean;
-  stressDelta: number;
 };
 
 /** Grades an attack's outcome into what its follow-up card owes the table. */
 export function gradeAttack(outcome: Outcome): AttackGrade {
-  const hasFailed = isFailure(outcome);
-  return {
-    showDamage: !hasFailed,
-    stressDelta: hasFailed ? 1 : 0,
-  };
+  return { showDamage: !isFailure(outcome) };
 }
 
 /** Whether the active sheet is the NPC sheet, which has no Stress of its own. */
@@ -358,19 +363,7 @@ export function isOutOfAmmo(shots: string): boolean {
   return parseShots(shots) === 0;
 }
 
-/** Says what a missed attack costs, since the Stress is applied without asking. */
-async function postAttackFailed(): Promise<void> {
-  const template =
-    "&{template:ms} {{subtitle=@{character_name}}} {{alert=[[0]]}} {{hasalert=[[0]]}}";
-  const rollData = await startRoll(template);
-  const alert = translateOr(TEMPLATE_PHRASES.AttackFailed);
-  finishRoll(rollData.rollId, {
-    alert,
-    hasalert: notesFlag(alert),
-  });
-}
-
-/** #14: a third, loud card once a tracked weapon's magazine runs dry. */
+/** #14: a second, loud card once a tracked weapon's magazine runs dry. */
 async function postOutOfAmmoAlert(name: string): Promise<void> {
   const template = `&{template:ms} {{title=${name}}} {{subtitle=@{character_name}}} `
     + "{{alert=[[0]]}} {{hasalert=[[0]]}}";
@@ -471,19 +464,25 @@ function spendRowAmmo(rowId: string, remaining: string, name: string): void {
   if (isEmpty) void postOutOfAmmoAlert(name);
 }
 
-/** A missed attack costs 1 Stress, which the NPC sheet has nowhere to put. */
-function applyMissStress(delta: number): void {
+/** Charges what a check cost: the Stress lands first, so the Panic Check reads the new total. */
+function applyCheckGrade(grade: CheckGrade): void {
+  if (grade.stressDelta === 0 && !grade.panics) return;
+
   getAttrs(["stress", "stress_min", "sheet_toggle"], (attrs) => {
     const isNpc = isNpcSheet(attrs.sheet_toggle);
     if (isNpc) return;
 
-    const stress = Number(attrs.stress);
+    const current = Number(attrs.stress);
     const min = Number(attrs.stress_min);
-    applyStressDelta(stress, delta, min);
+    const stress = grade.stressDelta === 0
+      ? current
+      : applyStressDelta(current, grade.stressDelta, min);
+
+    if (grade.panics) void rollPanicCheck(stress);
   });
 }
 
-/** Rolls a weapon attack: a Combat Check carrying its Damage, the miss Stress, and ammo spend. */
+/** Rolls a weapon attack: a Combat Check carrying its Damage, its Stress, and the ammo spend. */
 export async function rollAttack(row: AttackRow, rowId?: string): Promise<CheckResult> {
   const remaining = spendAmmo(row.shots);
 
@@ -497,11 +496,8 @@ export async function rollAttack(row: AttackRow, rowId?: string): Promise<CheckR
       antiArmor: row.antiArmor,
     },
   });
-  const grade = gradeAttack(check.outcome);
 
   if (rowId !== undefined) spendRowAmmo(rowId, remaining, row.name);
-  if (grade.stressDelta !== 0) applyMissStress(grade.stressDelta);
-  if (!grade.showDamage) void postAttackFailed();
 
   return check;
 }
@@ -562,14 +558,15 @@ async function postStressOverflowAlert(amount: number): Promise<void> {
   });
 }
 
-/** Applies a Stress change and writes it back, clamped to the bounds. */
-export function applyStressDelta(current: number, delta: number, min: number): void {
+/** Applies a Stress change and writes it back, clamped to the bounds, returning the new total. */
+export function applyStressDelta(current: number, delta: number, min: number): number {
   const floored = Math.max(min, current + delta);
   const next = Math.min(STRESS_MAX, floored);
   setAttrs({ stress: next });
 
   const overflow = stressOverflow(current, delta);
   if (overflow > 0) void postStressOverflowAlert(overflow);
+  return next;
 }
 
 /** Grades a Panic Check: a d20 rolled over current Stress. */
@@ -588,17 +585,37 @@ export function makePanicCheck(
   return check;
 }
 
-/** Rolls a Panic Check, pointing a failure at the character's Trauma Response. */
-export async function rollPanicCheck(): Promise<void> {
-  const template = `${panicTemplate()} {{edge=[[${EDGE_QUERY}]]}}`;
+/** 21.3: a Panic result severe enough to last is recorded as an Affliction row. */
+export function panicConditionRow(effect: PanicEffect): Record<string, string> {
+  if (!effect.condition) return {};
+
+  const row = `repeating_afflictions_${generateRowID()}_affliction`;
+  return {
+    [`${row}_name`]: effect.name,
+    [`${row}_effect`]: effect.effect,
+    [`${row}_settings`]: "0",
+  };
+}
+
+/** Rolls a Panic Check, reading a failure off the Panic Table alongside the Trauma Response. */
+export async function rollPanicCheck(stress?: number): Promise<void> {
+  const template = `${panicTemplate(stress)} {{edge=[[${EDGE_QUERY}]]}}`;
   const roll = await startRoll(template);
   const dice = readDice(roll.results);
 
-  const stress = readTarget(roll.results);
-  const check = makePanicCheck(stress, dice.rolls, dice.edge);
+  const target = readTarget(roll.results);
+  const check = makePanicCheck(target, dice.rolls, dice.edge);
   const used = usedDie(dice.rolls, check.roll);
-  const computed = panicComputed(check, used);
+  const hasPanicked = isFailure(check.outcome);
+  const effect = hasPanicked ? panicEffect(check.roll) : undefined;
+
+  const computed = panicComputed(check, used, effect);
   finishRoll(roll.rollId, computed);
+
+  if (effect === undefined) return;
+  const condition = panicConditionRow(effect);
+  const fields = Object.keys(condition);
+  if (fields.length > 0) setAttrs(condition);
 }
 
 /** A Rest Save targets whichever Save reads lowest -- the player has no say in it. */
@@ -626,18 +643,12 @@ export function restSaveStressDelta(check: CheckResult): number {
   return -onesDigit;
 }
 
-/** Rolls a Rest Save against worst_save and applies the Stress it changes. */
+/** Rolls a Rest Save against worst_save, whose own Stress rule replaces a Save's flat 1. */
 export async function rollRestSave(): Promise<void> {
-  const check = await rollCheck({
+  await rollCheck({
     i18nKey: TEMPLATE_PHRASES.RestSave,
     target: "@{worst_save}",
-  });
-
-  const delta = restSaveStressDelta(check);
-  getAttrs(["stress", "stress_min"], (attrs) => {
-    const stress = Number(attrs.stress);
-    const min = Number(attrs.stress_min);
-    applyStressDelta(stress, delta, min);
+    stress: restSaveStressDelta,
   });
 }
 

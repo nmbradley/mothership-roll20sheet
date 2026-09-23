@@ -13,8 +13,11 @@ import {
   panicComputed,
   panicTemplate,
 } from "../src/ts/rules/rollTemplate";
-import { Edges, makeCheck } from "../src/ts/rules/rolls";
+import {
+  Edges, gradeCheck, makeCheck,
+} from "../src/ts/rules/rolls";
 import { makePanicCheck } from "../src/ts/rules/checks";
+import { panicEffect } from "../src/ts/rules/tables";
 
 describe("Roll Templates", () => {
   describe("checkTemplate", () => {
@@ -121,20 +124,31 @@ describe("Roll Templates", () => {
       expect(usedDie([20, 70], check.roll)).toBe(1);
     });
 
-    it("should warn that a critical failure forces a Panic Check", () => {
+    it("should name the Stress gained and the Panic a critical failure forces", () => {
       const check = makeCheck({
         name: "Fear Save",
         target: 30,
         rolls: [55],
       });
-      expect(checkComputed(check).notes).toBe("Critical Failure: Make a Panic Check");
+      expect(checkComputed(check, "", 1, gradeCheck(check)).notes).toBe(
+        "Stress Gained: 1\nCritical Failure: Panic Check",
+      );
     });
 
-    it("should leave the note empty on an ordinary failure", () => {
+    it("should name only the Stress gained on an ordinary failure", () => {
       const check = makeCheck({
         name: "Fear Save",
         target: 30,
-        rolls: [45],
+        rolls: [64],
+      });
+      expect(checkComputed(check, "", 1, gradeCheck(check)).notes).toBe("Stress Gained: 1");
+    });
+
+    it("should leave the note empty where the consequences fall on somebody else", () => {
+      const check = makeCheck({
+        name: "Systems Check",
+        target: 30,
+        rolls: [55],
       });
       expect(checkComputed(check).notes).toBe("");
     });
@@ -170,11 +184,24 @@ describe("Roll Templates", () => {
       expect(computed.notes).toBe("");
     });
 
-    it("should point a failure at Trauma Response, not a rolled table entry", () => {
+    it("should name the Panic Table result and keep Trauma Response on its own line", () => {
+      const check = makePanicCheck(10, [3]);
+      const computed = panicComputed(check, 1, panicEffect(3));
+      expect(computed.verdict).toBe("JUMPY");
+      expect(computed.notes).toBe(
+        "Gain 1 Stress. All Close crewmembers gain 2 Stress.\nTrauma Response: @{stress_effect}",
+      );
+    });
+
+    it("should fall back to Trauma Response alone where no table entry answers the roll", () => {
       const check = makePanicCheck(10, [3]);
       const computed = panicComputed(check);
       expect(computed.verdict).toBe("Trauma Response");
-      expect(computed.notes).toBe("@{stress_effect}");
+      expect(computed.notes).toBe("Trauma Response: @{stress_effect}");
+    });
+
+    it("should measure a forced Panic Check against the Stress it was handed", () => {
+      expect(panicTemplate(9)).toContain("{{target=[[9]]}}");
     });
   });
 

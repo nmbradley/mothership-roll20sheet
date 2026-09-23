@@ -7,12 +7,15 @@ import {
 import {
   Comparisons,
   Edges,
+  NO_CONSEQUENCES,
   Outcomes,
+  gradeCheck,
   isDoubles,
   makeCheck,
   outcomeOf,
   resolveEdge,
   selectRoll,
+  type CheckResult,
 } from "../src/ts/rules/rolls";
 
 describe("Roll Rules (Mothership 1e)", () => {
@@ -149,6 +152,65 @@ describe("Roll Rules (Mothership 1e)", () => {
         comparison: Comparisons.RollOver,
       });
       expect(check.triggersPanic).toBe(false);
+    });
+  });
+
+  describe("gradeCheck (18.1, 18.2, 21.2)", () => {
+    /** A Fear Save against 30, graded from the single die it rolled. */
+    function fearSave(roll: number): CheckResult {
+      return makeCheck({
+        name: "Fear Save",
+        target: 30,
+        rolls: [roll],
+      });
+    }
+
+    it("should cost 1 Stress for a failed Stat Check or Save", () => {
+      expect(gradeCheck(fearSave(64))).toEqual({
+        stressDelta: 1,
+        panics: false,
+      });
+    });
+
+    it("should cost nothing for a Stat Check or Save that succeeded", () => {
+      expect(gradeCheck(fearSave(20))).toEqual({
+        stressDelta: 0,
+        panics: false,
+      });
+      expect(gradeCheck(fearSave(22))).toEqual({
+        stressDelta: 0,
+        panics: false,
+      });
+    });
+
+    it("should cost 1 Stress and force Panic on a Critical Failure, which is still a failure", () => {
+      expect(gradeCheck(fearSave(55))).toEqual({
+        stressDelta: 1,
+        panics: true,
+      });
+    });
+
+    it("should let a check with its own Stress rule replace the flat 1", () => {
+      const relieves = (check: CheckResult): number => -(check.roll % 10);
+      expect(gradeCheck(fearSave(24), relieves)).toEqual({
+        stressDelta: -4,
+        panics: false,
+      });
+    });
+
+    it("should still force the Panic Check where a check supplies its own Stress", () => {
+      const noStress = (): number => 0;
+      expect(gradeCheck(fearSave(55), noStress)).toEqual({
+        stressDelta: 0,
+        panics: true,
+      });
+    });
+
+    it("should charge nothing to a roller who bears no consequences of its own", () => {
+      expect(NO_CONSEQUENCES).toEqual({
+        stressDelta: 0,
+        panics: false,
+      });
     });
   });
 });

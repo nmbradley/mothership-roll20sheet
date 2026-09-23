@@ -297,6 +297,7 @@ export async function handleSystemsCheck(): Promise<void> {
     i18nKey: checkKey("systems"),
     target: "@{ship_systems}",
     bonus: skillQuery(),
+    ship: true,
   });
   await postShipAlert({ alert: shipFailureAlert(result.outcome) });
 }
@@ -307,6 +308,7 @@ export async function handleThrustersCheck(): Promise<void> {
     i18nKey: checkKey("thrusters"),
     target: "@{ship_thrusters}",
     bonus: skillQuery(),
+    ship: true,
   });
   await postShipAlert({ alert: shipFailureAlert(result.outcome) });
 }
@@ -367,6 +369,7 @@ export async function handleBattleCheck(): Promise<void> {
     i18nKey: checkKey("battle"),
     target: "@{ship_battle}",
     bonus: skillQuery(),
+    ship: true,
   });
 
   readShipCombat((combat) => {
