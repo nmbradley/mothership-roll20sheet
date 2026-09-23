@@ -5,6 +5,8 @@
     damage_reduction,
     equipment_armor_points,
     equipment_damage_reduction,
+    equipment_destroyed,
+    equipment_equipped,
     equipment_name,
     equipment_notes,
     equipment_settings,
@@ -39,10 +41,12 @@
       </SettingsRow>
 
       <Attribute field={equipment_type_mirror} />
+      <Attribute field={equipment_destroyed} />
 
       <div class="pc-equipment-armor">
         <Attribute field={equipment_armor_points} variant="round" />
         <Attribute field={equipment_damage_reduction} variant="round" />
+        <Attribute field={equipment_equipped} />
         <ButtonAction action="destroy_armor" label="Destroy" />
       </div>
     </SettingsDrawer>
@@ -155,5 +159,17 @@
 
 .settings__drawer:has(input[name="attr_equipment_type"][value="Armor"]) .pc-equipment-armor {
   display: flex;
+}
+
+.repeating__row:has(input[name="attr_equipment_destroyed"][value="1"])
+  .attribute--equipment_name::before {
+  content: "broken_image";
+
+  margin-right: var(--ms-space-sm);
+
+  font-family: "Material Symbols Outlined", "Material Icons";
+  font-weight: 400;
+  color: var(--ms-accent);
+  font-feature-settings: "liga";
 }
 </style>

@@ -445,6 +445,19 @@ export const equipment_linkedid = attribute({
   control: Controls.Hidden,
   value: "",
 });
+export const equipment_equipped = attribute({
+  name: "equipment_equipped",
+  label: "Equipped",
+  control: Controls.Checkbox,
+  checkedValue: "1",
+  checked: true,
+});
+export const equipment_destroyed = attribute({
+  name: "equipment_destroyed",
+  label: "Destroyed",
+  control: Controls.Hidden,
+  value: "",
+});
 
 export const pcEquipment = section({
   name: "equipment",
@@ -457,6 +470,8 @@ export const pcEquipment = section({
     equipment_notes,
     equipment_settings,
     equipment_linkedid,
+    equipment_equipped,
+    equipment_destroyed,
   } as const,
 });
 

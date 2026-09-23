@@ -7,9 +7,11 @@ export type EquipmentRow = {
   type: string;
   armorPoints: number;
   damageReduction: number;
+  equipped: boolean;
+  destroyed: boolean;
 };
 
-/** Sums Armor Points and Damage Reduction across every Armor-type row. */
+/** Sums Armor Points (equipped, undestroyed) and Damage Reduction (equipped) across Armor rows. */
 export function sumArmor(rows: readonly EquipmentRow[]): {
   armorPoints: number;
   damageReduction: number;
@@ -17,8 +19,8 @@ export function sumArmor(rows: readonly EquipmentRow[]): {
   let armorPoints = 0;
   let damageReduction = 0;
   for (const row of rows) {
-    if (row.type !== ARMOR_TYPE) continue;
-    armorPoints += row.armorPoints;
+    if (row.type !== ARMOR_TYPE || !row.equipped) continue;
+    if (!row.destroyed) armorPoints += row.armorPoints;
     damageReduction += row.damageReduction;
   }
   return {
@@ -51,6 +53,8 @@ function readEquipmentRows(done: (rows: EquipmentRow[]) => void): void {
       `repeating_equipment_${id}_equipment_type`,
       `repeating_equipment_${id}_equipment_armor_points`,
       `repeating_equipment_${id}_equipment_damage_reduction`,
+      `repeating_equipment_${id}_equipment_equipped`,
+      `repeating_equipment_${id}_equipment_destroyed`,
     ]);
 
     getAttrs(keys, (attrs) => {
@@ -60,6 +64,8 @@ function readEquipmentRows(done: (rows: EquipmentRow[]) => void): void {
         armorPoints: Number(attrs[`repeating_equipment_${id}_equipment_armor_points`]) || 0,
         damageReduction:
           Number(attrs[`repeating_equipment_${id}_equipment_damage_reduction`]) || 0,
+        equipped: attrs[`repeating_equipment_${id}_equipment_equipped`] !== "0",
+        destroyed: attrs[`repeating_equipment_${id}_equipment_destroyed`] === "1",
       }));
       done(rows);
     });

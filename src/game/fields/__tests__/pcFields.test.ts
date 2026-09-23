@@ -84,6 +84,17 @@ describe("pcFields", () => {
     expect(pcEquipment.attributes.equipment_type_mirror.control).toBe("hidden");
   });
 
+  it("exports a per-row equipped toggle on equipment, checked by default", () => {
+    expect(pcEquipment.attributes.equipment_equipped.name).toBe("equipment_equipped");
+    expect(pcEquipment.attributes.equipment_equipped.control).toBe("checkbox");
+    expect(pcEquipment.attributes.equipment_equipped.checked).toBe(true);
+  });
+
+  it("exports a hidden per-row destroyed toggle on equipment", () => {
+    expect(pcEquipment.attributes.equipment_destroyed.name).toBe("equipment_destroyed");
+    expect(pcEquipment.attributes.equipment_destroyed.control).toBe("hidden");
+  });
+
   it("exports repeating skills", () => {
     expect(pcTrainedSkills.name).toBe("repeating_trained");
     expect(pcExpertSkills.name).toBe("repeating_expert");

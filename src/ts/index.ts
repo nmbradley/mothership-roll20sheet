@@ -24,7 +24,7 @@ import {
 import { onLoadReview } from "./charactermancer/6-review";
 import { onFinish } from "./charactermancer/7-final";
 import { TrackedStats, type CharmancerData } from "./charactermancer/types";
-import { handleDestroyArmor } from "./rules/armor";
+import { destroyedArmorRowId, handleDestroyArmor } from "./rules/armor";
 import {
   CHECK_ATTRIBUTES,
   checkKey,
@@ -88,7 +88,7 @@ on("clicked:reveal_bid", () => {
 });
 
 on("clicked:repeating_equipment:destroy_armor", (eventInfo) => {
-  const rowId = eventInfo.sourceSection;
+  const rowId = destroyedArmorRowId(eventInfo);
   if (rowId === undefined) return;
   void handleDestroyArmor(rowId);
 });
@@ -97,6 +97,8 @@ const ARMOR_ROW_EVENTS = [
   "change:repeating_equipment:equipment_type",
   "change:repeating_equipment:equipment_armor_points",
   "change:repeating_equipment:equipment_damage_reduction",
+  "change:repeating_equipment:equipment_destroyed",
+  "change:repeating_equipment:equipment_equipped",
   "remove:repeating_equipment",
 ].join(" ");
 on(ARMOR_ROW_EVENTS, () => {
