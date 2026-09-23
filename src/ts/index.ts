@@ -40,8 +40,11 @@ import {
   rollSaveCheck,
   skillQuery,
 } from "./rules/checks";
-import { handleTakeDamage, handleTakeWound } from "./rules/damage";
+import {
+  handleApplyBleeding, handleStopBleeding, handleTakeDamage, handleTakeWound,
+} from "./rules/damage";
 import { recalculateArmorTotals } from "./rules/equipment";
+import { handleRadiationLevelChange, handleRadiationRound } from "./rules/radiation";
 import {
   handleAfterBattleReport,
   handleAnnualMaintenanceCheck,
@@ -175,6 +178,22 @@ on("clicked:take_damage", () => {
 
 on("clicked:take_wound", () => {
   handleTakeWound();
+});
+
+on("clicked:apply_bleeding", () => {
+  handleApplyBleeding();
+});
+
+on("clicked:stop_bleeding", () => {
+  handleStopBleeding();
+});
+
+on("clicked:apply_radiation", () => {
+  handleRadiationRound();
+});
+
+on("change:radiation_level", () => {
+  handleRadiationLevelChange();
 });
 
 on("clicked:repeating_attacks:attack", (eventInfo) => {

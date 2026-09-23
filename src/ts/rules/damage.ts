@@ -4,6 +4,7 @@ import {
 } from "#game/enums.js";
 import { titleCase } from "#game/text.js";
 
+import { addBleeding, bleedingIncrease } from "./bleeding";
 import { destroyWornArmor } from "./equipment";
 import {
   TEMPLATE_PHRASES,
@@ -12,13 +13,16 @@ import {
 import { woundEffect } from "./tables";
 import { translateOr } from "./translation";
 
-/** Automated damage and wounds: armor, the health cascade, and taking a wound outright. */
+/** Automated damage and wounds: armor, the health cascade, taking a wound, and Bleeding. */
 
-export type DamageState = {
+export type CascadeState = {
   health: number;
   healthMax: number;
   wounds: number;
   woundsMax: number;
+};
+
+export type DamageState = CascadeState & {
   armorPoints: number;
   damageReduction: number;
 };
@@ -67,28 +71,22 @@ export function applyArmor(
   };
 }
 
-export type DamageOutcome = {
+export type CascadeOutcome = {
   health: number;
-  armorPoints: number;
   wounds: number;
-  armorDestroyed: boolean;
-  absorbed: boolean;
   /** One entry per Wounds Table roll the cascade triggered, in order. */
   woundRolls: WoundRollResult[];
   requiresDeathSave: boolean;
 };
 
-/** Applies one hit to Health, cascading a Wound each time Health drops to zero or below. */
-export function applyDamage(
-  hit: number,
-  state: DamageState,
+/** Applies already-reduced damage to Health, cascading a Wound each time it drops to zero. */
+export function cascadeDamage(
+  damage: number,
+  state: CascadeState,
   damageType: DamageType,
   woundDice: readonly number[],
-  antiArmor = false,
-): DamageOutcome {
-  const armor = applyArmor(hit, state.armorPoints, state.damageReduction, antiArmor);
-
-  let health = state.health - armor.damage;
+): CascadeOutcome {
+  let health = state.health - damage;
   let wounds = state.wounds;
   const woundRolls: WoundRollResult[] = [];
   let diceIndex = 0;
@@ -111,12 +109,34 @@ export function applyDamage(
 
   return {
     health,
-    armorPoints: armor.armorPoints,
     wounds,
-    armorDestroyed: armor.armorDestroyed,
-    absorbed: armor.absorbed,
     woundRolls,
     requiresDeathSave: wounds >= state.woundsMax,
+  };
+}
+
+export type DamageOutcome = CascadeOutcome & {
+  armorPoints: number;
+  armorDestroyed: boolean;
+  absorbed: boolean;
+};
+
+/** Applies one hit through Armor, cascading a Wound each time Health drops to zero or below. */
+export function applyDamage(
+  hit: number,
+  state: DamageState,
+  damageType: DamageType,
+  woundDice: readonly number[],
+  antiArmor = false,
+): DamageOutcome {
+  const armor = applyArmor(hit, state.armorPoints, state.damageReduction, antiArmor);
+  const cascade = cascadeDamage(armor.damage, state, damageType, woundDice);
+
+  return {
+    ...cascade,
+    armorPoints: armor.armorPoints,
+    armorDestroyed: armor.armorDestroyed,
+    absorbed: armor.absorbed,
   };
 }
 
@@ -227,7 +247,7 @@ function readWoundState(done: (state: {
 }
 
 /** Records each rolled Wound as a lasting Affliction row. */
-function woundAfflictionRows(rolls: readonly WoundRollResult[]): Record<string, string> {
+export function woundAfflictionRows(rolls: readonly WoundRollResult[]): Record<string, string> {
   const attrs: Record<string, string> = {};
   for (const wound of rolls) {
     const rowId = generateRowID();
@@ -237,6 +257,15 @@ function woundAfflictionRows(rolls: readonly WoundRollResult[]): Record<string, 
     attrs[`${row}_settings`] = "0";
   }
   return attrs;
+}
+
+/** How much a batch of Wound rolls raises Bleeding (32.2), summed across every result. */
+export function totalBleedingIncrease(rolls: readonly WoundRollResult[]): number {
+  let total = 0;
+  for (const wound of rolls) {
+    total += bleedingIncrease(wound.effect[wound.damageType]);
+  }
+  return total;
 }
 
 /** Roll20 Sheetworker: applies a queried hit through Armor, Health and Wounds. */
@@ -276,12 +305,14 @@ async function rollTakeDamage(state: DamageState): Promise<void> {
 
   const damageText = damageNotes(outcome);
   const alertText = outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : "";
+  const bleedingGain = totalBleedingIncrease(outcome.woundRolls);
 
-  const writeOutcome = (armorUpdates: Record<string, string>): void => {
+  const writeOutcome = (armorUpdates: Record<string, string>, bleedingUpdate = {}): void => {
     setAttrs({
       health: outcome.health,
       wounds: outcome.wounds,
       ...armorUpdates,
+      ...bleedingUpdate,
       ...woundAfflictionRows(outcome.woundRolls),
     });
 
@@ -294,12 +325,25 @@ async function rollTakeDamage(state: DamageState): Promise<void> {
     });
   };
 
+  const finalize = (armorUpdates: Record<string, string>): void => {
+    if (bleedingGain <= 0) {
+      writeOutcome(armorUpdates);
+      return;
+    }
+    getAttrs(["bleeding"], (attrs) => {
+      const bleeding = addBleeding(Number(attrs.bleeding) || 0, bleedingGain);
+      writeOutcome(armorUpdates, { bleeding });
+    });
+  };
+
   if (outcome.armorDestroyed) {
-    destroyWornArmor(writeOutcome);
+    destroyWornArmor((armorUpdates) => {
+      finalize(armorUpdates);
+    });
     return;
   }
 
-  writeOutcome({});
+  finalize({});
 }
 
 /** Roll20 Sheetworker: deals a Wound directly, bypassing Health. */
@@ -333,20 +377,103 @@ async function rollTakeWound(state: {
   const damageType = readDamageType(typeEntry.result);
   const outcome = applyWound(damageType, rollEntry.result, state);
 
-  setAttrs({
-    wounds: outcome.wounds,
-    ...(outcome.woundRoll === undefined ? {} : woundAfflictionRows([outcome.woundRoll])),
-  });
-
   const woundNote = outcome.woundRoll === undefined
     ? ""
     : woundLine(outcome.woundRoll);
   const alertText = outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : "";
+  const bleedingGain = outcome.woundRoll === undefined
+    ? 0
+    : bleedingIncrease(outcome.woundRoll.effect[outcome.woundRoll.damageType]);
+
+  const writeOutcome = (bleedingUpdate: Record<string, number> = {}): void => {
+    setAttrs({
+      wounds: outcome.wounds,
+      ...bleedingUpdate,
+      ...(outcome.woundRoll === undefined ? {} : woundAfflictionRows([outcome.woundRoll])),
+    });
+
+    finishRoll(rollData.rollId, {
+      notes: woundNote,
+      hasnotes: notesFlag(woundNote),
+      alert: alertText,
+      hasalert: notesFlag(alertText),
+    });
+  };
+
+  if (bleedingGain <= 0) {
+    writeOutcome();
+    return;
+  }
+  getAttrs(["bleeding"], (attrs) => {
+    const bleeding = addBleeding(Number(attrs.bleeding) || 0, bleedingGain);
+    writeOutcome({ bleeding });
+  });
+}
+
+function readBleedingState(done: (state: CascadeState & { rate: number }) => void): void {
+  getAttrs(
+    ["bleeding", "health", "health_max", "wounds", "wounds_max"],
+    (attrs) => {
+      done({
+        rate: Number(attrs.bleeding) || 0,
+        health: Number(attrs.health) || 0,
+        healthMax: Number(attrs.health_max) || 0,
+        wounds: Number(attrs.wounds) || 0,
+        woundsMax: Number(attrs.wounds_max) || 0,
+      });
+    },
+  );
+}
+
+/** Roll20 Sheetworker: applies one round of Bleeding (32.2) directly to Health, skipping Armor. */
+export function handleApplyBleeding(): void {
+  readBleedingState((state) => {
+    if (state.rate <= 0) return;
+    void rollApplyBleeding(state);
+  });
+}
+
+/** The roll half of Apply Bleeding, once the current rate and Health have been read. */
+async function rollApplyBleeding(state: CascadeState & { rate: number }): Promise<void> {
+  const capacity = Math.max(0, state.woundsMax - state.wounds);
+  const diceFields = Array.from({ length: capacity }, (_, index) => `wound_roll_${index}`);
+
+  const formula = [
+    "&{template:ms}",
+    `{{title=^{${TEMPLATE_PHRASES.ApplyBleeding}}}}`,
+    "{{subtitle=@{character_name}}}",
+    `{{damage=[[${state.rate}]]}}`,
+    "{{hasdamage=[[0]]}}",
+    ...diceFields.map((field) => `{{${field}=[[1d10-1]]}}`),
+    "{{notes=[[0]]}} {{hasnotes=[[0]]}}",
+    "{{alert=[[0]]}} {{hasalert=[[0]]}}",
+  ].join(" ");
+
+  const rollData = await startRoll(formula);
+  const woundDice = diceFields.map((field) => rollData.results[field]?.result ?? 0);
+  const outcome = cascadeDamage(state.rate, state, DamageTypes.Bleeding, woundDice);
+
+  const damageText = outcome.woundRolls.map(woundLine).join("\n");
+  const alertText = outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : "";
+  const bleedingGain = totalBleedingIncrease(outcome.woundRolls);
+
+  setAttrs({
+    health: outcome.health,
+    wounds: outcome.wounds,
+    bleeding: addBleeding(state.rate, bleedingGain),
+    ...woundAfflictionRows(outcome.woundRolls),
+  });
 
   finishRoll(rollData.rollId, {
-    notes: woundNote,
-    hasnotes: notesFlag(woundNote),
+    notes: damageText,
+    hasnotes: notesFlag(damageText),
+    hasdamage: 1,
     alert: alertText,
     hasalert: notesFlag(alertText),
   });
+}
+
+/** Roll20 Sheetworker: stops Bleeding outright, clearing the tracked rate to zero. */
+export function handleStopBleeding(): void {
+  setAttrs({ bleeding: 0 });
 }

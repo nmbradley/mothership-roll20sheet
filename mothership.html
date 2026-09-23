@@ -251,6 +251,49 @@
                 </fieldset>
               </div>
             </div>
+            <div class="pc-survival">
+              <div class="pc-survival__row">
+                <div class="attribute attribute--number attribute--default attribute--bleeding">
+                  <label class="attribute__label attribute__label--number-input attribute__label--number-input--default" for="attr_bleeding" data-i18n="Bleeding">Bleeding</label>
+                  <input class="attribute__input attribute__input--number attribute__input--number--default" type="number" name="attr_bleeding" value="0"/>
+                </div>
+                <div class="pc-survival__buttons">
+                  <button class="button button--action" type="action" name="act_apply_bleeding">
+                    <span class="button__label" data-i18n="Apply Bleeding">Apply Bleeding</span>
+                  </button>
+                  <button class="button button--action" type="action" name="act_stop_bleeding">
+                    <span class="button__label" data-i18n="Stop Bleeding">Stop Bleeding</span>
+                  </button>
+                </div>
+              </div>
+              <div class="pc-survival__row">
+                <div class="attribute attribute--select attribute--radiation_level">
+                  <label class="attribute__label attribute__label--select" for="attr_radiation_level" data-i18n="Radiation Level">Radiation Level</label>
+                  <select class="attribute__input attribute__input--select" name="attr_radiation_level">
+                    <option value="trace" selected="" data-i18n="1 - Trace">
+                      1 - Trace
+                    </option>
+                    <option value="acute" data-i18n="2 - Acute">
+                      2 - Acute
+                    </option>
+                    <option value="lethal" data-i18n="3 - Lethal">
+                      3 - Lethal
+                    </option>
+                  </select>
+                </div>
+                <div class="pc-survival__buttons">
+                  <button class="button button--action" type="action" name="act_apply_radiation">
+                    <span class="button__label" data-i18n="Apply Radiation">Apply Radiation</span>
+                  </button>
+                </div>
+              </div>
+              <div class="pc-survival__row">
+                <div class="attribute attribute--checkbox attribute--cryosick">
+                  <label class="attribute__label attribute__label--checkbox" for="attr_cryosick" data-i18n="Cryosick">Cryosick</label>
+                  <input class="attribute__input attribute__input--checkbox" type="checkbox" name="attr_cryosick" value="1"/>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       </div>
@@ -4929,8 +4972,9 @@
     const ones = roll % 10;
     return tens === ones;
   }
-  function resolveEdge(hasAdvantage, hasDisadvantage) {
-    if (hasAdvantage === hasDisadvantage) return Edges.None;
+  function resolveEdge(hasAdvantage, hasDisadvantage, hasStandingDisadvantage = false) {
+    const isDisadvantaged = hasDisadvantage || hasStandingDisadvantage;
+    if (hasAdvantage === isDisadvantaged) return Edges.None;
     return hasAdvantage ? Edges.Advantage : Edges.Disadvantage;
   }
   function selectRoll(rolls, edge, comparison) {
@@ -5117,7 +5161,10 @@
     OutOfAmmo: "Out of Ammo",
     StressOverflow: "Stress Overflow: Reduces Most Relevant Stat or Save by",
     StressGained: "Stress Gained",
-    PanicForced: "Critical Failure: Panic Check"
+    PanicForced: "Critical Failure: Panic Check",
+    ApplyBleeding: "Apply Bleeding",
+    RadiationExposure: "Radiation Exposure",
+    RadiationRoundPenalty: "Acute Radiation Exposure: -1 to All Stats and Saves This Round"
   };
   function consequenceNotes(grade) {
     const lines = [];
@@ -5721,6 +5768,7 @@ ${traumaResponseLine()}`;
   var ROLL_PHRASES = rollPhrases();
   var QUERY_SYNTAX = /[|,{}]/g;
   var EDGE_QUERY = "?{Advantage/Disadvantage|Normal,0|Advantage,1|Disadvantage,2}";
+  var CRYOSICK_FIELD = "{{cryosick=[[@{cryosick}]]}}";
   var MODIFIER_QUERY = "?{Modifier?|0}";
   function queryText(key) {
     const source = translateOr(key);
@@ -5845,11 +5893,12 @@ ${traumaResponseLine()}`;
     const first = results["roll"]?.result ?? 0;
     const second = results["roll2"]?.result ?? first;
     const answer = results["edge"]?.result ?? EDGE_NORMAL;
+    const isCryosick = (results["cryosick"]?.result ?? 0) !== 0;
     const hasAdvantage = answer === EDGE_ADVANTAGE;
     const hasDisadvantage = answer !== EDGE_NORMAL && !hasAdvantage;
     return {
       rolls: [first, second],
-      edge: resolveEdge(hasAdvantage, hasDisadvantage)
+      edge: resolveEdge(hasAdvantage, hasDisadvantage, isCryosick)
     };
   }
   function readTarget(results) {
@@ -5865,7 +5914,7 @@ ${traumaResponseLine()}`;
       ...options.sendToTracker ? { sendToTracker: true } : {},
       ...options.attack === void 0 ? {} : { attack: options.attack }
     };
-    const template = `${checkTemplate(templateOptions)} {{edge=[[${EDGE_QUERY}]]}}`;
+    const template = `${checkTemplate(templateOptions)} {{edge=[[${EDGE_QUERY}]]}} ${CRYOSICK_FIELD}`;
     const roll = await startRoll(template);
     const dice = readDice(roll.results);
     const request = {
@@ -6075,7 +6124,7 @@ ${traumaResponseLine()}`;
     };
   }
   async function rollPanicCheck(stress) {
-    const template = `${panicTemplate(stress)} {{edge=[[${EDGE_QUERY}]]}}`;
+    const template = `${panicTemplate(stress)} {{edge=[[${EDGE_QUERY}]]}} ${CRYOSICK_FIELD}`;
     const roll = await startRoll(template);
     const dice = readDice(roll.results);
     const target = readTarget(roll.results);
@@ -6124,6 +6173,18 @@ ${traumaResponseLine()}`;
     finishRoll(roll.rollId, computed);
   }
 
+  // src/ts/rules/bleeding.ts
+  var BLEEDING_INCREASE = /Bleeding \+(\d+)/;
+  function addBleeding(current, amount) {
+    const next = Math.max(0, current + amount);
+    return next;
+  }
+  function bleedingIncrease(effectText) {
+    const match = BLEEDING_INCREASE.exec(effectText);
+    if (match === null) return 0;
+    return Number(match[1]) || 0;
+  }
+
   // src/ts/rules/damage.ts
   function applyArmor(hit, armorPoints, damageReduction, antiArmor = false) {
     const reduced = Math.max(0, hit - damageReduction);
@@ -6142,9 +6203,8 @@ ${traumaResponseLine()}`;
       absorbed: false
     };
   }
-  function applyDamage(hit, state, damageType, woundDice, antiArmor = false) {
-    const armor2 = applyArmor(hit, state.armorPoints, state.damageReduction, antiArmor);
-    let health = state.health - armor2.damage;
+  function cascadeDamage(damage, state, damageType, woundDice) {
+    let health = state.health - damage;
     let wounds = state.wounds;
     const woundRolls = [];
     let diceIndex = 0;
@@ -6163,12 +6223,19 @@ ${traumaResponseLine()}`;
     }
     return {
       health,
-      armorPoints: armor2.armorPoints,
       wounds,
-      armorDestroyed: armor2.armorDestroyed,
-      absorbed: armor2.absorbed,
       woundRolls,
       requiresDeathSave: wounds >= state.woundsMax
+    };
+  }
+  function applyDamage(hit, state, damageType, woundDice, antiArmor = false) {
+    const armor2 = applyArmor(hit, state.armorPoints, state.damageReduction, antiArmor);
+    const cascade = cascadeDamage(armor2.damage, state, damageType, woundDice);
+    return {
+      ...cascade,
+      armorPoints: armor2.armorPoints,
+      armorDestroyed: armor2.armorDestroyed,
+      absorbed: armor2.absorbed
     };
   }
   function applyWound(damageType, roll, state) {
@@ -6251,6 +6318,13 @@ ${traumaResponseLine()}`;
     }
     return attrs;
   }
+  function totalBleedingIncrease(rolls) {
+    let total = 0;
+    for (const wound of rolls) {
+      total += bleedingIncrease(wound.effect[wound.damageType]);
+    }
+    return total;
+  }
   function handleTakeDamage() {
     readDamageState((state) => {
       void rollTakeDamage(state);
@@ -6281,11 +6355,13 @@ ${traumaResponseLine()}`;
     const outcome = applyDamage(damageEntry.result, state, damageType, woundDice, hasAntiArmor);
     const damageText = damageNotes(outcome);
     const alertText = outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : "";
-    const writeOutcome = (armorUpdates) => {
+    const bleedingGain = totalBleedingIncrease(outcome.woundRolls);
+    const writeOutcome = (armorUpdates, bleedingUpdate = {}) => {
       setAttrs({
         health: outcome.health,
         wounds: outcome.wounds,
         ...armorUpdates,
+        ...bleedingUpdate,
         ...woundAfflictionRows(outcome.woundRolls)
       });
       finishRoll(rollData.rollId, {
@@ -6296,11 +6372,23 @@ ${traumaResponseLine()}`;
         hasalert: notesFlag(alertText)
       });
     };
+    const finalize = (armorUpdates) => {
+      if (bleedingGain <= 0) {
+        writeOutcome(armorUpdates);
+        return;
+      }
+      getAttrs(["bleeding"], (attrs) => {
+        const bleeding = addBleeding(Number(attrs.bleeding) || 0, bleedingGain);
+        writeOutcome(armorUpdates, { bleeding });
+      });
+    };
     if (outcome.armorDestroyed) {
-      destroyWornArmor(writeOutcome);
+      destroyWornArmor((armorUpdates) => {
+        finalize(armorUpdates);
+      });
       return;
     }
-    writeOutcome({});
+    finalize({});
   }
   function handleTakeWound() {
     readWoundState((state) => {
@@ -6324,17 +6412,167 @@ ${traumaResponseLine()}`;
     if (typeEntry === void 0 || rollEntry === void 0) return;
     const damageType = readDamageType(typeEntry.result);
     const outcome = applyWound(damageType, rollEntry.result, state);
-    setAttrs({
-      wounds: outcome.wounds,
-      ...outcome.woundRoll === void 0 ? {} : woundAfflictionRows([outcome.woundRoll])
-    });
     const woundNote = outcome.woundRoll === void 0 ? "" : woundLine(outcome.woundRoll);
     const alertText = outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : "";
+    const bleedingGain = outcome.woundRoll === void 0 ? 0 : bleedingIncrease(outcome.woundRoll.effect[outcome.woundRoll.damageType]);
+    const writeOutcome = (bleedingUpdate = {}) => {
+      setAttrs({
+        wounds: outcome.wounds,
+        ...bleedingUpdate,
+        ...outcome.woundRoll === void 0 ? {} : woundAfflictionRows([outcome.woundRoll])
+      });
+      finishRoll(rollData.rollId, {
+        notes: woundNote,
+        hasnotes: notesFlag(woundNote),
+        alert: alertText,
+        hasalert: notesFlag(alertText)
+      });
+    };
+    if (bleedingGain <= 0) {
+      writeOutcome();
+      return;
+    }
+    getAttrs(["bleeding"], (attrs) => {
+      const bleeding = addBleeding(Number(attrs.bleeding) || 0, bleedingGain);
+      writeOutcome({ bleeding });
+    });
+  }
+  function readBleedingState(done) {
+    getAttrs(
+      ["bleeding", "health", "health_max", "wounds", "wounds_max"],
+      (attrs) => {
+        done({
+          rate: Number(attrs.bleeding) || 0,
+          health: Number(attrs.health) || 0,
+          healthMax: Number(attrs.health_max) || 0,
+          wounds: Number(attrs.wounds) || 0,
+          woundsMax: Number(attrs.wounds_max) || 0
+        });
+      }
+    );
+  }
+  function handleApplyBleeding() {
+    readBleedingState((state) => {
+      if (state.rate <= 0) return;
+      void rollApplyBleeding(state);
+    });
+  }
+  async function rollApplyBleeding(state) {
+    const capacity = Math.max(0, state.woundsMax - state.wounds);
+    const diceFields = Array.from({ length: capacity }, (_, index) => `wound_roll_${index}`);
+    const formula = [
+      "&{template:ms}",
+      `{{title=^{${TEMPLATE_PHRASES.ApplyBleeding}}}}`,
+      "{{subtitle=@{character_name}}}",
+      `{{damage=[[${state.rate}]]}}`,
+      "{{hasdamage=[[0]]}}",
+      ...diceFields.map((field) => `{{${field}=[[1d10-1]]}}`),
+      "{{notes=[[0]]}} {{hasnotes=[[0]]}}",
+      "{{alert=[[0]]}} {{hasalert=[[0]]}}"
+    ].join(" ");
+    const rollData = await startRoll(formula);
+    const woundDice = diceFields.map((field) => rollData.results[field]?.result ?? 0);
+    const outcome = cascadeDamage(state.rate, state, DamageTypes.Bleeding, woundDice);
+    const damageText = outcome.woundRolls.map(woundLine).join("\n");
+    const alertText = outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : "";
+    const bleedingGain = totalBleedingIncrease(outcome.woundRolls);
+    setAttrs({
+      health: outcome.health,
+      wounds: outcome.wounds,
+      bleeding: addBleeding(state.rate, bleedingGain),
+      ...woundAfflictionRows(outcome.woundRolls)
+    });
     finishRoll(rollData.rollId, {
-      notes: woundNote,
-      hasnotes: notesFlag(woundNote),
+      notes: damageText,
+      hasnotes: notesFlag(damageText),
+      hasdamage: 1,
       alert: alertText,
       hasalert: notesFlag(alertText)
+    });
+  }
+  function handleStopBleeding() {
+    setAttrs({ bleeding: 0 });
+  }
+
+  // src/ts/rules/radiation.ts
+  var RadiationLevels = {
+    Trace: "trace",
+    Acute: "acute",
+    Lethal: "lethal"
+  };
+  var STAT_SAVE_PENALTY = -1;
+  function radiationRoundEffect(level) {
+    if (level === RadiationLevels.Acute) {
+      return {
+        kind: "stat-penalty",
+        amount: STAT_SAVE_PENALTY
+      };
+    }
+    if (level === RadiationLevels.Lethal) return { kind: "body-save" };
+    return { kind: "none" };
+  }
+  var MOD_ATTRIBUTES = [...allStats, ...allSaves].map((attribute) => `${attribute}_mod`);
+  function shiftStatSaveMods(mods, amount) {
+    const next = {};
+    for (const [key, value] of Object.entries(mods)) {
+      next[key] = value + amount;
+    }
+    return next;
+  }
+  function readMods(done) {
+    getAttrs([...MOD_ATTRIBUTES], (attrs) => {
+      const mods = {};
+      for (const key of MOD_ATTRIBUTES) {
+        mods[key] = Number(attrs[key]) || 0;
+      }
+      done(mods);
+    });
+  }
+  async function postRadiationRoundCard() {
+    const formula = [
+      "&{template:ms}",
+      `{{title=^{${TEMPLATE_PHRASES.RadiationExposure}}}}`,
+      "{{subtitle=@{character_name}}}",
+      "{{alert=[[0]]}} {{hasalert=[[0]]}}"
+    ].join(" ");
+    const rollData = await startRoll(formula);
+    const alert = translateOr(TEMPLATE_PHRASES.RadiationRoundPenalty);
+    finishRoll(rollData.rollId, {
+      alert,
+      hasalert: notesFlag(alert)
+    });
+  }
+  function handleRadiationRound() {
+    getAttrs(["radiation_level"], (attrs) => {
+      const effect = radiationRoundEffect(attrs.radiation_level ?? "");
+      if (effect.kind === "body-save") {
+        rollSaveCheck("body");
+        return;
+      }
+      if (effect.kind === "none") return;
+      readMods((mods) => {
+        getAttrs(["radiation_penalty_rounds"], (extra) => {
+          const rounds = (Number(extra.radiation_penalty_rounds) || 0) + 1;
+          setAttrs({
+            ...shiftStatSaveMods(mods, effect.amount),
+            radiation_penalty_rounds: rounds
+          });
+          void postRadiationRoundCard();
+        });
+      });
+    });
+  }
+  function handleRadiationLevelChange() {
+    getAttrs(["radiation_level", "radiation_penalty_rounds"], (attrs) => {
+      if (attrs.radiation_level !== RadiationLevels.Trace) return;
+      const rounds = Number(attrs.radiation_penalty_rounds) || 0;
+      if (rounds <= 0) return;
+      readMods((mods) => {
+        setAttrs({
+          ...shiftStatSaveMods(mods, rounds),
+          radiation_penalty_rounds: 0
+        });
+      });
     });
   }
 
@@ -7509,6 +7747,18 @@ ${SHIP_PANIC_MESSAGE}`;
   });
   on("clicked:take_wound", () => {
     handleTakeWound();
+  });
+  on("clicked:apply_bleeding", () => {
+    handleApplyBleeding();
+  });
+  on("clicked:stop_bleeding", () => {
+    handleStopBleeding();
+  });
+  on("clicked:apply_radiation", () => {
+    handleRadiationRound();
+  });
+  on("change:radiation_level", () => {
+    handleRadiationLevelChange();
   });
   on("clicked:repeating_attacks:attack", (eventInfo) => {
     handleAttackClick(eventInfo);

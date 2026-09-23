@@ -151,4 +151,36 @@ describe("pcFields", () => {
       },
     ]);
   });
+
+  it("exports Bleeding as a plain rate, defaulting to zero (32.2)", () => {
+    expect(pcAttributes.bleeding.name).toBe("bleeding");
+    expect(pcAttributes.bleeding.control).toBe("number");
+    expect(pcAttributes.bleeding.value).toBe(0);
+  });
+
+  it("exports the Radiation Level select with its three PSG 33.2 levels", () => {
+    expect(pcAttributes.radiation_level.name).toBe("radiation_level");
+    expect(pcAttributes.radiation_level.control).toBe("select");
+    expect(pcAttributes.radiation_level.options).toEqual([
+      {
+        value: "trace",
+        label: "1 - Trace",
+      },
+      {
+        value: "acute",
+        label: "2 - Acute",
+      },
+      {
+        value: "lethal",
+        label: "3 - Lethal",
+      },
+    ]);
+    expect(pcAttributes.radiation_level.value).toBe("trace");
+  });
+
+  it("exports the Cryosick toggle, unchecked by default (32.3)", () => {
+    expect(pcAttributes.cryosick.name).toBe("cryosick");
+    expect(pcAttributes.cryosick.control).toBe("checkbox");
+    expect(pcAttributes.cryosick.checkedValue).toBe(1);
+  });
 });

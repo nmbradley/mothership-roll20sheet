@@ -271,6 +271,80 @@ describe("rollCheck", () => {
     expect(mockFinishRoll).toHaveBeenCalled();
   });
 
+  it("carries the standing Cryosickness toggle into the roll formula (32.3)", async () => {
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        roll: { result: 30 },
+        roll2: { result: 80 },
+        edge: { result: 0 },
+        target: { result: 45 },
+      },
+    });
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+
+    await rollCheck({
+      name: "Strength Check",
+      target: "@{strength}",
+    });
+
+    const formula = mockStartRoll.mock.calls[0][0] as string;
+    expect(formula).toContain("{{cryosick=[[@{cryosick}]]}}");
+  });
+
+  it("folds a standing Cryosickness into Disadvantage on an otherwise Normal roll (32.3)", async () => {
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        roll: { result: 30 },
+        roll2: { result: 80 },
+        edge: { result: 0 },
+        cryosick: { result: 1 },
+        target: { result: 45 },
+      },
+    });
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+    vi.stubGlobal("getAttrs", (_keys: string[], cb: (a: Record<string, string>) => void) => {
+      cb({
+        stress: "2",
+        stress_min: "2",
+        sheet_toggle: "pc",
+      });
+    });
+    vi.stubGlobal("setAttrs", vi.fn());
+
+    const check = await rollCheck({
+      name: "Strength Check",
+      target: "@{strength}",
+    });
+
+    expect(check.edge).toBe(Edges.Disadvantage);
+  });
+
+  it("cancels a standing Cryosickness against a chosen Advantage (32.3, §19.1)", async () => {
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        roll: { result: 30 },
+        roll2: { result: 80 },
+        edge: { result: 1 },
+        cryosick: { result: 1 },
+        target: { result: 45 },
+      },
+    });
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+
+    const check = await rollCheck({
+      name: "Strength Check",
+      target: "@{strength}",
+    });
+
+    expect(check.edge).toBe(Edges.None);
+  });
+
   it("should decode the Skill a skilled check's target carries back (#5)", async () => {
     const mockStartRoll = vi.fn().mockResolvedValue({
       rollId: "id",
@@ -1123,6 +1197,25 @@ describe("rollPanicCheck", () => {
     const formula = mockStartRoll.mock.calls[0][0] as string;
     expect(formula).toContain("{{target=[[7]]}}");
     expect(formula).not.toContain("@{stress}");
+  });
+
+  it("carries the standing Cryosickness toggle into the Panic Check formula (32.3)", async () => {
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        roll: { result: 3 },
+        roll2: { result: 3 },
+        edge: { result: 0 },
+        target: { result: 10 },
+      },
+    });
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+
+    await rollPanicCheck();
+
+    const formula = mockStartRoll.mock.calls[0][0] as string;
+    expect(formula).toContain("{{cryosick=[[@{cryosick}]]}}");
   });
 
   it("should not reference getAttrs at all -- the check reads off the roll itself", async () => {

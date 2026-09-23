@@ -9,8 +9,11 @@ import {
   applyArmor,
   applyDamage,
   applyWound,
+  handleApplyBleeding,
+  handleStopBleeding,
   handleTakeDamage,
   handleTakeWound,
+  totalBleedingIncrease,
   woundLine,
   type DamageState,
 } from "../src/ts/rules/damage";
@@ -508,6 +511,7 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
 
     expect(mockSetAttrs).toHaveBeenCalledWith({
       wounds: 1,
+      bleeding: 1,
       repeating_afflictions_row2_affliction_name: "Flesh Wound (Gunshot)",
       repeating_afflictions_row2_affliction_effect: "Bleeding +1.",
       repeating_afflictions_row2_affliction_settings: "0",
@@ -572,5 +576,144 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
     handleTakeWound();
 
     expect(calls).toEqual(["getAttrs", "startRoll"]);
+  });
+});
+
+describe("totalBleedingIncrease", () => {
+  it("sums every Wounds Table result naming Bleeding, across damage types", () => {
+    const total = totalBleedingIncrease([
+      {
+        damageType: DamageTypes.Blunt,
+        roll: 2,
+        effect: {
+          roll: 2,
+          severity: "Minor Injury",
+          blunt: "Concussion. [-] on mental tasks.",
+          bleeding: "Laceration. Bleeding +1.",
+          gunshot: "Broken rib.",
+          fire: "Singed. [-] on next action.",
+          gore: "Digit mangled.",
+        },
+      },
+      {
+        damageType: DamageTypes.Bleeding,
+        roll: 2,
+        effect: {
+          roll: 2,
+          severity: "Minor Injury",
+          blunt: "Concussion. [-] on mental tasks.",
+          bleeding: "Laceration. Bleeding +1.",
+          gunshot: "Broken rib.",
+          fire: "Singed. [-] on next action.",
+          gore: "Digit mangled.",
+        },
+      },
+    ]);
+    expect(total).toBe(1);
+  });
+});
+
+describe("Bleeding (32.2)", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("handleApplyBleeding does nothing once the rate has been stopped", () => {
+    vi.stubGlobal("getAttrs", (_request: string[], callback: (response: Record<string, string>) => void) => {
+      callback({
+        bleeding: "0",
+        health: "10",
+        health_max: "10",
+        wounds: "0",
+        wounds_max: "2",
+      });
+    });
+    const mockStartRoll = vi.fn();
+    vi.stubGlobal("startRoll", mockStartRoll);
+
+    handleApplyBleeding();
+
+    expect(mockStartRoll).not.toHaveBeenCalled();
+  });
+
+  it("subtracts the rate straight from Health, never reading Armor Points or DR", async () => {
+    const mockGetAttrs = vi.fn((
+      _request: string[],
+      callback: (response: Record<string, string>) => void,
+    ) => {
+      callback({
+        bleeding: "2",
+        health: "10",
+        health_max: "10",
+        wounds: "0",
+        wounds_max: "2",
+      });
+    });
+    vi.stubGlobal("getAttrs", mockGetAttrs);
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        wound_roll_0: { result: 0 },
+        wound_roll_1: { result: 0 },
+      },
+    });
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+    vi.stubGlobal("finishRoll", vi.fn());
+
+    handleApplyBleeding();
+    await flush();
+
+    expect(mockSetAttrs).toHaveBeenCalledWith(expect.objectContaining({
+      health: 8,
+      wounds: 0,
+    }));
+    for (const call of mockGetAttrs.mock.calls) {
+      expect(call[0]).not.toContain("armor_points");
+      expect(call[0]).not.toContain("damage_reduction");
+    }
+  });
+
+  it("cascades into a Wound once Health hits zero, and raises the rate again on a Bleeding result", async () => {
+    vi.stubGlobal("getAttrs", (_request: string[], callback: (response: Record<string, string>) => void) => {
+      callback({
+        bleeding: "5",
+        health: "3",
+        health_max: "10",
+        wounds: "0",
+        wounds_max: "2",
+      });
+    });
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        wound_roll_0: { result: 2 },
+        wound_roll_1: { result: 0 },
+      },
+    });
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("generateRowID", () => "row1");
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+    vi.stubGlobal("finishRoll", vi.fn());
+
+    handleApplyBleeding();
+    await flush();
+
+    expect(mockSetAttrs).toHaveBeenCalledWith(expect.objectContaining({
+      wounds: 1,
+      bleeding: 6,
+      repeating_afflictions_row1_affliction_effect: "Laceration. Bleeding +1.",
+    }));
+  });
+
+  it("handleStopBleeding clears the tracked rate to zero", () => {
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+
+    handleStopBleeding();
+
+    expect(mockSetAttrs).toHaveBeenCalledWith({ bleeding: 0 });
   });
 });
