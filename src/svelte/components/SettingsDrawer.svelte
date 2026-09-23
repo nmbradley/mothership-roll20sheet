@@ -62,4 +62,8 @@
 .settings__cog:has(.settings__toggle:not(:checked)) ~ .settings__drawer {
   display: none;
 }
+
+.settings__cog:has(.settings__toggle:checked) .settings__icon {
+  color: var(--ms-accent);
+}
 </style>

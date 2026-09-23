@@ -1687,6 +1687,11 @@ body.sheet-darkmode
   ~ .settings__drawer {
   display: none;
 }
+.charsheet.charsheet.charsheet
+  .settings__cog:has(.settings__toggle:checked)
+  .settings__icon {
+  color: var(--ms-accent);
+}
 .charsheet.charsheet.charsheet .settings__row {
   display: flex;
   flex-direction: column;
