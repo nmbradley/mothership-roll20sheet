@@ -6,11 +6,6 @@
   export let field: AttributeType;
 </script>
 
-<!--
-  The printed sheet puts the number in a ring with its name underneath, so the
-  name sits below rather than above. It stays an action button: the sheetworker
-  rolls and grades the check.
--->
 <div class="pc-stat-card">
   <Attribute {field} variant="round" isLabelHidden />
   <ButtonAction action="check-{field.name}" label={field.label} />
@@ -23,9 +18,6 @@
   gap: var(--ms-space-sm);
   align-items: center;
 
-  // The printed sheet sets the stat name as plain small caps beneath the ring,
-  // with no chrome around it. It stays a button so the sheetworker still rolls
-  // the check; only the styling goes away.
   .button {
     @extend %ms-caption;
 

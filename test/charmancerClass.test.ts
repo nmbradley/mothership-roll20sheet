@@ -144,8 +144,6 @@ describe("Charactermancer Class Step (Mothership 1e)", () => {
       vi.stubGlobal("addRepeatingSection", mockAddRepeatingSection);
       vi.stubGlobal("setCharmancerOptions", mockSetCharmancerOptions);
 
-      // Hyperspace's Expert prerequisites are Piloting, Physics or Mysticism --
-      // a real choice, so a picker row follows the Master pick.
       advanceSkillChoice("row1", Skills.Hyperspace);
 
       expect(mockAddRepeatingSection).toHaveBeenCalledWith(
@@ -169,7 +167,6 @@ describe("Charactermancer Class Step (Mothership 1e)", () => {
       vi.stubGlobal("addRepeatingSection", mockAddRepeatingSection);
       vi.stubGlobal("setCharmancerOptions", vi.fn());
 
-      // Piloting's only Trained prerequisite is Zero-G: nothing to ask.
       advanceSkillChoice("row2", Skills.Piloting);
 
       expect(mockAddRepeatingSection).not.toHaveBeenCalled();
@@ -185,8 +182,6 @@ describe("Charactermancer Class Step (Mothership 1e)", () => {
       vi.stubGlobal("addRepeatingSection", vi.fn());
       vi.stubGlobal("setCharmancerOptions", vi.fn());
 
-      // Re-picking the Master row invalidates whatever the Expert and Trained
-      // tier rows below it had chosen.
       advanceSkillChoice("row1", Skills.Command);
 
       expect(mockRemoveRepeatingRow).toHaveBeenCalledWith("row2");

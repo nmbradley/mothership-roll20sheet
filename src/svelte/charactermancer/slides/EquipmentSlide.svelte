@@ -20,9 +20,7 @@
         </select>
         <div class="t__package"></div>
         <div class="choice custompackage">
-          <span
-            data-i18n="You can add custom equipment to the character sheet after completing the charactermancer."
-          ></span>
+          <span data-i18n="You can add custom equipment to the character sheet after completing the charactermancer."></span>
         </div>
         <div class="choice noloadout">
           <span data-i18n="You forgo a loadout and receive 2d10x100 credits instead."></span>
@@ -70,8 +68,7 @@
     right={{
       action: "review",
       text: "Next",
-    }}
-  />
+    }} />
 </CharmancerSlide>
 
 <style lang="scss">
@@ -97,8 +94,6 @@
   color: var(--ms-fg-muted);
 }
 
-// The equipment package select, oddly named after the skill picker it was
-// copied from -- base select styling already applies, this only spaces it.
 .ms-cm-skill__select {
   margin-bottom: var(--ms-space-sm);
 }
@@ -131,8 +126,6 @@
   color: var(--ms-fg);
 }
 
-// Injected by 5-equipment.ts once rolled -- an empty round button in the same
-// language as the sheet's own roll buttons.
 .ms-cm-creditsroll,
 .ms-cm-trinketroll,
 .ms-cm-patchroll {

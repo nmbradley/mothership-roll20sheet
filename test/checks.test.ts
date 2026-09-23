@@ -43,14 +43,7 @@ function translateWith(table: Record<string, string>): void {
   vi.stubGlobal("getTranslationByKey", (key: string) => table[key] ?? key);
 }
 
-/**
- * Lets a fire-and-forget follow-up card settle.
- *
- * applyStressDelta posts its overflow card without being awaited (#182), so
- * it is still in flight when the caller returns -- without this the roll
- * lands after a test has unstubbed startRoll/finishRoll, and surfaces as an
- * unhandled rejection.
- */
+/** Lets a fire-and-forget follow-up card settle. */
 async function flush(): Promise<void> {
   for (let i = 0; i < 5; i += 1) await Promise.resolve();
 }
@@ -103,9 +96,6 @@ describe("buildSkillQuery", () => {
   });
 
   it("should fall back to the plain tiers for a character with no Skills", () => {
-    // An NPC has no Skill rows at all. Without the tiers its checks would
-    // offer nothing but None, losing the ad hoc bonus every check had
-    // before #5.
     translateWith({});
     expect(buildSkillQuery([])).toBe(
       "?{Apply Skill?|None,0|Trained (+10),10[Trained]|Expert (+15),15[Expert]|Master (+20),20[Master]}",
@@ -155,9 +145,6 @@ describe("buildSkillQuery", () => {
   });
 
   it("should strip query and annotation syntax out of a player-typed Skill name", () => {
-    // A pipe, comma, brace or bracket here would split the prompt, invent an
-    // option, close the query early, or corrupt the [Name] annotation --
-    // and a malformed query takes the whole roll down with it.
     translateWith({});
     const query = buildSkillQuery([{
       name: "Gen|et,ics{}[]",
@@ -223,11 +210,6 @@ describe("recomputeSkillQuery", () => {
     });
   });
 
-  // #152 regression: recomputeSkillQuery used to chain the three section
-  // reads through a Promise-wrapped getSectionIDs/getAttrs, so its setAttrs
-  // ran after a microtask had unbound the character and failed silently.
-  // Asserting setAttrs already fired with no await at all -- not even one
-  // microtask's worth -- pins the whole chain to Roll20's own callbacks.
   it("should reach setAttrs synchronously, with no promise between the three section reads and the write", () => {
     translateWith({});
     const calls: string[] = [];
@@ -332,8 +314,6 @@ describe("rollCheck", () => {
       bonus: skillQuery(),
     });
 
-    // Declining the prompt is a real answer, and the card says so. A check
-    // that offered no prompt at all is the blank case, covered below.
     expect(mockFinishRoll).toHaveBeenCalledWith("id", expect.objectContaining({
       skill: "Unskilled",
     }));
@@ -532,9 +512,6 @@ describe("applyStressDelta", () => {
     expect(mockStartRoll).not.toHaveBeenCalled();
   });
 
-  // #182: the excess above STRESS_MAX is announced in chat rather than
-  // silently discarded -- which Stat or Save it reduces is a call only the
-  // table can make.
   it("should clamp at the maximum and post an overflow card naming the excess", async () => {
     const mockSetAttrs = vi.fn();
     const mockFinishRoll = vi.fn();
@@ -673,8 +650,6 @@ describe("rollRestSave", () => {
 
   it("should clamp to stress_min as read off the sheet, not a hardcoded bound", async () => {
     type GetAttrsCallback = (response: Record<string, string>) => void;
-    // An unusual floor of 4, not the ordinary 2, proves the clamp reads
-    // stress_min rather than a value baked into checks.ts.
     const mockGetAttrs = vi.fn((_request: string[], callback: GetAttrsCallback) => {
       callback({
         stress: "5",
@@ -698,17 +673,11 @@ describe("rollRestSave", () => {
     vi.stubGlobal("finishRoll", mockFinishRoll);
     vi.stubGlobal("setAttrs", mockSetAttrs);
 
-    // A success reduces Stress by 8 (the roll's ones digit): 5 - 8 would be
-    // -3, floored at the custom minimum of 4 rather than the usual 2.
     await rollRestSave();
 
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 4 });
   });
 
-  // #110 regression: rollRestSave used to await a getAttrs round trip before
-  // its startRoll, which silently broke the roll -- Roll20 requires
-  // startRoll to be reached synchronously from the click handler. This pins
-  // the call order so that ordering cannot drift back.
   it("should reach startRoll before making any getAttrs call", async () => {
     const calls: string[] = [];
     type GetAttrsCallback = (response: Record<string, string>) => void;
@@ -903,7 +872,6 @@ describe("rollAttack", () => {
     const followUpFormula = mockStartRoll.mock.calls[1][0] as string;
     expect(followUpFormula).toContain("{{damage=[[@{attack_damage}]]}}");
     expect(mockFinishRoll).toHaveBeenLastCalledWith("damage", { alert: "" });
-    // A hit costs no Stress, so there is nothing to read off the sheet for.
     expect(mockGetAttrs).not.toHaveBeenCalled();
   });
 
@@ -985,17 +953,12 @@ describe("rollAttack", () => {
       target: "@{combat}",
     });
 
-    // The Check card itself (the first finishRoll call) already carries the
-    // Panic warning via checkComputed -- rollAttack does not duplicate it.
     expect(mockFinishRoll.mock.calls[0][1]).toEqual(
       expect.objectContaining({ notes: "Critical Failure: Make a Panic Check" }),
     );
     expect(mockSetAttrs).toHaveBeenCalledWith({ stress: 4 });
   });
 
-  // Mirrors the #110 regression coverage on rollRestSave: the Check's own
-  // startRoll must still be reached synchronously off the click, before any
-  // getAttrs the failure-Stress follow-up makes.
   it("should reach the Check's startRoll before making any getAttrs call", async () => {
     const calls: string[] = [];
     type GetAttrsCallback = (response: Record<string, string>) => void;
@@ -1040,8 +1003,6 @@ describe("rollAttack", () => {
     expect(calls).toEqual(["startRoll", "startRoll", "getAttrs"]);
   });
 
-  // #147: NPCs share repeating_attacks and this same handler with PCs (#90),
-  // but must not gain Stress from a miss.
   it("should not grant Stress on a miss for an NPC", async () => {
     const mockStartRoll = vi.fn()
       .mockResolvedValueOnce({
@@ -1080,7 +1041,6 @@ describe("rollAttack", () => {
     expect(mockSetAttrs).not.toHaveBeenCalled();
   });
 
-  // #14: a rowId lets rollAttack spend the row's own ammo after the roll.
   it("should spend one shot from the row's ammo on a hit, given a rowId", async () => {
     const mockStartRoll = vi.fn()
       .mockResolvedValueOnce({
@@ -1165,8 +1125,6 @@ describe("rollAttack", () => {
       name: "@{attack_name}",
       target: "@{combat}",
     }, "-row1");
-    // The Out of Ammo card is posted from inside the getAttrs callback, so it
-    // is still in flight when rollAttack itself resolves.
     for (let i = 0; i < 5; i += 1) await Promise.resolve();
 
     expect(mockStartRoll).toHaveBeenCalledTimes(3);

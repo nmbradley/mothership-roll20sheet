@@ -190,9 +190,6 @@ describe("Ship Fields (Mothership 1e)", () => {
   });
 
   describe("ships.ts attribute references", () => {
-    // ships.ts embeds attribute names as plain strings inside roll formulas,
-    // so nothing type-checks them against shipFields.ts. A rename here that
-    // isn't mirrored there silently rolls every ship check against target 0.
     it("every @{ship_...} reference resolves to an exported ship attribute", () => {
       const source = fs.readFileSync("src/ts/rules/ships.ts", "utf8");
       const references = [...source.matchAll(/@\{(ship_[a-z0-9_]+)\}/g)]

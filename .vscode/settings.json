@@ -1,0 +1,36 @@
+{
+  "editor.formatOnSave": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit"
+  },
+
+  "prettier.enable": false,
+  "javascript.format.enable": false,
+  "typescript.format.enable": false,
+  "html.format.enable": false,
+  "json.format.enable": false,
+  "css.format.enable": false,
+  "scss.format.enable": false,
+  "svelte.plugin.svelte.format.enable": false,
+
+  "css.validate": false,
+  "scss.validate": false,
+  "less.validate": false,
+
+  "eslint.useFlatConfig": true,
+  "eslint.format.enable": false,
+  "eslint.validate": ["javascript", "typescript", "svelte"],
+
+  "stylelint.validate": ["css", "scss", "svelte"],
+  "stylelint.snippet": ["css", "scss", "svelte"],
+
+  "[javascript]": { "editor.formatOnSave": false },
+  "[typescript]": { "editor.formatOnSave": false },
+  "[svelte]": { "editor.formatOnSave": false },
+  "[scss]": { "editor.formatOnSave": false },
+  "[css]": { "editor.formatOnSave": false },
+  "[html]": { "editor.formatOnSave": false },
+  "[json]": { "editor.formatOnSave": false },
+  "[jsonc]": { "editor.formatOnSave": false }
+}

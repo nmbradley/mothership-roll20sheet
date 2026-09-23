@@ -15,7 +15,6 @@
   const saves = [sanity, fear, body];
 </script>
 
-<!-- Stats and Saves are the two grey blocks on the printed sheet. -->
 <section class="pc-stats-panel">
   <Panel title="Stats" mode="light-grey" corner="large">
     <div class="pc-stats-grid">

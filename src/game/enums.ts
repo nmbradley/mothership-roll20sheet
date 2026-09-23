@@ -22,8 +22,6 @@ export type SavesKey = KeyOf<typeof Saves>;
 /** Every save in the order the sheet presents them. */
 export const allSaves: readonly Save[] = Object.values(Saves);
 
-// The Wounds Table (#52) reads a different column per damage type; a weapon
-// or hazard picks the column, the d10 picks the row.
 export const DamageTypes = {
   Blunt: "blunt",
   Bleeding: "bleeding",
@@ -36,8 +34,6 @@ export type DamageTypesKey = KeyOf<typeof DamageTypes>;
 /** Every damage type, in the order the Wounds Table's columns and its query present them. */
 export const allDamageTypes: readonly DamageType[] = Object.values(DamageTypes);
 
-// Range, distance and movement are tracked abstractly in Range Bands.
-// Named RangeBand rather than Range so it does not shadow the DOM's Range type.
 export const RangeBands = {
   Adjacent: "adjacent",
   Close: "close",
@@ -47,8 +43,6 @@ export const RangeBands = {
 export type RangeBand = EntryOf<typeof RangeBands>;
 export type RangeBandsKey = KeyOf<typeof RangeBands>;
 
-// Ship-to-ship combat uses its own bands, listed closest first. A ship at
-// Contact range can be boarded; only the longest weapons reach Detection.
 export const ShipRangeBands = {
   Contact: "contact",
   Firing: "firing",

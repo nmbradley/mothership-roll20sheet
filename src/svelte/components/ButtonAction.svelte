@@ -16,5 +16,5 @@
   {#if label}
     <span class={labelClass} data-i18n={label}>{label}</span>
   {/if}
-  <slot />
+  <slot></slot>
 </button>

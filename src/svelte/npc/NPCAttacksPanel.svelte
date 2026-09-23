@@ -21,8 +21,6 @@
   import SettingsDrawer from "#svelte/components/SettingsDrawer.svelte";
   import SettingsRow from "#svelte/components/SettingsRow.svelte";
 
-  // Written as a plain string so the Roll20 braces need no entity escaping.
-
   const pairs = [
     [attack_range, attack_bonus],
     [attack_crit_damage, attack_crit_effect],
@@ -35,8 +33,7 @@
     section={pcAttacks}
     fields={[attack_name, attack_type, attack_damage]}
     columns="2fr 1fr 1fr auto"
-    trailing={1}
-  >
+    trailing={1}>
     <ButtonAction action="attack" label="">
       <DisplayValue field={attack_name} isLabelHidden />
     </ButtonAction>

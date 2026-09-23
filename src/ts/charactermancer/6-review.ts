@@ -14,10 +14,7 @@ import { Steps, TrackedStats } from "./types";
 /** Shown where the player skipped an optional roll. */
 const NOT_ROLLED = "Not Rolled";
 
-/**
- * Attributes on the skills step that are bookkeeping rather than skills, so the
- * summary does not list them as though the player had chosen them.
- */
+/** Skills-step attributes that are bookkeeping rather than chosen skills. */
 const SKILL_BOOKKEEPING = new Set([
   "owned",
   "unlocked",
@@ -28,12 +25,7 @@ const SKILL_BOOKKEEPING = new Set([
   "master_lock",
 ]);
 
-/**
- * Writes the finished character to the review slide.
- *
- * Everything is mirrored into a `*_final` attribute, which is what the last
- * step reads when it writes the character sheet.
- */
+/** Writes the finished character to the review slide, mirroring each value into `*_final`. */
 export function onLoadReview(): void {
   const data = charmancerData();
   const text: Record<string, string> = {};
@@ -50,7 +42,6 @@ export function onLoadReview(): void {
   const skillValues = stepValues(data, Steps.Skills);
   const equipment = stepValues(data, Steps.Equipment);
 
-  // Everything here is mirrored the same way, so collect it and apply once.
   const summary: Record<string, string> = {
     class: classValues["class"] ?? "",
     stresseffect: classValues["stress_effect"] ?? "",
@@ -64,8 +55,6 @@ export function onLoadReview(): void {
     attrs[`${key}_final`] = value;
   }
 
-  // Stored as attribute keys and titled only for display: the final step writes
-  // these straight onto the sheet, so a display name would have to be decoded.
   const skills = chosenSkillKeys(data);
   text["t__skilllist"] = describeSkills(skills);
   attrs["skills_final"] = JSON.stringify(skills);

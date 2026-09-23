@@ -9,9 +9,6 @@
 </charmancer>
 
 <style lang="scss">
-// Also used by RepeatingFloatingChoice.svelte, whose floating-stat picker is
-// the same shape: a title above a select. Shared here since the class is
-// identical in both, rather than duplicating the rule per component.
 .ms-cm-row--skillselect {
   margin: var(--ms-space-sm) 0;
   border-top: var(--ms-border-width) solid var(--ms-rule);

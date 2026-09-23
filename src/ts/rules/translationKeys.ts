@@ -3,13 +3,7 @@ import {
 } from "./checks";
 import { Outcomes } from "./rolls";
 
-/**
- * Every translation key a roll macro emits through `^{...}`.
- *
- * Roll20 generates translation.json from `data-i18n` attributes in the markup,
- * which cannot see keys built inside a roll macro. Deriving them from the same
- * constants the buttons use keeps the two from drifting.
- */
+/** Every translation key a roll macro emits through `^{...}`. */
 export function rollMacroKeys(): readonly string[] {
   const keys: string[] = [];
 
@@ -19,8 +13,6 @@ export function rollMacroKeys(): readonly string[] {
   for (const phrase of ROLL_PHRASES) {
     keys.push(phrase);
   }
-  // The skill query's prompt and its option labels are translated in the
-  // sheetworker, so they need keys of their own.
   keys.push(SKILL_PROMPT);
   keys.push(NONE_LABEL);
   for (const attribute of CHECK_ATTRIBUTES) {

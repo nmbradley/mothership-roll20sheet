@@ -8,7 +8,6 @@ import svelteParser from "svelte-eslint-parser";
 import svelteConfig from "./svelte.config.js";
 
 const CASTS = ":matches(TSAsExpression, TSNonNullExpression, TSSatisfiesExpression)";
-// `x as unknown as T` nests two cast nodes, so each guarded position needs both depths.
 const CASTS_2 = `${CASTS} > ${CASTS}`;
 
 const NO_NESTED_CALLS = [
@@ -134,6 +133,11 @@ export default tseslint.config(
         minProperties: 3,
         consistent: true,
       }],
+      "jsdoc/multiline-blocks": ["error", {
+        noMultilineBlocks: true,
+        multilineTags: [],
+      }],
+      "jsdoc/no-multi-asterisks": "error",
     },
   },
 
@@ -232,32 +236,57 @@ export default tseslint.config(
     },
     rules: {
       "import-x/no-default-export": "off",
-      "import-x/no-unassigned-import": "off", // Bypassing for Svelte styling imports
+      "import-x/no-unassigned-import": "off",
       "svelte/valid-compile": "error",
-      // Every block is typed/preprocessed: an untagged <script> silently skips
-      // the type-aware rules, which is how untyped data slips in.
       "svelte/block-lang": ["error", {
         script: "ts",
         style: "scss",
       }],
-      // Roll20 buttons are type="roll" and type="action"; the rule only knows
-      // the HTML values, so it rejects every correct sheet button.
       "svelte/button-has-type": "off",
-      // Roll20 roll macros are single unbreakable strings in a value attribute,
-      // and this sheet keys translations on the English sentence itself, so a
-      // data-i18n key can be a full sentence. Neither can be wrapped.
-      // `ignoreStrings` does not reach them: the Svelte parser sees markup
-      // text rather than a string literal.
       "@stylistic/max-len": ["error", {
         code: 100,
         ignoreUrls: true,
         ignoreStrings: true,
         ignoreTemplateLiterals: true,
         ignoreRegExpLiterals: true,
-        ignorePattern: "^\\s*(value=\"&lbrace;|data-i18n=\")",
+        ignorePattern: "(value=\"&lbrace;|data-i18n=\")",
       }],
       "svelte/require-each-key": "error",
       "svelte/no-dupe-use-directives": "error",
+
+      "@stylistic/indent": "off",
+      "svelte/indent": ["error", {
+        indent: 2,
+        switchCase: 1,
+        alignAttributesVertically: false,
+      }],
+      "svelte/html-quotes": ["error", { prefer: "double" }],
+      "svelte/max-attributes-per-line": ["error", {
+        multiline: 1,
+        singleline: 3,
+      }],
+      "svelte/first-attribute-linebreak": ["error", {
+        multiline: "below",
+        singleline: "beside",
+      }],
+      "svelte/html-closing-bracket-spacing": "error",
+      "svelte/html-closing-bracket-new-line": ["error", {
+        singleline: "never",
+        multiline: "never",
+      }],
+      "svelte/html-self-closing": ["error", {
+        void: "always",
+        normal: "never",
+        component: "always",
+        svelte: "always",
+      }],
+      "svelte/mustache-spacing": "error",
+      "svelte/no-spaces-around-equal-signs-in-attribute": "error",
+      "svelte/shorthand-attribute": "error",
+      "svelte/shorthand-directive": "error",
+      "svelte/no-useless-mustaches": "error",
+      "svelte/no-trailing-spaces": "error",
+      "svelte/spaced-html-comment": "error",
     },
   },
 );

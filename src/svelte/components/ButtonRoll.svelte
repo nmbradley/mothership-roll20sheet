@@ -13,9 +13,13 @@
   };
 </script>
 
-<button class={buttonClass} type="roll" name="roll_{action}" {value}>
+<button
+  class={buttonClass}
+  type="roll"
+  name="roll_{action}"
+  {value}>
   {#if label}
     <span class={labelClass} data-i18n={label}>{label}</span>
   {/if}
-  <slot />
+  <slot></slot>
 </button>

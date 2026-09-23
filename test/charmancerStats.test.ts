@@ -16,8 +16,6 @@ function roll(result: number): RollResult {
   };
 }
 
-// Strength, Speed, Intellect, Combat, then Sanity, Fear, Body, then Health:
-// the order the Stats step's roll template rolls them in.
 const FULL_ROLL = [30, 31, 32, 33, 20, 21, 22, 15].map(roll);
 
 describe("Charactermancer Stats Step (Mothership 1e)", () => {

@@ -12,14 +12,7 @@ import {
 } from "./rollTemplate";
 import { woundEffect } from "./tables";
 
-/**
- * Automated Damage and Wounds (#52).
- *
- * Two entry points: Take a Wound bypasses Health for an attack that deals a
- * Wound outright, and Take Damage runs an ordinary hit through Armor and
- * Health. Both are pure functions of their state and dice so the carryover
- * cascade below -- the hard part -- is testable without Roll20.
- */
+/** Automated damage and wounds: armor, the health cascade, and taking a wound outright. */
 
 export type DamageState = {
   health: number;
@@ -48,16 +41,7 @@ export type ArmorOutcome = {
   absorbed: boolean;
 };
 
-/**
- * Applies Damage Reduction and the Armor Points threshold (#53) to one hit.
- *
- * Order of operations: DR is flat and always applies first (Advanced Battle
- * Dress reduces every hit before armor is even judged); the AP threshold is
- * then tested against what's left. Below AP, the hit is absorbed outright --
- * Health never sees it, and the armor stands. At or above AP, the armor is
- * destroyed (AP -> 0), but the *reduced* hit still passes through in full: 1e
- * does not spend AP down the way a ship's Hull absorbs a hit, it just breaks.
- */
+/** Applies Damage Reduction and the Armor Points threshold to one hit. */
 export function applyArmor(
   hit: number,
   armorPoints: number,
@@ -77,7 +61,6 @@ export function applyArmor(
   return {
     damage: reduced,
     armorPoints: 0,
-    // Already-bare skin (armorPoints 0) has nothing to destroy.
     armorDestroyed: armorPoints > 0,
     absorbed: false,
   };
@@ -94,27 +77,7 @@ export type DamageOutcome = {
   requiresDeathSave: boolean;
 };
 
-/**
- * Applies one hit of incoming damage to Health, cascading Wounds as needed.
- *
- * Armor and DR are judged once, against the original hit -- the carryover a
- * wound cycle subtracts afterward is Health overflow, not a second hit, so it
- * is never run back through armor again.
- *
- * Reaching 0 Health or below gains a Wound, rolls the Wounds Table, and
- * resets Health to Maximum; whatever carries past zero is subtracted from
- * that fresh Maximum, repeating if it drops below zero again. The loop is
- * bounded by Wounds remaining under its Maximum rather than by Health
- * itself, which is what keeps it finite even when Maximum Health is 0: each
- * pass still costs exactly one Wound, and Wounds cannot climb past its own
- * Maximum.
- *
- * `woundDice` is consumed one d10 per Wound the cascade triggers -- pre-rolled
- * by the caller, since a pure function cannot itself ask Roll20 for more dice
- * mid-loop. A cascade that runs out of dice (more Wounds than were rolled for)
- * falls back to 0 rather than throwing, which the caller avoids in practice by
- * rolling one per Wound of headroom the character has left.
- */
+/** Applies one hit to Health, cascading a Wound each time Health drops to zero or below. */
 export function applyDamage(
   hit: number,
   state: DamageState,
@@ -162,11 +125,7 @@ export type WoundOutcome = {
   woundRoll?: WoundRollResult;
 };
 
-/**
- * Take a Wound: bypasses Health entirely, for an attack that deals a Wound
- * directly. Always costs exactly one Wound, capped at Maximum so the tracker
- * never reads past it.
- */
+/** Takes a Wound directly, bypassing Health, capped at Maximum Wounds. */
 export function applyWound(
   damageType: DamageType,
   roll: number,
@@ -198,11 +157,7 @@ export function woundLine(entry: WoundRollResult): string {
   return `${entry.effect.severity}: ${entry.effect[entry.damageType]}`;
 }
 
-/**
- * The prompt #52 owes the player once Wounds reach Maximum. A loud, untranslated
- * warning, matching how ships.ts's Stress/Panic alerts read (SHIP_STRESS_MESSAGE) --
- * #54 already implements the Death Save roll itself, this only has to say to make one.
- */
+/** The chat warning shown once Wounds reach Maximum and a Death Save is owed. */
 export const MAX_WOUNDS_ALERT = "MAXIMUM WOUNDS REACHED. MAKE A DEATH SAVE.";
 
 /** The Take Damage card's notes: what armor did, then every Wound rolled. */
@@ -224,13 +179,7 @@ function damageNotes(outcome: DamageOutcome): string {
   return notes;
 }
 
-/**
- * The Damage Type query, coded numerically (like EDGE_QUERY) so it can sit
- * inside an inline roll and be read back from `results` -- a `?{}` outside
- * `[[...]]` only ever reaches chat as text, never the sheetworker.
- * Built from allDamageTypes rather than hand-listed, so the option order and
- * the index readDamageType() decodes it against can never drift apart.
- */
+/** The Damage Type query, coded numerically so it can be read back from an inline roll. */
 function damageTypeQuery(): string {
   const options = allDamageTypes
     .map((type, index) => `${titleCase(type)},${index}`)
@@ -270,11 +219,7 @@ function readWoundState(done: (state: {
   });
 }
 
-/**
- * Records a rolled Wound as a lasting Affliction (#55) -- the same repeating
- * section a failed Panic Check's Condition already lands in -- so a Wound's
- * penalty stays on record rather than only ever having appeared in chat.
- */
+/** Records each rolled Wound as a lasting Affliction row. */
 function woundAfflictionRows(rolls: readonly WoundRollResult[]): Record<string, string> {
   const attrs: Record<string, string> = {};
   for (const wound of rolls) {
@@ -287,19 +232,7 @@ function woundAfflictionRows(rolls: readonly WoundRollResult[]): Record<string, 
   return attrs;
 }
 
-/**
- * Roll20 Sheetworker: Take Damage
- *
- * An explicit action rather than a change:health listener. Health is also
- * just a plain number a player can edit by hand -- healing, correcting a typo,
- * narration -- and a change: handler cannot tell that apart from a hit without
- * either mis-firing on those edits or re-entering itself the moment it writes
- * the resolved Health back. This sidesteps both: the query supplies the raw
- * hit, Armor/DR/Wounds resolve against it here, and Health is written back
- * exactly once, already final. It is also the only route that keeps this
- * PC-only mechanic off the NPC sheet, which shares the health/wounds/armor_points
- * attributes (see pcFields.ts) but has no Take Damage button of its own.
- */
+/** Roll20 Sheetworker: applies a queried hit through Armor, Health and Wounds. */
 export function handleTakeDamage(): void {
   readDamageState((state) => {
     void rollTakeDamage(state);
@@ -308,8 +241,6 @@ export function handleTakeDamage(): void {
 
 /** The roll half of Take Damage, once the current state has been read. */
 async function rollTakeDamage(state: DamageState): Promise<void> {
-  // As many wound-table dice as Wounds has headroom for: the cascade in
-  // applyDamage can never trigger more than that, since each pass costs one.
   const capacity = Math.max(0, state.woundsMax - state.wounds);
   const diceFields = Array.from({ length: capacity }, (_, index) => `wound_roll_${index}`);
 
@@ -334,9 +265,6 @@ async function rollTakeDamage(state: DamageState): Promise<void> {
   const woundDice = diceFields.map((field) => rollData.results[field]?.result ?? 0);
   const outcome = applyDamage(damageEntry.result, state, damageType, woundDice);
 
-  // Armor is a function of the rows worn (#112), so a hit that breaks it
-  // zeroes the worn Armor rows' own AP/DR rather than the pooled total --
-  // the panel's totals fall out of that section's own recalculation.
   const damageText = damageNotes(outcome);
 
   const writeOutcome = (armorUpdates: Record<string, number>): void => {
@@ -362,11 +290,7 @@ async function rollTakeDamage(state: DamageState): Promise<void> {
   writeOutcome({});
 }
 
-/**
- * Roll20 Sheetworker: Take a Wound
- *
- * For attacks that deal a Wound directly, bypassing Health.
- */
+/** Roll20 Sheetworker: deals a Wound directly, bypassing Health. */
 export function handleTakeWound(): void {
   readWoundState((state) => {
     void rollTakeWound(state);

@@ -1,13 +1,4 @@
-/**
- * Equipment panel totals (#112).
- *
- * Armor Points and Damage Reduction are a function of the armor worn, not a
- * value the character owns independently: each Armor-type row on the
- * equipment list carries its own AP and DR, and this sums them into the
- * panel's totals. Nothing else writes armor_points or damage_reduction --
- * the Destroy button and the #52 damage cascade both zero a row's own AP/DR
- * instead, and the total falls out of the recalculation below.
- */
+/** Equipment panel totals: Armor Points and Damage Reduction summed from the armor worn. */
 
 const ARMOR_TYPE = "Armor";
 
@@ -36,12 +27,7 @@ export function sumArmor(rows: readonly EquipmentRow[]): {
   };
 }
 
-/**
- * Attribute updates that zero every worn Armor row's own AP and DR -- what a
- * hit that meets or exceeds the pooled total, or the Destroy button, leaves
- * behind. A row already at 0/0 is left out, so destroying armor never writes
- * rows that carry none.
- */
+/** Attribute updates that zero every worn Armor row's own AP and DR. */
 export function destroyedArmorUpdates(rows: readonly EquipmentRow[]): Record<string, number> {
   const updates: Record<string, number> = {};
   for (const row of rows) {
@@ -53,16 +39,7 @@ export function destroyedArmorUpdates(rows: readonly EquipmentRow[]): Record<str
   return updates;
 }
 
-/**
- * Every equipment row's type, AP and DR, read together in one round trip.
- *
- * Callback rather than a Promise, deliberately. Roll20 binds the active
- * character for the synchronous duration of an event handler and its own
- * callbacks run inside that binding; a native promise continuation resumes
- * after the handler has returned, by which point setAttrs fails with
- * "Trying to do setAttrs when no character is active in sandbox". That is
- * silent in the test suite, which resolves the mocked APIs synchronously.
- */
+/** Every equipment row's type, AP and DR, read together in one round trip. */
 function readEquipmentRows(done: (rows: EquipmentRow[]) => void): void {
   getSectionIDs("repeating_equipment", (ids) => {
     if (ids.length === 0) {
@@ -89,10 +66,7 @@ function readEquipmentRows(done: (rows: EquipmentRow[]) => void): void {
   });
 }
 
-/**
- * Roll20 Sheetworker: recalculate the equipment panel's Armor Points and
- * Damage Reduction totals from the current equipment rows.
- */
+/** Roll20 Sheetworker: recalculates the panel's Armor Points and Damage Reduction totals. */
 export function recalculateArmorTotals(): void {
   readEquipmentRows((rows) => {
     const totals = sumArmor(rows);

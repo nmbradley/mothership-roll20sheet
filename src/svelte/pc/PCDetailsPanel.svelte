@@ -72,18 +72,10 @@
       grid-column: span 6;
     }
 
-    // Lines up with the High Score input beside it rather than the label
-    // above it.
     .button--action {
       grid-column: span 1;
       align-self: end;
 
-      // #125 made every button --ms-inverse background with --ms-fg-inverse
-      // text, and this panel is a Frame mode="dark" that already uses
-      // --ms-inverse as its own ground -- so the button vanishes into it. The
-      // same accent treatment .pc-equipment-armor .button--action and
-      // .repcontrol_del already use stays visible against either ground and
-      // still flips with body.sheet-darkmode instead of a literal colour.
       border-color: var(--ms-accent);
       border-radius: var(--ms-radius-md);
 

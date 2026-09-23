@@ -2,11 +2,7 @@ import {
   deathTable, woundsTable, type DeathEffect, type WoundEffect,
 } from "#game/data/wounds.js";
 
-/**
- * Rolling on a table is a different job from making a check: nothing succeeds
- * or fails, a die just indexes an entry. Death and Wounds are both read this
- * way, off the same die a check or a hit already rolled.
- */
+/** Reading a die result off a table, as Death and Wounds are both read. */
 
 /** Any table indexed by a die result. */
 export type RollTable<TEntry> = {
@@ -23,12 +19,7 @@ export type TableResult<TEntry> = {
   entry: TEntry;
 };
 
-/**
- * Looks a roll up on a table.
- *
- * Returns undefined rather than guessing when the roll falls outside the
- * table, so a mis-sized die shows up instead of silently reading the last row.
- */
+/** Looks a roll up on a table, returning undefined when it falls outside. */
 export function rollOnTable<TEntry>(
   table: RollTable<TEntry>,
   roll: number,
@@ -46,13 +37,7 @@ export function rollOnTable<TEntry>(
   return undefined;
 }
 
-/**
- * One row of the Death Table, indexed by a single d10 result.
- *
- * The table's own rows cover a range each (e.g. "5-9"), which rollOnTable's
- * exact-match lookup cannot index directly, so each row is expanded here to
- * one entry per roll it covers.
- */
+/** One row of the Death Table, expanded to one entry per roll it covers. */
 type DeathRow = {
   roll: number;
   effect: DeathEffect;
@@ -80,35 +65,20 @@ export const DEATH_TABLE: RollTable<DeathRow> = {
   rollOf: (row) => row.roll,
 };
 
-/**
- * Looks a d10 result up on the Death Table.
- *
- * A Death Save is a plain table read, not a check: nothing succeeds or
- * fails, the die just picks a row.
- */
+/** Looks a d10 result up on the Death Table. */
 export function deathSaveEffect(roll: number): DeathEffect | undefined {
   const result = rollOnTable(DEATH_TABLE, roll);
   return result?.entry.effect;
 }
 
-/**
- * The Wounds Table, indexed by a single d10 result (0-9).
- *
- * Unlike the Death Table, every row answers to exactly one roll already, so
- * this needs no expanding the way DEATH_TABLE does.
- */
+/** The Wounds Table, indexed by a single d10 result (0-9). */
 export const WOUNDS_TABLE: RollTable<WoundEffect> = {
   name: "Wounds",
   entries: woundsTable,
   rollOf: (entry) => entry.roll,
 };
 
-/**
- * Looks a d10 result up on the Wounds Table.
- *
- * A plain table read, like a Death Save: the die picks a row, the caller's
- * chosen damage type then picks which of that row's columns applies.
- */
+/** Looks a d10 result up on the Wounds Table. */
 export function woundEffect(roll: number): WoundEffect | undefined {
   const result = rollOnTable(WOUNDS_TABLE, roll);
   return result?.entry;

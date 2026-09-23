@@ -2,12 +2,7 @@ import { armor, type Armor } from "#game/data/armor.js";
 import { equipment, type Equipment } from "#game/data/equipment.js";
 import { weapons, type Weapon } from "#game/data/weapons.js";
 
-/**
- * A single lookup across everything a character can carry.
- *
- * Loadouts name items without saying which table they come from, so anything
- * reading a loadout needs to search all three.
- */
+/** A single lookup across the weapons, armor and equipment a character can carry. */
 export type Item =
   | {
     kind: "weapon";

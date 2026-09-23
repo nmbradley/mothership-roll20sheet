@@ -71,8 +71,6 @@ describe("Skills grouped by level", () => {
 
 describe("prerequisiteChain (#187)", () => {
   it("should grant a single-option Expert prerequisite without a choice", () => {
-    // Sophontology <- Psychology: only one Expert prerequisite, so it is
-    // granted outright rather than offered as a picker.
     expect(prerequisiteChain(Skills.Sophontology)).toEqual({
       granted: [Skills.Psychology],
       choice: [Skills.Linguistics, Skills.Zoology, Skills.Botany],
@@ -87,8 +85,6 @@ describe("prerequisiteChain (#187)", () => {
   });
 
   it("should offer nothing further once a chain bottoms out on a granted skill", () => {
-    // Sophontology's own Trained-tier choice, once made (Linguistics has no
-    // prerequisite of its own), ends the chain.
     expect(prerequisiteChain(Skills.Linguistics)).toEqual({
       granted: [],
       choice: [],
@@ -101,8 +97,6 @@ describe("prerequisiteChain (#187)", () => {
         granted: [],
         choice: [Skills.Pathology, Skills.FieldMedicine],
       });
-      // Whichever Expert skill is picked, its own Trained prerequisite is
-      // itself a choice between Zoology and Botany.
       expect(prerequisiteChain(Skills.Pathology)).toEqual({
         granted: [],
         choice: [Skills.Zoology, Skills.Botany],
@@ -133,8 +127,6 @@ describe("prerequisiteChain (#187)", () => {
         granted: [],
         choice: [Skills.Piloting, Skills.Physics, Skills.Mysticism],
       });
-      // Piloting and Physics each have exactly one Trained prerequisite, so
-      // both grant it outright with no further picker.
       expect(prerequisiteChain(Skills.Piloting)).toEqual({
         granted: [Skills.ZeroG],
         choice: [],
@@ -143,7 +135,6 @@ describe("prerequisiteChain (#187)", () => {
         granted: [Skills.Mathematics],
         choice: [],
       });
-      // Mysticism instead offers a further 3-way choice at the Trained tier.
       expect(prerequisiteChain(Skills.Mysticism)).toEqual({
         granted: [],
         choice: [Skills.Art, Skills.Archaeology, Skills.Theology],
@@ -306,9 +297,6 @@ describe("Military Training exception (#49)", () => {
       vi.unstubAllGlobals();
     });
 
-    // Mirrors the #110/#152 regression coverage elsewhere: the Combat
-    // Check's own startRoll must be reached synchronously off the click,
-    // before the getAttrs the Combat/Stat bonus follow-up makes.
     it("should reach startRoll before making any getAttrs call", async () => {
       const calls: string[] = [];
       vi.stubGlobal("generateRowID", () => "row1");

@@ -39,10 +39,7 @@ export function onLoadSkills(): void {
   });
 }
 
-/**
- * Re-grants the class's skills, clearing any granted by a previous class.
- * Skills the player bought are left alone.
- */
+/** Re-grants the class's skills, clearing any a previous class granted. */
 function resetClassSkills(): void {
   const data = charmancerData();
   const skills = stepValues(data, Steps.Skills);
@@ -65,16 +62,7 @@ function resetClassSkills(): void {
   });
 }
 
-/**
- * Skills the class grants outright, plus any the player picked from a group.
- *
- * A Master-chain class (the Scientist) adds one choice row per tier it needs a
- * decision at (see `offerSkillChoices`/`advanceSkillChoice` in 3-class.ts), so
- * this walks every repeating row on the Class step: a row without a `_skill`
- * value (the class list's own rows, or a choice row not yet reached) is
- * skipped, and a row with one contributes the skill it names plus whatever
- * `prerequisiteChain` grants beneath it without asking.
- */
+/** Skills the class grants outright, plus any the player picked from a choice row. */
 function classGrantedSkills(): readonly string[] {
   const data = charmancerData();
   const values = stepValues(data, Steps.Class);
@@ -112,10 +100,7 @@ function classRequiredTiers(): ClassSkills["requiredTiers"] {
   return requiredTiers;
 }
 
-/**
- * Totals what the player has spent and locks the tiers they can no longer
- * afford, so the UI cannot offer a skill there are no points for.
- */
+/** Totals skill points spent and locks the tiers the player can no longer afford. */
 export function recalculateSkillPoints(): void {
   const data = charmancerData();
   const skills = stepValues(data, Steps.Skills);
@@ -167,10 +152,7 @@ export function toggleSkill(key: string): void {
   });
 }
 
-/**
- * Publishes which skills are owned and which the player has thereby unlocked,
- * which is what the slide's CSS keys off to enable the next tier.
- */
+/** Publishes which skills are owned and which they unlock, for the slide's CSS. */
 function recordOwnedSkills(): void {
   const data = charmancerData();
   const skills = stepValues(data, Steps.Skills);

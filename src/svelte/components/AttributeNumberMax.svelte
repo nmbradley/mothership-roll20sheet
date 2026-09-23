@@ -34,8 +34,7 @@
     <label
       class={labelClass}
       for="attr_{name}"
-      data-i18n={i18nLabel}
-    >{ label }</label>
+      data-i18n={i18nLabel}>{label}</label>
   {/if}
   <div class="attribute__minmax-wrapper">
     <input
@@ -43,23 +42,19 @@
       type="number"
       name="attr_{name}"
       {value}
-      {placeholder}
-      />
+      {placeholder} />
     <span class="attribute__separator">/</span>
     <input
       class={inputClass}
       type="number"
       name="attr_{name}_max"
       value={max}
-      {placeholder}
-      />
+      {placeholder} />
   </div>
 </div>
 
 <style lang="scss">
 .attribute {
-  // Current and max sit either side of a slash, as one field.
-  // One capsule holding both halves, as the printed sheet draws it.
   &__minmax-wrapper {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -72,10 +67,6 @@
 
     background: var(--ms-surface);
 
-    // The capsule clips its children, so a focus ring drawn on the input inside
-    // survives only as a sliver beside the divider -- which reads as a stray
-    // red mark on the slash. The capsule takes the ring as a whole instead; an
-    // outline is not clipped by the element's own overflow.
     &:focus-within {
       outline: var(--ms-border-width) solid var(--ms-accent);
       outline-offset: 2px;
@@ -97,8 +88,6 @@
     }
   }
 
-  // A thin diagonal, not a slash glyph: the character is kept for anyone
-  // reading the markup but is not what gets drawn.
   &__separator {
     align-self: stretch;
 

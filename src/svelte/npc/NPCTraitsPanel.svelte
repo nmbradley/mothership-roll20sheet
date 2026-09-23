@@ -20,8 +20,7 @@
     section={npcTraits}
     fields={[trait_name]}
     columns="1fr auto"
-    trailing={1}
-  >
+    trailing={1}>
     <ButtonAction action="npc-trait" label="">
       <DisplayValue field={trait_name} isLabelHidden />
     </ButtonAction>

@@ -95,9 +95,6 @@ describe("NPC Fields (1e Conversion)", () => {
     });
 
     it("should have exactly one sheet writing attr_equipment", () => {
-      // The PC charactermancer writes attr_equipment directly with JSON'd
-      // loadout items; the NPC free-text field was renamed to gear_notes so
-      // it does not collide and get silently overwritten.
       const names = [
         ...Object.values(npcAttributes).map((attr) => attr.name),
         ...Object.values(npcTraits.attributes).map((attr) => attr.name),

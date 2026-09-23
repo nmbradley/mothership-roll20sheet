@@ -25,9 +25,6 @@
 
   const training = [skill_training, skill_training_time];
 
-  // #49: Skill Training's fixed costs, shown as a reference beside the
-  // tracker -- the sheet has no way to validate a prereq against a player's
-  // own free-text Skill rows, so the player and Warden apply it by hand.
   const trainingCosts = [
     {
       level: SkillLevels.Trained,
@@ -53,7 +50,6 @@
     <PCSkillSection level={tier.level} section={tier.section} />
   {/each}
 
-  <!-- The printed sheet tracks one training course at the foot of the list. -->
   <div class="pc-training">
     <div class="pc-training__label" data-i18n="Skill Training">Skill Training</div>
 
@@ -103,7 +99,6 @@
 
     background: var(--ms-surface);
 
-    // The field is the well; the control inside it carries no chrome of its own.
     .attribute__input {
       border: none;
       border-radius: 0;
@@ -119,7 +114,6 @@
     gap: var(--ms-space-lg);
   }
 
-  // Captioned beneath the field, as the printed sheet does.
   &__caption {
     margin-top: var(--ms-space-sm);
 
@@ -135,9 +129,6 @@
     list-style: none;
   }
 
-  // #157: one row per tier -- forced rather than left to wrap, since a
-  // sentence this length otherwise breaks across two lines and defeats the
-  // point of a compact reference list.
   &__cost {
     font-size: var(--ms-text-xs);
     white-space: nowrap;

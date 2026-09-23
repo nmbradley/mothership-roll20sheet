@@ -14,14 +14,7 @@ import {
   type DamageState,
 } from "../src/ts/rules/damage";
 
-/**
- * Lets the roll half of a handler run.
- *
- * The handlers read their state through a Roll20 callback and only then start
- * the roll, so there is no promise for a test to await -- draining the
- * microtask queue a few times lets the awaited startRoll/finishRoll chain
- * inside settle.
- */
+/** Lets the roll half of a handler run. */
 async function flush(): Promise<void> {
   for (let i = 0; i < 5; i += 1) await Promise.resolve();
 }
@@ -58,8 +51,6 @@ describe("applyArmor", () => {
   });
 
   it("subtracts Damage Reduction before testing Armor Points", () => {
-    // Without DR this 7 would meet AP 5 and break the armor; DR knocks it
-    // under the threshold instead, so DR has to run first.
     const result = applyArmor(7, 5, 3);
     expect(result).toEqual({
       damage: 0,
@@ -131,8 +122,6 @@ describe("applyDamage", () => {
   });
 
   it("gains exactly one Wound and resets to Maximum on a single overkill hit", () => {
-    // 15 damage against 10 Health drops it to -5; the Wounds Table roll (0)
-    // is consumed, Health resets to Maximum (10) and absorbs the 5 carryover.
     const result = applyDamage(15, baseState, DamageTypes.Blunt, [0]);
     expect(result.wounds).toBe(1);
     expect(result.health).toBe(5);
@@ -151,8 +140,6 @@ describe("applyDamage", () => {
       health: 5,
       woundsMax: 5,
     };
-    // 20 damage against 5 Health: -15 carryover, reset to 10, still -5 short,
-    // a second Wound rolls and the remaining 5 carryover lands exactly on 0.
     const result = applyDamage(20, state, DamageTypes.Gunshot, [1, 2]);
     expect(result.wounds).toBe(2);
     expect(result.health).toBe(5);
@@ -183,7 +170,6 @@ describe("applyDamage", () => {
     const result = applyDamage(100, state, DamageTypes.Gore, [0, 1, 2, 3]);
     expect(result.wounds).toBe(2);
     expect(result.requiresDeathSave).toBe(true);
-    // The cascade only ever consumed the two dice it needed.
     expect(result.woundRolls).toHaveLength(2);
     expect(result.health).toBeLessThan(0);
   });
@@ -198,7 +184,6 @@ describe("applyDamage", () => {
       damageReduction: 0,
     };
     const result = applyDamage(1, state, DamageTypes.Fire, [0, 1, 2, 3, 4]);
-    // Bounded by Wounds' own Maximum, not by Health ever recovering.
     expect(result.wounds).toBe(3);
     expect(result.requiresDeathSave).toBe(true);
     expect(result.health).toBeLessThanOrEqual(0);
@@ -430,16 +415,6 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
     });
   });
 
-  // #171: handleTakeDamage/handleTakeWound read state through a Roll20
-  // getAttrs callback and only then call startRoll, rather than reaching it
-  // straight off the click like every other handler. Roll20 keeps the
-  // character bound across its own callbacks -- the same reason
-  // recomputeWorstSave has always worked -- so startRoll firing from inside
-  // that callback, with no awaited promise in between, is the correct shape.
-  // Pinning the call order here, with no await/flush at all, catches a
-  // regression the same way the #110/#152 fixes did: a promise-wrapped
-  // getAttrs would push "startRoll" out to a later microtask instead of
-  // leaving it in this same synchronous call.
   it("handleTakeDamage reaches startRoll from inside readDamageState's own getAttrs callback", () => {
     const calls: string[] = [];
     vi.stubGlobal("getAttrs", (_request: string[], callback: (response: Record<string, string>) => void) => {

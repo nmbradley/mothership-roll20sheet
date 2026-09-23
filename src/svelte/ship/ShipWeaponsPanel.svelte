@@ -15,9 +15,6 @@
   import Panel from "#svelte/components/Panel.svelte";
   import RepeatingSection from "#svelte/components/RepeatingSection.svelte";
 
-  // Weapons and Megadamage are two independent stats, not a current/max pair
-  // like Hardpoints, so each renders as its own linked group rather than
-  // going through AttributeNumberMax.
   const linkedPairs = [
     [ship_weapons_base, ship_weapons_total],
     [ship_mdmg_base, ship_mdmg_total],
@@ -39,15 +36,10 @@
   <RepeatingSection
     section={shipWeapons}
     fields={[ship_weapon_name, ship_weapon_damage, ship_weapon_range, ship_weapon_notes]}
-    columns="2fr 1fr 1fr 2fr"
-  />
+    columns="2fr 1fr 1fr 2fr" />
 </Panel>
 
 <style lang="scss">
-// Base/Total/MDMG/Hardpoints used to be forced into equal thirds of the
-// panel's width, squeezing every label down to fit -- letting each stat hug
-// its own content instead gives the labels room and reads as one compact
-// strip rather than a cramped row.
 .ship-weapons-totals {
   display: flex;
   flex-wrap: wrap;

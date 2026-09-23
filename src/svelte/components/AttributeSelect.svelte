@@ -13,13 +13,13 @@
 
   const choices = options.map((option) => (typeof option === "object"
     ? {
-        value: option.value,
-        text: option.label ?? String(option.value),
-      }
+      value: option.value,
+      text: option.label ?? String(option.value),
+    }
     : {
-        value: option,
-        text: option,
-      }));
+      value: option,
+      text: option,
+    }));
 
   const wrapperClass = {
     "attribute": true,
@@ -43,16 +43,14 @@
     <label
       class={labelClass}
       for="attr_{name}"
-      data-i18n={i18nLabel}
-    >{ label }</label>
+      data-i18n={i18nLabel}>{label}</label>
   {/if}
   <select class={inputClass} name="attr_{name}">
     {#each choices as choice (choice.value)}
       <option
         value={choice.value}
         selected={choice.value === value}
-        data-i18n={choice.text === "" ? undefined : i18nKey(choice.text)}
-      >{ choice.text }</option>
+        data-i18n={choice.text === "" ? undefined : i18nKey(choice.text)}>{choice.text}</option>
     {/each}
   </select>
 </div>

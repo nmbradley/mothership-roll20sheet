@@ -1,6 +1,4 @@
-/**
- * Reads the stored high score and writes it back incremented by one.
- */
+/** Reads the stored high score and writes it back incremented by one. */
 export function incrementHighScore() {
   const request = ["high_score"];
   getAttrs(request, (response) => {

@@ -10,12 +10,10 @@
   import RepeatingSection from "#svelte/components/RepeatingSection.svelte";
 </script>
 
-<!-- #58 section 7, Crew. -->
 <Panel title="Officers & Crew">
   <Attribute field={ship_crew} />
   <RepeatingSection
     section={shipCrew}
     fields={[ship_crew_name, ship_crew_rank]}
-    columns="1fr 1fr"
-  />
+    columns="1fr 1fr" />
 </Panel>

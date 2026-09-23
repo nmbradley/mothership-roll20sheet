@@ -8,10 +8,7 @@
   import Panel from "#svelte/components/Panel.svelte";
 </script>
 
-<!-- #58 section 4, Survival. -->
 <Panel title="Survival">
-  <!-- The printed sheet groups these three compactly in one row rather than
-       stacking each as its own full-width input. -->
   <div class="ship-survival-panel__grid">
     <Attribute field={ship_o2} />
     <Attribute field={ship_cryopods} />

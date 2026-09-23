@@ -74,13 +74,7 @@ function addClassCard(definition: ClassDef | undefined): void {
   });
 }
 
-/**
- * What a class gives, as a list.
- *
- * This replaces the class art the compendium used to supply: the numbers are
- * what the player is actually choosing between, and they come straight from the
- * rules data rather than being baked into an image.
- */
+/** Lists what a class grants, drawn from the rules data. */
 function grantsList(definition: ClassDef | undefined): string {
   if (definition === undefined) return "";
 
@@ -126,10 +120,7 @@ function grantLines(definition: ClassDef): readonly string[] {
   return lines;
 }
 
-/**
- * Renders a bonus map, collapsing a bonus applied to everything into one line
- * so the Teamster reads "+5 All" rather than the same number four times.
- */
+/** Renders a bonus map, collapsing a bonus applied to everything into one line. */
 function describeBonuses(
   bonuses: Partial<Record<string, number>>,
   total: number,
@@ -217,8 +208,6 @@ export function applyClass(definition: ClassDef): void {
   attrs["class"] = definition.name;
   text["t__cname"] = definition.name;
 
-  // Saves are rolled on the Stats step; the class only adds a modifier on top,
-  // so the roll stays visible in `${save}` and the bonus lives in `${save}_mod`.
   const data = charmancerData();
   for (const save of allSaves) {
     const bonus = definition.saveBonus[save] ?? 0;
@@ -231,9 +220,6 @@ export function applyClass(definition: ClassDef): void {
     attrs[`${stat}_mod`] = mods[stat];
   }
 
-  // 1e Max Wounds: the printed base plus the class's own bonus (#42); Health
-  // is not class-dependent in 1e, so nothing here touches it. Wounds counts up
-  // (#179), so only the max moves here -- current Wounds is untouched.
   attrs["wounds_max"] = maxWounds(definition);
   attrs["stress_effect"] = definition.traumaResponse;
   text["t__stress_effect"] = definition.traumaResponse;
@@ -253,10 +239,7 @@ export function applyClass(definition: ClassDef): void {
   offerFloatingChoice(definition);
 }
 
-/**
- * Every stat's flat modifier: the class's fixed bonus, plus its floating bonus
- * on the stat the player chose for it (Android's -10, Scientist's +5).
- */
+/** Every stat's flat modifier: the class's fixed bonus plus its floating bonus. */
 export function statModifiers(definition: ClassDef, chosenStat?: Stat): Record<Stat, number> {
   const mods = {} as Record<Stat, number>;
   for (const stat of allStats) {
@@ -275,14 +258,7 @@ export function maxWounds(definition: ClassDef): number {
   return BASE_MAX_WOUNDS + definition.maxWoundsBonus;
 }
 
-/**
- * Adds a picker row for a class that chooses a Master skill.
- *
- * Only the Scientist does this: it takes a Master skill outright, together
- * with the Expert and Trained skills that unlock it. Picking the Master here
- * may in turn need a picker of its own -- `advanceSkillChoice` adds one below
- * this row once the player makes a choice, walking down one tier at a time.
- */
+/** Adds a picker row for a class that chooses a Master skill. */
 function offerSkillChoices(definition: ClassDef): void {
   clearRepeatingSections(SKILL_CHOICE_LIST);
   if (definition.skills.grantsMasterChain !== true) return;
@@ -298,16 +274,7 @@ function offerSkillChoices(definition: ClassDef): void {
   });
 }
 
-/**
- * Extends the Master skill's picker chain as the player works down it.
- *
- * Any row after the one that just changed belongs to a branch the new pick
- * invalidated, so it is removed. The newly chosen skill's own prerequisite is
- * then walked with `prerequisiteChain`: a single prerequisite is granted
- * without asking (handled later, when the Skills step totals the class's
- * skills), and more than one is a real choice, so one more row is added for
- * it. Nothing is added once the chain bottoms out.
- */
+/** Extends the Master skill's picker chain one tier as the player works down it. */
 export function advanceSkillChoice(rowId: string | undefined, chosen: string): void {
   if (rowId === undefined || chosen === "" || chosen === "choose") return;
 
@@ -330,10 +297,7 @@ export function advanceSkillChoice(rowId: string | undefined, chosen: string): v
   });
 }
 
-/**
- * Adds a picker row for a class with a floating bonus (Android's -10,
- * Scientist's +5): the amount is fixed but which stat it lands on is not.
- */
+/** Adds a picker row for the stat a class's floating bonus lands on. */
 function offerFloatingChoice(definition: ClassDef): void {
   clearRepeatingSections(FLOATING_CHOICE_LIST);
   const floating = definition.floating;
@@ -380,13 +344,7 @@ export function disableChosenSkill(chosen: string): void {
   }
 }
 
-/**
- * Applies the class's floating bonus to the stat the player picked.
- *
- * Recomputes every stat's modifier from scratch rather than adjusting the
- * previous pick in place, so changing the pick cannot leave the bonus applied
- * to two stats at once.
- */
+/** Applies the class's floating bonus to the stat the player picked. */
 export function applyFloatingBonus(chosen: string): void {
   const data = charmancerData();
   const selected = stepValues(data, Steps.Class)["selected"];

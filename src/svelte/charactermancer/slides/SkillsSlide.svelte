@@ -44,15 +44,14 @@
       {#each levels as level (level)}
         <div class="ms-cm-skillcol--{level}">
           {#each skillsByLevel[level] as skill (skill.key)}
-              {@const skillName = titleCase(skill.name)}
+            {@const skillName = titleCase(skill.name)}
             <div class="ms-cm-skill">
               <input name="comp_{skill.key}" type="hidden" />
               <input name="comp_{skill.key}_type" type="hidden" />
               <button
                 class="ms-cm-skill__wrapper ms-cm-skill__wrapper--{skill.key}"
                 name="act_toggle-{skill.key}"
-                type="action"
-              >
+                type="action">
                 <div class="ms-cm-skill__check"></div>
                 <div class="ms-cm-skill__name" data-i18n={skillName}>{skillName}</div>
               </button>
@@ -81,8 +80,7 @@
     right={{
       action: "equipment",
       text: "Next",
-    }}
-  />
+    }} />
 </CharmancerSlide>
 
 <style lang="scss">
@@ -164,9 +162,6 @@
   background: var(--ms-surface);
 }
 
-// The staging value lives on a hidden input beside the button, not on a
-// checkbox inside it, so the checkmark reads its sibling's value instead of
-// an :checked pseudo-class.
 .ms-cm-skill input[type="hidden"][value="on"] ~ * .ms-cm-skill__check {
   background: var(--ms-accent);
 }

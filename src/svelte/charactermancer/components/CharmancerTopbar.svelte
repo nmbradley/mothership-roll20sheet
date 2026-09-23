@@ -49,9 +49,6 @@
   padding-bottom: var(--ms-space-lg);
 }
 
-// The Stats block and Review's abbreviated re-statement of it share one
-// treatment; the modifier never combines with the plain class, so this stays
-// a placeholder rather than a nested override.
 %ms-cm-stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -73,7 +70,6 @@
   gap: var(--ms-space-md);
 }
 
-// Sanity, Fear and Body: three saves, not four.
 .ms-cm-saves {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

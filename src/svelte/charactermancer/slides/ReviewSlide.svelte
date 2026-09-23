@@ -111,8 +111,7 @@
     right={{
       action: "finish",
       text: "Finish",
-    }}
-  />
+    }} />
 </CharmancerSlide>
 
 <style lang="scss">

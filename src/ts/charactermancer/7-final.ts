@@ -67,7 +67,6 @@ function compileCharacter(data: CharmancerData): void {
   attrs["health_max"] = health;
   attrs["skill_points"] = review["skillpoints_final"] ?? "";
 
-  // Already attribute keys, so they go straight on the sheet.
   const skills = parseStringList(review["skills_final"]);
   for (const key of skills) {
     attrs[key] = "on";
@@ -80,10 +79,6 @@ function compileCharacter(data: CharmancerData): void {
 
   writeCharacter(attrs);
 
-  // writeCharacter writes silently, so the equipment section's own
-  // change:repeating_equipment:... listener never fires for it (#112) --
-  // this runs the same summing routine directly once the armour rows above
-  // have landed, rather than seeding armor_points itself.
   recalculateArmorTotals();
 }
 
@@ -115,9 +110,6 @@ function equipmentRows(name: string): SheetAttributes {
     [`${row}_type`]: itemType(item),
   };
 
-  // Armor Points and Damage Reduction live on the row itself, like any other
-  // equipment (#112); the equipment section's own sheetworker sums them into
-  // the panel total.
   if (item?.kind === "armor") {
     attrs[`${row}_armor_points`] = item.entry.points;
     if (item.entry.reduction !== undefined) {
@@ -172,10 +164,7 @@ function attackRow(
   };
 }
 
-/**
- * Writes the character one attribute at a time so the progress bar can advance,
- * then hands control back to Roll20.
- */
+/** Writes the character one attribute at a time so the progress bar can advance. */
 function writeCharacter(attrs: SheetAttributes): void {
   const entries = Object.entries(attrs);
   const total = entries.length;

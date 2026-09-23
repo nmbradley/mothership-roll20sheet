@@ -1,10 +1,3 @@
-// Property ordering follows the 9elements pattern:
-// https://9elements.com/css-rule-order/
-//
-// Declarations run from most to least structural: what the browser needs to
-// place a box comes before what it needs to paint one. Groups are separated by a
-// blank line once a rule is long enough for that to help.
-
 const generatedContent = ["content"];
 
 const positionAndLayout = [
@@ -76,7 +69,6 @@ const animation = [
   "will-change",
 ];
 
-// Box model, from the outside in.
 const boxModel = [
   "margin",
   "margin-block",
@@ -159,20 +151,12 @@ function group(groupName, properties) {
 }
 
 export default {
-  // Build artifacts, not sources: mothership.css is generated from the blocks
-  // linted here, so flagging it would report every finding twice.
   ignoreFiles: ["mothership.css", "mothership.html", "dist/**"],
 
   plugins: ["stylelint-order"],
   rules: {
-    // Class names are already global here (see scripts/collect-styles.js):
-    // Svelte never scopes or compiles these components' styles, so
-    // `:global(...)` survives verbatim into mothership.css, where it is not
-    // valid CSS and the browser drops the whole rule. Nest the plain
-    // selector instead.
     "selector-pseudo-class-disallowed-list": ["global"],
 
-    // Sass inheritance first, then custom properties, declarations, nested rules.
     "order/order": [
       {
         type: "at-rule",

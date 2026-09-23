@@ -7,12 +7,7 @@ import { TrackedStats } from "./types";
 
 const TOPBAR_CONTAINER = "sheet-t__topbar";
 
-/**
- * Text updates painting every tracked stat into one topbar row.
- *
- * Both entry points below need exactly this, which is why the old file carried
- * two near-identical copies of the resolution logic.
- */
+/** Text updates painting every tracked stat into one topbar row. */
 function topbarText(rowId: string): Record<string, string> {
   const data = charmancerData();
   const totals = statTotals(data);

@@ -14,7 +14,6 @@
 <Frame mode="dark" corner="large">
   <div class="ship-header">
     <div class="ship-header__logo">
-      <!-- Opens Settings; see settings_open in pcFields.ts and Sheet.svelte. -->
       <label for="attr_settings_open" class="ship-header__logo-link">
         <img src={shipLogoUrl} alt="Mothership Logo" class="ship-header__img" />
       </label>
@@ -58,8 +57,6 @@
 
     &__fields {
       display: grid;
-      // Name sits full-width above; Captain and the transponder line fill the
-      // row below with no leftover column.
       grid-template-columns: 1fr 2fr;
       gap: var(--ms-space-lg);
     }

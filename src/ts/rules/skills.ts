@@ -65,14 +65,7 @@ export const skillList = {
   "weapon_specialization": {},
 };
 
-/**
- * In-game Skill Training (#49): the years and credits it costs to advance a
- * Skill outside character creation. Trained has no prerequisite; Expert and
- * Master each require that same Skill already sitting one tier down -- the
- * sheet has no way to check a player's own free-text Skill rows for that, so
- * this is a reference the player and Warden apply by hand, the same way the
- * printed sheet's Skill list already works.
- */
+/** The years and credits it costs to advance a Skill outside character creation. */
 export type SkillTrainingCost = {
   years: number;
   credits: string;
@@ -125,16 +118,7 @@ const MILITARY_TRAINING_SKILLS: readonly SkillGrant[] = [
   },
 ];
 
-/**
- * Grades the Military Training exception's Combat Check (#49):
- * - Critical Failure: killed in action -- nothing else is granted.
- * - Failure: Military Training, Athletics and 1 Trained Skill of choice.
- * - Success: the above, plus +10 Combat, -10 to a chosen Stat and 2 Trained
- *   Skills of choice.
- * - Critical Success: as Success, but 1 Expert Skill of choice rather than 2
- *   Trained.
- * Every outcome but a Critical Failure also grants Marine Trauma Response.
- */
+/** Grades the Military Training exception's Combat Check into what it grants. */
 export function evaluateMilitaryTraining(outcome: Outcome): MilitaryTrainingResult {
   if (outcome === Outcomes.CriticalFailure) {
     return {
@@ -183,12 +167,7 @@ export function evaluateMilitaryTraining(outcome: Outcome): MilitaryTrainingResu
 /** Combat is what this exception raises, not a Stat it can spend, so it is left out. */
 const REDUCIBLE_STATS: readonly Stat[] = [Stats.Strength, Stats.Speed, Stats.Intellect];
 
-/**
- * The Stat-to-reduce query, coded numerically like damage.ts's damage-type
- * query so it can sit inside an inline roll and be read back from `results`
- * -- a `?{}` outside `[[...]]` only ever reaches chat as text, never the
- * sheetworker.
- */
+/** The Stat-to-reduce query, coded numerically so it can be read back from an inline roll. */
 function statReductionQuery(): string {
   const options = REDUCIBLE_STATS
     .map((stat, index) => `${titleCase(stat)},${index}`)
@@ -200,14 +179,7 @@ function readReducedStat(index: number): Stat {
   return REDUCIBLE_STATS[index] ?? Stats.Strength;
 }
 
-/**
- * Roll20 Sheetworker: Military Training (#49)
- *
- * Rolls the same Combat Check as the sheet's own Combat button, but grades
- * its own consequences afterwards rather than through checkComputed(): which
- * Skills, Stat and Affliction to grant vary by outcome in a way no other
- * check needs, so the Notes placeholder is filled in here instead.
- */
+/** Roll20 Sheetworker: rolls Military Training and grants what its outcome allows. */
 export async function handleMilitaryTraining(): Promise<void> {
   const template = `${checkTemplate({
     i18nKey: TEMPLATE_PHRASES.MilitaryTraining,

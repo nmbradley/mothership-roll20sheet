@@ -4,14 +4,11 @@
 
 <charmancer class="sheet-charmancer-{name}">
   <div class="ms-cm-wrapper">
-    <slot />
+    <slot></slot>
   </div>
 </charmancer>
 
 <style lang="scss">
-// Shared by every ms-cm-panel variant. The modifiers below are never combined
-// with the plain class in the markup -- each slide picks one -- so this stays
-// a placeholder rather than a nested `&--full` etc. under `.ms-cm-panel`.
 %ms-cm-panel-base {
   @extend %ms-panel;
 
@@ -48,7 +45,6 @@
   text-align: center;
 }
 
-// The class picker reads as a dark compendium page rather than a ruled card.
 .ms-cm-panel--classes {
   @extend %ms-cm-panel-base;
   grid-column: 1 / -1;

@@ -26,7 +26,6 @@ describe("totalSkillPoints (#181)", () => {
   });
 
   it("should total a fixed tier breakdown from the per-tier costs", () => {
-    // 1 Trained (cost 1) + 1 Expert (cost 2).
     expect(totalSkillPoints(classes.teamster.skills)).toBe(3);
   });
 });
@@ -106,7 +105,6 @@ describe("evaluateSkillBudget (#181)", () => {
   describe("Teamster: 1 Trained and 1 Expert, never a substitute", () => {
     it("should allow the printed pair and nothing else, from the start", () => {
       const { locked } = evaluateSkillBudget(classes.teamster.skills, NONE);
-      // Master is never listed, so it is refused even though 3 points remain.
       expect(locked).toEqual({
         trained: false,
         expert: false,
@@ -139,14 +137,7 @@ describe("evaluateSkillBudget (#181)", () => {
   });
 });
 
-/**
- * Runs `onLoadSkills` as if the player had already completed the Scientist's
- * picker chain on the Class step: one repeating row per choice made, named
- * `row1`, `row2`, ... in the order the player picked them.
- *
- * Returns every `setAttrs` call, so a test can find the one that grants the
- * class skills among the budget/text bookkeeping calls `onLoadSkills` also makes.
- */
+/** Runs `onLoadSkills` as if the player had completed the Scientist's picker chain. */
 function loadSkillsWithChosenChain(picks: readonly string[]): Record<string, string | number>[] {
   const values: Record<string, string> = {
     skill_points: "1",
@@ -202,8 +193,6 @@ describe("Scientist Master chain grant (#187)", () => {
   });
 
   it("Hyperspace: choosing Piloting grants Zero-G automatically, with no Trained row needed", () => {
-    // Piloting has only one Trained prerequisite, so the player's chain stops
-    // at two rows -- Zero-G is granted without a picker for it.
     const calls = loadSkillsWithChosenChain([Skills.Hyperspace, Skills.Piloting]);
     expect(calls).toContainEqual(expect.objectContaining({
       [skillKey(Skills.Hyperspace)]: "on",

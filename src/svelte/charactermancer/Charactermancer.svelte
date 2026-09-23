@@ -11,13 +11,6 @@
   import StatsSlide from "#svelte/charactermancer/slides/StatsSlide.svelte";
 </script>
 
-<!--
-  No wrapper element. Roll20 reads each <charmancer> as a page of the
-  charactermancer and only recognises them as top-level elements of the sheet;
-  nested inside a div they are dropped, which is what left the block empty in
-  the rendered sheet. The official Mothership sheet emits them the same way,
-  after the roll templates.
--->
 <IntroSlide />
 <StatsSlide />
 <ClassSlide />

@@ -17,5 +17,4 @@
   class={inputClass}
   type="hidden"
   name="attr_{name}"
-  {value}
-  />
+  {value} />

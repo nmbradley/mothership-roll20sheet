@@ -9,23 +9,13 @@
   import Panel from "#svelte/components/Panel.svelte";
   import SettingsRow from "#svelte/components/SettingsRow.svelte";
 
-  // Grouped so the page can absorb more settings without turning back into a
-  // flat list. A group with no rows renders nothing -- see the {#if} in the
-  // markup below -- rather than an empty box; NPC is a placeholder until
-  // settings land there, and Roll is sheet-agnostic so it carries no gate.
   const groups = [
     {
       title: "PC",
       slug: "pc",
-      // #6: attack_modifier is added to every attack regardless of which
-      // sheet view is active -- repeating_attacks and its click handler are
-      // shared with the NPC sheet (#90), and this is one attribute per
-      // character rather than per view.
       rows: [speed_initiative, save_skill_select, attack_modifier],
     },
     {
-      // #62: only meaningful once a ship is the active sheet -- gated in CSS
-      // below the same way Sheet.svelte gates the sheet views themselves.
       title: "Ship",
       slug: "ship",
       rows: [ship_npc],
@@ -43,36 +33,14 @@
   ];
 </script>
 
-<!--
-  Peer of CharacterSheet / NPCSheet / ShipSheet, shown by Sheet.svelte in
-  place of whichever of those is active -- see settings_open in pcFields.ts.
-  Rows specific to one sheet type are gated in CSS below, the same way
-  Sheet.svelte gates the sheet views themselves off sheet_toggle.
--->
 <div class="settings-sheet">
-  <!-- Sheet type sits outside the groups below -- it picks which sheet you're on. -->
   <Panel title="Settings" corner="small">
-    <!--
-      The page's two navigation actions, paired on one row inside the frame
-      rather than floating above it. The back control drives settings_open
-      through a <label for>, which needs the stable id Sheet.svelte declares
-      on the hidden checkbox -- settings is a view layered over whichever
-      sheet is active, not a fourth value of sheet_toggle, so this unchecks
-      the box rather than touching the sheet type.
-    -->
     <div class="settings-sheet__nav">
       <label for="attr_settings_open" class="settings-sheet__back button">
         <span aria-hidden="true">&larr;</span>
         <span data-i18n="Back">Back</span>
       </label>
 
-      <!--
-        An action button, not a `back`-type one. `type="back"` is the
-        charactermancer's own page-to-page navigation and only binds inside a
-        <charmancer> block -- on the sheet itself it does nothing at all,
-        which is how this arrived silently broken. Launching from outside
-        goes through startCharactermancer() in the sheetworker instead.
-      -->
       <ButtonAction action="launch_charmancer" label="Launch Charactermancer" />
     </div>
 
@@ -97,20 +65,13 @@
             </div>
 
             {#if group.slug === "pc"}
-              <!--
-                #163: Military Training is a one-time, Warden-run event with
-                its own Combat Check, not an on/off preference -- moved here
-                from PCSkillsPanel and boxed apart from the rows above so it
-                reads as an action rather than a setting.
-              -->
               <div class="settings-sheet__military-panel">
                 <Panel mode="light-grey" title="Military Training" corner="small">
                   <div class="settings-sheet__military">
                     <Button action="military_training" label="Military Training" />
                     <p
                       class="settings-sheet__military-desc"
-                      data-i18n="Military Training Description"
-                    >
+                      data-i18n="Military Training Description">
                       6 years, free. Rolls a Combat Check: on a success, gain Military Training,
                       Athletics, 2 Trained Skills (1 Expert on a Critical Success), +10 Combat,
                       -10 to a chosen Stat and Marine Trauma Response. On a failure, gain Military
@@ -187,10 +148,6 @@
   }
 }
 
-// The standard button treatment, sized up from the shared .button --
-// combined with it for the specificity to win regardless of declaration
-// order (see scripts/collect-styles.js, which compiles every component's
-// styles into one document).
 .settings-sheet__back.button {
   gap: var(--ms-space-sm);
 
@@ -199,12 +156,6 @@
   font-size: var(--ms-text-md);
 }
 
-// Each group only makes sense for the sheet type it configures -- gated off
-// sheet_toggle the same way Sheet.svelte gates the sheet views themselves,
-// since a sheet cannot run JS to hide it instead. Gated on the whole group,
-// not just its rows, so switching sheet type doesn't leave an empty panel
-// box behind. Roll is sheet-agnostic, so it carries no gate and stays
-// visible throughout.
 input[name="attr_sheet_toggle"][value="pc"] ~ .sheet-view--settings .settings-sheet__group--pc,
 input[name="attr_sheet_toggle"][value="npc"] ~ .sheet-view--settings .settings-sheet__group--npc,
 input[name="attr_sheet_toggle"][value="ship"] ~ .sheet-view--settings .settings-sheet__group--ship {
