@@ -3219,7 +3219,6 @@
       maxWoundsBonus: 1,
       skills: {
         granted: [Skills.MilitaryTraining, Skills.Athletics],
-        // 1 Expert, or 2 Trained.
         skillPoints: 2
       },
       traumaResponse: "Whenever you Panic, every Close friendly player must make a Fear Save."
@@ -3236,7 +3235,6 @@
       maxWoundsBonus: 1,
       skills: {
         granted: [Skills.Linguistics, Skills.Computers, Skills.Mathematics],
-        // 1 Expert, or 2 Trained.
         skillPoints: 2
       },
       traumaResponse: "Fear Saves made by Close friendly players are at Disadvantage."
@@ -3253,7 +3251,6 @@
       maxWoundsBonus: 0,
       skills: {
         granted: [],
-        // 1 Trained, on top of the Master chain.
         skillPoints: 1,
         grantsMasterChain: true
       },
@@ -5224,9 +5221,6 @@
   }
   function checkComputed(check, skillName = "", used = 1) {
     const computed = {
-      // translateOr, not translated(): `^{...}` is resolved by Roll20 while it
-      // parses the roll macro, and a finishRoll value never goes through that
-      // pass -- sent as `^{Success}` the card printed the macro verbatim.
       [COMPUTED.Verdict]: translateOr(check.outcome),
       [COMPUTED.VerdictClass]: VERDICT_CLASSES[check.outcome],
       [COMPUTED.Rank]: RANKS[check.outcome],
@@ -5856,7 +5850,6 @@
     return {
       damage: reduced,
       armorPoints: 0,
-      // Already-bare skin (armorPoints 0) has nothing to destroy.
       armorDestroyed: armorPoints > 0,
       absorbed: false
     };
