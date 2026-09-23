@@ -16,6 +16,7 @@ const TEMPLATE = "ms";
 export const COMPUTED = {
   Used: "used",
   HasNotes: "hasnotes",
+  HasSkill: "hasskill",
   Verdict: "verdict",
   VerdictClass: "verdictclass",
   Rank: "rank",
@@ -25,10 +26,10 @@ export const COMPUTED = {
 
 /** The outcome as a number, so the template can style each one. */
 const RANKS: Record<Outcome, number> = {
-  [Outcomes.CriticalFailure]: 0,
-  [Outcomes.Failure]: 1,
-  [Outcomes.Success]: 2,
-  [Outcomes.CriticalSuccess]: 3,
+  [Outcomes.CriticalFailure]: 1,
+  [Outcomes.Failure]: 2,
+  [Outcomes.Success]: 3,
+  [Outcomes.CriticalSuccess]: 4,
 };
 
 /** The outcome's class suffix, e.g. "critical-success". */
@@ -102,6 +103,7 @@ export function checkTemplate(options: CheckTemplateOptions): string {
     [COMPUTED.VerdictClass, "[[0]]"],
     [COMPUTED.Rank, "[[0]]"],
     [COMPUTED.Skill, "[[0]]"],
+    [COMPUTED.HasSkill, "[[0]]"],
     [COMPUTED.Notes, "[[0]]"],
     [COMPUTED.HasNotes, "[[0]]"],
   ]);
@@ -119,6 +121,7 @@ export function checkComputed(
     [COMPUTED.VerdictClass]: VERDICT_CLASSES[check.outcome],
     [COMPUTED.Rank]: RANKS[check.outcome],
     [COMPUTED.Skill]: skillName,
+    [COMPUTED.HasSkill]: notesFlag(skillName),
     [COMPUTED.Used]: used,
     [COMPUTED.Notes]: panicWarning(check),
   };
