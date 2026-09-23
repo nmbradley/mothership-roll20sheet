@@ -8,11 +8,12 @@
   "prettier.enable": false,
   "javascript.format.enable": false,
   "typescript.format.enable": false,
-  "html.format.enable": false,
   "json.format.enable": false,
-  "css.format.enable": false,
-  "scss.format.enable": false,
   "svelte.plugin.svelte.format.enable": false,
+
+  "html.format.enable": true,
+  "css.format.enable": true,
+  "scss.format.enable": false,
 
   "css.validate": false,
   "scss.validate": false,
@@ -25,12 +26,25 @@
   "stylelint.validate": ["css", "scss", "svelte"],
   "stylelint.snippet": ["css", "scss", "svelte"],
 
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features",
+    "editor.formatOnSave": true
+  },
+  "[css]": {
+    "editor.defaultFormatter": "vscode.css-language-features",
+    "editor.formatOnSave": true
+  },
+
   "[javascript]": { "editor.formatOnSave": false },
   "[typescript]": { "editor.formatOnSave": false },
   "[svelte]": { "editor.formatOnSave": false },
   "[scss]": { "editor.formatOnSave": false },
-  "[css]": { "editor.formatOnSave": false },
-  "[html]": { "editor.formatOnSave": false },
   "[json]": { "editor.formatOnSave": false },
-  "[jsonc]": { "editor.formatOnSave": false }
+  "[jsonc]": { "editor.formatOnSave": false },
+
+  "files.readonlyInclude": {
+    "mothership.html": true,
+    "mothership.css": true,
+    "translation.json": true
+  }
 }
