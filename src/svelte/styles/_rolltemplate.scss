@@ -1,6 +1,11 @@
-$roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
+$ms: ".sheet-rolltemplate-ms";
+$cm: ".sheet-rolltemplate-ms-cm";
 
-#{$roots} {
+@mixin roots { #{$ms} &, #{$cm} & { @content; } }
+@mixin ms    { #{$ms} & { @content; } }
+@mixin cm    { #{$cm} & { @content; } }
+
+#{$ms}, #{$cm} {
   --ms-text-xs: 0.62em;
   --ms-text-sm: 0.72em;
   --ms-text-md: 0.85em;
@@ -11,7 +16,25 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
   --ms-roll-w: 3.6em;
   --ms-roll-h: var(--ms-roll-w); // square: the footer offset reads this
 
-  .sheet-ms-result {
+  .inlinerollresult,
+  .importantroll,
+  .fullcrit,
+  .fullfail {
+    border: none;
+    padding: 0;
+
+    background: transparent;
+
+    line-height: inherit;
+    font-family: inherit;
+  }
+
+  .fullcrit { color: var(--ms-pass-fg, darkgreen); }
+  .fullfail { color: var(--ms-fail-fg, darkred); }
+}
+
+.sheet-ms-result {
+  @include roots {
     border: var(--ms-border-width-thick) solid var(--ms-border);
     border-radius: 0 0 var(--ms-radius-lg) var(--ms-radius-lg);
     box-sizing: border-box;
@@ -22,69 +45,119 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     color: var(--ms-fg);
   }
 
-  .sheet-ms-result__title {
-    border-radius: 0 0 var(--ms-radius-lg) 0;
-    box-sizing: border-box;
-    padding: var(--ms-space-md) var(--ms-space-lg);
+  @include ms {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--ms-roll-w);
+    grid-template-rows: auto auto auto auto;
+    row-gap: 0;
+    column-gap: var(--ms-space-md);
+    align-items: start;
 
-    background: var(--ms-inverse);
-
-    font-size: var(--ms-text-lg);
-    line-height: 1.05;
-    font-family: var(--ms-font-header);
-    text-align: center;
-    text-transform: uppercase;
-    color: var(--ms-fg-inverse);
+    padding: 0 var(--ms-space-sm) var(--ms-space-md);
   }
 
-  .sheet-ms-result__subtitle,
-  .sheet-ms-result__skill,
-  .sheet-ms-result__weapon {
-    grid-column: 1;
-
-    min-width: 0;
-    padding: 0;
-
-    font-size: var(--ms-text-sm);
-    line-height: 1.1;
-    font-family: var(--ms-font-header);
-    font-weight: 700;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--ms-fg);
-    overflow-wrap: anywhere;
+  @include cm {
+    padding: var(--ms-space-xl);
   }
 
-  .sheet-ms-result__subtitle {
-    grid-row: 2;
+  &__title {
+    @include roots {
+      border-radius: 0 0 var(--ms-radius-lg) 0;
+      box-sizing: border-box;
+      padding: var(--ms-space-md) var(--ms-space-lg);
 
-    margin: 0 0 0.2em;
+      background: var(--ms-inverse);
+
+      font-size: var(--ms-text-lg);
+      line-height: 1.05;
+      font-family: var(--ms-font-header);
+      text-align: center;
+      text-transform: uppercase;
+      color: var(--ms-fg-inverse);
+    }
+
+    @include ms {
+      grid-area: 1 / 1;
+
+      margin-left: calc(var(--ms-space-sm) * -1);
+    }
+
+    @include cm {
+      margin: calc(var(--ms-space-xl) * -1) 0 var(--ms-space-lg) calc(var(--ms-space-xl) * -1);
+      width: 90%;
+    }
   }
 
-  .sheet-ms-result__skill {
-    grid-row: 3;
+  &__subtitle {
+    @include roots {
+      grid-column: 1;
+      grid-row: 2;
 
-    margin: 0 0 var(--ms-space-md);
+      margin: 0 0 0.2em;
+      min-width: 0;
+      padding: 0;
 
-    font-size: var(--ms-text-xs);
-    font-weight: 800;
-    letter-spacing: 0.09em;
-    color: var(--ms-fg-muted);
+      font-size: var(--ms-text-sm);
+      line-height: 1.1;
+      font-family: var(--ms-font-header);
+      font-weight: 700;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--ms-fg);
+      overflow-wrap: anywhere;
+    }
+
+    @include cm {
+      margin: var(--ms-space-md) 0 0.2em;
+    }
   }
 
-  .sheet-ms-result__weapon {
-    grid-row: 4;
+  &__skill {
+    @include roots {
+      grid-column: 1;
+      grid-row: 3;
 
-    margin: 0 0 var(--ms-space-md);
+      margin: 0 0 var(--ms-space-md);
+      min-width: 0;
+      padding: 0;
 
-    font-size: var(--ms-text-xs);
-    font-weight: 800;
-    letter-spacing: 0.09em;
-    color: var(--ms-fg-muted);
+      font-size: var(--ms-text-xs);
+      line-height: 1.1;
+      font-family: var(--ms-font-header);
+      font-weight: 800;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--ms-fg-muted);
+      overflow-wrap: anywhere;
+    }
   }
 
-  .sheet-ms-roll {
+  &__weapon {
+    @include roots {
+      grid-column: 1;
+      grid-row: 4;
+
+      margin: 0 0 var(--ms-space-md);
+      min-width: 0;
+      padding: 0;
+
+      font-size: var(--ms-text-xs);
+      line-height: 1.1;
+      font-family: var(--ms-font-header);
+      font-weight: 800;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--ms-fg-muted);
+      overflow-wrap: anywhere;
+    }
+  }
+}
+
+.sheet-ms-roll {
+  @include roots {
     display: grid;
     position: relative;
     grid-auto-rows: min-content;
@@ -99,57 +172,118 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     min-height: 0;
 
     background: var(--ms-surface);
-
-    // Square, and it has to be said twice. aspect-ratio states the intent;
-    // min-height: 0 is what actually enforces it, because this box is itself
-    // a grid item and a grid item's automatic minimum size is its content --
-    // which silently wins over an explicit height once the discarded die is
-    // stacked under the counted one.
-    aspect-ratio: 1 / 1;
   }
 
-  .sheet-ms-roll__roll,
-  .sheet-ms-roll__roll2 {
-    font-size: var(--ms-text-2xl);
-    line-height: 1;
-    font-weight: 700;
-    text-align: center;
-    color: var(--ms-fg);
+  @include ms {
+    grid-area: 1 / 2 / 6 / 3;
+    align-self: start;
+    justify-self: stretch;
+
+    margin-top: var(--ms-space-lg);
+    width: var(--ms-roll-w);
+    height: var(--ms-roll-h);
+    padding: 0 0.2em;
   }
 
-  .sheet-ms-roll__credits {
-    grid-area: 1 / 1;
-
-    font-size: var(--ms-text-md);
-    line-height: 1;
-    font-weight: 700;
-    text-align: center;
-    white-space: nowrap;
-    color: var(--ms-fg);
+  @include cm {
+    margin: 0 auto var(--ms-space-lg);
+    width: auto;
+    max-width: 60%;
+    height: auto;
+    padding: var(--ms-space-sm) var(--ms-space-lg);
   }
 
-  .sheet-ms-roll--spent {
-    order: 2;
-
-    font-size: var(--ms-text-xs);
-    line-height: 1;
-    font-weight: 800;
-    text-decoration: line-through;
-    color: var(--ms-fg-muted);
+  &:has(+ .sheet-ms-readouts > .sheet-ms-readout) {
+    @include ms {
+      border-bottom: 0;
+      border-radius: var(--ms-radius-lg) var(--ms-radius-lg) 0 0;
+    }
   }
 
-  .sheet-ms-roll--used {
-    order: 1;
+  &:has(&--spent) &--used {
+    @include roots {
+      font-size: var(--ms-text-xl);
+    }
   }
 
-  // With a discarded die stacked beneath it, the counted one steps down so the
-  // pair sits inside the square rather than being clipped by it. A lone die
-  // keeps the full size -- most rolls have no edge and should read large.
-  .sheet-ms-roll:has(.sheet-ms-roll--spent) .sheet-ms-roll--used {
-    font-size: var(--ms-text-xl);
+  &__roll,
+  &__roll2 {
+    @include roots {
+      font-size: var(--ms-text-2xl);
+      line-height: 1;
+      font-weight: 700;
+      text-align: center;
+      color: var(--ms-fg);
+    }
   }
 
-  .sheet-ms-readout {
+  &__credits {
+    @include roots {
+      grid-area: 1 / 1;
+
+      font-size: var(--ms-text-md);
+      line-height: 1;
+      font-weight: 700;
+      text-align: center;
+      white-space: nowrap;
+      color: var(--ms-fg);
+    }
+
+    .fullcrit,
+    .fullfail {
+      @include roots {
+        color: var(--ms-fg);
+      }
+    }
+  }
+
+  &--spent {
+    @include roots {
+      order: 2;
+
+      font-size: var(--ms-text-xs);
+      line-height: 1;
+      font-weight: 800;
+      text-decoration: line-through;
+      color: var(--ms-fg-muted);
+    }
+  }
+
+  &--used {
+    @include roots {
+      order: 1;
+    }
+  }
+}
+
+.sheet-ms-readouts {
+  @include ms {
+    display: grid;
+    grid-area: 1 / 2 / 6 / 3;
+    grid-auto-rows: min-content;
+    gap: var(--ms-space-sm);
+    align-self: start;
+    justify-self: stretch;
+
+    margin-top: calc(var(--ms-roll-h) + var(--ms-space-lg));
+    width: var(--ms-roll-w);
+  }
+
+  &:not(:has(.sheet-ms-readout)) {
+    @include ms {
+      display: none;
+    }
+  }
+
+  .sheet-ms-result:not(:has(.sheet-ms-roll)) & {
+    @include ms {
+      margin-top: var(--ms-space-lg);
+    }
+  }
+}
+
+.sheet-ms-readout {
+  @include roots {
     display: flex;
     gap: var(--ms-space-md);
     align-items: center;
@@ -164,45 +298,86 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     color: var(--ms-fg-inverse);
   }
 
-  .sheet-ms-readout__label {
-    flex: none;
-
-    font-size: 0;
-    line-height: 0;
+  @include ms {
+    padding: 0.15em var(--ms-space-md);
   }
 
-  .sheet-ms-readout__label::before {
-    content: "target";
-
-    display: block;
-
-    font-size: 1.425rem;
-    line-height: 1;
-    font-family: "Material Symbols Outlined", "Material Icons";
-    font-weight: 400;
-    text-transform: none;
-    letter-spacing: normal;
-    color: var(--ms-fg-inverse);
-    font-feature-settings: "liga";
-    font-variation-settings: "wght" 600;
+  @include cm {
+    margin: 0 auto var(--ms-space-lg);
+    border-radius: var(--ms-radius-lg);
+    width: auto;
+    max-width: 60%;
+    padding: 0.15em var(--ms-space-md);
   }
 
-  .sheet-ms-readout--damage .sheet-ms-readout__label::before {
-    content: "explosion";
+  .sheet-ms-readouts & ~ & {
+    @include ms {
+      border-radius: var(--ms-radius-lg);
+    }
   }
 
-  .sheet-ms-readout__value {
-    border: 0;
-    padding: 0;
-
-    font-size: var(--ms-text-md);
-    line-height: 1.15;
-    font-weight: 700;
-    text-align: center;
-    color: var(--ms-fg-inverse);
+  .sheet-ms-result:not(:has(.sheet-ms-roll)) & {
+    @include ms {
+      border-radius: var(--ms-radius-lg);
+    }
   }
 
-  .sheet-ms-verdict {
+  .fullcrit,
+  .fullfail {
+    @include roots {
+      color: inherit;
+    }
+  }
+
+  &--damage &__label::before {
+    @include roots {
+      content: "explosion";
+    }
+  }
+
+  &__label {
+    @include roots {
+      flex: none;
+
+      font-size: 0;
+      line-height: 0;
+    }
+
+    &::before {
+      @include roots {
+        content: "target";
+
+        display: block;
+
+        font-size: 1.425rem;
+        line-height: 1;
+        font-family: "Material Symbols Outlined", "Material Icons";
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: normal;
+        color: var(--ms-fg-inverse);
+        font-feature-settings: "liga";
+        font-variation-settings: "wght" 600;
+      }
+    }
+  }
+
+  &__value {
+    @include roots {
+      border: 0;
+      padding: 0;
+
+      font-size: var(--ms-text-md);
+      line-height: 1.15;
+      font-weight: 700;
+      text-align: center;
+      color: var(--ms-fg-inverse);
+    }
+  }
+}
+
+.sheet-ms-verdict {
+  @include roots {
     grid-column: 1;
 
     margin: 0;
@@ -218,33 +393,54 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     letter-spacing: 0.08em;
   }
 
-  .sheet-ms-verdict--success {
-    background: var(--ms-pass-wash);
-
-    color: var(--ms-pass-fg);
+  @include ms {
+    grid-row: 5;
   }
 
-  .sheet-ms-verdict--failure {
-    background: var(--ms-fail-wash);
-
-    color: var(--ms-fail-fg);
+  .fullcrit,
+  .fullfail {
+    @include roots {
+      color: inherit;
+    }
   }
 
-  .sheet-ms-verdict--critical-success {
-    background: var(--ms-crit-pass);
+  &--success {
+    @include roots {
+      background: var(--ms-pass-wash);
 
-    font-weight: 800;
-    color: var(--ms-fg-inverse);
+      color: var(--ms-pass-fg);
+    }
   }
 
-  .sheet-ms-verdict--critical-failure {
-    background: var(--ms-accent);
+  &--failure {
+    @include roots {
+      background: var(--ms-fail-wash);
 
-    font-weight: 800;
-    color: var(--ms-fg-inverse);
+      color: var(--ms-fail-fg);
+    }
   }
 
-  .sheet-ms-notes {
+  &--critical-success {
+    @include roots {
+      background: var(--ms-crit-pass);
+
+      font-weight: 800;
+      color: var(--ms-fg-inverse);
+    }
+  }
+
+  &--critical-failure {
+    @include roots {
+      background: var(--ms-accent);
+
+      font-weight: 800;
+      color: var(--ms-fg-inverse);
+    }
+  }
+}
+
+.sheet-ms-notes {
+  @include roots {
     grid-column: 1 / -1;
 
     margin: var(--ms-space-lg) 0 0;
@@ -262,7 +458,13 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     color: var(--ms-fg);
   }
 
-  .sheet-ms-alert {
+  @include ms {
+    grid-row: 6;
+  }
+}
+
+.sheet-ms-alert {
+  @include roots {
     grid-column: 1 / -1;
 
     margin: var(--ms-space-md) 0 0;
@@ -283,142 +485,14 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     color: var(--ms-fg-inverse);
   }
 
-  .inlinerollresult,
-  .importantroll,
-  .fullcrit,
-  .fullfail {
-    border: none;
-    padding: 0;
-
-    background: transparent;
-
-    line-height: inherit;
-    font-family: inherit;
-  }
-
-  .fullcrit { color: var(--ms-pass-fg, darkgreen); }
-  .fullfail { color: var(--ms-fail-fg, darkred); }
-
-  .sheet-ms-roll__credits {
-    .fullcrit,
-    .fullfail { color: var(--ms-fg); }
-  }
-
-  .sheet-ms-readout,
-  .sheet-ms-verdict,
-  .sheet-ms-alert {
-    .fullcrit,
-    .fullfail { color: inherit; }
-  }
-}
-
-.sheet-rolltemplate-ms {
-  .sheet-ms-result {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) var(--ms-roll-w);
-    grid-template-rows: auto auto auto auto;
-    row-gap: 0;
-    column-gap: var(--ms-space-xl);
-    align-items: start;
-
-    padding: 0 var(--ms-space-lg) var(--ms-space-lg);
-  }
-
-  .sheet-ms-result__title {
-    grid-area: 1 / 1;
-
-    margin: 0 0 var(--ms-space-md) calc(var(--ms-space-lg) * -1);
-  }
-
-  .sheet-ms-roll,
-  .sheet-ms-readouts {
-    grid-area: 1 / 2 / 6 / 3;
-    align-self: start;
-    justify-self: stretch;
-
-    width: var(--ms-roll-w);
-  }
-
-  .sheet-ms-roll {
-    margin-top: var(--ms-space-lg);
-    height: var(--ms-roll-h);
-    padding: 0 0.2em;
-  }
-
-  .sheet-ms-roll:has(+ .sheet-ms-readouts > .sheet-ms-readout) {
-    border-bottom: 0;
-    border-radius: var(--ms-radius-lg) var(--ms-radius-lg) 0 0;
-  }
-
-  .sheet-ms-readouts {
-    display: grid;
-    grid-auto-rows: min-content;
-    gap: var(--ms-space-sm);
-
-    margin-top: calc(var(--ms-roll-h) + var(--ms-space-lg));
-  }
-
-  .sheet-ms-readouts:not(:has(.sheet-ms-readout)) {
-    display: none;
-  }
-
-  .sheet-ms-readout {
-    padding: 0.15em var(--ms-space-md);
-  }
-
-  .sheet-ms-readouts .sheet-ms-readout ~ .sheet-ms-readout {
-    border-radius: var(--ms-radius-lg);
-  }
-
-  .sheet-ms-result:not(:has(.sheet-ms-roll)) .sheet-ms-readouts {
-    margin-top: var(--ms-space-lg);
-  }
-
-  .sheet-ms-result:not(:has(.sheet-ms-roll)) .sheet-ms-readout {
-    border-radius: var(--ms-radius-lg);
-  }
-
-  .sheet-ms-verdict {
-    grid-row: 5;
-  }
-
-  .sheet-ms-notes {
-    grid-row: 6;
-  }
-
-  .sheet-ms-alert {
+  @include ms {
     grid-row: 7;
   }
-}
 
-.sheet-rolltemplate-ms-cm {
-  .sheet-ms-result {
-    padding: var(--ms-space-xl);
-  }
-
-  .sheet-ms-result__title {
-    margin: calc(var(--ms-space-xl) * -1) 0 var(--ms-space-lg) calc(var(--ms-space-xl) * -1);
-    width: 90%;
-  }
-
-  .sheet-ms-result__subtitle {
-    margin: var(--ms-space-md) 0 0.2em;
-  }
-
-  .sheet-ms-roll,
-  .sheet-ms-readout {
-    margin: 0 auto var(--ms-space-lg);
-    width: auto;
-    max-width: 60%;
-  }
-
-  .sheet-ms-roll {
-    height: auto;
-    padding: var(--ms-space-sm) var(--ms-space-lg);
-  }
-
-  .sheet-ms-readout {
-    border-radius: var(--ms-radius-lg);
-    padding: 0.15em var(--ms-space-md);
+  .fullcrit,
+  .fullfail {
+    @include roots {
+      color: inherit;
+    }
   }
 }
