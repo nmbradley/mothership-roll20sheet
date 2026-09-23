@@ -1750,6 +1750,229 @@ body.sheet-darkmode
   grid-column: 1/-1;
   gap: var(--ms-space-md);
 }
+.charsheet.charsheet.charsheet .npc-attack-ammo {
+  display: flex;
+  grid-column: 1/-1;
+  gap: var(--ms-space-sm);
+  align-items: center;
+}
+.charsheet.charsheet.charsheet .npc-attack-ammo__pips {
+  display: none;
+  gap: var(--ms-space-sm);
+}
+.charsheet.charsheet.charsheet .npc-attack-ammo__pip {
+  border: var(--ms-border-width) solid var(--ms-border);
+  border-radius: var(--ms-radius-sm);
+  width: 14px;
+  height: 14px;
+  background: none;
+}
+.charsheet.charsheet.charsheet .npc-attack-ammo__numeral {
+  display: flex;
+  gap: var(--ms-space-sm);
+  font-size: var(--ms-text-sm);
+  font-weight: 700;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="1"])
+  .npc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="1"])
+  .npc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="1"])
+  .npc-attack-ammo__pip:nth-child(n + 2) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="2"])
+  .npc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="2"])
+  .npc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="2"])
+  .npc-attack-ammo__pip:nth-child(n + 3) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="3"])
+  .npc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="3"])
+  .npc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="3"])
+  .npc-attack-ammo__pip:nth-child(n + 4) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="4"])
+  .npc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="4"])
+  .npc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="4"])
+  .npc-attack-ammo__pip:nth-child(n + 5) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="5"])
+  .npc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="5"])
+  .npc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="5"])
+  .npc-attack-ammo__pip:nth-child(n + 6) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="6"])
+  .npc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="6"])
+  .npc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="6"])
+  .npc-attack-ammo__pip:nth-child(n + 7) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="7"])
+  .npc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="7"])
+  .npc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="7"])
+  .npc-attack-ammo__pip:nth-child(n + 8) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="8"])
+  .npc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="8"])
+  .npc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="8"])
+  .npc-attack-ammo__pip:nth-child(n + 9) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="9"])
+  .npc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="9"])
+  .npc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="9"])
+  .npc-attack-ammo__pip:nth-child(n + 10) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="10"])
+  .npc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="10"])
+  .npc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="10"])
+  .npc-attack-ammo__pip:nth-child(n + 11) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="1"])
+  .npc-attack-ammo__pip:nth-child(-n + 1) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="2"])
+  .npc-attack-ammo__pip:nth-child(-n + 2) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="3"])
+  .npc-attack-ammo__pip:nth-child(-n + 3) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="4"])
+  .npc-attack-ammo__pip:nth-child(-n + 4) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="5"])
+  .npc-attack-ammo__pip:nth-child(-n + 5) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="6"])
+  .npc-attack-ammo__pip:nth-child(-n + 6) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="7"])
+  .npc-attack-ammo__pip:nth-child(-n + 7) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="8"])
+  .npc-attack-ammo__pip:nth-child(-n + 8) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="9"])
+  .npc-attack-ammo__pip:nth-child(-n + 9) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="10"])
+  .npc-attack-ammo__pip:nth-child(-n + 10) {
+  background: var(--ms-fg);
+}
 .charsheet.charsheet.charsheet .npc-header {
   width: 100%;
 }
@@ -1974,10 +2197,233 @@ body.sheet-darkmode
   grid-column: 1/-1;
   gap: var(--ms-space-md);
 }
+.charsheet.charsheet.charsheet .pc-attack-ammo {
+  display: flex;
+  grid-column: 1/-1;
+  gap: var(--ms-space-sm);
+  align-items: center;
+}
+.charsheet.charsheet.charsheet .pc-attack-ammo__pips {
+  display: none;
+  gap: var(--ms-space-sm);
+}
+.charsheet.charsheet.charsheet .pc-attack-ammo__pip {
+  border: var(--ms-border-width) solid var(--ms-border);
+  border-radius: var(--ms-radius-sm);
+  width: 14px;
+  height: 14px;
+  background: none;
+}
+.charsheet.charsheet.charsheet .pc-attack-ammo__numeral {
+  display: flex;
+  gap: var(--ms-space-sm);
+  font-size: var(--ms-text-sm);
+  font-weight: 700;
+}
 .charsheet.charsheet.charsheet
   .repeating:has(.pc-attack-name)
   .repeating__heading {
   padding-left: calc(var(--ms-border-width) + var(--ms-space-md));
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="1"])
+  .pc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="1"])
+  .pc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="1"])
+  .pc-attack-ammo__pip:nth-child(n + 2) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="2"])
+  .pc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="2"])
+  .pc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="2"])
+  .pc-attack-ammo__pip:nth-child(n + 3) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="3"])
+  .pc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="3"])
+  .pc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="3"])
+  .pc-attack-ammo__pip:nth-child(n + 4) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="4"])
+  .pc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="4"])
+  .pc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="4"])
+  .pc-attack-ammo__pip:nth-child(n + 5) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="5"])
+  .pc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="5"])
+  .pc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="5"])
+  .pc-attack-ammo__pip:nth-child(n + 6) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="6"])
+  .pc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="6"])
+  .pc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="6"])
+  .pc-attack-ammo__pip:nth-child(n + 7) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="7"])
+  .pc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="7"])
+  .pc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="7"])
+  .pc-attack-ammo__pip:nth-child(n + 8) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="8"])
+  .pc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="8"])
+  .pc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="8"])
+  .pc-attack-ammo__pip:nth-child(n + 9) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="9"])
+  .pc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="9"])
+  .pc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="9"])
+  .pc-attack-ammo__pip:nth-child(n + 10) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="10"])
+  .pc-attack-ammo__pips {
+  display: flex;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="10"])
+  .pc-attack-ammo__numeral {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots_max"][value="10"])
+  .pc-attack-ammo__pip:nth-child(n + 11) {
+  display: none;
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="1"])
+  .pc-attack-ammo__pip:nth-child(-n + 1) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="2"])
+  .pc-attack-ammo__pip:nth-child(-n + 2) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="3"])
+  .pc-attack-ammo__pip:nth-child(-n + 3) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="4"])
+  .pc-attack-ammo__pip:nth-child(-n + 4) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="5"])
+  .pc-attack-ammo__pip:nth-child(-n + 5) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="6"])
+  .pc-attack-ammo__pip:nth-child(-n + 6) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="7"])
+  .pc-attack-ammo__pip:nth-child(-n + 7) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="8"])
+  .pc-attack-ammo__pip:nth-child(-n + 8) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="9"])
+  .pc-attack-ammo__pip:nth-child(-n + 9) {
+  background: var(--ms-fg);
+}
+.charsheet.charsheet.charsheet
+  .repeating__row:has(input[name="attr_attack_shots"][value="10"])
+  .pc-attack-ammo__pip:nth-child(-n + 10) {
+  background: var(--ms-fg);
 }
 .charsheet.charsheet.charsheet .pc-details {
   gap: var(--ms-space-lg);

@@ -344,26 +344,34 @@ export function isNpcSheet(sheetToggle: string | undefined): boolean {
   return sheetToggle === "npc";
 }
 
-/** The weapon's magazine count when it is a plain non-negative integer, else undefined. */
-function parseShots(shots: string): number | undefined {
-  const trimmed = shots.trim();
+/** The weapon's magazine size when it is a plain positive integer, else undefined (untracked). */
+function parseMax(max: string): number | undefined {
+  const trimmed = max.trim();
   if (!/^\d+$/.test(trimmed)) return undefined;
   const parsed = Number(trimmed);
-  return parsed;
+  return parsed > 0 ? parsed : undefined;
+}
+
+/** A tracked weapon's current shots as a number, or undefined where its magazine is untracked. */
+function parseShots(current: string, max: string): number | undefined {
+  if (parseMax(max) === undefined) return undefined;
+  const trimmed = current.trim();
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 /** Firing a weapon spends one shot from its magazine, floored at 0. */
-export function spendAmmo(shots: string): string {
-  const current = parseShots(shots);
-  if (current === undefined) return shots;
-  const remaining = Math.max(0, current - 1);
+export function spendAmmo(current: string, max: string): string {
+  const shots = parseShots(current, max);
+  if (shots === undefined) return current;
+  const remaining = Math.max(0, shots - 1);
   const spent = String(remaining);
   return spent;
 }
 
 /** Whether a tracked weapon's magazine now reads empty. */
-export function isOutOfAmmo(shots: string): boolean {
-  return parseShots(shots) === 0;
+export function isOutOfAmmo(current: string, max: string): boolean {
+  return parseShots(current, max) === 0;
 }
 
 /** #14: a second, loud card once a tracked weapon's magazine runs dry. */
@@ -385,6 +393,7 @@ export type AttackRow = {
   damage: string;
   type: string;
   shots: string;
+  shotsMax: string;
   antiArmor: boolean;
 };
 
@@ -394,10 +403,13 @@ const BLANK_ROW: AttackRow = {
   damage: "",
   type: "",
   shots: "",
+  shotsMax: "",
   antiArmor: false,
 };
 
-const ATTACK_ROW_FIELDS = ["name", "bonus", "damage", "type", "shots", "anti_armor"] as const;
+const ATTACK_ROW_FIELDS = [
+  "name", "bonus", "damage", "type", "shots", "shots_max", "anti_armor",
+] as const;
 
 /** What every attribute on one weapon row is named after. */
 function attackRowPrefix(rowId: string): string {
@@ -428,6 +440,7 @@ export function readAttackRow(rowId: string, done: (row: AttackRow) => void): vo
       damage: attrs[`${prefix}damage`] ?? "",
       type: attrs[`${prefix}type`] ?? "",
       shots: attrs[`${prefix}shots`] ?? "",
+      shotsMax: attrs[`${prefix}shots_max`] ?? "",
       antiArmor: attrs[`${prefix}anti_armor`] === "1",
     });
   });
@@ -459,11 +472,11 @@ export function weaponLine(type: string, ammo: string): string {
 }
 
 /** Writes the magazine back, and says so loudly once it reads empty (#14). */
-function spendRowAmmo(rowId: string, remaining: string, name: string): void {
+function spendRowAmmo(rowId: string, remaining: string, max: string, name: string): void {
   const shotsKey = `${attackRowPrefix(rowId)}shots`;
   setAttrs({ [shotsKey]: remaining });
 
-  const isEmpty = isOutOfAmmo(remaining);
+  const isEmpty = isOutOfAmmo(remaining, max);
   if (isEmpty) void postOutOfAmmoAlert(name);
 }
 
@@ -487,7 +500,7 @@ function applyCheckGrade(grade: CheckGrade): void {
 
 /** Rolls a weapon attack: a Combat Check carrying its Damage, its Stress, and the ammo spend. */
 export async function rollAttack(row: AttackRow, rowId?: string): Promise<CheckResult> {
-  const remaining = spendAmmo(row.shots);
+  const remaining = spendAmmo(row.shots, row.shotsMax);
 
   const check = await rollCheck({
     name: row.name,
@@ -500,7 +513,7 @@ export async function rollAttack(row: AttackRow, rowId?: string): Promise<CheckR
     },
   });
 
-  if (rowId !== undefined) spendRowAmmo(rowId, remaining, row.name);
+  if (rowId !== undefined) spendRowAmmo(rowId, remaining, row.shotsMax, row.name);
 
   return check;
 }
