@@ -1328,6 +1328,10 @@
     <div class="sheet-ms-result__skill">{{computed::skill}}</div>
     {{/rollTotal() computed::hasskill 1}}
 
+    {{#weapon}}
+    <div class="sheet-ms-result__weapon">{{weapon}}</div>
+    {{/weapon}}
+
     {{#credits}}
     <div class="sheet-ms-roll">
       <div class="sheet-ms-roll__credits">{{credits}}cr</div>
@@ -1352,19 +1356,21 @@
     </div>
     {{/roll}}
 
-    {{#target}}
-    <div class="sheet-ms-readout">
-      <div class="sheet-ms-readout__label" data-i18n="Target">Target</div>
-      <div class="sheet-ms-readout__value">{{target}}</div>
-    </div>
-    {{/target}}
+    <div class="sheet-ms-readouts">
+      {{#target}}
+      <div class="sheet-ms-readout">
+        <div class="sheet-ms-readout__label" data-i18n="Target">Target</div>
+        <div class="sheet-ms-readout__value">{{target}}</div>
+      </div>
+      {{/target}}
 
-    {{#damage}}
-    <div class="sheet-ms-readout">
-      <div class="sheet-ms-readout__label" data-i18n="Damage">Damage</div>
-      <div class="sheet-ms-readout__value">{{damage}}</div>
+      {{#rollTotal() computed::hasdamage 1}}
+      <div class="sheet-ms-readout">
+        <div class="sheet-ms-readout__label" data-i18n="Damage">Damage</div>
+        <div class="sheet-ms-readout__value">{{damage}}</div>
+      </div>
+      {{/rollTotal() computed::hasdamage 1}}
     </div>
-    {{/damage}}
 
     {{#rollTotal() computed::rank 4}}
     <div class="sheet-ms-verdict sheet-ms-verdict--critical-success">{{computed::verdict}}</div>
@@ -5169,6 +5175,7 @@
     Used: "used",
     HasNotes: "hasnotes",
     HasSkill: "hasskill",
+    HasDamage: "hasdamage",
     Verdict: "verdict",
     VerdictClass: "verdictclass",
     Rank: "rank",
@@ -5208,15 +5215,24 @@
     const rendered = parts.join(" ");
     return rendered;
   }
+  function damageRoll(attack) {
+    const expression = attack === void 0 ? "" : attack.damage.trim();
+    if (expression === "") return "";
+    return `[[${expression}]]`;
+  }
   function checkTemplate(options) {
     const label = options.i18nKey === void 0 ? options.name ?? "" : translated(options.i18nKey);
     const rollDie = options.sendToTracker ? `${options.die} &{tracker}` : options.die;
+    const damage = damageRoll(options.attack);
     const template = render([
       ["title", label],
       ["subtitle", "@{character_name}"],
+      ["weapon", options.attack?.weapon ?? ""],
       ["roll", `[[${rollDie}]]`],
       ["roll2", `[[${options.die}]]`],
       ["target", `[[${options.target}]]`],
+      ["damage", damage],
+      [COMPUTED.HasDamage, damage === "" ? "" : "[[0]]"],
       [COMPUTED.Used, "[[0]]"],
       [COMPUTED.Verdict, "[[0]]"],
       [COMPUTED.VerdictClass, "[[0]]"],
@@ -5660,7 +5676,8 @@
       die: D100,
       ...options.name === void 0 ? {} : { name: options.name },
       ...options.i18nKey === void 0 ? {} : { i18nKey: options.i18nKey },
-      ...options.sendToTracker ? { sendToTracker: true } : {}
+      ...options.sendToTracker ? { sendToTracker: true } : {},
+      ...options.attack === void 0 ? {} : { attack: options.attack }
     };
     const template = `${checkTemplate(templateOptions)} {{edge=[[${EDGE_QUERY}]]}}`;
     const roll = await startRoll(template);
@@ -5678,6 +5695,9 @@
     const skillName = named !== "" ? named : wasOffered ? translateOr(UNSKILLED_LABEL) : "";
     const used = usedDie(dice.rolls, check.roll);
     const computed = checkComputed(check, skillName, used);
+    if (options.attack !== void 0) {
+      computed[COMPUTED.HasDamage] = gradeAttack(check.outcome).showDamage ? 1 : 0;
+    }
     finishRoll(roll.rollId, computed);
     return check;
   }
@@ -5707,17 +5727,10 @@
   function isOutOfAmmo(shots) {
     return parseShots(shots) === 0;
   }
-  async function postAttackResult(showDamage) {
-    const fields = [
-      "&{template:ms}",
-      "{{subtitle=@{character_name}}}",
-      showDamage ? "{{damage=[[@{attack_damage}]]}}" : "",
-      "{{alert=[[0]]}}",
-      "{{hasalert=[[0]]}}"
-    ].filter((field) => field !== "");
-    const template = fields.join(" ");
+  async function postAttackFailed() {
+    const template = "&{template:ms} {{subtitle=@{character_name}}} {{alert=[[0]]}} {{hasalert=[[0]]}}";
     const rollData = await startRoll(template);
-    const alert = showDamage ? "" : translateOr(TEMPLATE_PHRASES.AttackFailed);
+    const alert = translateOr(TEMPLATE_PHRASES.AttackFailed);
     finishRoll(rollData.rollId, {
       alert,
       hasalert: notesFlag(alert)
@@ -5732,33 +5745,97 @@
       hasalert: notesFlag(alert)
     });
   }
-  async function rollAttack(options, rowId) {
-    const check = await rollCheck(options);
-    const grade = gradeAttack(check.outcome);
-    await postAttackResult(grade.showDamage);
-    const shotsKey = rowId === void 0 ? void 0 : `repeating_attacks_${rowId}_attack_shots`;
-    const shouldReadAttrs = grade.stressDelta !== 0 || shotsKey !== void 0;
-    if (shouldReadAttrs) {
-      const keys = [
-        "stress",
-        "stress_min",
-        "sheet_toggle",
-        ...shotsKey === void 0 ? [] : [shotsKey]
-      ];
-      getAttrs(keys, (attrs) => {
-        if (grade.stressDelta !== 0 && !isNpcSheet(attrs.sheet_toggle)) {
-          const stress = Number(attrs.stress);
-          const min = Number(attrs.stress_min);
-          applyStressDelta(stress, grade.stressDelta, min);
-        }
-        if (shotsKey === void 0) return;
-        const spent = spendAmmo(attrs[shotsKey] ?? "");
-        setAttrs({ [shotsKey]: spent });
-        const isEmpty = isOutOfAmmo(spent);
-        if (isEmpty) void postOutOfAmmoAlert(options.name ?? "");
-      });
+  var BLANK_ROW = {
+    name: "",
+    bonus: "",
+    damage: "",
+    type: "",
+    shots: ""
+  };
+  var ATTACK_ROW_FIELDS = ["name", "bonus", "damage", "type", "shots"];
+  function attackRowPrefix(rowId) {
+    return `repeating_attacks_${rowId}_attack_`;
+  }
+  function clickedRowId(eventInfo) {
+    const section = eventInfo.sourceSection ?? "";
+    if (section !== "") return section;
+    for (const source of [eventInfo.triggerName, eventInfo.sourceAttribute]) {
+      const match = /_(-[-A-Za-z0-9]+|\d+)_/.exec(source);
+      if (match?.[1] !== void 0) return match[1];
     }
+    return void 0;
+  }
+  function readAttackRow(rowId, done) {
+    const prefix = attackRowPrefix(rowId);
+    const keys = ATTACK_ROW_FIELDS.map((field) => `${prefix}${field}`);
+    getAttrs(keys, (attrs) => {
+      done({
+        name: attrs[`${prefix}name`] ?? "",
+        bonus: attrs[`${prefix}bonus`] ?? "",
+        damage: attrs[`${prefix}damage`] ?? "",
+        type: attrs[`${prefix}type`] ?? "",
+        shots: attrs[`${prefix}shots`] ?? ""
+      });
+    });
+  }
+  function attackBonus(raw) {
+    const trimmed = raw.trim();
+    const parsed = Number(trimmed);
+    if (!Number.isFinite(parsed)) return "0";
+    const term = String(parsed);
+    return term;
+  }
+  var AMMO_LABEL = "Ammo";
+  function weaponLine(type, ammo) {
+    const parts = [];
+    const weaponType = type.trim();
+    if (weaponType !== "") parts.push(weaponType);
+    const remaining = ammo.trim();
+    if (remaining !== "") parts.push(`${translateOr(AMMO_LABEL)}: ${remaining}`);
+    const line = parts.join(" \xB7 ");
+    return line;
+  }
+  function spendRowAmmo(rowId, remaining, name) {
+    const shotsKey = `${attackRowPrefix(rowId)}shots`;
+    setAttrs({ [shotsKey]: remaining });
+    const isEmpty = isOutOfAmmo(remaining);
+    if (isEmpty) void postOutOfAmmoAlert(name);
+  }
+  function applyMissStress(delta) {
+    getAttrs(["stress", "stress_min", "sheet_toggle"], (attrs) => {
+      const isNpc = isNpcSheet(attrs.sheet_toggle);
+      if (isNpc) return;
+      const stress = Number(attrs.stress);
+      const min = Number(attrs.stress_min);
+      applyStressDelta(stress, delta, min);
+    });
+  }
+  async function rollAttack(row, rowId) {
+    const remaining = spendAmmo(row.shots);
+    const check = await rollCheck({
+      name: row.name,
+      target: `@{combat}+${attackBonus(row.bonus)}+@{attack_modifier}`,
+      bonus: skillQuery(),
+      attack: {
+        damage: row.damage,
+        weapon: weaponLine(row.type, remaining)
+      }
+    });
+    const grade = gradeAttack(check.outcome);
+    if (rowId !== void 0) spendRowAmmo(rowId, remaining, row.name);
+    if (grade.stressDelta !== 0) applyMissStress(grade.stressDelta);
+    if (!grade.showDamage) void postAttackFailed();
     return check;
+  }
+  function handleAttackClick(eventInfo) {
+    const rowId = clickedRowId(eventInfo);
+    if (rowId === void 0) {
+      void rollAttack(BLANK_ROW);
+      return;
+    }
+    readAttackRow(rowId, (row) => {
+      void rollAttack(row, rowId);
+    });
   }
   async function rollPCInitiative() {
     const check = await rollCheck({
@@ -5996,6 +6073,7 @@
       `{{title=^{${TEMPLATE_PHRASES.TakeDamage}}}}`,
       "{{subtitle=@{character_name}}}",
       "{{damage=[[?{Damage?|0}]]}}",
+      "{{hasdamage=[[0]]}}",
       `{{damage_type=[[${damageTypeQuery()}]]}}`,
       ...diceFields.map((field) => `{{${field}=[[1d10-1]]}}`),
       "{{notes=[[0]]}} {{hasnotes=[[0]]}}",
@@ -6020,6 +6098,7 @@
       finishRoll(rollData.rollId, {
         notes: damageText,
         hasnotes: notesFlag(damageText),
+        hasdamage: 1,
         alert: alertText,
         hasalert: notesFlag(alertText)
       });
@@ -7236,11 +7315,7 @@ ${SHIP_PANIC_MESSAGE}`;
     handleTakeWound();
   });
   on("clicked:repeating_attacks:attack", (eventInfo) => {
-    void rollAttack({
-      name: "@{attack_name}",
-      target: "@{combat}+@{attack_bonus}+@{attack_modifier}",
-      bonus: skillQuery()
-    }, eventInfo.sourceSection);
+    handleAttackClick(eventInfo);
   });
   on("clicked:repeating_npctraits:npc-trait", () => {
     void rollCheck({

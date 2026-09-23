@@ -38,7 +38,8 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
   }
 
   .sheet-ms-result__subtitle,
-  .sheet-ms-result__skill {
+  .sheet-ms-result__skill,
+  .sheet-ms-result__weapon {
     grid-column: 1;
 
     min-width: 0;
@@ -63,6 +64,17 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
 
   .sheet-ms-result__skill {
     grid-row: 3;
+
+    margin: 0 0 var(--ms-space-md);
+
+    font-size: var(--ms-text-xs);
+    font-weight: 800;
+    letter-spacing: 0.09em;
+    color: var(--ms-fg-muted);
+  }
+
+  .sheet-ms-result__weapon {
+    grid-row: 4;
 
     margin: 0 0 var(--ms-space-md);
 
@@ -315,8 +327,8 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
   }
 
   .sheet-ms-roll,
-  .sheet-ms-readout {
-    grid-area: 1 / 2 / 5 / 3;
+  .sheet-ms-readouts {
+    grid-area: 1 / 2 / 6 / 3;
     align-self: start;
     justify-self: stretch;
 
@@ -329,31 +341,49 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     padding: 0 0.2em;
   }
 
-  .sheet-ms-roll:has(+ .sheet-ms-readout) {
+  .sheet-ms-roll:has(+ .sheet-ms-readouts > .sheet-ms-readout) {
     border-bottom: 0;
     border-radius: var(--ms-radius-lg) var(--ms-radius-lg) 0 0;
   }
 
-  .sheet-ms-readout {
+  .sheet-ms-readouts {
+    display: grid;
+    grid-auto-rows: min-content;
+    gap: var(--ms-space-sm);
+
     margin-top: calc(var(--ms-roll-h) + var(--ms-space-lg));
+  }
+
+  .sheet-ms-readouts:not(:has(.sheet-ms-readout)) {
+    display: none;
+  }
+
+  .sheet-ms-readout {
     padding: 0.15em var(--ms-space-md);
   }
 
-  .sheet-ms-result:not(:has(.sheet-ms-roll)) .sheet-ms-readout {
+  .sheet-ms-readouts .sheet-ms-readout ~ .sheet-ms-readout {
+    border-radius: var(--ms-radius-lg);
+  }
+
+  .sheet-ms-result:not(:has(.sheet-ms-roll)) .sheet-ms-readouts {
     margin-top: var(--ms-space-lg);
+  }
+
+  .sheet-ms-result:not(:has(.sheet-ms-roll)) .sheet-ms-readout {
     border-radius: var(--ms-radius-lg);
   }
 
   .sheet-ms-verdict {
-    grid-row: 4;
-  }
-
-  .sheet-ms-notes {
     grid-row: 5;
   }
 
-  .sheet-ms-alert {
+  .sheet-ms-notes {
     grid-row: 6;
+  }
+
+  .sheet-ms-alert {
+    grid-row: 7;
   }
 }
 

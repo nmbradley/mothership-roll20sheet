@@ -12,6 +12,10 @@
     <div class="sheet-ms-result__skill">{{computed::skill}}</div>
     {{/rollTotal() computed::hasskill 1}}
 
+    {{#weapon}}
+    <div class="sheet-ms-result__weapon">{{weapon}}</div>
+    {{/weapon}}
+
     {{#credits}}
     <div class="sheet-ms-roll">
       <div class="sheet-ms-roll__credits">{{credits}}cr</div>
@@ -36,19 +40,21 @@
     </div>
     {{/roll}}
 
-    {{#target}}
-    <div class="sheet-ms-readout">
-      <div class="sheet-ms-readout__label" data-i18n="Target">Target</div>
-      <div class="sheet-ms-readout__value">{{target}}</div>
-    </div>
-    {{/target}}
+    <div class="sheet-ms-readouts">
+      {{#target}}
+      <div class="sheet-ms-readout">
+        <div class="sheet-ms-readout__label" data-i18n="Target">Target</div>
+        <div class="sheet-ms-readout__value">{{target}}</div>
+      </div>
+      {{/target}}
 
-    {{#damage}}
-    <div class="sheet-ms-readout">
-      <div class="sheet-ms-readout__label" data-i18n="Damage">Damage</div>
-      <div class="sheet-ms-readout__value">{{damage}}</div>
+      {{#rollTotal() computed::hasdamage 1}}
+      <div class="sheet-ms-readout">
+        <div class="sheet-ms-readout__label" data-i18n="Damage">Damage</div>
+        <div class="sheet-ms-readout__value">{{damage}}</div>
+      </div>
+      {{/rollTotal() computed::hasdamage 1}}
     </div>
-    {{/damage}}
 
     {{#rollTotal() computed::rank 4}}
     <div class="sheet-ms-verdict sheet-ms-verdict--critical-success">{{computed::verdict}}</div>

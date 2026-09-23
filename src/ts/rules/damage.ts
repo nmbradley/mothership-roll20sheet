@@ -249,6 +249,7 @@ async function rollTakeDamage(state: DamageState): Promise<void> {
     `{{title=^{${TEMPLATE_PHRASES.TakeDamage}}}}`,
     "{{subtitle=@{character_name}}}",
     "{{damage=[[?{Damage?|0}]]}}",
+    "{{hasdamage=[[0]]}}",
     `{{damage_type=[[${damageTypeQuery()}]]}}`,
     ...diceFields.map((field) => `{{${field}=[[1d10-1]]}}`),
     "{{notes=[[0]]}} {{hasnotes=[[0]]}}",
@@ -278,6 +279,7 @@ async function rollTakeDamage(state: DamageState): Promise<void> {
     finishRoll(rollData.rollId, {
       notes: damageText,
       hasnotes: notesFlag(damageText),
+      hasdamage: 1,
       alert: alertText,
       hasalert: notesFlag(alertText),
     });

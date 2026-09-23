@@ -17,6 +17,7 @@ export const COMPUTED = {
   Used: "used",
   HasNotes: "hasnotes",
   HasSkill: "hasskill",
+  HasDamage: "hasdamage",
   Verdict: "verdict",
   VerdictClass: "verdictclass",
   Rank: "rank",
@@ -72,6 +73,14 @@ function render(fields: readonly Field[]): string {
   return rendered;
 }
 
+/** What a weapon row adds to its own check card. */
+export type AttackDetail = {
+  /** Dice expression for the weapon's Damage, shown only once the check reads as a hit. */
+  damage: string;
+  /** The weapon's type and what its magazine has left, printed under the character's name. */
+  weapon: string;
+};
+
 export type CheckTemplateOptions = {
   /** Display name, used as-is. */
   name?: string;
@@ -83,7 +92,16 @@ export type CheckTemplateOptions = {
   die: string;
   /** Whether the first die is also sent to Roll20's Turn Tracker. */
   sendToTracker?: boolean;
+  /** The weapon's own detail, for a check rolled off a weapon row. */
+  attack?: AttackDetail;
 };
+
+/** The weapon's Damage as an inline roll, empty when the row names no Damage. */
+function damageRoll(attack: AttackDetail | undefined): string {
+  const expression = attack === undefined ? "" : attack.damage.trim();
+  if (expression === "") return "";
+  return `[[${expression}]]`;
+}
 
 /** The template sent to startRoll, showing both dice with the verdict left computed. */
 export function checkTemplate(options: CheckTemplateOptions): string {
@@ -91,13 +109,17 @@ export function checkTemplate(options: CheckTemplateOptions): string {
     ? options.name ?? ""
     : translated(options.i18nKey);
   const rollDie = options.sendToTracker ? `${options.die} &{tracker}` : options.die;
+  const damage = damageRoll(options.attack);
 
   const template = render([
     ["title", label],
     ["subtitle", "@{character_name}"],
+    ["weapon", options.attack?.weapon ?? ""],
     ["roll", `[[${rollDie}]]`],
     ["roll2", `[[${options.die}]]`],
     ["target", `[[${options.target}]]`],
+    ["damage", damage],
+    [COMPUTED.HasDamage, damage === "" ? "" : "[[0]]"],
     [COMPUTED.Used, "[[0]]"],
     [COMPUTED.Verdict, "[[0]]"],
     [COMPUTED.VerdictClass, "[[0]]"],
