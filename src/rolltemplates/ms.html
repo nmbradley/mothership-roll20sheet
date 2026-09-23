@@ -67,8 +67,8 @@
     <div class="sheet-ms-notes">{{computed::notes}}</div>
     {{/rollTotal() computed::hasnotes 1}}
 
-    {{#computed::alert}}
+    {{#rollTotal() computed::hasalert 1}}
     <div class="sheet-ms-alert">{{computed::alert}}</div>
-    {{/computed::alert}}
+    {{/rollTotal() computed::hasalert 1}}
   </div>
 </rolltemplate>

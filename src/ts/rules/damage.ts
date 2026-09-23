@@ -8,9 +8,9 @@ import { destroyWornArmor } from "./equipment";
 import {
   TEMPLATE_PHRASES,
   notesFlag,
-  translated,
 } from "./rollTemplate";
 import { woundEffect } from "./tables";
+import { translateOr } from "./translation";
 
 /** Automated damage and wounds: armor, the health cascade, and taking a wound outright. */
 
@@ -164,11 +164,11 @@ export const MAX_WOUNDS_ALERT = "MAXIMUM WOUNDS REACHED. MAKE A DEATH SAVE.";
 function damageNotes(outcome: DamageOutcome): string {
   const lines: string[] = [];
   if (outcome.absorbed) {
-    const absorbedLine = translated(TEMPLATE_PHRASES.ArmorAbsorbed);
+    const absorbedLine = translateOr(TEMPLATE_PHRASES.ArmorAbsorbed);
     lines.push(absorbedLine);
   }
   if (outcome.armorDestroyed) {
-    const destroyedLine = translated(TEMPLATE_PHRASES.ArmorDestroyed);
+    const destroyedLine = translateOr(TEMPLATE_PHRASES.ArmorDestroyed);
     lines.push(destroyedLine);
   }
   for (const wound of outcome.woundRolls) {
@@ -252,8 +252,7 @@ async function rollTakeDamage(state: DamageState): Promise<void> {
     `{{damage_type=[[${damageTypeQuery()}]]}}`,
     ...diceFields.map((field) => `{{${field}=[[1d10-1]]}}`),
     "{{notes=[[0]]}} {{hasnotes=[[0]]}}",
-    "{{hasnotes=[[0]]}}",
-    "{{alert=[[0]]}}",
+    "{{alert=[[0]]}} {{hasalert=[[0]]}}",
   ].join(" ");
 
   const rollData = await startRoll(formula);
@@ -266,6 +265,7 @@ async function rollTakeDamage(state: DamageState): Promise<void> {
   const outcome = applyDamage(damageEntry.result, state, damageType, woundDice);
 
   const damageText = damageNotes(outcome);
+  const alertText = outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : "";
 
   const writeOutcome = (armorUpdates: Record<string, number>): void => {
     setAttrs({
@@ -278,7 +278,8 @@ async function rollTakeDamage(state: DamageState): Promise<void> {
     finishRoll(rollData.rollId, {
       notes: damageText,
       hasnotes: notesFlag(damageText),
-      alert: outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : "",
+      alert: alertText,
+      hasalert: notesFlag(alertText),
     });
   };
 
@@ -308,9 +309,9 @@ async function rollTakeWound(state: {
     "{{subtitle=@{character_name}}}",
     `{{damage_type=[[${damageTypeQuery()}]]}}`,
     "{{roll=[[1d10-1]]}}",
+    "{{edge=[[0]]}}",
     "{{notes=[[0]]}} {{hasnotes=[[0]]}}",
-    "{{hasnotes=[[0]]}}",
-    "{{alert=[[0]]}}",
+    "{{alert=[[0]]}} {{hasalert=[[0]]}}",
   ].join(" ");
 
   const rollData = await startRoll(formula);
@@ -329,10 +330,12 @@ async function rollTakeWound(state: {
   const woundNote = outcome.woundRoll === undefined
     ? ""
     : woundLine(outcome.woundRoll);
+  const alertText = outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : "";
 
   finishRoll(rollData.rollId, {
     notes: woundNote,
     hasnotes: notesFlag(woundNote),
-    alert: outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : "",
+    alert: alertText,
+    hasalert: notesFlag(alertText),
   });
 }

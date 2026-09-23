@@ -8,6 +8,8 @@ import {
   checkComputed,
   usedDie,
   checkTemplate,
+  deathSaveTemplate,
+  notesFlag,
   panicComputed,
   panicTemplate,
 } from "../src/ts/rules/rollTemplate";
@@ -173,6 +175,25 @@ describe("Roll Templates", () => {
       const computed = panicComputed(check);
       expect(computed.verdict).toBe("Trauma Response");
       expect(computed.notes).toBe("@{stress_effect}");
+    });
+  });
+
+  describe("deathSaveTemplate", () => {
+    it("should declare an edge placeholder so ms.html renders the die (#213)", () => {
+      expect(deathSaveTemplate()).toContain("{{edge=[[0]]}}");
+    });
+  });
+
+  describe("notesFlag", () => {
+    it("should read 0 for an empty or whitespace-only value", () => {
+      expect(notesFlag("")).toBe(0);
+      expect(notesFlag("   ")).toBe(0);
+      expect(notesFlag(undefined)).toBe(0);
+    });
+
+    it("should read 1 for any non-empty value, whether it flags notes or an alert", () => {
+      expect(notesFlag("Attack Failed: Gain 1 Stress")).toBe(1);
+      expect(notesFlag("MAXIMUM WOUNDS REACHED. MAKE A DEATH SAVE.")).toBe(1);
     });
   });
 });
