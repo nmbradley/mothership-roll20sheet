@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     attack_ammunition,
+    attack_anti_armor,
     attack_bonus,
     attack_crit_damage,
     attack_crit_effect,
@@ -46,6 +47,8 @@
       <SettingsRow field={attack_crit_effect} isFullWidth>
         <Attribute field={attack_crit_effect} isLabelHidden />
       </SettingsRow>
+
+      <Attribute field={attack_anti_armor} />
 
       <div class="pc-attack-stats">
         {#each stats as field (field.name)}

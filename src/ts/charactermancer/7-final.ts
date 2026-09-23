@@ -161,6 +161,7 @@ function attackRow(
     [`${row}_range`]: weapon.range,
     [`${row}_type`]: isMelee ? "Melee" : "Ranged",
     [`${row}_shots`]: weapon.shots,
+    [`${row}_anti_armor`]: weapon.antiArmor ? "1" : "0",
   };
 }
 

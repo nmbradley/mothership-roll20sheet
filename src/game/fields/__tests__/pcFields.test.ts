@@ -42,6 +42,12 @@ describe("pcFields", () => {
     expect(pcAttacks.attributes.attack_name.name).toBe("attack_name");
   });
 
+  it("exports a per-row Anti-Armor toggle on attacks, unchecked by default", () => {
+    expect(pcAttacks.attributes.attack_anti_armor.name).toBe("attack_anti_armor");
+    expect(pcAttacks.attributes.attack_anti_armor.control).toBe("checkbox");
+    expect(pcAttacks.attributes.attack_anti_armor.checked).toBe(false);
+  });
+
   it("exports repeating equipment", () => {
     expect(pcEquipment.name).toBe("repeating_equipment");
     expect(pcEquipment.attributes.equipment_name.name).toBe("equipment_name");

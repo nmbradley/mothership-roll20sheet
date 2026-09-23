@@ -1,6 +1,7 @@
 <script lang="ts">
   import {
     attack_ammunition,
+    attack_anti_armor,
     attack_bonus,
     attack_crit_damage,
     attack_crit_effect,
@@ -45,6 +46,8 @@
       <SettingsRow field={attack_name}>
         <Attribute field={attack_name} isLabelHidden />
       </SettingsRow>
+
+      <Attribute field={attack_anti_armor} />
 
       {#each pairs as pair (pair[0].name)}
         <div class="npc-attack-pair">

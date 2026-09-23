@@ -389,6 +389,7 @@ export type AttackRow = {
   damage: string;
   type: string;
   shots: string;
+  antiArmor: boolean;
 };
 
 const BLANK_ROW: AttackRow = {
@@ -397,9 +398,10 @@ const BLANK_ROW: AttackRow = {
   damage: "",
   type: "",
   shots: "",
+  antiArmor: false,
 };
 
-const ATTACK_ROW_FIELDS = ["name", "bonus", "damage", "type", "shots"] as const;
+const ATTACK_ROW_FIELDS = ["name", "bonus", "damage", "type", "shots", "anti_armor"] as const;
 
 /** What every attribute on one weapon row is named after. */
 function attackRowPrefix(rowId: string): string {
@@ -430,6 +432,7 @@ export function readAttackRow(rowId: string, done: (row: AttackRow) => void): vo
       damage: attrs[`${prefix}damage`] ?? "",
       type: attrs[`${prefix}type`] ?? "",
       shots: attrs[`${prefix}shots`] ?? "",
+      antiArmor: attrs[`${prefix}anti_armor`] === "1",
     });
   });
 }
@@ -491,6 +494,7 @@ export async function rollAttack(row: AttackRow, rowId?: string): Promise<CheckR
     attack: {
       damage: row.damage,
       weapon: weaponLine(row.type, remaining),
+      antiArmor: row.antiArmor,
     },
   });
   const grade = gradeAttack(check.outcome);

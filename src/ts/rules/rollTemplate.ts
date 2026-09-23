@@ -79,6 +79,8 @@ export type AttackDetail = {
   damage: string;
   /** The weapon's type and what its magazine has left, printed under the character's name. */
   weapon: string;
+  /** Whether the weapon ignores and destroys armor on a hit. */
+  antiArmor: boolean;
 };
 
 export type CheckTemplateOptions = {
@@ -119,6 +121,7 @@ export function checkTemplate(options: CheckTemplateOptions): string {
     ["roll2", `[[${options.die}]]`],
     ["target", `[[${options.target}]]`],
     ["damage", damage],
+    ["antiarmor", options.attack?.antiArmor ? "1" : ""],
     [COMPUTED.HasDamage, damage === "" ? "" : "[[0]]"],
     [COMPUTED.Used, "[[0]]"],
     [COMPUTED.Verdict, "[[0]]"],

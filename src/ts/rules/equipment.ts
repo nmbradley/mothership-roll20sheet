@@ -1,3 +1,5 @@
+import { DESTROYED } from "./armor";
+
 /** Equipment panel totals: Armor Points and Damage Reduction summed from the armor worn. */
 
 const ARMOR_TYPE = "Armor";
@@ -29,14 +31,12 @@ export function sumArmor(rows: readonly EquipmentRow[]): {
   };
 }
 
-/** Attribute updates that zero every worn Armor row's own AP and DR. */
-export function destroyedArmorUpdates(rows: readonly EquipmentRow[]): Record<string, number> {
-  const updates: Record<string, number> = {};
+/** Attribute updates that mark every worn, undestroyed Armor row destroyed (#220). */
+export function destroyedArmorUpdates(rows: readonly EquipmentRow[]): Record<string, string> {
+  const updates: Record<string, string> = {};
   for (const row of rows) {
-    if (row.type !== ARMOR_TYPE) continue;
-    if (row.armorPoints === 0 && row.damageReduction === 0) continue;
-    updates[`repeating_equipment_${row.id}_equipment_armor_points`] = 0;
-    updates[`repeating_equipment_${row.id}_equipment_damage_reduction`] = 0;
+    if (row.type !== ARMOR_TYPE || !row.equipped || row.destroyed) continue;
+    updates[`repeating_equipment_${row.id}_equipment_destroyed`] = DESTROYED;
   }
   return updates;
 }
@@ -83,8 +83,8 @@ export function recalculateArmorTotals(): void {
   });
 }
 
-/** Reads the current equipment rows and zeroes every worn Armor row's AP/DR. */
-export function destroyWornArmor(done: (updates: Record<string, number>) => void): void {
+/** Reads the current equipment rows and marks every worn Armor row destroyed. */
+export function destroyWornArmor(done: (updates: Record<string, string>) => void): void {
   readEquipmentRows((rows) => {
     const updates = destroyedArmorUpdates(rows);
     done(updates);

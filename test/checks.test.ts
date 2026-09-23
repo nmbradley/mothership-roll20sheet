@@ -986,6 +986,7 @@ describe("handleAttackClick", () => {
         "repeating_attacks_-N1a2B3c_attack_damage",
         "repeating_attacks_-N1a2B3c_attack_type",
         "repeating_attacks_-N1a2B3c_attack_shots",
+        "repeating_attacks_-N1a2B3c_attack_anti_armor",
       ]),
       expect.any(Function),
     );
@@ -1015,6 +1016,27 @@ describe("handleAttackClick", () => {
     expect(formula).toContain("{{weapon=Ranged · Ammo: 4}}");
     expect(formula).not.toContain("@{attack_name}");
     expect(formula).not.toContain("@{attack_bonus}");
+  });
+
+  it("should read a weapon row's own Anti-Armor toggle onto the card", async () => {
+    stubAttrs({
+      "repeating_attacks_-N1a2B3c_attack_name": "Smart Rifle",
+      "repeating_attacks_-N1a2B3c_attack_bonus": "10",
+      "repeating_attacks_-N1a2B3c_attack_damage": "4d10",
+      "repeating_attacks_-N1a2B3c_attack_type": "Ranged",
+      "repeating_attacks_-N1a2B3c_attack_shots": "3",
+      "repeating_attacks_-N1a2B3c_attack_anti_armor": "1",
+    });
+    const mockStartRoll = vi.fn().mockResolvedValue(checkRoll(HIT));
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+    vi.stubGlobal("setAttrs", vi.fn());
+
+    handleAttackClick(attackClick());
+    await flush();
+
+    const formula = mockStartRoll.mock.calls[0][0] as string;
+    expect(formula).toContain("{{antiarmor=1}}");
   });
 
   it("should still roll a bare Combat Check where the click names no row", async () => {
@@ -1059,6 +1081,30 @@ describe("rollAttack", () => {
       hasdamage: 1,
     }));
     expect(mockGetAttrs).not.toHaveBeenCalled();
+  });
+
+  it("should broadcast Anti-Armor on the card for a weapon row that carries it (#191)", async () => {
+    const mockStartRoll = vi.fn().mockResolvedValue(checkRoll(HIT));
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+    vi.stubGlobal("getAttrs", vi.fn());
+
+    await rollAttack(attackRow({ antiArmor: true }));
+
+    const formula = mockStartRoll.mock.calls[0][0] as string;
+    expect(formula).toContain("{{antiarmor=1}}");
+  });
+
+  it("should leave Anti-Armor off the card for a weapon row that does not carry it", async () => {
+    const mockStartRoll = vi.fn().mockResolvedValue(checkRoll(HIT));
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("finishRoll", vi.fn());
+    vi.stubGlobal("getAttrs", vi.fn());
+
+    await rollAttack(attackRow());
+
+    const formula = mockStartRoll.mock.calls[0][0] as string;
+    expect(formula).not.toContain("{{antiarmor=");
   });
 
   it("should hide the Damage it rolled once the check reads as a miss", async () => {
