@@ -187,6 +187,10 @@ $roots: ".sheet-rolltemplate-ms, .sheet-rolltemplate-ms-cm";
     font-variation-settings: "wght" 600;
   }
 
+  .sheet-ms-readout--damage .sheet-ms-readout__label::before {
+    content: "whatshot";
+  }
+
   .sheet-ms-readout__value {
     border: 0;
     padding: 0;

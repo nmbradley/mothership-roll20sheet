@@ -341,6 +341,14 @@ body.sheet-darkmode
   font-feature-settings: "liga";
   font-variation-settings: "wght" 600;
 }
+.sheet-rolltemplate-ms
+  .sheet-ms-readout--damage
+  .sheet-ms-readout__label::before,
+.sheet-rolltemplate-ms-cm
+  .sheet-ms-readout--damage
+  .sheet-ms-readout__label::before {
+  content: "whatshot";
+}
 .sheet-rolltemplate-ms .sheet-ms-readout__value,
 .sheet-rolltemplate-ms-cm .sheet-ms-readout__value {
   border: 0;
