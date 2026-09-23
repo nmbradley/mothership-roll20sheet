@@ -8,6 +8,8 @@ export type Weapon = {
   shots: string;
   wound: string;
   special: string;
+  /** Ignores the Armor Points threshold and destroys the armor on a hit. */
+  antiArmor?: boolean;
 };
 
 export const weapons: Weapon[] = [
@@ -28,6 +30,7 @@ export const weapons: Weapon[] = [
     shots: "3",
     wound: "Gunshot[+]",
     special: "[-] on Combat Check when fired at Close Range.",
+    antiArmor: true,
   },
   {
     name: "Kano X9 Combat Shotgun",
@@ -127,5 +130,15 @@ export const weapons: Weapon[] = [
     shots: "3",
     wound: "Blunt Force",
     special: "Covers 1sqm in quick-hardening foam. Body Save or become stuck. Strength Check [-] to escape.",
+  },
+  {
+    name: "Vibechete",
+    cost: "1kcr",
+    range: RangeBands.Adjacent,
+    damage: "3d10 DMG (Anti-Armor)",
+    shots: "N/A",
+    wound: "Bleeding[+] and Gore",
+    special: "When dealing a Wound, roll on BOTH the Bleeding and Gore columns.",
+    antiArmor: true,
   },
 ];

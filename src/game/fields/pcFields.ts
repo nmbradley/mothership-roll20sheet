@@ -382,6 +382,13 @@ export const attack_linkedid = attribute({
   control: Controls.Hidden,
   value: "",
 });
+export const attack_anti_armor = attribute({
+  name: "attack_anti_armor",
+  label: "Anti-Armor",
+  control: Controls.Checkbox,
+  checkedValue: "1",
+  checked: false,
+});
 
 export const pcAttacks = section({
   name: "attacks",
@@ -398,6 +405,7 @@ export const pcAttacks = section({
     attack_crit_effect,
     attack_settings,
     attack_linkedid,
+    attack_anti_armor,
   } as const,
 });
 

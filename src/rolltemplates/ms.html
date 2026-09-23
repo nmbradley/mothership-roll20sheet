@@ -54,6 +54,13 @@
         <div class="sheet-ms-readout__value">{{damage}}</div>
       </div>
       {{/rollTotal() computed::hasdamage 1}}
+
+      {{#antiarmor}}
+      <div class="sheet-ms-readout">
+        <div class="sheet-ms-readout__label" data-i18n="AntiArmor">Anti-Armor</div>
+        <div class="sheet-ms-readout__value">✓</div>
+      </div>
+      {{/antiarmor}}
     </div>
 
     {{#rollTotal() computed::rank 4}}

@@ -486,6 +486,10 @@
                         <textarea class="attribute__input attribute__input--textarea" name="attr_attack_crit_effect" spellcheck="false"></textarea>
                       </div>
                     </div>
+                    <div class="attribute attribute--checkbox attribute--attack_anti_armor">
+                      <label class="attribute__label attribute__label--checkbox" for="attr_attack_anti_armor" data-i18n="Anti-Armor">Anti-Armor</label>
+                      <input class="attribute__input attribute__input--checkbox" type="checkbox" name="attr_attack_anti_armor" value="1"/>
+                    </div>
                     <div class="pc-attack-stats">
                       <div class="settings__row">
                         <span class="settings__label" data-i18n="Bonus">Bonus</span>
@@ -1041,6 +1045,10 @@
                         <input class="attribute__input attribute__input--text" type="text" name="attr_attack_name" value="" spellcheck="false"/>
                       </div>
                     </div>
+                    <div class="attribute attribute--checkbox attribute--attack_anti_armor">
+                      <label class="attribute__label attribute__label--checkbox" for="attr_attack_anti_armor" data-i18n="Anti-Armor">Anti-Armor</label>
+                      <input class="attribute__input attribute__input--checkbox" type="checkbox" name="attr_attack_anti_armor" value="1"/>
+                    </div>
                     <div class="npc-attack-pair">
                       <div class="settings__row">
                         <span class="settings__label" data-i18n="Range">Range</span>
@@ -1370,6 +1378,13 @@
         <div class="sheet-ms-readout__value">{{damage}}</div>
       </div>
       {{/rollTotal() computed::hasdamage 1}}
+
+      {{#antiarmor}}
+      <div class="sheet-ms-readout">
+        <div class="sheet-ms-readout__label" data-i18n="AntiArmor">Anti-Armor</div>
+        <div class="sheet-ms-readout__value">✓</div>
+      </div>
+      {{/antiarmor}}
     </div>
 
     {{#rollTotal() computed::rank 4}}
@@ -4738,7 +4753,8 @@
       damage: "4d10 DMG (Anti-Armor)",
       shots: "3",
       wound: "Gunshot[+]",
-      special: "[-] on Combat Check when fired at Close Range."
+      special: "[-] on Combat Check when fired at Close Range.",
+      antiArmor: true
     },
     {
       name: "Kano X9 Combat Shotgun",
@@ -4838,6 +4854,16 @@
       shots: "3",
       wound: "Blunt Force",
       special: "Covers 1sqm in quick-hardening foam. Body Save or become stuck. Strength Check [-] to escape."
+    },
+    {
+      name: "Vibechete",
+      cost: "1kcr",
+      range: RangeBands.Adjacent,
+      damage: "3d10 DMG (Anti-Armor)",
+      shots: "N/A",
+      wound: "Bleeding[+] and Gore",
+      special: "When dealing a Wound, roll on BOTH the Bleeding and Gore columns.",
+      antiArmor: true
     }
   ];
 
@@ -4872,205 +4898,6 @@
       };
     }
     return void 0;
-  }
-
-  // src/ts/rules/equipment.ts
-  var ARMOR_TYPE = "Armor";
-  function sumArmor(rows) {
-    let armorPoints = 0;
-    let damageReduction = 0;
-    for (const row of rows) {
-      if (row.type !== ARMOR_TYPE || !row.equipped) continue;
-      if (!row.destroyed) armorPoints += row.armorPoints;
-      damageReduction += row.damageReduction;
-    }
-    return {
-      armorPoints,
-      damageReduction
-    };
-  }
-  function destroyedArmorUpdates(rows) {
-    const updates = {};
-    for (const row of rows) {
-      if (row.type !== ARMOR_TYPE) continue;
-      if (row.armorPoints === 0 && row.damageReduction === 0) continue;
-      updates[`repeating_equipment_${row.id}_equipment_armor_points`] = 0;
-      updates[`repeating_equipment_${row.id}_equipment_damage_reduction`] = 0;
-    }
-    return updates;
-  }
-  function readEquipmentRows(done) {
-    getSectionIDs("repeating_equipment", (ids) => {
-      if (ids.length === 0) {
-        done([]);
-        return;
-      }
-      const keys = ids.flatMap((id) => [
-        `repeating_equipment_${id}_equipment_type`,
-        `repeating_equipment_${id}_equipment_armor_points`,
-        `repeating_equipment_${id}_equipment_damage_reduction`,
-        `repeating_equipment_${id}_equipment_equipped`,
-        `repeating_equipment_${id}_equipment_destroyed`
-      ]);
-      getAttrs(keys, (attrs) => {
-        const rows = ids.map((id) => ({
-          id,
-          type: attrs[`repeating_equipment_${id}_equipment_type`] ?? "",
-          armorPoints: Number(attrs[`repeating_equipment_${id}_equipment_armor_points`]) || 0,
-          damageReduction: Number(attrs[`repeating_equipment_${id}_equipment_damage_reduction`]) || 0,
-          equipped: attrs[`repeating_equipment_${id}_equipment_equipped`] !== "0",
-          destroyed: attrs[`repeating_equipment_${id}_equipment_destroyed`] === "1"
-        }));
-        done(rows);
-      });
-    });
-  }
-  function recalculateArmorTotals() {
-    readEquipmentRows((rows) => {
-      const totals = sumArmor(rows);
-      setAttrs({
-        armor_points: totals.armorPoints,
-        damage_reduction: totals.damageReduction
-      });
-    });
-  }
-  function destroyWornArmor(done) {
-    readEquipmentRows((rows) => {
-      const updates = destroyedArmorUpdates(rows);
-      done(updates);
-    });
-  }
-
-  // src/ts/charactermancer/7-final.ts
-  var REBUILT_SECTIONS = ["equipment", "attacks"];
-  var COPIED_ATTRIBUTES = [
-    "armor",
-    "body",
-    "class",
-    "combat",
-    "credits",
-    "fear",
-    "intellect",
-    "patch",
-    "sanity",
-    "speed",
-    "strength",
-    "trinket",
-    "stress",
-    "resolve"
-  ];
-  function onFinish(data) {
-    clearSheet(() => {
-      compileCharacter(data);
-    });
-  }
-  function clearSheet(done) {
-    for (const section of REBUILT_SECTIONS) {
-      clearRepeatingSections(`repeating_${section}`);
-    }
-    const attrs = {};
-    for (const key of Object.keys(skillsByKey)) {
-      attrs[key] = "0";
-    }
-    setAttrs(attrs, { silent: true }, done);
-  }
-  function compileCharacter(data) {
-    const review = stepValues(data, Steps.Review);
-    const attrs = {};
-    for (const key of COPIED_ATTRIBUTES) {
-      attrs[key] = review[`${key}_final`] ?? "";
-    }
-    const health = review["health_final"] ?? "";
-    attrs["health"] = health;
-    attrs["health_max"] = health;
-    attrs["skill_points"] = review["skillpoints_final"] ?? "";
-    const skills2 = parseStringList(review["skills_final"]);
-    for (const key of skills2) {
-      attrs[key] = "on";
-    }
-    for (const name of equipmentNames(review["equipment_final"])) {
-      const rows = equipmentRows(name);
-      Object.assign(attrs, rows);
-    }
-    writeCharacter(attrs);
-    recalculateArmorTotals();
-  }
-  function equipmentNames(packed) {
-    const parsed = parseJSON(packed);
-    if (!Array.isArray(parsed)) return [];
-    const names = [];
-    for (const item of parsed) {
-      const isPair = Array.isArray(item);
-      const name = isPair ? item[0] : item;
-      const text = String(name);
-      names.push(text);
-    }
-    return names;
-  }
-  function equipmentRows(name) {
-    const rowId = generateRowID();
-    const row = `repeating_equipment_${rowId}_equipment`;
-    const item = findItem(name);
-    const attrs = {
-      [`${row}_name`]: name,
-      [`${row}_notes`]: itemNotes(item),
-      [`${row}_settings`]: "0",
-      [`${row}_type`]: itemType(item)
-    };
-    if (item?.kind === "armor") {
-      attrs[`${row}_armor_points`] = item.entry.points;
-      if (item.entry.reduction !== void 0) {
-        attrs[`${row}_damage_reduction`] = item.entry.reduction;
-      }
-      return attrs;
-    }
-    if (item?.kind === "weapon") {
-      const attackId = generateRowID();
-      attrs[`${row}_linkedid`] = attackId;
-      const attack = attackRow(item.entry, attackId, rowId);
-      Object.assign(attrs, attack);
-    }
-    return attrs;
-  }
-  function itemType(item) {
-    if (item === void 0) return "Gear";
-    if (item.kind === "weapon") return "Weapon";
-    if (item.kind === "armor") return "Armor";
-    return "Gear";
-  }
-  function itemNotes(item) {
-    if (item === void 0) return "";
-    if (item.kind === "weapon") return item.entry.special;
-    return item.entry.description;
-  }
-  function attackRow(weapon, attackId, equipmentId) {
-    const row = `repeating_attacks_${attackId}_attack`;
-    const isMelee = weapon.range === RangeBands.Adjacent;
-    return {
-      [`${row}_linkedid`]: equipmentId,
-      [`${row}_name`]: weapon.name,
-      [`${row}_damage`]: weapon.damage,
-      [`${row}_crit_effect`]: weapon.wound,
-      [`${row}_notes`]: weapon.special,
-      [`${row}_settings`]: "0",
-      [`${row}_range`]: weapon.range,
-      [`${row}_type`]: isMelee ? "Melee" : "Ranged",
-      [`${row}_shots`]: weapon.shots
-    };
-  }
-  function writeCharacter(attrs) {
-    const entries = Object.entries(attrs);
-    const total = entries.length;
-    for (let index = 0; index < total; index += 1) {
-      const entry = entries[index];
-      if (entry === void 0) continue;
-      const [key, value] = entry;
-      const percentage = 100 / total * (index + 1);
-      setAttrs({ [key]: value }, { silent: true });
-      setCharmancerText({ t__progressbar: `<div style="width:${percentage}%"> </div>` });
-    }
-    deleteCharmancerData([]);
-    finishCharactermancer();
   }
 
   // src/ts/rules/rolls.ts
@@ -5232,6 +5059,7 @@
       ["roll2", `[[${options.die}]]`],
       ["target", `[[${options.target}]]`],
       ["damage", damage],
+      ["antiarmor", options.attack?.antiArmor ? "1" : ""],
       [COMPUTED.HasDamage, damage === "" ? "" : "[[0]]"],
       [COMPUTED.Used, "[[0]]"],
       [COMPUTED.Verdict, "[[0]]"],
@@ -5349,6 +5177,204 @@
       notes: "",
       hasnotes: 0
     });
+  }
+
+  // src/ts/rules/equipment.ts
+  var ARMOR_TYPE = "Armor";
+  function sumArmor(rows) {
+    let armorPoints = 0;
+    let damageReduction = 0;
+    for (const row of rows) {
+      if (row.type !== ARMOR_TYPE || !row.equipped) continue;
+      if (!row.destroyed) armorPoints += row.armorPoints;
+      damageReduction += row.damageReduction;
+    }
+    return {
+      armorPoints,
+      damageReduction
+    };
+  }
+  function destroyedArmorUpdates(rows) {
+    const updates = {};
+    for (const row of rows) {
+      if (row.type !== ARMOR_TYPE || !row.equipped || row.destroyed) continue;
+      updates[`repeating_equipment_${row.id}_equipment_destroyed`] = DESTROYED;
+    }
+    return updates;
+  }
+  function readEquipmentRows(done) {
+    getSectionIDs("repeating_equipment", (ids) => {
+      if (ids.length === 0) {
+        done([]);
+        return;
+      }
+      const keys = ids.flatMap((id) => [
+        `repeating_equipment_${id}_equipment_type`,
+        `repeating_equipment_${id}_equipment_armor_points`,
+        `repeating_equipment_${id}_equipment_damage_reduction`,
+        `repeating_equipment_${id}_equipment_equipped`,
+        `repeating_equipment_${id}_equipment_destroyed`
+      ]);
+      getAttrs(keys, (attrs) => {
+        const rows = ids.map((id) => ({
+          id,
+          type: attrs[`repeating_equipment_${id}_equipment_type`] ?? "",
+          armorPoints: Number(attrs[`repeating_equipment_${id}_equipment_armor_points`]) || 0,
+          damageReduction: Number(attrs[`repeating_equipment_${id}_equipment_damage_reduction`]) || 0,
+          equipped: attrs[`repeating_equipment_${id}_equipment_equipped`] !== "0",
+          destroyed: attrs[`repeating_equipment_${id}_equipment_destroyed`] === "1"
+        }));
+        done(rows);
+      });
+    });
+  }
+  function recalculateArmorTotals() {
+    readEquipmentRows((rows) => {
+      const totals = sumArmor(rows);
+      setAttrs({
+        armor_points: totals.armorPoints,
+        damage_reduction: totals.damageReduction
+      });
+    });
+  }
+  function destroyWornArmor(done) {
+    readEquipmentRows((rows) => {
+      const updates = destroyedArmorUpdates(rows);
+      done(updates);
+    });
+  }
+
+  // src/ts/charactermancer/7-final.ts
+  var REBUILT_SECTIONS = ["equipment", "attacks"];
+  var COPIED_ATTRIBUTES = [
+    "armor",
+    "body",
+    "class",
+    "combat",
+    "credits",
+    "fear",
+    "intellect",
+    "patch",
+    "sanity",
+    "speed",
+    "strength",
+    "trinket",
+    "stress",
+    "resolve"
+  ];
+  function onFinish(data) {
+    clearSheet(() => {
+      compileCharacter(data);
+    });
+  }
+  function clearSheet(done) {
+    for (const section of REBUILT_SECTIONS) {
+      clearRepeatingSections(`repeating_${section}`);
+    }
+    const attrs = {};
+    for (const key of Object.keys(skillsByKey)) {
+      attrs[key] = "0";
+    }
+    setAttrs(attrs, { silent: true }, done);
+  }
+  function compileCharacter(data) {
+    const review = stepValues(data, Steps.Review);
+    const attrs = {};
+    for (const key of COPIED_ATTRIBUTES) {
+      attrs[key] = review[`${key}_final`] ?? "";
+    }
+    const health = review["health_final"] ?? "";
+    attrs["health"] = health;
+    attrs["health_max"] = health;
+    attrs["skill_points"] = review["skillpoints_final"] ?? "";
+    const skills2 = parseStringList(review["skills_final"]);
+    for (const key of skills2) {
+      attrs[key] = "on";
+    }
+    for (const name of equipmentNames(review["equipment_final"])) {
+      const rows = equipmentRows(name);
+      Object.assign(attrs, rows);
+    }
+    writeCharacter(attrs);
+    recalculateArmorTotals();
+  }
+  function equipmentNames(packed) {
+    const parsed = parseJSON(packed);
+    if (!Array.isArray(parsed)) return [];
+    const names = [];
+    for (const item of parsed) {
+      const isPair = Array.isArray(item);
+      const name = isPair ? item[0] : item;
+      const text = String(name);
+      names.push(text);
+    }
+    return names;
+  }
+  function equipmentRows(name) {
+    const rowId = generateRowID();
+    const row = `repeating_equipment_${rowId}_equipment`;
+    const item = findItem(name);
+    const attrs = {
+      [`${row}_name`]: name,
+      [`${row}_notes`]: itemNotes(item),
+      [`${row}_settings`]: "0",
+      [`${row}_type`]: itemType(item)
+    };
+    if (item?.kind === "armor") {
+      attrs[`${row}_armor_points`] = item.entry.points;
+      if (item.entry.reduction !== void 0) {
+        attrs[`${row}_damage_reduction`] = item.entry.reduction;
+      }
+      return attrs;
+    }
+    if (item?.kind === "weapon") {
+      const attackId = generateRowID();
+      attrs[`${row}_linkedid`] = attackId;
+      const attack = attackRow(item.entry, attackId, rowId);
+      Object.assign(attrs, attack);
+    }
+    return attrs;
+  }
+  function itemType(item) {
+    if (item === void 0) return "Gear";
+    if (item.kind === "weapon") return "Weapon";
+    if (item.kind === "armor") return "Armor";
+    return "Gear";
+  }
+  function itemNotes(item) {
+    if (item === void 0) return "";
+    if (item.kind === "weapon") return item.entry.special;
+    return item.entry.description;
+  }
+  function attackRow(weapon, attackId, equipmentId) {
+    const row = `repeating_attacks_${attackId}_attack`;
+    const isMelee = weapon.range === RangeBands.Adjacent;
+    return {
+      [`${row}_linkedid`]: equipmentId,
+      [`${row}_name`]: weapon.name,
+      [`${row}_damage`]: weapon.damage,
+      [`${row}_crit_effect`]: weapon.wound,
+      [`${row}_notes`]: weapon.special,
+      [`${row}_settings`]: "0",
+      [`${row}_range`]: weapon.range,
+      [`${row}_type`]: isMelee ? "Melee" : "Ranged",
+      [`${row}_shots`]: weapon.shots,
+      [`${row}_anti_armor`]: weapon.antiArmor ? "1" : "0"
+    };
+  }
+  function writeCharacter(attrs) {
+    const entries = Object.entries(attrs);
+    const total = entries.length;
+    for (let index = 0; index < total; index += 1) {
+      const entry = entries[index];
+      if (entry === void 0) continue;
+      const [key, value] = entry;
+      const percentage = 100 / total * (index + 1);
+      setAttrs({ [key]: value }, { silent: true });
+      setCharmancerText({ t__progressbar: `<div style="width:${percentage}%"> </div>` });
+    }
+    deleteCharmancerData([]);
+    finishCharactermancer();
   }
 
   // src/game/data/wounds.ts
@@ -5750,9 +5776,10 @@
     bonus: "",
     damage: "",
     type: "",
-    shots: ""
+    shots: "",
+    antiArmor: false
   };
-  var ATTACK_ROW_FIELDS = ["name", "bonus", "damage", "type", "shots"];
+  var ATTACK_ROW_FIELDS = ["name", "bonus", "damage", "type", "shots", "anti_armor"];
   function attackRowPrefix(rowId) {
     return `repeating_attacks_${rowId}_attack_`;
   }
@@ -5774,7 +5801,8 @@
         bonus: attrs[`${prefix}bonus`] ?? "",
         damage: attrs[`${prefix}damage`] ?? "",
         type: attrs[`${prefix}type`] ?? "",
-        shots: attrs[`${prefix}shots`] ?? ""
+        shots: attrs[`${prefix}shots`] ?? "",
+        antiArmor: attrs[`${prefix}anti_armor`] === "1"
       });
     });
   }
@@ -5818,7 +5846,8 @@
       bonus: skillQuery(),
       attack: {
         damage: row.damage,
-        weapon: weaponLine(row.type, remaining)
+        weapon: weaponLine(row.type, remaining),
+        antiArmor: row.antiArmor
       }
     });
     const grade = gradeAttack(check.outcome);
@@ -5937,9 +5966,9 @@
   }
 
   // src/ts/rules/damage.ts
-  function applyArmor(hit, armorPoints, damageReduction) {
+  function applyArmor(hit, armorPoints, damageReduction, antiArmor = false) {
     const reduced = Math.max(0, hit - damageReduction);
-    if (reduced < armorPoints) {
+    if (!antiArmor && reduced < armorPoints) {
       return {
         damage: 0,
         armorPoints,
@@ -5954,8 +5983,8 @@
       absorbed: false
     };
   }
-  function applyDamage(hit, state, damageType, woundDice) {
-    const armor2 = applyArmor(hit, state.armorPoints, state.damageReduction);
+  function applyDamage(hit, state, damageType, woundDice, antiArmor = false) {
+    const armor2 = applyArmor(hit, state.armorPoints, state.damageReduction, antiArmor);
     let health = state.health - armor2.damage;
     let wounds = state.wounds;
     const woundRolls = [];
@@ -6026,6 +6055,9 @@
   function readDamageType(index) {
     return allDamageTypes[index] ?? DamageTypes.Blunt;
   }
+  function antiArmorQuery() {
+    return "?{Anti-Armor?|No,0|Yes,1}";
+  }
   function readDamageState(done) {
     getAttrs(
       ["health", "health_max", "wounds", "wounds_max", "armor_points", "damage_reduction"],
@@ -6075,6 +6107,7 @@
       "{{damage=[[?{Damage?|0}]]}}",
       "{{hasdamage=[[0]]}}",
       `{{damage_type=[[${damageTypeQuery()}]]}}`,
+      `{{anti_armor=[[${antiArmorQuery()}]]}}`,
       ...diceFields.map((field) => `{{${field}=[[1d10-1]]}}`),
       "{{notes=[[0]]}} {{hasnotes=[[0]]}}",
       "{{alert=[[0]]}} {{hasalert=[[0]]}}"
@@ -6084,8 +6117,9 @@
     const typeEntry = rollData.results.damage_type;
     if (damageEntry === void 0 || typeEntry === void 0) return;
     const damageType = readDamageType(typeEntry.result);
+    const hasAntiArmor = rollData.results.anti_armor?.result === 1;
     const woundDice = diceFields.map((field) => rollData.results[field]?.result ?? 0);
-    const outcome = applyDamage(damageEntry.result, state, damageType, woundDice);
+    const outcome = applyDamage(damageEntry.result, state, damageType, woundDice, hasAntiArmor);
     const damageText = damageNotes(outcome);
     const alertText = outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : "";
     const writeOutcome = (armorUpdates) => {

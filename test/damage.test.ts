@@ -3,6 +3,7 @@ import {
 } from "vitest";
 
 import { DamageTypes } from "../src/game/enums";
+import { DESTROYED } from "../src/ts/rules/armor";
 import {
   MAX_WOUNDS_ALERT,
   applyArmor,
@@ -80,6 +81,39 @@ describe("applyArmor", () => {
       absorbed: false,
     });
   });
+
+  it("skips the Armor Points threshold and destroys armor a normal hit would have absorbed", () => {
+    const result = applyArmor(2, 5, 0, true);
+    expect(result).toEqual({
+      damage: 2,
+      armorPoints: 0,
+      armorDestroyed: true,
+      absorbed: false,
+    });
+  });
+
+  it("still subtracts Damage Reduction first when the weapon has Anti-Armor (§28.3)", () => {
+    const result = applyArmor(10, 5, 3, true);
+    expect(result.damage).toBe(7);
+    expect(result.armorDestroyed).toBe(true);
+  });
+
+  it("never reports bare skin (0 AP) as destroyed even with Anti-Armor", () => {
+    const result = applyArmor(5, 0, 0, true);
+    expect(result).toEqual({
+      damage: 5,
+      armorPoints: 0,
+      armorDestroyed: false,
+      absorbed: false,
+    });
+  });
+
+  it("can still reduce damage to zero against Anti-Armor once DR exceeds the hit", () => {
+    const result = applyArmor(2, 5, 5, true);
+    expect(result.damage).toBe(0);
+    expect(result.armorDestroyed).toBe(true);
+    expect(result.absorbed).toBe(false);
+  });
 });
 
 describe("applyDamage", () => {
@@ -119,6 +153,18 @@ describe("applyDamage", () => {
     };
     const result = applyDamage(6, state, DamageTypes.Blunt, []);
     expect(result.health).toBe(7);
+  });
+
+  it("forwards Anti-Armor so a hit under Armor Points still lands and breaks the armor", () => {
+    const state: DamageState = {
+      ...baseState,
+      armorPoints: 8,
+    };
+    const result = applyDamage(5, state, DamageTypes.Blunt, [0], true);
+    expect(result.health).toBe(5);
+    expect(result.absorbed).toBe(false);
+    expect(result.armorDestroyed).toBe(true);
+    expect(result.armorPoints).toBe(0);
   });
 
   it("gains exactly one Wound and resets to Maximum on a single overkill hit", () => {
@@ -301,7 +347,7 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
     });
   });
 
-  it("handleTakeDamage zeroes the worn Armor row's own AP/DR only when the hit destroys the armor", async () => {
+  it("handleTakeDamage marks the worn Armor row destroyed only when the hit destroys the armor", async () => {
     vi.stubGlobal("getAttrs", (request: string[], callback: (response: Record<string, string>) => void) => {
       if (request.includes("armor_points")) {
         callback({
@@ -328,6 +374,7 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
       results: {
         damage: { result: 6 },
         damage_type: { result: 0 },
+        anti_armor: { result: 0 },
         wound_roll_0: { result: 0 },
         wound_roll_1: { result: 0 },
       },
@@ -342,11 +389,60 @@ describe("Sheetworkers startRoll / finishRoll integration", () => {
 
     expect(mockSetAttrs).toHaveBeenCalledWith(
       expect.objectContaining({
-        repeating_equipment_row1_equipment_armor_points: 0,
-        repeating_equipment_row1_equipment_damage_reduction: 0,
+        repeating_equipment_row1_equipment_destroyed: DESTROYED,
       }),
     );
     expect(mockSetAttrs.mock.calls[0]?.[0]).not.toHaveProperty("armor_points");
+  });
+
+  it("handleTakeDamage reads Anti-Armor off the query and lets it break armor under threshold", async () => {
+    vi.stubGlobal("getAttrs", (request: string[], callback: (response: Record<string, string>) => void) => {
+      if (request.includes("armor_points")) {
+        callback({
+          health: "10",
+          health_max: "10",
+          wounds: "0",
+          wounds_max: "2",
+          armor_points: "8",
+          damage_reduction: "0",
+        });
+        return;
+      }
+      callback({
+        repeating_equipment_row1_equipment_type: "Armor",
+        repeating_equipment_row1_equipment_armor_points: "8",
+        repeating_equipment_row1_equipment_damage_reduction: "0",
+      });
+    });
+    vi.stubGlobal("getSectionIDs", (_section: string, callback: (ids: string[]) => void) => {
+      callback(["row1"]);
+    });
+    const mockStartRoll = vi.fn().mockResolvedValue({
+      rollId: "id",
+      results: {
+        damage: { result: 5 },
+        damage_type: { result: 0 },
+        anti_armor: { result: 1 },
+        wound_roll_0: { result: 0 },
+        wound_roll_1: { result: 0 },
+      },
+    });
+    const mockSetAttrs = vi.fn();
+    vi.stubGlobal("startRoll", mockStartRoll);
+    vi.stubGlobal("setAttrs", mockSetAttrs);
+    vi.stubGlobal("finishRoll", vi.fn());
+
+    handleTakeDamage();
+    await flush();
+
+    const formula = mockStartRoll.mock.calls[0]?.[0] as string;
+    expect(formula).toContain("{{anti_armor=[[?{Anti-Armor?|No,0|Yes,1}]]}}");
+    expect(mockSetAttrs).toHaveBeenCalledWith(
+      expect.objectContaining({
+        health: 5,
+        repeating_equipment_row1_equipment_destroyed: DESTROYED,
+      }),
+    );
   });
 
   it("handleTakeDamage surfaces the Death Save prompt once Wounds reach Maximum", async () => {

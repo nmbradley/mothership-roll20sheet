@@ -2,6 +2,7 @@ import {
   describe, it, expect, vi, afterEach,
 } from "vitest";
 
+import { DESTROYED } from "../src/ts/rules/armor";
 import {
   destroyedArmorUpdates,
   destroyWornArmor,
@@ -125,7 +126,7 @@ describe("sumArmor", () => {
 });
 
 describe("destroyedArmorUpdates", () => {
-  it("zeroes every worn Armor row's own AP and DR", () => {
+  it("marks every worn, undestroyed Armor row destroyed", () => {
     const rows: EquipmentRow[] = [
       {
         id: "row1",
@@ -137,8 +138,7 @@ describe("destroyedArmorUpdates", () => {
       },
     ];
     expect(destroyedArmorUpdates(rows)).toEqual({
-      repeating_equipment_row1_equipment_armor_points: 0,
-      repeating_equipment_row1_equipment_damage_reduction: 0,
+      repeating_equipment_row1_equipment_destroyed: DESTROYED,
     });
   });
 
@@ -156,14 +156,28 @@ describe("destroyedArmorUpdates", () => {
     expect(destroyedArmorUpdates(rows)).toEqual({});
   });
 
-  it("skips an Armor row that is already at 0/0", () => {
+  it("skips an Armor row that is already destroyed", () => {
     const rows: EquipmentRow[] = [
       {
         id: "row1",
         type: "Armor",
-        armorPoints: 0,
-        damageReduction: 0,
+        armorPoints: 5,
+        damageReduction: 3,
         equipped: true,
+        destroyed: true,
+      },
+    ];
+    expect(destroyedArmorUpdates(rows)).toEqual({});
+  });
+
+  it("skips an unequipped Armor row (#220)", () => {
+    const rows: EquipmentRow[] = [
+      {
+        id: "row1",
+        type: "Armor",
+        armorPoints: 5,
+        damageReduction: 3,
+        equipped: false,
         destroyed: false,
       },
     ];
@@ -321,7 +335,7 @@ describe("Sheetworkers getSectionIDs / getAttrs integration", () => {
     expect(calls).toEqual(["getSectionIDs", "getAttrs", "setAttrs"]);
   });
 
-  it("destroyWornArmor reads the current rows and returns the zeroing updates", async () => {
+  it("destroyWornArmor reads the current rows and returns the destroyed-flag updates", async () => {
     vi.stubGlobal("getSectionIDs", (_section: string, callback: (ids: string[]) => void) => {
       callback(["row1"]);
     });
@@ -333,14 +347,34 @@ describe("Sheetworkers getSectionIDs / getAttrs integration", () => {
       });
     });
 
-    let updates: Record<string, number> = {};
+    let updates: Record<string, string> = {};
     destroyWornArmor((result) => {
       updates = result;
     });
 
     expect(updates).toEqual({
-      repeating_equipment_row1_equipment_armor_points: 0,
-      repeating_equipment_row1_equipment_damage_reduction: 0,
+      repeating_equipment_row1_equipment_destroyed: DESTROYED,
     });
+  });
+
+  it("destroyWornArmor skips an unequipped Armor row (#220)", async () => {
+    vi.stubGlobal("getSectionIDs", (_section: string, callback: (ids: string[]) => void) => {
+      callback(["row1"]);
+    });
+    vi.stubGlobal("getAttrs", (_request: string[], callback: (response: Record<string, string>) => void) => {
+      callback({
+        repeating_equipment_row1_equipment_type: "Armor",
+        repeating_equipment_row1_equipment_armor_points: "5",
+        repeating_equipment_row1_equipment_damage_reduction: "3",
+        repeating_equipment_row1_equipment_equipped: "0",
+      });
+    });
+
+    let updates: Record<string, string> = {};
+    destroyWornArmor((result) => {
+      updates = result;
+    });
+
+    expect(updates).toEqual({});
   });
 });

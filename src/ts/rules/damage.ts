@@ -46,10 +46,11 @@ export function applyArmor(
   hit: number,
   armorPoints: number,
   damageReduction: number,
+  antiArmor = false,
 ): ArmorOutcome {
   const reduced = Math.max(0, hit - damageReduction);
 
-  if (reduced < armorPoints) {
+  if (!antiArmor && reduced < armorPoints) {
     return {
       damage: 0,
       armorPoints,
@@ -83,8 +84,9 @@ export function applyDamage(
   state: DamageState,
   damageType: DamageType,
   woundDice: readonly number[],
+  antiArmor = false,
 ): DamageOutcome {
-  const armor = applyArmor(hit, state.armorPoints, state.damageReduction);
+  const armor = applyArmor(hit, state.armorPoints, state.damageReduction, antiArmor);
 
   let health = state.health - armor.damage;
   let wounds = state.wounds;
@@ -191,6 +193,11 @@ function readDamageType(index: number): DamageType {
   return allDamageTypes[index] ?? DamageTypes.Blunt;
 }
 
+/** The Anti-Armor query, asked so a defender can apply what the attacker's card said. */
+function antiArmorQuery(): string {
+  return "?{Anti-Armor?|No,0|Yes,1}";
+}
+
 function readDamageState(done: (state: DamageState) => void): void {
   getAttrs(
     ["health", "health_max", "wounds", "wounds_max", "armor_points", "damage_reduction"],
@@ -251,6 +258,7 @@ async function rollTakeDamage(state: DamageState): Promise<void> {
     "{{damage=[[?{Damage?|0}]]}}",
     "{{hasdamage=[[0]]}}",
     `{{damage_type=[[${damageTypeQuery()}]]}}`,
+    `{{anti_armor=[[${antiArmorQuery()}]]}}`,
     ...diceFields.map((field) => `{{${field}=[[1d10-1]]}}`),
     "{{notes=[[0]]}} {{hasnotes=[[0]]}}",
     "{{alert=[[0]]}} {{hasalert=[[0]]}}",
@@ -262,13 +270,14 @@ async function rollTakeDamage(state: DamageState): Promise<void> {
   if (damageEntry === undefined || typeEntry === undefined) return;
 
   const damageType = readDamageType(typeEntry.result);
+  const hasAntiArmor = rollData.results.anti_armor?.result === 1;
   const woundDice = diceFields.map((field) => rollData.results[field]?.result ?? 0);
-  const outcome = applyDamage(damageEntry.result, state, damageType, woundDice);
+  const outcome = applyDamage(damageEntry.result, state, damageType, woundDice, hasAntiArmor);
 
   const damageText = damageNotes(outcome);
   const alertText = outcome.requiresDeathSave ? MAX_WOUNDS_ALERT : "";
 
-  const writeOutcome = (armorUpdates: Record<string, number>): void => {
+  const writeOutcome = (armorUpdates: Record<string, string>): void => {
     setAttrs({
       health: outcome.health,
       wounds: outcome.wounds,
