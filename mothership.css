@@ -329,9 +329,9 @@ body.sheet-darkmode
 }
 .sheet-rolltemplate-ms .sheet-ms-readout__label::before,
 .sheet-rolltemplate-ms-cm .sheet-ms-readout__label::before {
-  content: "adjust";
+  content: "target";
   display: block;
-  font-size: 0.95rem;
+  font-size: 1.425rem;
   line-height: 1;
   font-family: "Material Symbols Outlined", "Material Icons";
   font-weight: 400;
