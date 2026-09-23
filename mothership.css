@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css?family=Archivo:400,700,800,900|IBM+Plex+Mono:400|Material+Icons&display=swap");
+@import url("https://fonts.googleapis.com/css?family=Archivo:400,700,800,900|IBM+Plex+Mono:400|Material+Icons|Material+Symbols+Outlined&display=swap");
 .charsheet,
 .sheet-rolltemplate-ms,
 .sheet-rolltemplate-ms-cm {
@@ -347,7 +347,7 @@ body.sheet-darkmode
 .sheet-rolltemplate-ms-cm
   .sheet-ms-readout--damage
   .sheet-ms-readout__label::before {
-  content: "whatshot";
+  content: "explosion";
 }
 .sheet-rolltemplate-ms .sheet-ms-readout__value,
 .sheet-rolltemplate-ms-cm .sheet-ms-readout__value {
