@@ -187,7 +187,6 @@ body.sheet-darkmode
   --ms-text-xl: 1.25em;
   --ms-text-2xl: 2.15em;
   --ms-roll-w: 3.6em;
-  --ms-roll-h: var(--ms-roll-w);
 }
 .sheet-rolltemplate-ms .inlinerollresult,
 .sheet-rolltemplate-ms .importantroll,
@@ -239,9 +238,14 @@ body.sheet-darkmode
   min-width: 0;
 }
 .sheet-rolltemplate-ms .sheet-ms-result__right {
+  display: grid;
+  grid-template-rows: 1fr min-content;
   grid-column: 2;
   grid-row: 1;
+  gap: var(--ms-space-sm);
+  margin-top: var(--ms-space-lg);
   width: var(--ms-roll-w);
+  aspect-ratio: 1/1;
 }
 .sheet-rolltemplate-ms .sheet-ms-result__bottom {
   display: grid;
@@ -264,7 +268,7 @@ body.sheet-darkmode
   color: var(--ms-fg-inverse);
 }
 .sheet-rolltemplate-ms .sheet-ms-result__title {
-  margin-left: calc(var(--ms-space-sm) * -1);
+  margin: 0 0 var(--ms-space-md) calc(var(--ms-space-sm) * -1);
 }
 .sheet-rolltemplate-ms-cm .sheet-ms-result__title {
   margin: calc(var(--ms-space-xl) * -1) 0 var(--ms-space-lg)
@@ -335,10 +339,8 @@ body.sheet-darkmode
   background: var(--ms-surface);
 }
 .sheet-rolltemplate-ms .sheet-ms-roll {
-  margin-top: var(--ms-space-lg);
-  width: 100%;
-  height: var(--ms-roll-h);
-  padding: 0 0.2em;
+  min-height: 0;
+  padding: var(--ms-space-sm);
 }
 .sheet-rolltemplate-ms-cm .sheet-ms-roll {
   margin: 0 auto var(--ms-space-lg);

@@ -44,31 +44,30 @@
       </div>
       {{/roll}}
 
+      <div class="sheet-ms-readouts">
+      {{#target}}
+      <div class="sheet-ms-readout">
+        <div class="sheet-ms-readout__label" data-i18n="Target">Target</div>
+        <div class="sheet-ms-readout__value">{{target}}</div>
+      </div>
+      {{/target}}
+
+      {{#rollTotal() computed::hasdamage 1}}
+      <div class="sheet-ms-readout sheet-ms-readout--damage">
+        <div class="sheet-ms-readout__label" data-i18n="Damage">Damage</div>
+        <div class="sheet-ms-readout__value">{{damage}}</div>
+      </div>
+      {{/rollTotal() computed::hasdamage 1}}
+
+      {{#antiarmor}}
+      <div class="sheet-ms-readout">
+        <div class="sheet-ms-readout__label" data-i18n="AntiArmor">Anti-Armor</div>
+        <div class="sheet-ms-readout__value">✓</div>
+      </div>
+      {{/antiarmor}}
+      </div>
     </div>
     <div class="sheet-ms-result__bottom">
-
-      <div class="sheet-ms-readouts">
-        {{#target}}
-        <div class="sheet-ms-readout">
-          <div class="sheet-ms-readout__label" data-i18n="Target">Target</div>
-          <div class="sheet-ms-readout__value">{{target}}</div>
-        </div>
-        {{/target}}
-
-        {{#rollTotal() computed::hasdamage 1}}
-        <div class="sheet-ms-readout sheet-ms-readout--damage">
-          <div class="sheet-ms-readout__label" data-i18n="Damage">Damage</div>
-          <div class="sheet-ms-readout__value">{{damage}}</div>
-        </div>
-        {{/rollTotal() computed::hasdamage 1}}
-
-        {{#antiarmor}}
-        <div class="sheet-ms-readout">
-          <div class="sheet-ms-readout__label" data-i18n="AntiArmor">Anti-Armor</div>
-          <div class="sheet-ms-readout__value">✓</div>
-        </div>
-        {{/antiarmor}}
-      </div>
 
       {{#rollTotal() computed::rank 4}}
       <div class="sheet-ms-verdict sheet-ms-verdict--critical-success">{{computed::verdict}}</div>
