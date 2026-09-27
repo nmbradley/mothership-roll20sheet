@@ -48,7 +48,7 @@ $cm: ".sheet-rolltemplate-ms-cm";
   @include ms {
     display: grid;
     grid-template-columns: minmax(0, 1fr) var(--ms-roll-w);
-    grid-template-rows: auto auto auto auto;
+    grid-template-rows: auto auto;
     row-gap: 0;
     column-gap: var(--ms-space-md);
     align-items: start;
@@ -58,6 +58,34 @@ $cm: ".sheet-rolltemplate-ms-cm";
 
   @include cm {
     padding: var(--ms-space-xl);
+  }
+
+  &__left {
+    @include ms {
+      grid-column: 1;
+      grid-row: 1;
+
+      min-width: 0;
+    }
+  }
+
+  &__right {
+    @include ms {
+      grid-column: 2;
+      grid-row: 1;
+
+      width: var(--ms-roll-w);
+    }
+  }
+
+  &__bottom {
+    @include ms {
+      display: grid;
+      grid-auto-rows: min-content;
+      grid-column: 1 / -1;
+      grid-row: 2;
+      gap: var(--ms-space-sm);
+    }
   }
 
   &__title {
@@ -77,8 +105,6 @@ $cm: ".sheet-rolltemplate-ms-cm";
     }
 
     @include ms {
-      grid-area: 1 / 1;
-
       margin-left: calc(var(--ms-space-sm) * -1);
     }
 
@@ -90,9 +116,6 @@ $cm: ".sheet-rolltemplate-ms-cm";
 
   &__subtitle {
     @include roots {
-      grid-column: 1;
-      grid-row: 2;
-
       margin: 0 0 0.2em;
       min-width: 0;
       padding: 0;
@@ -115,9 +138,6 @@ $cm: ".sheet-rolltemplate-ms-cm";
 
   &__skill {
     @include roots {
-      grid-column: 1;
-      grid-row: 3;
-
       margin: 0 0 var(--ms-space-md);
       min-width: 0;
       padding: 0;
@@ -136,9 +156,6 @@ $cm: ".sheet-rolltemplate-ms-cm";
 
   &__weapon {
     @include roots {
-      grid-column: 1;
-      grid-row: 4;
-
       margin: 0 0 var(--ms-space-md);
       min-width: 0;
       padding: 0;
@@ -175,12 +192,8 @@ $cm: ".sheet-rolltemplate-ms-cm";
   }
 
   @include ms {
-    grid-area: 1 / 2 / 6 / 3;
-    align-self: start;
-    justify-self: stretch;
-
     margin-top: var(--ms-space-lg);
-    width: var(--ms-roll-w);
+    width: 100%;
     height: var(--ms-roll-h);
     padding: 0 0.2em;
   }
@@ -191,13 +204,6 @@ $cm: ".sheet-rolltemplate-ms-cm";
     max-width: 60%;
     height: auto;
     padding: var(--ms-space-sm) var(--ms-space-lg);
-  }
-
-  &:has(+ .sheet-ms-readouts > .sheet-ms-readout) {
-    @include ms {
-      border-bottom: 0;
-      border-radius: var(--ms-radius-lg) var(--ms-radius-lg) 0 0;
-    }
   }
 
   &:has(&--spent) &--used {
@@ -259,14 +265,8 @@ $cm: ".sheet-rolltemplate-ms-cm";
 .sheet-ms-readouts {
   @include ms {
     display: grid;
-    grid-area: 1 / 2 / 6 / 3;
     grid-auto-rows: min-content;
     gap: var(--ms-space-sm);
-    align-self: start;
-    justify-self: stretch;
-
-    margin-top: calc(var(--ms-roll-h) + var(--ms-space-lg));
-    width: var(--ms-roll-w);
   }
 
   &:not(:has(.sheet-ms-readout)) {
@@ -275,11 +275,6 @@ $cm: ".sheet-rolltemplate-ms-cm";
     }
   }
 
-  .sheet-ms-result:not(:has(.sheet-ms-roll)) & {
-    @include ms {
-      margin-top: var(--ms-space-lg);
-    }
-  }
 }
 
 .sheet-ms-readout {
@@ -394,7 +389,6 @@ $cm: ".sheet-rolltemplate-ms-cm";
   }
 
   @include ms {
-    grid-row: 5;
   }
 
   .fullcrit,
@@ -459,7 +453,6 @@ $cm: ".sheet-rolltemplate-ms-cm";
   }
 
   @include ms {
-    grid-row: 6;
   }
 }
 
@@ -486,7 +479,6 @@ $cm: ".sheet-rolltemplate-ms-cm";
   }
 
   @include ms {
-    grid-row: 7;
   }
 
   .fullcrit,
