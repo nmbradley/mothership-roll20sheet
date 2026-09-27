@@ -4,17 +4,16 @@
     affliction_name,
     affliction_settings,
     affliction_treated,
-    bleeding,
     cryosick,
     health,
     pcAfflictions,
-    radiation_level,
     stress,
     stress_effect,
     stress_min,
     wounds,
   } from "#game/fields/pcFields.js";
   import Attribute from "#svelte/components/Attribute.svelte";
+  import AttributeHidden from "#svelte/components/AttributeHidden.svelte";
   import AttributeNumberMax from "#svelte/components/AttributeNumberMax.svelte";
   import ButtonAction from "#svelte/components/ButtonAction.svelte";
   import Panel from "#svelte/components/Panel.svelte";
@@ -108,26 +107,7 @@
     </RepeatingSection>
   </div>
 
-  <div class="pc-survival">
-    <div class="pc-survival__row">
-      <Attribute field={bleeding} />
-      <div class="pc-survival__buttons">
-        <ButtonAction action="apply_bleeding" label="Apply Bleeding" />
-        <ButtonAction action="stop_bleeding" label="Stop Bleeding" />
-      </div>
-    </div>
-
-    <div class="pc-survival__row">
-      <Attribute field={radiation_level} />
-      <div class="pc-survival__buttons">
-        <ButtonAction action="apply_radiation" label="Apply Radiation" />
-      </div>
-    </div>
-
-    <div class="pc-survival__row">
-      <Attribute field={cryosick} />
-    </div>
-  </div>
+  <AttributeHidden field={cryosick} />
 </Panel>
 
 <style lang="scss">
@@ -241,22 +221,4 @@
   }
 }
 
-.pc-survival {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ms-space-sm);
-
-  margin-top: var(--ms-space-lg);
-}
-
-.pc-survival__row {
-  display: flex;
-  gap: var(--ms-space-md);
-  align-items: flex-end;
-}
-
-.pc-survival__buttons {
-  display: flex;
-  gap: var(--ms-space-sm);
-}
 </style>
