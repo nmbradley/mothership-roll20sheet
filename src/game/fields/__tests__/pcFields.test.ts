@@ -192,9 +192,9 @@ describe("pcFields", () => {
     expect(pcAttributes.radiation_level.value).toBe("trace");
   });
 
-  it("exports the Cryosick toggle, unchecked by default (32.3)", () => {
+  it("keeps Cryosick as a hidden field so every roll macro can resolve it (32.3)", () => {
     expect(pcAttributes.cryosick.name).toBe("cryosick");
-    expect(pcAttributes.cryosick.control).toBe("checkbox");
-    expect(pcAttributes.cryosick.checkedValue).toBe(1);
+    expect(pcAttributes.cryosick.control).toBe("hidden");
+    expect(pcAttributes.cryosick.value).toBe("0");
   });
 });

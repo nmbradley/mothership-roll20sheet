@@ -299,8 +299,8 @@ export const radiation_penalty_rounds = attribute({
 export const cryosick = attribute({
   name: "cryosick",
   label: "Cryosick",
-  control: Controls.Checkbox,
-  checkedValue: 1,
+  control: Controls.Hidden,
+  value: "0",
 });
 
 export const pcAttributes = {
