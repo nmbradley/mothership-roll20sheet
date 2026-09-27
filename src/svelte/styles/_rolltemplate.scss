@@ -14,7 +14,6 @@ $cm: ".sheet-rolltemplate-ms-cm";
   --ms-text-2xl: 2.15em;
 
   --ms-roll-w: 3.6em;
-  --ms-roll-h: var(--ms-roll-w); // square: the footer offset reads this
 
   .inlinerollresult,
   .importantroll,
@@ -71,10 +70,15 @@ $cm: ".sheet-rolltemplate-ms-cm";
 
   &__right {
     @include ms {
+      display: grid;
+      grid-template-rows: 1fr min-content;
       grid-column: 2;
       grid-row: 1;
+      gap: var(--ms-space-sm);
 
+      margin-top: var(--ms-space-lg);
       width: var(--ms-roll-w);
+      aspect-ratio: 1 / 1;
     }
   }
 
@@ -105,7 +109,7 @@ $cm: ".sheet-rolltemplate-ms-cm";
     }
 
     @include ms {
-      margin-left: calc(var(--ms-space-sm) * -1);
+      margin: 0 0 var(--ms-space-md) calc(var(--ms-space-sm) * -1);
     }
 
     @include cm {
@@ -192,10 +196,8 @@ $cm: ".sheet-rolltemplate-ms-cm";
   }
 
   @include ms {
-    margin-top: var(--ms-space-lg);
-    width: 100%;
-    height: var(--ms-roll-h);
-    padding: 0 0.2em;
+    min-height: 0;
+    padding: var(--ms-space-sm);
   }
 
   @include cm {
